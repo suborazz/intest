@@ -283,8 +283,10 @@ export async function GET(
 
     const { id } = await params;
 
-    const registration = await prisma.instructorRegistration.findUnique({
-      where: { id },
+    const registration = await prisma.instructorRegistration.findFirst({
+      where: {
+        OR: [{ id }, { instructorId: id }],
+      },
       include: {
         qualifications: true,
         user: { select: { id: true, email: true, name: true, isActive: true } },
