@@ -1,0 +1,1457 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+// ── User ──────────────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  IMMERSION_USER
+  SUPER_ADMIN
+  RECRUIT_USER
+}
+
+model User {
+  id                        String    @id @default(cuid())
+  email                     String    @unique
+  mobile                    String    @default("")
+  name                      String?
+  passwordHash              String
+  role                      UserRole  @default(STUDENT)
+  registrationNo            String?   @unique
+  isActive                  Boolean   @default(true)
+  passwordResetToken        String?   @unique
+  passwordResetTokenExpires DateTime?
+  deletedAt                 DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  // Relations
+  internships               Internship[]
+  payments                  Payment[]
+  enrollments               Enrollment[]
+  jobOpportunities          JobOpportunity[] @relation("UserJobOpportunities")
+  jobApplications           JobApplication[] @relation("UserJobApplications")
+  mentoredInternships       Internship[]     @relation("InternshipInstructor")
+  studentCertificates       Certificate[]    @relation("StudentCertificates")
+  issuedCertificates        Certificate[]    @relation("IssuedCertificates")
+  internshipApplications    InternshipApplication[] @relation("StudentApplications")
+  reviewedApplications      InternshipApplication[] @relation("ReviewedApplications")
+  idCards                   IdCard[]
+  instructorProfile         InstructorProfile?
+  studentRegistration       StudentRegistration?
+  instructorRegistration    InstructorRegistration?
+  instructorIdCard          InstructorIdCard?    @relation("InstructorIdCard")
+
+
+  sentFeedbacks             Feedback[]              @relation("SentFeedback")
+  receivedFeedbacks         Feedback[]              @relation("ReceivedFeedback")
+  supportTickets            SupportTicket[]
+
+  instructedImmersions      Immersion[]             @relation("InstructorImmersions")
+  sentNotices               Notice[]                @relation("SentNotices")
+  receivedNotices           Notice[]                @relation("ReceivedNotices")
+  gradedSubmissions         ProjectSubmission[]     @relation("GradedSubmissions")
+  immersionRegistrations    ImmersionRegistration[]     @relation("StudentImmersions")
+  issuedImmersionCerts      ImmersionCertificate[]      @relation("IssuedImmersionCerts")
+
+  // Immersion Participant Relations
+  immersionParticipantProfile ImmersionParticipantProfile?
+  immersionApplications       ImmersionApplication[]      @relation("ParticipantApplications")
+  mentorAssignments           ImmersionApplication[]      @relation("AssignedMentorApplications")
+
+  // Recruiter Relations
+  recruitProfile              RecruitProfile?
+
+  @@index([email])
+  @@index([passwordResetToken])
+  @@map("users")
+}
+
+// ── Internship ────────────────────────────────────────────────
+
+enum InternshipType {
+  PAID
+  STIPEND
+  FREE
+}
+
+enum InternshipMode {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
+enum InternshipCategory {
+  RUNNING
+  ON_CAMPUS
+  VIRTUAL
+}
+
+model Internship {
+  id                String             @id @default(cuid())
+  code              String?            @unique
+  title             String
+  description       String
+  companyName       String
+  location          String
+  mode              InternshipMode     @default(OFFLINE)
+  type              InternshipType
+  category          InternshipCategory @default(RUNNING)
+  department        String?
+  modules           String[]
+  projectFocus      String?
+  tools             String[]
+  skills            String[]
+  credits           String?
+  qualification     String?
+  timePeriod        String?
+  facilities        String?
+  careerOpportunity String?
+  contact           String?
+  organizer         String?
+  lastDate          DateTime?
+  price             Float?
+  stipendAmount     Float?
+  duration          String
+  isActive          Boolean            @default(true)
+  isApproved        Boolean            @default(true)
+  approvedAt        DateTime?
+  startDate         DateTime?
+  onboardingDetails String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  
+  createdById    String
+  createdBy      User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  payments       Payment[]
+  enrollments    Enrollment[]
+  applications   InternshipApplication[]
+
+  instructorId   String?
+  instructor     User?                   @relation("InternshipInstructor", fields: [instructorId], references: [id], onDelete: SetNull)
+  certificates   Certificate[]
+  interests      InternshipInterest[]
+
+  @@index([type])
+  @@index([mode])
+  @@index([category])
+  @@index([createdById])
+  @@index([instructorId])
+  @@map("internships")
+}
+
+model InternshipInterest {
+  id           String     @id @default(cuid())
+  internshipId String
+  name         String
+  address      String
+  education    String
+  mobile       String
+  email        String
+  createdAt    DateTime   @default(now())
+
+  internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+
+  @@index([internshipId])
+  @@map("internship_interests")
+}
+
+// ── Payments & Enrollments ────────────────────────────────────
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  refundId          String?       @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  internshipId      String
+  internship        Internship    @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  
+  enrollment        Enrollment?
+
+  @@index([userId])
+  @@index([internshipId])
+  @@map("payments")
+}
+
+model Enrollment {
+  id            String     @id @default(cuid())
+  createdAt     DateTime   @default(now())
+  completedAt   DateTime?  // Set by SUPER_ADMIN when internship is completed
+
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  internshipId  String
+  internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  
+  paymentId     String?    @unique
+  payment       Payment?   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  certificate   Certificate?
+  idCard        IdCard?
+  feedbacks     Feedback[]
+  submissions   ProjectSubmission[]
+
+  @@unique([userId, internshipId])
+  @@index([userId])
+  @@index([internshipId])
+  @@map("enrollments")
+}
+
+// ── Certificate ────────────────────────────────────────────────
+
+model Certificate {
+  id            String     @id @default(cuid())
+  certificateNo String     @unique // e.g. "CERT-2026-0001"
+  issuedAt      DateTime   @default(now())
+  signatureUrl  String?
+  grade         String?    // e.g. "A", "B+", "Distinction"
+  credits       String?    // e.g. "6 Credits", "3 ECTS"
+
+  studentId     String
+  student       User       @relation("StudentCertificates", fields: [studentId], references: [id], onDelete: Cascade)
+
+  internshipId  String
+  internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+
+  enrollmentId  String     @unique
+  enrollment    Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  issuedById    String
+  issuedBy      User       @relation("IssuedCertificates", fields: [issuedById], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([internshipId])
+  @@map("certificates")
+}
+
+// ── Internship Applications ────────────────────────────────────
+
+enum ApplicationStatus {
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  WAITING
+}
+
+model InternshipApplication {
+  id             String            @id @default(cuid())
+  code           String?           @unique
+  status         ApplicationStatus @default(UNDER_REVIEW)
+  appliedAt      DateTime          @default(now())
+  reviewedAt     DateTime?
+  reviewNote     String?           // Rejection reason or approval note
+  updatedAt      DateTime          @updatedAt
+
+  studentId      String
+  student        User              @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
+
+  internshipId   String
+  internship     Internship        @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+
+  reviewedById   String?
+  reviewedBy     User?             @relation("ReviewedApplications", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  enrollmentId   String?           @unique  // Created only after approval
+
+  @@unique([studentId, internshipId])        // One application per student per internship
+  @@index([internshipId])
+  @@index([studentId])
+  @@index([status])
+  @@map("internship_applications")
+}
+
+// ── ID Cards ───────────────────────────────────────────────────
+
+model IdCard {
+  id           String     @id @default(cuid())
+  cardNo       String     @unique // Format: "ID-YYYY-NNNN"
+  issuedAt     DateTime   @default(now())
+
+  studentId    String
+  student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  enrollmentId String     @unique
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("id_cards")
+}
+
+// ── Instructor ID Cards ─────────────────────────────────────────
+
+model InstructorIdCard {
+  id           String   @id @default(cuid())
+  cardNo       String   @unique // Format: "IID-YYYY-NNNN"
+  issuedAt     DateTime @default(now())
+
+  userId       String   @unique
+  user         User     @relation("InstructorIdCard", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("instructor_id_cards")
+}
+
+
+// ── Instructor Profiles ────────────────────────────────────────
+
+model InstructorProfile {
+  id             String            @id @default(cuid())
+  userId         String            @unique
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  qualification  String
+  experience     String
+  specialization String
+  bio            String?
+  resumeUrl      String?           // File path to uploaded resume PDF
+  resumePublicId String?
+
+  isApproved     Boolean           @default(false)
+  approvedAt     DateTime?
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([userId])
+  @@map("instructor_profiles")
+}
+
+// ── Job Opportunities & Applications ──────────────────────────
+
+model JobOpportunity {
+  id                 String           @id @default(cuid())
+  companyName        String
+  address            String
+  postOpportunity    String           // e.g. Software Engineer
+  jobNature          String           // e.g. Full Time / Part Time
+  fieldOfEmployment  String           // e.g. IT / Software Development
+  minQualification   String           // e.g. B.Tech / MCA
+  skillsRequired     String?          // e.g. React, Node.js, TypeScript
+  totalStaffStrength String?          // e.g. 500+ Staff
+  website            String?          // e.g. https://example.com
+  logoUrl            String?          // URL to the logo file
+  logoPublicId       String?
+  isActive           Boolean          @default(true)
+  
+  // Advertisement & Job Description fields
+  advtNo             String?          // e.g. "II/2026/01"
+  advtDate           String?          // e.g. "15-May-2026"
+  closingDate        String?          // e.g. "30-June-2026"
+  jdDocUrl           String?          // URL to uploaded JD PDF/Doc
+  jdDocPublicId      String?          // Cloudinary publicId for JD raw file
+  jdDescription      String?          // Rich-text (HTML) JD, alternative to the PDF
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+
+  createdById        String
+  createdBy          User             @relation("UserJobOpportunities", fields: [createdById], references: [id], onDelete: Cascade)
+  applications       JobApplication[]
+
+  @@index([createdById])
+  @@map("job_opportunities")
+}
+
+enum JobApplicationStatus {
+  PENDING
+  REVIEWING
+  SHORTLISTED
+  REJECTED
+}
+
+model JobApplication {
+  id               String               @id @default(cuid())
+  jobOpportunityId String
+  jobOpportunity   JobOpportunity       @relation(fields: [jobOpportunityId], references: [id], onDelete: Cascade)
+  name             String
+  age              Int
+  address          String
+  mobile           String
+  email            String
+  qualification    String
+  skills           String?
+  resumeUrl        String               // URL to the uploaded resume
+  resumePublicId   String?
+  status           JobApplicationStatus @default(PENDING)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  deletedAt        DateTime?
+
+  userId           String?
+  user             User?                @relation("UserJobApplications", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([jobOpportunityId])
+  @@index([userId])
+  @@map("job_applications")
+}
+
+// ── Media Management ──────────────────────────────────────────
+
+model MediaPhoto {
+  id          String    @id @default(cuid())
+  url          String    // Path to uploaded image
+  filePublicId String?
+  title        String
+  date         String    // e.g. "June 10, 2026"
+  description  String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@map("media_photos")
+}
+
+model MediaVideo {
+  id          String    @id @default(cuid())
+  youtubeId   String    // YouTube Video ID (e.g. "dQw4w9WgXcQ")
+  title       String
+  date        String    // e.g. "June 26, 2026"
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("media_videos")
+}
+
+model MediaNewspaper {
+  id          String    @id @default(cuid())
+  title       String
+  publication String    // e.g. "The Daily Tech"
+  date        String    // e.g. "June 15, 2026"
+  description String
+  imageUrl    String    // Path to uploaded newspaper clipping image
+  filePublicId String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("media_newspapers")
+}
+
+model MediaOnlineLink {
+  id        String    @id @default(cuid())
+  slNo      String    // e.g. "01"
+  date      String    // e.g. "June 20, 2026"
+  headline  String
+  agency    String    // e.g. "TechCrunch"
+  link      String    // URL link
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("media_online_links")
+}
+
+// ── Blog / Success Story Management ──────────────────────────
+
+model Blog {
+  id          String    @id @default(cuid())
+  title       String
+  content     String    @db.Text             // Rich Text (HTML) from editor
+  category    String                         // e.g. "YOGA AND MEDITATION", "WOMEN'S EMPOWERMENT"
+  serialNo    String?                        // e.g. "ESI No. 3"
+  date        String                         // e.g. "Thu Mar 19 2026"
+  location    String?                        // e.g. "Thekma, Azamgarh, Uttar Pradesh"
+  authorName  String                         // e.g. "Dr. Avishek Kumar"
+  authorRole  String?                        // e.g. "Chief Managing Director"
+  authorEmail String?                        // e.g. "author@example.com"
+  imageUrl    String?                        // Banner / Header Image Url
+  imagePublicId String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?                      // Soft deletion support
+
+  @@map("blogs")
+}
+
+// ── Review & Testimonials ─────────────────────────────────────
+
+model Review {
+  id          String    @id @default(cuid())
+  name        String                         // Reviewer's name
+  email       String                         // Reviewer's email (for tracking)
+  role        String?                        // e.g. "Candidate", "Instructor", "Student"
+  rating      Int                            // Rating 1 to 5 stars
+  comment     String    @db.Text             // Review content
+  avatarUrl   String?                        // Profile picture of reviewer (optional)
+  isApproved  Boolean   @default(false)      // Approved status
+  approvedAt  DateTime?                      // Approval timestamp
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?                      // Soft deletion support
+
+  @@index([isApproved])
+  @@map("reviews")
+}
+
+// ── Donation Management ───────────────────────────────────────
+
+model Donation {
+  id                String        @id @default(cuid())
+  amount            Float                          // Amount in INR
+  donorName         String                         // Name of donor
+  email             String                         // Contact email
+  mobile            String                         // Mobile number
+  address           String                         // Full physical address
+  notes             String?       @db.Text         // Anything else / comments
+  wants80G          Boolean       @default(false)  // If user wants tax certificate
+  panNumber         String?                        // PAN Card Number (Mandatory for 80G)
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  status            PaymentStatus @default(PENDING) // PENDING, COMPLETED, FAILED
+  receiptPath       String?                        // Path to generated PDF file
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([status])
+  @@map("donations")
+}
+
+
+// ── Student Registration ─────────────────────────────────────
+
+enum Gender {
+  Male
+  Female
+  Transgender
+}
+
+enum AcademicStatus {
+  Pass_Out @map("Pass Out")
+  Persuing
+}
+
+enum InternshipGoal {
+  Job
+  Freelancing
+  Higher_Studies    @map("Higher Studies")
+  Startup
+  Skill_Enhancement @map("Skill Enhancement")
+  Other
+}
+
+model StudentAcademic {
+  id             String              @id @default(cuid())
+  qualification  String
+  stream         String
+  subject        String
+  instituteName  String
+  universityName String
+  sessionYear    String
+  gradeDivision  String
+  status         AcademicStatus
+
+  registrationId String
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([registrationId])
+  @@map("student_academics")
+}
+
+model StudentRegistration {
+  id               String         @id @default(cuid())
+  studentId        String         @unique  // e.g. "S2026AK45901"
+
+  // Personal Info
+  fullName         String
+  fatherName       String
+  motherName       String
+  dob              String         // "YYYY-MM-DD"
+  gender           Gender
+  category         String
+
+  // Local Address
+  localAddressLocal    String
+  localAddressBlock    String?
+  localAddressDistrict String
+  localAddressState    String
+  localAddressCountry  String
+  localAddressPinCode  String
+
+  // Permanent Address
+  sameAsLocal          Boolean  @default(false)
+  permAddressLocal     String
+  permAddressBlock     String?
+  permAddressDistrict  String
+  permAddressState     String
+  permAddressCountry   String
+  permAddressPinCode   String
+
+  // Contact & Goals
+  mobileNo         String
+  internshipGoal   InternshipGoal
+  aadharNo         String?
+
+  // Photo & Signature (Stored as local URLs)
+  photoUrl         String
+  photoPublicId    String?
+  photoName        String
+  signatureUrl     String
+  signaturePublicId String?
+  signatureName    String
+
+  // Terms & Timestamps
+  agreeTerms       Boolean
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?   // Soft delete
+
+  // Relation to User
+  userId           String   @unique   // One registration per user
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  academics        StudentAcademic[]
+  skills           StudentSkill[]
+
+  @@index([userId])
+  @@index([studentId])
+  @@map("student_registrations")
+}
+
+model StudentSkill {
+  id             String              @id @default(cuid())
+  skillName      String
+  description    String              @db.Text
+  certifyingBody String?
+  certYear       String?
+
+  registrationId String
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([registrationId])
+  @@map("student_skills")
+}
+
+// ── Instructor Registration ───────────────────────────────────
+
+model InstructorQualification {
+  id                   String                 @id @default(cuid())
+  highestQualification String
+  specialization       String
+  universityName       String
+  yearOfCompletion     String
+  percentage           String
+
+  registrationId       String
+  registration         InstructorRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([registrationId])
+  @@map("instructor_qualifications")
+}
+
+model InstructorRegistration {
+  id                   String                  @id @default(cuid())
+  instructorId         String                  @unique // e.g. "I2026RK54321"
+
+  // Personal Details
+  fullName             String
+  fatherSpouseName     String
+  dob                  String                  // "YYYY-MM-DD"
+  gender               Gender
+
+  // Contact Info
+  mobileNo             String
+  alternateMobileNo    String?
+
+  // Current Address
+  currentAddressLocal    String
+  currentAddressDistrict String
+  currentAddressState    String
+  currentAddressCountry  String
+  currentAddressPinCode  String
+
+  // Permanent Address
+  sameAsCurrentAddress   Boolean                 @default(false)
+  permAddressLocal       String
+  permAddressDistrict    String
+  permAddressState       String
+  permAddressCountry     String
+  permAddressPinCode     String
+
+  // Professional Background
+  currentOrganization  String
+  currentDesignation   String
+  totalWorkExperience  String
+  teachingExperience   String
+  internshipExperience String
+  mentorshipAreas      String
+  preferredInternLevel String[]
+  maxInterns           String
+  mentorshipMode       String[]
+  availability         String
+  selfIntroduction     String
+
+  // Document Upload paths (saved on local disk)
+  photoUrl             String
+  photoPublicId        String?
+  photoName            String
+  identityProofUrl     String
+  identityProofPublicId String?
+  identityProofName    String
+  educationCertUrl     String
+  educationCertPublicId String?
+  educationCertName    String
+  experienceCertUrl    String?
+  experienceCertPublicId String?
+  experienceCertName   String?
+
+  agreeTerms           Boolean
+  isApproved           Boolean                 @default(false)
+  approvedAt           DateTime?
+
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  deletedAt            DateTime?
+
+  // Relation to User
+  userId               String                  @unique
+  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  qualifications       InstructorQualification[]
+
+  @@index([userId])
+  @@index([instructorId])
+  @@map("instructor_registrations")
+}
+
+// ── Feedback System Enums & Models ────────────────────────────
+
+enum FeedbackType {
+  STUDENT_TO_INSTRUCTOR
+  INSTRUCTOR_TO_STUDENT
+}
+
+model Feedback {
+  id           String       @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  senderId     String
+  sender       User         @relation("SentFeedback", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId   String
+  receiver     User         @relation("ReceivedFeedback", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  type         FeedbackType
+  rating       Int          // rating scale 1 to 5
+  comments     String       @db.Text
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([enrollmentId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("feedbacks")
+}
+
+// ── Support Ticket System Enums & Models ────────────────────────
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model SupportTicket {
+  id          String         @id @default(cuid())
+  ticketNo    String         @unique // Format: "TKT-[6-Digit Random Number]"
+  title       String
+  description String         @db.Text
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?      // Soft delete support
+
+  @@index([userId])
+  @@index([ticketNo])
+  @@map("support_tickets")
+}
+
+// ── Immersion Program Models ───────────────────────────────────
+
+enum ImmersionStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+}
+
+// Instructor's response to a Super Admin assigned immersion program —
+// mirrors the accept/reject flow instructors have for assigned internships.
+enum ImmersionApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ImmersionCategory {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  immersions Immersion[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@map("immersion_categories")
+}
+
+model Immersion {
+  id           String          @id @default(cuid())
+  code         String?         @unique
+  title        String
+  description  String          @db.Text
+  startDate    DateTime
+  endDate      DateTime
+  status       ImmersionStatus @default(UPCOMING)
+
+  location     String          @default("")
+  period       String          @default("")
+  facilities   String          @db.Text @default("")
+  benefits     String          @db.Text @default("")
+  fees         Float           @default(0.0)
+  credits      String?         // e.g. "6 Credits", "3 ECTS"
+
+  categoryId   String?
+  category     ImmersionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  instructorId String?
+  instructor   User?           @relation("InstructorImmersions", fields: [instructorId], references: [id], onDelete: SetNull)
+
+  // Assigned instructor's accept/reject decision on this program
+  instructorApprovalStatus ImmersionApprovalStatus @default(PENDING)
+  instructorApprovedAt     DateTime?
+  instructorRemarks        String?                 @db.Text
+
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+  registrations ImmersionRegistration[]
+  applications  ImmersionApplication[]
+
+  @@index([instructorId])
+  @@index([categoryId])
+  @@map("immersions")
+}
+
+// ── Notice / Announcement System ───────────────────────────────
+
+model Notice {
+  id                 String    @id @default(cuid())
+  noticeNumber       String
+  date               String
+  title              String
+  category           String
+  description        String    @db.Text
+  pdfUrl             String?
+  pdfPublicId        String?
+  
+  senderId    String
+  sender      User      @relation("SentNotices", fields: [senderId], references: [id], onDelete: Cascade)
+
+  // Target receiver role filter (e.g., 'INSTRUCTOR' or 'STUDENT')
+  targetRole  UserRole? 
+  // Specific receiver user ID if direct message notice
+  receiverId  String?
+  receiver    User?     @relation("ReceivedNotices", fields: [receiverId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("notices")
+}
+
+// ── Project Submissions & Evaluations ─────────────────────────
+
+enum SubmissionStatus {
+  PENDING
+  GRADED
+}
+
+model ProjectSubmission {
+  id           String           @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment       @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  projectTitle String
+  projectUrl   String           // GitHub link or submission file path
+  comments     String?          @db.Text
+  status       SubmissionStatus @default(PENDING)
+
+  // Grading Details
+  grade        String?          // e.g. "A+", "B", "Outstanding"
+  feedback     String?          @db.Text
+  gradedAt     DateTime?
+  gradedById   String?
+  gradedBy     User?            @relation("GradedSubmissions", fields: [gradedById], references: [id], onDelete: SetNull)
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([enrollmentId])
+  @@index([gradedById])
+  @@map("project_submissions")
+}
+
+// ── Immersion Registration & Certificate Models ─────────────────
+
+enum ImmersionRegStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ImmersionRegistration {
+  id           String             @id @default(cuid())
+  status       ImmersionRegStatus @default(PENDING)
+  remarks      String?            @db.Text
+  registeredAt DateTime           @default(now())
+
+  // Student Relation
+  studentId    String
+  student      User               @relation("StudentImmersions", fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Immersion Relation
+  immersionId  String
+  immersion    Immersion          @relation(fields: [immersionId], references: [id], onDelete: Cascade)
+
+  certificate  ImmersionCertificate?
+
+  @@unique([studentId, immersionId])
+  @@index([studentId])
+  @@index([immersionId])
+  @@map("immersion_registrations")
+}
+
+model ImmersionCertificate {
+  id             String                 @id @default(cuid())
+  certificateNo  String                 @unique // Format: "IMC-YYYY-NNNN"
+  issuedAt       DateTime               @default(now())
+  grade          String?                // e.g. "A", "Distinction"
+  credits        String?                // auto-filled from Immersion.credits
+
+  // Legacy link (pre-application-flow registrations). Optional going forward.
+  registrationId String?                @unique
+  registration   ImmersionRegistration? @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  // Live flow: certificate issued against an ImmersionApplication.
+  applicationId  String?                @unique
+  application    ImmersionApplication?  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  issuedById     String
+  issuedBy       User                   @relation("IssuedImmersionCerts", fields: [issuedById], references: [id], onDelete: Cascade)
+
+  @@index([issuedById])
+  @@map("immersion_certificates")
+}
+
+
+// ── Immersion Participant System ──────────────────────────────
+
+enum ImmersionGender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ImmersionQualification {
+  MATRICULATION
+  INTERMEDIATE
+  UNDER_GRADUATE
+  GRADUATE_PASS_OUT
+  UNDER_POST_GRADUATE
+  POST_GRADUATE_PASS_OUT
+  UNDER_MPHIL
+  MPHIL_PASS_OUT
+  UNDER_PHD
+  PHD_PASS_OUT
+}
+
+enum ImmersionStudentStatus {
+  PURSUING
+  PASS_OUT
+}
+
+enum ImmersionDuration {
+  DAYS_7
+  DAYS_15
+  DAYS_30
+  DAYS_45
+  DAYS_60
+  DAYS_90
+  CUSTOM
+}
+
+enum ImmersionPresence {
+  FULL_TIME
+  PART_TIME
+  HYBRID
+}
+
+enum ImmersionWorkType {
+  GOVT_JOB
+  NGO_JOB
+  SOCIAL_WORK
+  STUDENT
+  RESEARCHER
+  OTHER
+}
+
+enum ImmersionAppStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+// Section 1 + 2 + 8 — Profile fields
+model ImmersionParticipantProfile {
+  id                          String             @id @default(cuid())
+
+  // Section 1 — Basic Info
+  fullName                    String
+  fatherMotherName            String
+  dateOfBirth                 DateTime
+  gender                      ImmersionGender
+  mobileNumber                String
+  emailAddress                String
+  alternateMobileNo           String?            // optional alternate contact
+
+  // Section 2 — Permanent Address
+  permLocalArea               String
+  permDistrict                String
+  permState                   String
+  permCountry                 String
+  permPinCode                 String
+
+  // Section 2 — Current Address
+  currentAddressSameAsPerm    Boolean            @default(true)
+  currLocalArea               String?            // only if different
+  currDistrict                String?
+  currState                   String?
+  currCountry                 String?
+  currPinCode                 String?
+
+  // Section 8 — Documents
+  passportPhotoUrl            String?
+  resumeUrl                   String?
+  nocUrl                      String?
+
+  userId                      String             @unique
+  user                        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt                   DateTime           @default(now())
+  updatedAt                   DateTime           @updatedAt
+
+  @@index([userId])
+  @@map("immersion_participant_profiles")
+}
+
+// Section 3 — Academic Details (multiple per application)
+model ImmersionAcademicDetail {
+  id              String                   @id @default(cuid())
+
+  qualification   ImmersionQualification
+  stream          String
+  subject         String
+  instituteName   String
+  universityName  String
+  sessionYear     String
+  gradeDivision   String
+  studentStatus   ImmersionStudentStatus   // auto-derived from qualification
+
+  applicationId   String
+  application     ImmersionApplication     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  @@index([applicationId])
+  @@map("immersion_academic_details")
+}
+
+// Full 9-section Immersion Application Form
+model ImmersionApplication {
+  id                    String                   @id @default(cuid())
+  code                  String?                  @unique
+  status                ImmersionAppStatus       @default(DRAFT)
+  remarks               String?                  @db.Text
+
+  // Section 4 — Program Preference
+  preferredDuration     ImmersionDuration?
+  customDuration        String?                  // only if CUSTOM
+  preferredLocation     String?
+  preferredStartDate    DateTime?
+
+  // Section 5 — Interest & Skill
+  expectedLearning      String?                  @db.Text
+  careerGoal            String?                  @db.Text
+  specialTalentSkill    String?
+  languagesKnown        String?
+
+  // Section 6 — Availability
+  presenceType          ImmersionPresence?
+  fieldVisitsComfort    Boolean?
+  workType              ImmersionWorkType?
+
+  // Section 7 — Emergency Contact
+  emergencyContactName  String?
+  emergencyRelationship String?
+  emergencyMobile       String?
+
+  // Section 9 — Declaration
+  declarationAccepted   Boolean                  @default(false)
+  rulesAccepted         Boolean                  @default(false)
+
+  // Participant
+  userId                String
+  user                  User                     @relation("ParticipantApplications", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional link to specific Immersion program
+  immersionId           String?
+  immersion             Immersion?               @relation(fields: [immersionId], references: [id], onDelete: Cascade)
+
+  // Mentor assignment (by admin)
+  assignedMentorId      String?
+  assignedMentor        User?                    @relation("AssignedMentorApplications", fields: [assignedMentorId], references: [id], onDelete: SetNull)
+
+  // Academic details (Section 3)
+  academicDetails       ImmersionAcademicDetail[]
+
+  submittedAt           DateTime?
+  approvedAt            DateTime?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+
+  certificate           ImmersionCertificate?
+  idCard                ImmersionIdCard?
+  payments              ImmersionPayment[]
+
+  @@unique([userId, immersionId])  // one application per participant per program
+  @@index([userId])
+  @@index([immersionId])
+  @@index([assignedMentorId])
+  @@map("immersion_applications")
+}
+
+// ── Immersion ID Cards ─────────────────────────────────────────
+
+model ImmersionIdCard {
+  id            String               @id @default(cuid())
+  cardNo        String               @unique // Format: "IMID-YYYY-NNNN"
+  issuedAt      DateTime             @default(now())
+
+  studentId     String
+
+  applicationId String               @unique
+  application   ImmersionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("immersion_id_cards")
+}
+
+// ── Immersion Payments ──────────────────────────────────────────
+
+model ImmersionPayment {
+  id                String        @id @default(cuid())
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  refundId          String?       @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  userId            String
+
+  applicationId     String
+  application       ImmersionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([applicationId])
+  @@map("immersion_payments")
+}
+
+// ── Partners & Educational Institutes ─────────────────────────
+
+model EducationalInstitute {
+  id                String   @id @default(cuid())
+  name              String
+  address           String
+  naacAccreditation String
+  website           String
+  logo              String?  // Logo URL
+  logoPublicId      String?  // Cloudinary publicId
+  photo             String?  // Photo URL
+  photoPublicId     String?  // Cloudinary publicId
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("educational_institutes")
+}
+
+model JobPlacementCompany {
+  id                String             @id @default(cuid())
+  name              String
+  address           String
+  postOpportunity   String
+  jobNature         String
+  fieldOfEmployment String
+  minQualification  String
+  skillsRequired    String[]
+  staffStrength     String
+  website           String
+  logo              String?            // Logo URL
+  logoPublicId      String?            // Cloudinary publicId
+  photo             String?            // Photo URL
+  photoPublicId     String?            // Cloudinary publicId
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  leads             JobPlacementLead[]
+
+  @@map("job_placement_companies")
+}
+
+model TrainingSupport {
+  id             String   @id @default(cuid())
+  name           String
+  address           String
+  serviceProvide String
+  website        String
+  logo           String?  // Logo URL
+  logoPublicId   String?  // Cloudinary publicId
+  photo          String?  // Photo URL
+  photoPublicId  String?  // Cloudinary publicId
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("training_supports")
+}
+
+model JobPlacementLead {
+  id                    String              @id @default(cuid())
+  jobPlacementCompanyId String
+  jobPlacementCompany   JobPlacementCompany @relation(fields: [jobPlacementCompanyId], references: [id], onDelete: Cascade)
+  
+  name                  String
+  age                   Int
+  address               String
+  mobile                String
+  email                 String
+  qualification         String
+  skill                 String?
+  resumeUrl             String
+  resumePublicId        String?
+  createdAt             DateTime            @default(now())
+
+  @@index([jobPlacementCompanyId])
+  @@map("job_placement_leads")
+}
+
+// ── Recruit User Profile & Details ────────────────────────────
+
+enum MaritalStatus {
+  Married
+  Unmarried
+  Divorced
+  Widow
+  Widower
+}
+
+enum Religion {
+  Sanatan_Hindu     @map("Sanatan/Hindu")
+  Sikh
+  Jain
+  Parsi
+  Buddhist
+  Islam
+  Christian
+  Shinto
+  Monotheism
+  Protestantism
+  Deism
+  Yahudi
+  Other
+}
+
+enum RecruitCategory {
+  Humanity
+  General
+  EWS
+  OBC
+  SC
+  ST
+}
+
+enum BloodGroup {
+  A_POS  @map("A+")
+  A_NEG  @map("A-")
+  B_POS  @map("B+")
+  B_NEG  @map("B-")
+  AB_POS @map("AB+")
+  AB_NEG @map("AB-")
+  O_POS  @map("O+")
+  O_NEG  @map("O-")
+}
+
+enum RecruitQualification {
+  Pass_8th         @map("8th Pass")
+  Matriculation
+  Intermediate
+  Diploma
+  Graduation
+  Post_Graduation  @map("Post Graduation")
+  M_Phil           @map("M. Phil.")
+  PhD
+  Other
+}
+
+model RecruitProfile {
+  id                   String                 @id @default(cuid())
+  userId               String                 @unique
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  fullName             String
+  gender               Gender
+  dob                  String                 // YYYY-MM-DD
+  fatherName           String
+  motherName           String
+  permAddressLocal     String
+  permAddressDistrict  String
+  permAddressState     String
+  permAddressCountry   String                 @default("India")
+  permAddressPinCode   String
+  currAddressLocal     String
+  currAddressDistrict  String
+  currAddressState     String
+  currAddressCountry   String                 @default("India")
+  currAddressPinCode   String
+  mobileNo             String
+  email                String
+  maritalStatus        MaritalStatus
+  nationality          String                 @default("Indian")
+  gotra                String?
+  religion             Religion
+  category             RecruitCategory
+  bloodGroup           BloodGroup
+  hobby                String?
+  languagesKnown       String
+  physicallyChallenged Boolean                @default(false)
+  aadharNo             String?
+
+  // Uploaded docs
+  photoUrl             String
+  photoPublicId        String?
+  photoName            String
+  signatureUrl         String
+  signaturePublicId    String?
+  signatureName        String
+  resumeUrl            String
+  resumePublicId       String?
+  resumeName           String
+
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  academics            RecruitAcademicDetail[]
+  experiences          RecruitWorkExperience[]
+
+  @@map("recruit_profiles")
+}
+
+model RecruitAcademicDetail {
+  id             String               @id @default(cuid())
+  profileId      String
+  profile        RecruitProfile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  qualification  RecruitQualification
+  schoolInstitute String
+  boardUniversity String
+  startYear      String
+  endYear        String
+  passingDivision String
+  passingMarks   Float
+  subject        String
+  certificateUrl String
+  certificatePublicId String?
+  certificateName String
+
+  @@index([profileId])
+  @@map("recruit_academic_details")
+}
+
+model RecruitWorkExperience {
+  id             String               @id @default(cuid())
+  profileId      String
+  profile        RecruitProfile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  employerName   String
+  designation    String
+  postingLocation String
+  startDate      String               // YYYY-MM-DD
+  endDate        String?              // YYYY-MM-DD (null means current job)
+  natureOfWork   String
+  experienceYears Float                // Auto-calculated or direct value
+  certUrl        String
+  certPublicId   String?
+  certName       String
+
+  @@index([profileId])
+  @@map("recruit_work_experiences")
+}
+
+model SystemSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("system_settings")
+}
