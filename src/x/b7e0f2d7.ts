@@ -566,18 +566,32 @@ export async function sendProfileCompletionReminderEmail(
   const roleDisplay = role.replace("_", " ");
   const htmlContent = `
     <!DOCTYPE html>
-    <html>
+    <html lang="hi">
     <head>
       <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>प्रोफाइल अपडेट रिमाइंडर | Profile Completion Reminder</title>
       <style>
-        body { font-family: 'Outfit', 'Inter', sans-serif; line-height: 1.6; color: #1e293b; margin: 0; padding: 0; background-color: #f8fafc; }
-        .wrapper { max-width: 600px; margin: 20px auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; }
-        .header { text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { font-size: 24px; font-weight: 800; color: #3b82f6; text-decoration: none; }
+        body { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; margin: 0; padding: 0; background-color: #f1f5f9; }
+        .wrapper { max-width: 600px; margin: 24px auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 36px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .header { text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 28px; }
+        .logo { font-size: 26px; font-weight: 800; color: #0284c7; text-decoration: none; letter-spacing: -0.5px; }
         .logo span { color: #10b981; }
-        .title { color: #0f172a; font-size: 22px; font-weight: 700; margin-top: 0; }
-        .button { display: inline-block; padding: 12px 28px; background-color: #059669; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 25px 0; }
-        .footer { font-size: 12px; color: #64748b; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; }
+        .badge { display: inline-block; background-color: #fef3c7; color: #b45309; font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 9999px; margin-bottom: 12px; border: 1px solid #fde68a; }
+        .title { color: #0f172a; font-size: 22px; font-weight: 700; margin-top: 0; margin-bottom: 16px; }
+        .alert-box { background-color: #fffbeb; border-left: 5px solid #f59e0b; padding: 14px 18px; border-radius: 6px; margin: 20px 0; }
+        .alert-text-hi { font-size: 16px; font-weight: 700; color: #92400e; margin: 0 0 4px 0; }
+        .alert-text-en { font-size: 14px; color: #b45309; margin: 0; }
+        .content-text { font-size: 15px; color: #334155; line-height: 1.7; margin: 16px 0; }
+        .login-box { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 12px; padding: 24px 20px; text-align: center; margin: 28px 0; box-shadow: 0 2px 4px rgba(34, 197, 94, 0.08); }
+        .login-box-title { color: #15803d; font-size: 17px; font-weight: 700; margin: 0 0 10px 0; }
+        .login-box-desc { font-size: 14px; color: #166534; margin: 0 0 18px 0; }
+        .button { display: inline-block; padding: 14px 34px; background-color: #16a34a; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); transition: background-color 0.2s; }
+        .url-box { background: #ffffff; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 14px; margin-top: 16px; word-break: break-all; }
+        .url-label { font-size: 12px; color: #64748b; margin-bottom: 4px; display: block; font-weight: 600; }
+        .url-link { color: #0284c7; font-weight: 600; font-size: 14px; text-decoration: underline; }
+        .note { font-size: 12px; color: #64748b; margin-top: 14px; margin-bottom: 0; }
+        .footer { font-size: 12px; color: #64748b; margin-top: 36px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; line-height: 1.6; }
       </style>
     </head>
     <body>
@@ -585,15 +599,57 @@ export async function sendProfileCompletionReminderEmail(
         <div class="header">
           <a href="${config.clientUrl}" class="logo">II<span>Internship</span></a>
         </div>
-        <h2 class="title">Action Required: Complete Your Profile</h2>
-        <p>Hello ${name || "User"},</p>
-        <p>We noticed that you have registered an account on IIInternship as a <strong>${roleDisplay}</strong>, but have not yet completed your one-time profile registration.</p>
-        <p>Completing your profile is required to access internship applications, immersion programs, certificates, ID cards, and mentorship features.</p>
+        
         <div style="text-align: center;">
-          <a href="${loginUrl}" class="button">Log In and Complete Profile</a>
+          <span class="badge">⚠️ रिमाईन्डर / Action Required</span>
         </div>
+        
+        <h2 class="title" style="text-align: center;">प्रोफाइल पूर्णता रिमाइंडर | Complete Your Profile</h2>
+        
+        <p style="font-size: 15px; color: #1e293b; margin-top: 20px;">
+          प्रिय / Dear <strong>${name || "User"}</strong>,
+        </p>
+
+        <!-- हिंदी में मुख्य सूचना -->
+        <div class="alert-box">
+          <p class="alert-text-hi">
+            📌 आपका प्रोफाइल अभी तक नहीं भरा गया है। कृपया शीघ्र अपना प्रोफाइल अपडेट करें।
+          </p>
+          <p class="alert-text-en">
+            Your profile has not been completed yet. Please update your profile as soon as possible.
+          </p>
+        </div>
+
+        <p class="content-text">
+          आपने International Institute of Internship™ (IIInternship) पर <strong>${roleDisplay}</strong> के रूप में सफलतापूर्वक साइनअप किया है, परंतु आपका वन-टाइम (One-Time) प्रोफाइल रजिस्ट्रेशन अभी अधूरा है।
+        </p>
+        <p class="content-text" style="font-size: 14px; color: #475569;">
+          नोट: इंटर्नशिप में आवेदन करने, ट्रेनिंग मॉड्यूल्स, सर्टिफिकेट्स एवं आईडी कार्ड प्राप्त करने के लिए प्रोफाइल पूरा करना अनिवार्य है।
+        </p>
+
+        <!-- लॉगिन पैनल का बॉक्स -->
+        <div class="login-box">
+          <h3 class="login-box-title">🔐 लॉगिन पैनल लिंक (Login Panel)</h3>
+          <p class="login-box-desc">
+            कृपया नीचे दिए गए बटन पर क्लिक करके अपने खाते में लॉगिन करें और अपनी प्रोफाइल पूरी करें:
+          </p>
+          <div>
+            <a href="${loginUrl}" class="button" target="_blank">
+              पोर्टल में लॉगिन करें (Log In to Portal)
+            </a>
+          </div>
+          <div class="url-box">
+            <span class="url-label">लॉगिन पैनल का सीधा लिंक (Direct Login Link):</span>
+            <a href="${loginUrl}" class="url-link" target="_blank">${loginUrl}</a>
+          </div>
+          <p class="note">
+            (यदि पासवर्ड याद न हो तो लॉगिन पेज पर <strong>"Forgot Password?"</strong> विकल्प का उपयोग करें)
+          </p>
+        </div>
+
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} International Institute of Internship™. All rights reserved.</p>
+          <p><strong>International Institute of Internship™</strong><br>Empowering Global Internships & Skill Development</p>
+          <p style="margin-top: 8px;">यह एक सिस्टम जनरेटेड ईमेल है, कृपया इसका उत्तर न दें।<br>&copy; ${new Date().getFullYear()} IIInternship. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -602,7 +658,7 @@ export async function sendProfileCompletionReminderEmail(
 
   return sendEmail({
     to: [{ email, name }],
-    subject: "Action Required: Complete Your IIInternship Profile 📋",
+    subject: "महत्वपूर्ण: आपका प्रोफाइल अभी तक नहीं भरा गया है - कृपया शीघ्र अपडेट करें | Complete Your Profile",
     htmlContent,
   });
 }

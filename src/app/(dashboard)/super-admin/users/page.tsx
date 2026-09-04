@@ -6854,6 +6854,11 @@ export default function SuperAdminUsersPage() {
       const [isSendingBulk, setIsSendingBulk] = useState(false);
 
       const handleSendBulkReminder = async () => {
+        const confirmed = window.confirm(
+          "क्या आप उन सभी यूज़र्स को प्रोफाइल रिमाइंडर ईमेल भेजना चाहते हैं जिन्होंने अपना प्रोफाइल पूरा नहीं किया है?\n\nAre you sure you want to send reminder emails to all users who have not completed their profile?",
+        );
+        if (!confirmed) return;
+
         try {
           setIsSendingBulk(true);
           const response = await axiosInstance.post("/users/send-reminder", {
@@ -6861,7 +6866,7 @@ export default function SuperAdminUsersPage() {
           });
           const message =
             response.data?.message ||
-            "Reminder emails sent to incomplete profiles.";
+            "रिमाइंडर ईमेल सफलतापूर्वक भेज दिए गए।";
           toast.success(message);
         } catch (err: unknown) {
           const errMsg =
@@ -6961,24 +6966,44 @@ export default function SuperAdminUsersPage() {
                 </div>
               }
               action={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExport}
-                  disabled={isExporting}
-                  className="border-emerald-600/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-300 font-semibold gap-1.5 shrink-0 shadow-sm"
-                  title="Download entire user login data to Excel"
-                >
-                  <Download className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  {isExporting ? (
-                    "Exporting..."
-                  ) : (
-                    <>
-                      <span className="hidden xs:inline sm:inline">Export Excel</span>
-                      <span className="xs:hidden sm:hidden">Excel</span>
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSendBulkReminder}
+                    disabled={isSendingBulk}
+                    className="border-amber-600/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-300 font-semibold gap-1.5 shrink-0 shadow-sm"
+                    title="Send profile reminder email to all users with incomplete profiles"
+                  >
+                    <Mail_2 className="size-4 text-amber-600 dark:text-amber-400" />
+                    {isSendingBulk ? (
+                      "Sending..."
+                    ) : (
+                      <>
+                        <span className="hidden sm:inline">Remind Incomplete</span>
+                        <span className="sm:hidden">Remind</span>
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExport}
+                    disabled={isExporting}
+                    className="border-emerald-600/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-300 font-semibold gap-1.5 shrink-0 shadow-sm"
+                    title="Download entire user login data to Excel"
+                  >
+                    <Download className="size-4 text-emerald-600 dark:text-emerald-400" />
+                    {isExporting ? (
+                      "Exporting..."
+                    ) : (
+                      <>
+                        <span className="hidden xs:inline sm:inline">Export Excel</span>
+                        <span className="xs:hidden sm:hidden">Excel</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
               }
             />
           </div>
