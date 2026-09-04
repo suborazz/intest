@@ -2794,24 +2794,22 @@ export default function InstructorProfileDashboardPage() {
       );
     };
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   const { data: regMeResponse, isLoading: isRegLoading } =
     InstructorDataHooks.useInstructorRegistrationMe({
-      enabled: !!user?.id,
       retry: false,
     });
 
   const { data: profileResponse, isLoading: isProfileLoading } =
     InstructorDataHooks.useInstructorProfile({
-      enabled: !!user?.id,
       retry: false,
     });
   const handleEditSubmission = () => {
     router.push("/instructor/registration?edit=true");
   };
 
-  const isLoading = isRegLoading || isProfileLoading;
+  const isLoading = isAuthLoading || isRegLoading || isProfileLoading;
 
   if (isLoading) {
     return (

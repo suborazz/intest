@@ -673,7 +673,8 @@ const AUTH_KEYS = {
 function setCookie(name: string, value: string, days = 7) {
       if (typeof window === "undefined") return;
       const expires = new Date(Date.now() + days * 864e5).toUTCString();
-      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax; Secure`;
+      const secure = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax${secure}`;
     }
 
 function persistSession(resData: LoginResponse | RegisterResponse) {
