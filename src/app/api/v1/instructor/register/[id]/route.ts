@@ -208,19 +208,48 @@ const instructorRegistrationSchema = z.object({
   agreeTerms: z.literal(true, { error: "You must agree to terms" }),
 });
 
-const updateInstructorRegistrationSchema = instructorRegistrationSchema
-  .omit({
-    agreeTerms: true,
-    photoBase64: true,
-    photoName: true,
-    identityProofBase64: true,
-    identityProofName: true,
-    educationCertBase64: true,
-    educationCertName: true,
-    experienceCertBase64: true,
-    experienceCertName: true,
-  })
-  .partial();
+const updateInstructorAddressSchema = z.object({
+  local: z.string().optional().or(z.literal("")),
+  district: z.string().optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  country: z.string().optional().or(z.literal("")),
+  pinCode: z.string().optional().or(z.literal("")),
+});
+
+const updateInstructorRegistrationSchema = z.object({
+  fullName: z.string().min(1).optional(),
+  fatherSpouseName: z.string().optional(),
+  dob: z.string().optional(),
+  gender: z.enum(["Male", "Female", "Transgender"]).or(z.string()).optional(),
+  mobileNo: z.string().optional(),
+  alternateMobileNo: z.string().nullable().optional().or(z.literal("")),
+  currentAddress: updateInstructorAddressSchema.optional(),
+  sameAsCurrentAddress: z.boolean().optional(),
+  permanentAddress: updateInstructorAddressSchema.optional(),
+  qualifications: z.array(z.any()).optional(),
+  currentOrganization: z.string().optional().or(z.literal("")),
+  currentDesignation: z.string().optional().or(z.literal("")),
+  totalWorkExperience: z.string().optional().or(z.literal("")),
+  teachingExperience: z.string().optional().or(z.literal("")),
+  internshipExperience: z.string().optional().or(z.literal("")),
+  mentorshipAreas: z.string().optional().or(z.literal("")),
+  preferredInternLevel: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : [])),
+    ])
+    .optional(),
+  maxInterns: z.union([z.string(), z.number().transform(String)]).optional(),
+  mentorshipMode: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : [])),
+    ])
+    .optional(),
+  availability: z.string().optional().or(z.literal("")),
+  selfIntroduction: z.string().optional().or(z.literal("")),
+  isApproved: z.boolean().optional(),
+});
 
 const HTTP_2 = {
   OK: 200,
@@ -306,8 +335,10 @@ export async function PATCH(
 
     const { id } = await params;
 
-    const existing = await prisma.instructorRegistration.findUnique({
-      where: { id },
+    const existing = await prisma.instructorRegistration.findFirst({
+      where: {
+        OR: [{ id }, { instructorId: id }],
+      },
     });
     if (!existing || existing.deletedAt) {
       return errorResponse("NOT_FOUND", "Registration not found.", {
@@ -331,47 +362,50 @@ export async function PATCH(
 
     const updateData: Record<string, unknown> = {};
 
-    if (data.fullName) updateData["fullName"] = data.fullName;
-    if (data.fatherSpouseName)
+    if (data.fullName !== undefined) updateData["fullName"] = data.fullName;
+    if (data.fatherSpouseName !== undefined)
       updateData["fatherSpouseName"] = data.fatherSpouseName;
-    if (data.dob) updateData["dob"] = data.dob;
-    if (data.gender) updateData["gender"] = data.gender;
-    if (data.mobileNo) updateData["mobileNo"] = data.mobileNo;
+    if (data.dob !== undefined) updateData["dob"] = data.dob;
+    if (data.gender !== undefined) updateData["gender"] = data.gender;
+    if (data.mobileNo !== undefined) updateData["mobileNo"] = data.mobileNo;
     if (data.alternateMobileNo !== undefined)
       updateData["alternateMobileNo"] = data.alternateMobileNo || null;
-    if (data.currentOrganization)
+    if (data.currentOrganization !== undefined)
       updateData["currentOrganization"] = data.currentOrganization;
-    if (data.currentDesignation)
+    if (data.currentDesignation !== undefined)
       updateData["currentDesignation"] = data.currentDesignation;
-    if (data.totalWorkExperience)
+    if (data.totalWorkExperience !== undefined)
       updateData["totalWorkExperience"] = data.totalWorkExperience;
-    if (data.teachingExperience)
+    if (data.teachingExperience !== undefined)
       updateData["teachingExperience"] = data.teachingExperience;
-    if (data.internshipExperience)
+    if (data.internshipExperience !== undefined)
       updateData["internshipExperience"] = data.internshipExperience;
-    if (data.mentorshipAreas)
+    if (data.mentorshipAreas !== undefined && data.mentorshipAreas !== "")
       updateData["mentorshipAreas"] = data.mentorshipAreas;
-    if (data.preferredInternLevel)
+    if (data.preferredInternLevel !== undefined && data.preferredInternLevel.length > 0)
       updateData["preferredInternLevel"] = data.preferredInternLevel;
-    if (data.maxInterns) updateData["maxInterns"] = data.maxInterns;
-    if (data.mentorshipMode) updateData["mentorshipMode"] = data.mentorshipMode;
-    if (data.availability) updateData["availability"] = data.availability;
-    if (data.selfIntroduction)
+    if (data.maxInterns !== undefined && data.maxInterns !== "")
+      updateData["maxInterns"] = data.maxInterns;
+    if (data.mentorshipMode !== undefined && data.mentorshipMode.length > 0)
+      updateData["mentorshipMode"] = data.mentorshipMode;
+    if (data.availability !== undefined && data.availability !== "")
+      updateData["availability"] = data.availability;
+    if (data.selfIntroduction !== undefined && data.selfIntroduction !== "")
       updateData["selfIntroduction"] = data.selfIntroduction;
 
     if (data.currentAddress) {
-      updateData["currentAddressLocal"] = data.currentAddress.local;
-      updateData["currentAddressDistrict"] = data.currentAddress.district;
-      updateData["currentAddressState"] = data.currentAddress.state;
-      updateData["currentAddressCountry"] = data.currentAddress.country;
-      updateData["currentAddressPinCode"] = data.currentAddress.pinCode;
+      if (data.currentAddress.local !== undefined) updateData["currentAddressLocal"] = data.currentAddress.local;
+      if (data.currentAddress.district !== undefined) updateData["currentAddressDistrict"] = data.currentAddress.district;
+      if (data.currentAddress.state !== undefined) updateData["currentAddressState"] = data.currentAddress.state;
+      if (data.currentAddress.country !== undefined) updateData["currentAddressCountry"] = data.currentAddress.country;
+      if (data.currentAddress.pinCode !== undefined) updateData["currentAddressPinCode"] = data.currentAddress.pinCode;
     }
     if (data.permanentAddress) {
-      updateData["permAddressLocal"] = data.permanentAddress.local;
-      updateData["permAddressDistrict"] = data.permanentAddress.district;
-      updateData["permAddressState"] = data.permanentAddress.state;
-      updateData["permAddressCountry"] = data.permanentAddress.country;
-      updateData["permAddressPinCode"] = data.permanentAddress.pinCode;
+      if (data.permanentAddress.local !== undefined) updateData["permAddressLocal"] = data.permanentAddress.local;
+      if (data.permanentAddress.district !== undefined) updateData["permAddressDistrict"] = data.permanentAddress.district;
+      if (data.permanentAddress.state !== undefined) updateData["permAddressState"] = data.permanentAddress.state;
+      if (data.permanentAddress.country !== undefined) updateData["permAddressCountry"] = data.permanentAddress.country;
+      if (data.permanentAddress.pinCode !== undefined) updateData["permAddressPinCode"] = data.permanentAddress.pinCode;
     }
     if (data.sameAsCurrentAddress !== undefined)
       updateData["sameAsCurrentAddress"] = data.sameAsCurrentAddress;
@@ -379,11 +413,11 @@ export async function PATCH(
     const updatedRegistration = await prisma.$transaction(async (tx) => {
       if (data.qualifications && data.qualifications.length > 0) {
         await tx.instructorQualification.deleteMany({
-          where: { registrationId: id },
+          where: { registrationId: existing.id },
         });
         await tx.instructorQualification.createMany({
-          data: data.qualifications.map((q) => ({
-            registrationId: id,
+          data: data.qualifications.map((q: any) => ({
+            registrationId: existing.id,
             highestQualification: q.highestQualification,
             specialization: q.specialization,
             universityName: q.universityName,
@@ -394,12 +428,12 @@ export async function PATCH(
       }
 
       const reg = await tx.instructorRegistration.update({
-        where: { id },
+        where: { id: existing.id },
         data: updateData,
         include: { qualifications: true },
       });
 
-      if (data.fullName) {
+      if (data.fullName && reg.userId) {
         await tx.user.update({
           where: { id: reg.userId },
           data: { name: data.fullName },

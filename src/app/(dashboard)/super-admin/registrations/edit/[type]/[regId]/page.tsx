@@ -4266,41 +4266,52 @@ const EditInstructorForm_2: React_3.FunctionComponent<
     });
 
   const onSubmit = (values: any) => {
+    const payload: Record<string, any> = {
+      fullName: values.fullName,
+      fatherSpouseName: values.fatherSpouseName,
+      dob: values.dob,
+      gender: values.gender,
+      mobileNo: values.mobileNo,
+      alternateMobileNo: values.alternateMobileNo || null,
+      currentOrganization: values.currentOrganization || "",
+      currentDesignation: values.currentDesignation || "",
+      totalWorkExperience: values.totalWorkExperience || "",
+      teachingExperience: values.teachingExperience || "",
+      currentAddress: {
+        local: values.currentAddressLocal || "",
+        district: values.currentAddressDistrict || "",
+        state: values.currentAddressState || "",
+        country: "India",
+        pinCode: values.currentAddressPinCode || "",
+      },
+      permanentAddress: {
+        local: values.permAddressLocal || "",
+        district: values.permAddressDistrict || "",
+        state: values.permAddressState || "",
+        country: "India",
+        pinCode: values.permAddressPinCode || "",
+      },
+    };
+
+    if (values.internshipExperience) payload.internshipExperience = values.internshipExperience;
+    if (values.mentorshipAreas) payload.mentorshipAreas = values.mentorshipAreas;
+    if (values.preferredInternLevel) {
+      payload.preferredInternLevel = Array.isArray(values.preferredInternLevel)
+        ? values.preferredInternLevel
+        : [values.preferredInternLevel];
+    }
+    if (values.maxInterns) payload.maxInterns = String(values.maxInterns);
+    if (values.mentorshipMode) {
+      payload.mentorshipMode = Array.isArray(values.mentorshipMode)
+        ? values.mentorshipMode
+        : [values.mentorshipMode];
+    }
+    if (values.availability) payload.availability = values.availability;
+    if (values.selfIntroduction) payload.selfIntroduction = values.selfIntroduction;
+
     updateReg({
       id: reg.id,
-      payload: {
-        fullName: values.fullName,
-        fatherSpouseName: values.fatherSpouseName,
-        dob: values.dob,
-        gender: values.gender,
-        mobileNo: values.mobileNo,
-        alternateMobileNo: values.alternateMobileNo || "",
-        currentOrganization: values.currentOrganization,
-        currentDesignation: values.currentDesignation,
-        totalWorkExperience: values.totalWorkExperience,
-        teachingExperience: values.teachingExperience,
-        internshipExperience: values.internshipExperience,
-        mentorshipAreas: values.mentorshipAreas,
-        preferredInternLevel: values.preferredInternLevel,
-        maxInterns: String(values.maxInterns),
-        mentorshipMode: values.mentorshipMode,
-        availability: values.availability,
-        selfIntroduction: values.selfIntroduction,
-        currentAddress: {
-          local: values.currentAddressLocal,
-          district: values.currentAddressDistrict,
-          state: values.currentAddressState,
-          country: "India",
-          pinCode: values.currentAddressPinCode,
-        },
-        permanentAddress: {
-          local: values.permAddressLocal,
-          district: values.permAddressDistrict,
-          state: values.permAddressState,
-          country: "India",
-          pinCode: values.permAddressPinCode,
-        },
-      },
+      payload,
     });
   };
 
