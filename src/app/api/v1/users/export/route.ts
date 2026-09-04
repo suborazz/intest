@@ -28,6 +28,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         role: true,
         isActive: true,
         createdAt: true,
+        studentRegistration: {
+          select: { mobileNo: true, deletedAt: true },
+        },
+        instructorRegistration: {
+          select: { mobileNo: true, deletedAt: true },
+        },
+        immersionParticipantProfile: {
+          select: { mobileNumber: true },
+        },
+        recruitProfile: {
+          select: { mobileNo: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -48,11 +60,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     sheet.getRow(1).font = { bold: true };
 
     users.forEach((user, index) => {
+      const resolvedMobile =
+        user.mobile && user.mobile.trim() !== ""
+          ? user.mobile
+          : user.studentRegistration?.mobileNo ||
+            user.instructorRegistration?.mobileNo ||
+            user.immersionParticipantProfile?.mobileNumber ||
+            user.recruitProfile?.mobileNo ||
+            "—";
+
       sheet.addRow({
         serialNumber: index + 1,
         name: user.name || "",
         email: user.email,
-        mobile: user.mobile,
+        mobile: resolvedMobile,
         role: user.role,
         status: user.isActive ? "Active" : "Inactive",
         createdAt: user.createdAt.toISOString().split("T")[0],

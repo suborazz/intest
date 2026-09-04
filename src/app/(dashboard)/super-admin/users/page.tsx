@@ -754,6 +754,7 @@ interface DataTableProps<TData, TValue> {
   renderSubRow?: (row: Row<TData>) => React_2.ReactNode;
     hideHeader?: boolean;
     toolbar?: React_2.ReactNode;
+    action?: React_2.ReactNode;
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
@@ -1330,6 +1331,7 @@ function DataTable<TData, TValue>({
   renderSubRow,
   hideHeader = false,
   toolbar,
+  action,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -1507,17 +1509,19 @@ function DataTable<TData, TValue>({
     <div className="flex w-full min-w-0 flex-col gap-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 pt-4">
         <div className="flex min-w-0 flex-1 items-center gap-2">{toolbar}</div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex shrink-0 items-center gap-1.5 font-semibold"
-            >
-              <ChevronDownIcon className="size-4" />
-              <span className="hidden sm:inline">View Columns</span>
-            </Button>
-          </DropdownMenuTrigger>
+        <div className="flex items-center gap-2 shrink-0">
+          {action}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex shrink-0 items-center gap-1.5 font-semibold"
+              >
+                <ChevronDownIcon className="size-4" />
+                <span className="hidden sm:inline">View Columns</span>
+              </Button>
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-card w-[180px] border">
             {table
               .getAllColumns()
@@ -1547,6 +1551,7 @@ function DataTable<TData, TValue>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+    </div>
 
       <TableOverflow className="w-full">
         <Table
@@ -6953,25 +6958,27 @@ export default function SuperAdminUsersPage() {
                     placeholder="Search by name or email"
                     small
                   />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleExport}
-                    disabled={isExporting}
-                    className="border-emerald-600/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-300 font-semibold gap-1.5 shrink-0"
-                    title="Download entire user login data to Excel"
-                  >
-                    <Download className="size-4 text-emerald-600 dark:text-emerald-400" />
-                    {isExporting ? (
-                      "Exporting..."
-                    ) : (
-                      <>
-                        <span className="hidden xs:inline sm:inline">Export Excel</span>
-                        <span className="xs:hidden sm:hidden">Excel</span>
-                      </>
-                    )}
-                  </Button>
                 </div>
+              }
+              action={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExport}
+                  disabled={isExporting}
+                  className="border-emerald-600/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-300 font-semibold gap-1.5 shrink-0 shadow-sm"
+                  title="Download entire user login data to Excel"
+                >
+                  <Download className="size-4 text-emerald-600 dark:text-emerald-400" />
+                  {isExporting ? (
+                    "Exporting..."
+                  ) : (
+                    <>
+                      <span className="hidden xs:inline sm:inline">Export Excel</span>
+                      <span className="xs:hidden sm:hidden">Excel</span>
+                    </>
+                  )}
+                </Button>
               }
             />
           </div>
