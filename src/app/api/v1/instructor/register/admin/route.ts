@@ -187,6 +187,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           { instructorId: { contains: search, mode: "insensitive" } },
           { mobileNo: { contains: search, mode: "insensitive" } },
           { currentOrganization: { contains: search, mode: "insensitive" } },
+          { user: { email: { contains: search, mode: "insensitive" } } },
         ],
       }),
     };
@@ -205,7 +206,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }),
     ]);
 
-    return successResponse(registrations, {
+    const mappedRegistrations = registrations.map((r) => ({
+      ...r,
+      email: r.user?.email || null,
+    }));
+
+    return successResponse(mappedRegistrations, {
       meta: buildPaginationMeta(total, page, limit),
     });
   } catch (error) {

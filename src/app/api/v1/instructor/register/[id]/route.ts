@@ -279,7 +279,12 @@ export async function GET(
       );
     }
 
-    return successResponse(registration);
+    const mappedRegistration = {
+      ...registration,
+      email: registration.user?.email || null,
+    };
+
+    return successResponse(mappedRegistration);
   } catch (error) {
     return handleError(error);
   }
