@@ -19,13 +19,6 @@ export async function POST(
   }
 
   const { id } = await params;
-  let body: any = {};
-  try {
-    body = await request.json();
-  } catch {
-    // Empty body is fine
-  }
-
   const registration = await prisma.instructorRegistration.findFirst({
     where: {
       OR: [{ id }, { instructorId: id }],
@@ -43,13 +36,11 @@ export async function POST(
     );
   }
 
-  const approveValue = body?.isApproved !== undefined ? Boolean(body.isApproved) : true;
-
   await prisma.instructorRegistration.update({
     where: { id: registration.id },
     data: {
-      isApproved: approveValue,
-      approvedAt: approveValue ? new Date() : null,
+      isApproved: false,
+      approvedAt: null,
     },
   });
 
@@ -57,8 +48,8 @@ export async function POST(
     await prisma.instructorProfile.updateMany({
       where: { userId: registration.userId },
       data: {
-        isApproved: approveValue,
-        approvedAt: approveValue ? new Date() : null,
+        isApproved: false,
+        approvedAt: null,
       },
     });
   }
@@ -66,8 +57,6 @@ export async function POST(
   return NextResponse.json({
     success: true,
     data: null,
-    message: approveValue
-      ? "Instructor registration approved successfully."
-      : "Instructor registration marked as pending.",
+    message: "Instructor registration marked as pending / rejected.",
   });
 }

@@ -2879,7 +2879,7 @@ export default function InstructorProfileDashboardPage() {
   }
 
   const s = regMeResponse.data;
-  const isApproved = !!profileResponse?.data?.isApproved;
+  const isApproved = Boolean(s?.isApproved || profileResponse?.data?.isApproved);
 
     const currentAddress = {
     local: s.currentAddressLocal || "",

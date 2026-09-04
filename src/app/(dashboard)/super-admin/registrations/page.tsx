@@ -11531,6 +11531,11 @@ function Cell({
       const fullName = reg.fullName || reg.name || reg.user?.name || "Unnamed";
       const email = reg.user?.email || reg.email;
 
+      const { mutate: approveReg, isPending: isApproving } =
+        SuperAdminDataHooks.useApproveInstructorRegistration();
+      const { mutate: rejectReg, isPending: isRejecting } =
+        SuperAdminDataHooks.useRejectInstructorRegistration();
+
       const documents = [
         {
           label: "Identity Proof",
@@ -11595,12 +11600,35 @@ function Cell({
                     variant="outline"
                     className={
                       reg.isApproved
-                        ? "border-emerald-500/20 bg-emerald-500/5 text-[10px] font-bold text-emerald-600"
-                        : "border-amber-500/20 bg-amber-500/5 text-[10px] font-bold text-amber-600"
+                        ? "border-emerald-500/20 bg-emerald-500/10 text-[10px] font-bold text-emerald-600"
+                        : "border-amber-500/20 bg-amber-500/10 text-[10px] font-bold text-amber-600"
                     }
                   >
-                    {reg.isApproved ? "Approved" : "Pending"}
+                    {reg.isApproved ? "Approved" : "Pending Approval"}
                   </Badge>
+
+                  {!reg.isApproved ? (
+                    <Button
+                      size="sm"
+                      onClick={() => approveReg(reg.id)}
+                      disabled={isApproving}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold gap-1.5 h-7 px-3 text-xs shadow-sm ml-auto"
+                    >
+                      <CheckIcon className="size-3.5" />
+                      {isApproving ? "Approving..." : "Approve Instructor"}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => rejectReg(reg.id)}
+                      disabled={isRejecting}
+                      className="text-amber-600 border-amber-500/30 hover:bg-amber-50 h-7 px-2.5 text-xs ml-auto"
+                      title="Mark as Pending Approval"
+                    >
+                      {isRejecting ? "Updating..." : "Mark as Pending"}
+                    </Button>
+                  )}
                 </div>
                 <p className="text-muted-foreground truncate text-xs">
                   {email || "No Email"}
@@ -11847,6 +11875,28 @@ function Cell({
                 </div>
               </div>
             )}
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/60">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                className="h-8 text-xs"
+              >
+                Close
+              </Button>
+              {!reg.isApproved && (
+                <Button
+                  size="sm"
+                  onClick={() => approveReg(reg.id)}
+                  disabled={isApproving}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold gap-1.5 h-8 px-4 text-xs shadow-sm"
+                >
+                  <CheckIcon className="size-3.5" />
+                  {isApproving ? "Approving..." : "Approve Instructor Application"}
+                </Button>
+              )}
+            </div>
           </div>
         </ResponsiveDialog>
       );
@@ -11864,6 +11914,8 @@ function Cell({
         SuperAdminDataHooks.useDeleteInstructorRegistration();
       const { mutate: approveReg, isPending: isApproving } =
         SuperAdminDataHooks.useApproveInstructorRegistration();
+      const { mutate: rejectReg, isPending: isRejecting } =
+        SuperAdminDataHooks.useRejectInstructorRegistration();
 
       const { mutate: downloadPDF, isPending: isDownloading } =
         SuperAdminDataHooks.useDownloadInstructorRegistration({
@@ -11894,7 +11946,7 @@ function Cell({
                 <MoreVertical className="text-muted-foreground h-4 w-4" />
               </Button>
             </DropdownMenuTrigger_15>
-            <DropdownMenuContent align="end" className="w-40 text-xs">
+            <DropdownMenuContent align="end" className="w-44 text-xs">
               <DropdownMenuItem
                 onClick={() => {
                   setDropdownOpen(false);
@@ -11923,18 +11975,32 @@ function Cell({
                 </span>
               </DropdownMenuItem>
 
-              {!reg.isApproved && (
+              {!reg.isApproved ? (
                 <DropdownMenuItem
                   onClick={() => {
                     setDropdownOpen(false);
                     approveReg(reg.id);
                   }}
                   disabled={isApproving}
-                  className="flex cursor-pointer items-center justify-between"
+                  className="flex cursor-pointer items-center justify-between text-emerald-600 font-semibold"
                 >
-                  <span>{isApproving ? "Approving..." : "Approve"}</span>
+                  <span>{isApproving ? "Approving..." : "Approve Instructor"}</span>
                   <span className="bg-emerald-500/10 text-emerald-600 inline-flex items-center justify-center rounded-md p-1">
                     <CheckIcon size={12} />
+                  </span>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    rejectReg(reg.id);
+                  }}
+                  disabled={isRejecting}
+                  className="flex cursor-pointer items-center justify-between text-amber-600"
+                >
+                  <span>{isRejecting ? "Updating..." : "Mark as Pending"}</span>
+                  <span className="bg-amber-500/10 text-amber-600 inline-flex items-center justify-center rounded-md p-1">
+                    <Clock size={12} />
                   </span>
                 </DropdownMenuItem>
               )}
@@ -11991,6 +12057,45 @@ function Cell({
       );
     };
 
+    const InstructorStatusCell: React_3.FC<{ reg: InstructorReg }> = ({ reg }) => {
+      const { mutate: approveReg, isPending: isApproving } =
+        SuperAdminDataHooks.useApproveInstructorRegistration();
+
+      if (reg.isApproved) {
+        return (
+          <Badge
+            variant="outline"
+            className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px] gap-1 px-2.5 py-0.5"
+          >
+            <CheckCircle2_2 className="size-3 text-emerald-600" />
+            Approved
+          </Badge>
+        );
+      }
+
+      return (
+        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <Badge
+            variant="outline"
+            className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold text-[10px] gap-1 px-2 py-0.5"
+          >
+            <Clock className="size-3 text-amber-600" />
+            Pending
+          </Badge>
+          <Button
+            size="sm"
+            onClick={() => approveReg(reg.id)}
+            disabled={isApproving}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white h-6 px-2 text-[11px] font-semibold shadow-sm gap-1"
+            title="Approve this instructor registration"
+          >
+            <CheckIcon className="size-3" />
+            {isApproving ? "..." : "Approve"}
+          </Button>
+        </div>
+      );
+    };
+
     const columns_10 = (page: number = 1, limit: number = 10): ColumnDef_2<InstructorReg>[] => [
       {
         id: "serialNumber",
@@ -12018,6 +12123,11 @@ function Cell({
         accessorKey: "mobileNo",
         header: "Contact No.",
         cell: ({ row }) => row.original.mobileNo || "N/A",
+      },
+      {
+        id: "status",
+        header: "Status / Action",
+        cell: ({ row }) => <InstructorStatusCell reg={row.original} />,
       },
       {
         id: "qualification",
