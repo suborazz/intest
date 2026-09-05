@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   // Marking it external keeps it loaded via plain `require` from
   // node_modules instead, where its relative paths resolve correctly.
   serverExternalPackages: ["pdfkit"],
-  output: "standalone",
   images: {
     remotePatterns: [
       {
