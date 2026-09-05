@@ -1639,15 +1639,25 @@ function DataTableSearch({
 
   useEffect(() => {
     const handler = setTimeout(() => {
+      const currentVal = params?.get(searchKey) || "";
+      if (searchTerm.trim() === currentVal.trim()) {
+        return;
+      }
+
       const newParams = new URLSearchParams(params?.toString());
-      if (searchTerm === "") {
+      if (searchTerm.trim() === "") {
         newParams.delete(searchKey);
       } else {
-        newParams.set(searchKey, searchTerm);
+        newParams.set(searchKey, searchTerm.trim());
         newParams.set("page", "1");
       }
-      router.push(path + "?" + newParams.toString());
-    }, 500); 
+
+      const currentQuery = params?.toString() || "";
+      const newQuery = newParams.toString();
+      if (newQuery !== currentQuery) {
+        router.push(path + (newQuery ? `?${newQuery}` : ""));
+      }
+    }, 500);
 
     return () => clearTimeout(handler);
   }, [searchTerm, path, router, params, searchKey]);
@@ -4235,7 +4245,7 @@ interface PaymentModalProps {
 
 function loadRazorpayScript_2(): Promise<boolean> {
       return new Promise((resolve) => {
-        if (window.Razorpay) return resolve(true);
+        if ((window as any).Razorpay) return resolve(true);
         const script = document.createElement("script");
         script.src = "https://checkout.razorpay.com/v1/checkout.js";
         script.onload = () => resolve(true);
@@ -6348,10 +6358,21 @@ export default function InstructorInternshipsPage() {
       },
 
       async getMyRegistration() {
-        const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
-          ENDPOINTS.INSTRUCTOR.REGISTER_ME,
-        );
-        return response.data;
+        try {
+          const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
+            ENDPOINTS.INSTRUCTOR.REGISTER_ME,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (error?.response?.status === 404) {
+            return {
+              success: false,
+              data: null,
+              message: "No instructor registration found",
+            } as unknown as GetInstructorRegistrationResponse;
+          }
+          throw error;
+        }
       },
 
       async listAllRegistrations(params) {
@@ -7607,7 +7628,7 @@ export default function InstructorInternshipsPage() {
           return;
         }
 
-        const rzp = new window.Razorpay({
+        const rzp = new (window as any).Razorpay({
           key: orderData.keyId,
           amount: orderData.amount,
           currency: orderData.currency,

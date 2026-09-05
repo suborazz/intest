@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
-import { v2 as cloudinary } from "cloudinary";
-import { z } from "zod";
-import { format } from "date-fns";
+import { z, ZodError } from "zod";
+import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
 export const dynamic = "force-dynamic";
 
@@ -79,7 +77,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     function validationErrorResponse(
       error: ZodError,
     ): NextResponse<ApiErrorResponse> {
-      return errorResponse("VALIDATION_ERROR", "Request validation failed", {
+      const firstIssue = error.issues[0];
+      const message = firstIssue?.message || "Request validation failed";
+      return errorResponse("VALIDATION_ERROR", message, {
         status: HTTP.UNPROCESSABLE,
         details: error.flatten().fieldErrors,
       });
@@ -143,17 +143,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const instructorAddressSchema = z.object({
-      local: z.string().min(3, "Address line must be at least 3 characters"),
-      district: z.string().min(2, "District is required"),
-      state: z.string().min(2, "State is required"),
-      country: z.string().min(2, "Country is required"),
-      pinCode: z.string().regex(/^\d{6}$/, "Pin code must be exactly 6 digits"),
+      local: z.string().min(1, "Address line is required"),
+      district: z.string().min(1, "District is required"),
+      state: z.string().min(1, "State is required"),
+      country: z.string().min(1, "Country is required").default("India"),
+      pinCode: z.preprocess(
+        (val) => (typeof val === "string" ? val.trim() : val),
+        z.string().regex(/^\d{6}$/, "Pin code must be exactly 6 digits"),
+      ),
     });
 
     const qualificationDetailSchema = z.object({
       highestQualification: z.string().min(1, "Highest qualification is required"),
       specialization: z.string().min(1, "Specialization is required"),
-      universityName: z.string().min(2, "University name is required"),
+      universityName: z.string().min(1, "University name is required"),
       yearOfCompletion: z.string().min(1, "Year of completion is required"),
       percentage: z.string().min(1, "Percentage/CGPA is required"),
     });
@@ -164,75 +167,106 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .string()
         .min(2, "Father/Spouse name must be at least 2 characters")
         .trim(),
-      dob: z
-        .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
-      gender: z.enum(["Male", "Female", "Transgender"]),
-      mobileNo: z
-        .string()
-        .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
-      alternateMobileNo: z
-        .string()
-        .regex(/^\d{10}$/, "Alternate mobile number must be exactly 10 digits")
-        .optional()
-        .or(z.literal("")),
+      dob: z.preprocess(
+        (val) => {
+          if (typeof val === "string") {
+            if (val.includes("T")) return val.split("T")[0];
+            return val.trim();
+          }
+          return val;
+        },
+        z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+      ),
+      gender: z.preprocess(
+        (val) => (typeof val === "string" ? val.trim() : val),
+        z.enum(["Male", "Female", "Transgender"]),
+      ),
+      mobileNo: z.preprocess(
+        (val) => {
+          if (typeof val !== "string") return val;
+          let cleaned = val.replace(/[\s-]/g, "");
+          if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+          else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
+          else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
+          return cleaned;
+        },
+        z.string().regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+      ),
+      alternateMobileNo: z.preprocess(
+        (val) => {
+          if (!val) return "";
+          if (typeof val !== "string") return val;
+          let cleaned = val.replace(/[\s-]/g, "");
+          if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+          else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
+          else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
+          return cleaned;
+        },
+        z
+          .string()
+          .regex(/^\d{10}$/, "Alternate mobile number must be exactly 10 digits")
+          .optional()
+          .nullable()
+          .or(z.literal("")),
+      ),
       currentAddress: instructorAddressSchema,
-      sameAsCurrentAddress: z.boolean(),
-      permanentAddress: instructorAddressSchema,
+      sameAsCurrentAddress: z.preprocess((val) => Boolean(val), z.boolean()),
+      permanentAddress: z
+        .object({
+          local: z.string().optional().default(""),
+          district: z.string().optional().default(""),
+          state: z.string().optional().default(""),
+          country: z.string().optional().default("India"),
+          pinCode: z.string().optional().default(""),
+        })
+        .optional()
+        .default({
+          local: "",
+          district: "",
+          state: "",
+          country: "India",
+          pinCode: "",
+        }),
       qualifications: z
         .array(qualificationDetailSchema)
         .min(1, "At least one qualification is required"),
-      currentOrganization: z
-        .string()
-        .optional()
-        .or(z.literal(""))
-        .default(""),
-      currentDesignation: z
-        .string()
-        .optional()
-        .or(z.literal(""))
-        .default(""),
-      totalWorkExperience: z
-        .string()
-        .optional()
-        .or(z.literal(""))
-        .default(""),
-      teachingExperience: z
-        .string()
-        .optional()
-        .or(z.literal(""))
-        .default(""),
-      internshipExperience: z
-        .string()
-        .optional()
-        .or(z.literal(""))
-        .default(""),
+      currentOrganization: z.string().optional().nullable().or(z.literal("")).default(""),
+      currentDesignation: z.string().optional().nullable().or(z.literal("")).default(""),
+      totalWorkExperience: z.string().optional().nullable().or(z.literal("")).default(""),
+      teachingExperience: z.string().optional().nullable().or(z.literal("")).default(""),
+      internshipExperience: z.string().optional().nullable().or(z.literal("")).default(""),
       mentorshipAreas: z
         .string()
         .min(
-          5,
-          "TEMP_CAP_INSTRUCTORSHIP description must be at least 5 characters",
+          2,
+          "Mentorship areas description must be at least 2 characters",
         ),
       preferredInternLevel: z
-        .array(z.string())
-        .min(1, "Select at least one intern level preference"),
-      maxInterns: z.string().min(1, "Specify maximum interns"),
+        .union([
+          z.array(z.string()),
+          z.string().transform((s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : [])),
+        ])
+        .default([]),
+      maxInterns: z.union([z.string(), z.number().transform(String)]).optional().default("5"),
       mentorshipMode: z
-        .array(z.string())
-        .min(1, "Select at least one mentorship mode"),
-      availability: z.string().min(1, "Specify availability slot"),
+        .union([
+          z.array(z.string()),
+          z.string().transform((s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : [])),
+        ])
+        .default([]),
+      availability: z.string().optional().nullable().or(z.literal("")).default(""),
       selfIntroduction: z
         .string()
-        .min(10, "Self introduction must be at least 10 characters"),
+        .min(5, "Self introduction must be at least 5 characters"),
       photoBase64: z.string().min(1, "Photo is required"),
       photoName: z.string().min(1, "Photo filename is required"),
-      identityProofBase64: z.string().optional().or(z.literal("")).default(""),
-      identityProofName: z.string().optional().or(z.literal("")).default(""),
-      educationCertBase64: z.string().optional().or(z.literal("")).default(""),
-      educationCertName: z.string().optional().or(z.literal("")).default(""),
-      experienceCertBase64: z.string().optional().or(z.literal("")).default(""),
-      experienceCertName: z.string().optional().or(z.literal("")).default(""),
-      agreeTerms: z.literal(true, { error: "You must agree to terms" }),
+      identityProofBase64: z.string().optional().nullable().or(z.literal("")).default(""),
+      identityProofName: z.string().optional().nullable().or(z.literal("")).default(""),
+      educationCertBase64: z.string().optional().nullable().or(z.literal("")).default(""),
+      educationCertName: z.string().optional().nullable().or(z.literal("")).default(""),
+      experienceCertBase64: z.string().optional().nullable().or(z.literal("")).default(""),
+      experienceCertName: z.string().optional().nullable().or(z.literal("")).default(""),
+      agreeTerms: z.preprocess((val) => val === true || val === "true", z.literal(true, { error: "You must agree to terms" })),
     });
 
     async function deleteAsset(
@@ -310,7 +344,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const body = await request.json();
+    const rawBody = await request.json();
+    const body = { ...rawBody };
+    if (body.sameAsCurrentAddress && body.currentAddress) {
+      body.permanentAddress = { ...body.currentAddress };
+    }
+    if (!body.availability) {
+      const parts = [body.availabilityDays, body.availabilityTimeSlots].filter(Boolean);
+      if (parts.length > 0) {
+        body.availability = parts.join(", ");
+      }
+    }
     const data = instructorRegistrationSchema.parse(body);
 
         const existing = await prisma.instructorRegistration.findUnique({
@@ -420,9 +464,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const permAddr = data.sameAsCurrentAddress
-      ? data.currentAddress
-      : data.permanentAddress;
+    const permAddr =
+      data.sameAsCurrentAddress || !data.permanentAddress?.local
+        ? data.currentAddress
+        : {
+            local: data.permanentAddress.local || data.currentAddress.local,
+            district: data.permanentAddress.district || data.currentAddress.district,
+            state: data.permanentAddress.state || data.currentAddress.state,
+            country: data.permanentAddress.country || data.currentAddress.country || "India",
+            pinCode: data.permanentAddress.pinCode || data.currentAddress.pinCode,
+          };
 
     const registration = await prisma.$transaction(async (tx) => {
       const reg = await tx.instructorRegistration.create({
@@ -462,7 +513,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           preferredInternLevel: data.preferredInternLevel,
           maxInterns: data.maxInterns,
           mentorshipMode: data.mentorshipMode,
-          availability: data.availability,
+          availability: data.availability || "",
           selfIntroduction: data.selfIntroduction,
 
           photoUrl: savedPhotoUrl,
@@ -470,10 +521,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           photoName: data.photoName,
           identityProofUrl: savedIdUrl,
           identityProofPublicId: savedIdPublicId,
-          identityProofName: data.identityProofName,
+          identityProofName: data.identityProofName || "",
           educationCertUrl: savedEduUrl,
           educationCertPublicId: savedEduPublicId,
-          educationCertName: data.educationCertName,
+          educationCertName: data.educationCertName || "",
           experienceCertUrl: savedExpUrl || null,
           experienceCertPublicId: savedExpPublicId || null,
           experienceCertName: data.experienceCertName || null,
@@ -535,7 +586,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await deleteAsset(savedExpPublicId);
 
     if (error instanceof ZodError) {
-      return errorResponse("VALIDATION_ERROR", "Request validation failed", {
+      const firstIssue = error.issues[0];
+      const message = firstIssue?.message || "Request validation failed";
+      return errorResponse("VALIDATION_ERROR", message, {
         status: HTTP_2.UNPROCESSABLE,
         details: error.flatten().fieldErrors,
       });

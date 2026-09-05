@@ -1,6 +1,6 @@
 import { UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "@/x/cloudinary";
 import { z } from "zod";
 import { ZodError } from "zod";
 import { prisma } from "@/x/e3746f45";

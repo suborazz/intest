@@ -52,7 +52,9 @@ function errorResponse(
 function validationErrorResponse(
   error: ZodError,
 ): NextResponse<ApiErrorResponse> {
-  return errorResponse("VALIDATION_ERROR", "Request validation failed", {
+  const firstIssue = error.issues[0];
+  const message = firstIssue?.message || "Request validation failed";
+  return errorResponse("VALIDATION_ERROR", message, {
     status: HTTP.UNPROCESSABLE,
     details: error.flatten().fieldErrors,
   });
@@ -221,7 +223,17 @@ const updateInstructorRegistrationSchema = z.object({
   fatherSpouseName: z.string().optional(),
   dob: z.string().optional(),
   gender: z.enum(["Male", "Female", "Transgender"]).or(z.string()).optional(),
-  mobileNo: z.string().optional(),
+  mobileNo: z.preprocess(
+    (val) => {
+      if (typeof val !== "string") return val;
+      let cleaned = val.replace(/[\s-]/g, "");
+      if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+      else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
+      else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
+      return cleaned;
+    },
+    z.string().regex(/^\d{10}$/, "Mobile number must be exactly 10 digits").optional(),
+  ),
   alternateMobileNo: z.string().nullable().optional().or(z.literal("")),
   currentAddress: updateInstructorAddressSchema.optional(),
   sameAsCurrentAddress: z.boolean().optional(),
@@ -359,7 +371,11 @@ export async function PATCH(
       );
     }
 
-    const body = await request.json();
+    const rawBody = await request.json();
+    const body = { ...rawBody };
+    if (body.sameAsCurrentAddress && body.currentAddress) {
+      body.permanentAddress = { ...body.currentAddress };
+    }
     const data = updateInstructorRegistrationSchema.parse(body);
 
     const updateData: Record<string, unknown> = {};

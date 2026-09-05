@@ -725,7 +725,10 @@ const ZSignUp = z
       .object({
         name: nameSchema,
         email: emailSchema,
-        mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+        mobile: z
+          .string({ error: "Mobile number is required" })
+          .min(1, "Mobile number is required")
+          .regex(/^(\+91[\-\s]?)?[0]?[6789]\d{9}$|^\d{10}$/, "Mobile number must be exactly 10 digits"),
         role: z.enum(["STUDENT", "INSTRUCTOR", "IMMERSION_USER", "RECRUIT_USER"]),
         password: passwordSchema,
         confirmPassword: z.string(),
@@ -988,7 +991,7 @@ export default function SignUpPage() {
       const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
       const form = useForm<TSignUp>({
-        resolver: zodResolver(ZSignUp),
+        resolver: zodResolver(ZSignUp) as any,
         defaultValues: {
           name: "",
           email: "",
@@ -1018,10 +1021,15 @@ export default function SignUpPage() {
       });
 
       const onSubmit = async (values: TSignUp) => {
+        let cleanedMobile = values.mobile ? values.mobile.replace(/[\s-]/g, "") : "";
+        if (cleanedMobile.startsWith("+91")) cleanedMobile = cleanedMobile.slice(3);
+        else if (cleanedMobile.startsWith("91") && cleanedMobile.length === 12) cleanedMobile = cleanedMobile.slice(2);
+        else if (cleanedMobile.startsWith("0") && cleanedMobile.length === 11) cleanedMobile = cleanedMobile.slice(1);
+
         register({
           name: values.name,
           email: values.email,
-          mobile: values.mobile,
+          mobile: cleanedMobile,
           role: values.role,
           password: values.password,
         });

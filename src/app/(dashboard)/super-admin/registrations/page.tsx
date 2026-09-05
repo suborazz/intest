@@ -1842,21 +1842,40 @@ function DataTableSearch({
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState(params?.get(searchKey) || "");
+  const isFirstRender = React.useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const handler = setTimeout(() => {
-      const newParams = new URLSearchParams(params?.toString());
-      if (searchTerm === "") {
-        newParams.delete(searchKey);
-      } else {
-        newParams.set(searchKey, searchTerm);
-        newParams.set("page", "1");
+      if (typeof window === "undefined") return;
+      const currentParams = new URLSearchParams(window.location.search);
+      const currentVal = currentParams.get(searchKey) || "";
+      if (searchTerm.trim() === currentVal.trim()) {
+        return;
       }
-      router.push(path + "?" + newParams.toString());
-    }, 500); 
+
+      if (searchTerm.trim() === "") {
+        currentParams.delete(searchKey);
+      } else {
+        currentParams.set(searchKey, searchTerm.trim());
+        currentParams.set("page", "1");
+      }
+
+      const newQuery = currentParams.toString();
+      const target = window.location.pathname + (newQuery ? `?${newQuery}` : "");
+      const currentFullPath = window.location.pathname + window.location.search;
+
+      if (target !== currentFullPath) {
+        router.replace(target, { scroll: false });
+      }
+    }, 400);
 
     return () => clearTimeout(handler);
-  }, [searchTerm, path, router, params, searchKey]);
+  }, [searchTerm, searchKey, router]);
 
   const sizeClasses = xSmall
     ? "w-full sm:w-[250px]"
@@ -4718,7 +4737,7 @@ interface PaymentModalProps {
 
 function loadRazorpayScript_2(): Promise<boolean> {
       return new Promise((resolve) => {
-        if (window.Razorpay) return resolve(true);
+        if ((window as any).Razorpay) return resolve(true);
         const script = document.createElement("script");
         script.src = "https://checkout.razorpay.com/v1/checkout.js";
         script.onload = () => resolve(true);
@@ -10058,7 +10077,7 @@ export default function RegistrationsPage({
           return;
         }
 
-        const rzp = new window.Razorpay({
+        const rzp = new (window as any).Razorpay({
           key: orderData.keyId,
           amount: orderData.amount,
           currency: orderData.currency,
@@ -11522,14 +11541,31 @@ function Cell({
     }
 
     const DetailDialog_3: React_3.FunctionComponent<IDetailDialogProps_3> = ({
-      reg,
+      reg: initialReg,
       isOpen,
       onClose,
     }) => {
-      if (!reg) return null;
+      if (!initialReg) return null;
+
+      const { data: detailRes } =
+        SuperAdminDataHooks.useInstructorRegistrationDetail(
+          isOpen && initialReg?.id ? initialReg.id : "",
+          {
+            enabled: Boolean(
+              isOpen &&
+                initialReg?.id &&
+                !initialReg.email &&
+                !initialReg.user?.email,
+            ),
+          },
+        );
+
+      const reg = detailRes?.data
+        ? ({ ...initialReg, ...detailRes.data } as InstructorReg)
+        : initialReg;
 
       const fullName = reg.fullName || reg.name || reg.user?.name || "Unnamed";
-      const email = reg.user?.email || reg.email;
+      const email = reg.email || reg.user?.email || (reg as any)?.userEmail || "";
 
       const { mutate: approveReg, isPending: isApproving } =
         SuperAdminDataHooks.useApproveInstructorRegistration();

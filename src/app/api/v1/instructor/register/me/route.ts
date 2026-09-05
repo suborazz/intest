@@ -148,7 +148,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const registration = await prisma.instructorRegistration.findUnique({
       where: { userId },
-      include: { qualifications: true },
+      include: {
+        qualifications: true,
+        user: { select: { email: true, name: true } },
+      },
     });
 
     if (!registration || registration.deletedAt) {
@@ -159,7 +162,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    return successResponse(registration);
+    const mappedRegistration = {
+      ...registration,
+      email: registration.user?.email || null,
+    };
+
+    return successResponse(mappedRegistration);
   } catch (error) {
     return handleError(error);
   }

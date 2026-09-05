@@ -392,7 +392,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     function validationErrorResponse(
       error: ZodError,
     ): NextResponse<ApiErrorResponse> {
-      return errorResponse("VALIDATION_ERROR", "Request validation failed", {
+      const firstIssue = error.issues[0];
+      const message = firstIssue?.message || "Request validation failed";
+      return errorResponse("VALIDATION_ERROR", message, {
         status: HTTP.UNPROCESSABLE,
         details: error.flatten().fieldErrors,
       });
@@ -475,10 +477,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .max(100, "Name must be at most 100 characters")
       .trim();
 
-    const mobileSchema = z
-      .string({ error: "Mobile number is required" })
-      .trim()
-      .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits");
+    const mobileSchema = z.preprocess(
+      (val) => {
+        if (typeof val !== "string") return val;
+        let cleaned = val.replace(/[\s-]/g, "");
+        if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+        else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
+        else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
+        return cleaned;
+      },
+      z
+        .string({ error: "Mobile number is required" })
+        .min(1, "Mobile number is required")
+        .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+    );
 
     const registerSchema = z.object({
       email: emailSchema,
@@ -515,7 +527,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const parsed = registerSchema.safeParse(body);
 
     if (!parsed.success) {
-      return errorResponse("VALIDATION_ERROR", "Invalid request data", {
+      const firstMessage = parsed.error.issues[0]?.message || "Invalid request data";
+      return errorResponse("VALIDATION_ERROR", firstMessage, {
         status: HTTP_2.UNPROCESSABLE,
         details: parsed.error.flatten().fieldErrors,
       });

@@ -3107,10 +3107,21 @@ export default function LoginPage() {
       },
 
       async getMyRegistration() {
-        const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
-          ENDPOINTS.INSTRUCTOR.REGISTER_ME,
-        );
-        return response.data;
+        try {
+          const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
+            ENDPOINTS.INSTRUCTOR.REGISTER_ME,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (error?.response?.status === 404) {
+            return {
+              success: false,
+              data: null,
+              message: "No instructor registration found",
+            } as unknown as GetInstructorRegistrationResponse;
+          }
+          throw error;
+        }
       },
 
       async listAllRegistrations(params) {
@@ -3596,10 +3607,21 @@ export default function LoginPage() {
       },
 
       async getMyRegistration() {
-        const response = await axiosInstance.get<GetStudentRegistrationResponse>(
-          ENDPOINTS.STUDENTS.REGISTER_ME,
-        );
-        return response.data;
+        try {
+          const response = await axiosInstance.get<GetStudentRegistrationResponse>(
+            ENDPOINTS.STUDENTS.REGISTER_ME,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (error?.response?.status === 404) {
+            return {
+              success: false,
+              data: null,
+              message: "No student registration found",
+            } as unknown as GetStudentRegistrationResponse;
+          }
+          throw error;
+        }
       },
 
       async listAllRegistrations() {
@@ -3669,9 +3691,8 @@ export default function LoginPage() {
                     localStorage.removeItem(storageKey);
                     router.replace(registrationPath);
                   }
-                } catch (error) {
-                  console.error(errorLogMsg, error);
-                                                if (
+                } catch (error: any) {
+                  if (
                     (error as { response?: { status?: number } })?.response?.status ===
                     404
                   ) {
@@ -3679,6 +3700,7 @@ export default function LoginPage() {
                     router.replace(registrationPath);
                     return;
                   }
+                  console.error(errorLogMsg, error);
                   const isComplete = localStorage.getItem(storageKey) === "true";
                   router.replace(isComplete ? dashboardPath : registrationPath);
                 }

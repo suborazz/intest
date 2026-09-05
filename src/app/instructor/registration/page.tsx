@@ -6,7 +6,7 @@ import React_4, { useEffect, useState } from "react";
 import { type FieldPath, type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z as z_2 } from "zod";
-import { AlertCircle, ArrowLeft, ArrowRight as ArrowRight_2, Briefcase as Briefcase_2, CalendarIcon, CheckCircle, Code, Download, Edit, Edit2, FileBadge, GraduationCap as GraduationCap_2, List, MapPin as MapPin_2, Pencil, Phone as Phone_2, Plus, Printer, Save, School, ShieldCheck, Trash2, Upload, Users as Users_2, Check } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight as ArrowRight_2, Briefcase as Briefcase_2, CalendarIcon, CheckCircle, Code, Download, Edit, Edit2, FileBadge, GraduationCap as GraduationCap_2, List, MapPin as MapPin_2, Pencil, Phone as Phone_2, Plus, Printer, Save, School, ShieldCheck, Trash2, Upload, Users as Users_2, Check, Clock, CalendarDays, Sun, Moon, Sunrise, Sunset } from "lucide-react";
 import React_3 from "react";
 import React_2 from "react";
 import { clsx, ClassValue } from "clsx";
@@ -31,6 +31,7 @@ import { Controller, ControllerProps, FieldValues, FormProvider } from "react-ho
 import { AuthContext } from "@/x/8789d6dc";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
+import { processUploadedFile } from "@/lib/fileCompressor";
 const Form = FormProvider;
 
 const buttonVariants = cva(
@@ -1944,7 +1945,7 @@ const ZInstructorRegistration = z.object({
         .optional(),
       currentAddress: ZInstructorAddress,
       sameAsCurrentAddress: z.boolean().default(false),
-      permanentAddress: ZInstructorAddress,
+      permanentAddress: ZInstructorAddress.optional().or(z.any()),
 
         qualifications: z
         .array(ZInstructorQualification)
@@ -2268,6 +2269,56 @@ const internLevels = [
 
 const mentorshipModes = ["Online", "Offline/On Campus", "Hybrid"] as const;
 
+const WEEKDAYS = [
+  { key: "Mon", label: "Mon", full: "Monday" },
+  { key: "Tue", label: "Tue", full: "Tuesday" },
+  { key: "Wed", label: "Wed", full: "Wednesday" },
+  { key: "Thu", label: "Thu", full: "Thursday" },
+  { key: "Fri", label: "Fri", full: "Friday" },
+  { key: "Sat", label: "Sat", full: "Saturday" },
+  { key: "Sun", label: "Sun", full: "Sunday" },
+];
+
+const DAY_PRESETS = [
+  { label: "Weekdays (Mon-Fri)", days: ["Mon", "Tue", "Wed", "Thu", "Fri"] },
+  { label: "Weekends (Sat-Sun)", days: ["Sat", "Sun"] },
+  { label: "Mon - Sat", days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] },
+  { label: "All 7 Days", days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] },
+];
+
+const TIME_SLOT_PRESETS = [
+  {
+    slot: "09:00 AM – 12:00 PM",
+    label: "Morning",
+    desc: "09:00 AM – 12:00 PM",
+    icon: Sunrise,
+  },
+  {
+    slot: "02:00 PM – 05:00 PM",
+    label: "Afternoon",
+    desc: "02:00 PM – 05:00 PM",
+    icon: Sun,
+  },
+  {
+    slot: "04:00 PM – 06:00 PM",
+    label: "Evening",
+    desc: "04:00 PM – 06:00 PM",
+    icon: Sunset,
+  },
+  {
+    slot: "07:00 PM – 09:00 PM",
+    label: "Night",
+    desc: "07:00 PM – 09:00 PM",
+    icon: Moon,
+  },
+  {
+    slot: "Flexible Hours",
+    label: "Flexible",
+    desc: "Mutual Discussion",
+    icon: Clock,
+  },
+];
+
 const StepProfessional_2: React_3.FC<StepProfessionalProps_2> = ({
       onNext,
       onPrev,
@@ -2521,69 +2572,219 @@ const StepProfessional_2: React_3.FC<StepProfessionalProps_2> = ({
 
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-6 rounded-xl border border-zinc-200/60 bg-zinc-50/50 p-4 dark:border-zinc-800/50 dark:bg-zinc-900/30">
+              {/* AVAILABILITY (DAYS) */}
               <FormField
                 control={control}
                 name="availabilityDays"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      AVAILABILITY (DAYS){" "}
-                      <span className="text-destructive">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. Mon-Fri"
-                        className="bg-background"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          const days = e.target.value;
-                          const time = getValues("availabilityTimeSlots") || "";
-                          const combined =
-                            days && time ? `${days}, ${time}` : days || time;
-                          setValue("availability", combined, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentDaysStr = field.value || "";
+                  const selectedDays = WEEKDAYS.filter((d) =>
+                    currentDaysStr.includes(d.key) ||
+                    (currentDaysStr.toLowerCase().includes("weekday") && ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(d.key)) ||
+                    (currentDaysStr.toLowerCase().includes("weekend") && ["Sat", "Sun"].includes(d.key)) ||
+                    (currentDaysStr.toLowerCase().includes("all") && true)
+                  ).map((d) => d.key);
+
+                  const toggleDay = (dayKey: string) => {
+                    let newSelected: string[];
+                    if (selectedDays.includes(dayKey)) {
+                      newSelected = selectedDays.filter((d) => d !== dayKey);
+                    } else {
+                      newSelected = [...selectedDays, dayKey].sort(
+                        (a, b) =>
+                          WEEKDAYS.findIndex((w) => w.key === a) -
+                          WEEKDAYS.findIndex((w) => w.key === b)
+                      );
+                    }
+                    const formatted = newSelected.join(", ");
+                    field.onChange(formatted);
+                    const time = getValues("availabilityTimeSlots") || "";
+                    setValue("availability", formatted && time ? `${formatted}, ${time}` : formatted || time, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  };
+
+                  const applyPreset = (presetDays: string[]) => {
+                    const formatted = presetDays.join(", ");
+                    field.onChange(formatted);
+                    const time = getValues("availabilityTimeSlots") || "";
+                    setValue("availability", formatted && time ? `${formatted}, ${time}` : formatted || time, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  };
+
+                  return (
+                    <FormItem className="space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <FormLabel className="flex items-center gap-1.5 font-bold text-foreground">
+                          <CalendarDays className="size-4 text-primary" />
+                          AVAILABILITY (DAYS) <span className="text-destructive">*</span>
+                        </FormLabel>
+                        {field.value && (
+                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                            {field.value}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {DAY_PRESETS.map((p) => {
+                          const isPresetActive =
+                            p.days.length === selectedDays.length &&
+                            p.days.every((d) => selectedDays.includes(d));
+                          return (
+                            <button
+                              key={p.label}
+                              type="button"
+                              onClick={() => applyPreset(p.days)}
+                              className={cn(
+                                "text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all cursor-pointer",
+                                isPresetActive
+                                  ? "bg-primary text-primary-foreground border-primary shadow-sm font-semibold"
+                                  : "bg-background hover:bg-muted text-muted-foreground hover:text-foreground border-border/70"
+                              )}
+                            >
+                              {p.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Individual Weekday Pills */}
+                      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+                        {WEEKDAYS.map((w) => {
+                          const isSelected = selectedDays.includes(w.key);
+                          return (
+                            <button
+                              key={w.key}
+                              type="button"
+                              onClick={() => toggleDay(w.key)}
+                              className={cn(
+                                "flex flex-col items-center justify-center py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer",
+                                isSelected
+                                  ? "bg-primary text-primary-foreground border-primary shadow-md scale-102"
+                                  : "bg-background hover:bg-muted/60 text-foreground border-border/80 hover:border-primary/40"
+                              )}
+                            >
+                              <span>{w.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
+              {/* AVAILABILITY (TIME SLOTS) */}
               <FormField
                 control={control}
                 name="availabilityTimeSlots"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      AVAILABILITY (TIME SLOTS){" "}
-                      <span className="text-destructive">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. 4 PM – 6 PM"
-                        className="bg-background"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          const time = e.target.value;
-                          const days = getValues("availabilityDays") || "";
-                          const combined =
-                            days && time ? `${days}, ${time}` : days || time;
-                          setValue("availability", combined, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentTime = field.value || "";
+                  const isCustom =
+                    currentTime !== "" &&
+                    !TIME_SLOT_PRESETS.some((p) => p.slot === currentTime);
+
+                  const selectSlot = (slot: string) => {
+                    field.onChange(slot);
+                    const days = getValues("availabilityDays") || "";
+                    setValue(
+                      "availability",
+                      days && slot ? `${days}, ${slot}` : days || slot,
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      }
+                    );
+                  };
+
+                  return (
+                    <FormItem className="space-y-3 pt-2">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <FormLabel className="flex items-center gap-1.5 font-bold text-foreground">
+                          <Clock className="size-4 text-primary" />
+                          AVAILABILITY (TIME SLOTS){" "}
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
+                        {field.value && (
+                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                            {field.value}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Time Slot Cards */}
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                        {TIME_SLOT_PRESETS.map((p) => {
+                          const isSelected = currentTime === p.slot;
+                          const Icon = p.icon;
+                          return (
+                            <button
+                              key={p.slot}
+                              type="button"
+                              onClick={() => selectSlot(p.slot)}
+                              className={cn(
+                                "flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all cursor-pointer",
+                                isSelected
+                                  ? "bg-primary/10 border-primary text-primary shadow-sm ring-1 ring-primary"
+                                  : "bg-background hover:bg-muted/40 text-foreground border-border/80 hover:border-primary/40"
+                              )}
+                            >
+                              <div
+                                className={cn(
+                                  "p-2 rounded-lg shrink-0",
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
+                                )}
+                              >
+                                <Icon className="size-4" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs font-bold">{p.label}</div>
+                                <div className="text-[11px] text-muted-foreground truncate">
+                                  {p.desc}
+                                </div>
+                              </div>
+                              {isSelected && (
+                                <CheckCircle className="size-4 text-primary shrink-0 ml-auto" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Custom Time Slot Input */}
+                      <div className="pt-1">
+                        <Input
+                          placeholder="Or type custom time (e.g. 05:30 PM – 07:30 PM)"
+                          value={isCustom ? currentTime : ""}
+                          className="bg-background text-xs"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val);
+                            const days = getValues("availabilityDays") || "";
+                            setValue(
+                              "availability",
+                              days && val ? `${days}, ${val}` : days || val,
+                              {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              }
+                            );
+                          }}
+                        />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 
@@ -2698,9 +2899,7 @@ const stepsInfo = [
     { title: "Documents", desc: "Uploads & Declaration" },
   ];
 
-
-export default function InstructorRegistrationPage() {
-    const InstructorService: IInstructorService = {
+const InstructorService: IInstructorService = {
         async submitRegistration(payload) {
         const response =
           await axiosInstance.post<SubmitInstructorRegistrationResponse>(
@@ -2711,10 +2910,21 @@ export default function InstructorRegistrationPage() {
       },
 
       async getMyRegistration() {
-        const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
-          ENDPOINTS.INSTRUCTOR.REGISTER_ME,
-        );
-        return response.data;
+        try {
+          const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
+            ENDPOINTS.INSTRUCTOR.REGISTER_ME,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (error?.response?.status === 404) {
+            return {
+              success: false,
+              data: null,
+              message: "No instructor registration found",
+            } as unknown as GetInstructorRegistrationResponse;
+          }
+          throw error;
+        }
       },
 
       async listAllRegistrations(params) {
@@ -3057,6 +3267,7 @@ export default function InstructorRegistrationPage() {
         return useQuery({
           queryKey: INSTRUCTOR_QUERY_KEYS.REGISTRATION_ME(),
           queryFn: async () => await InstructorService.getMyRegistration(),
+          retry: false,
           ...options,
         });
       },
@@ -3078,7 +3289,13 @@ export default function InstructorRegistrationPage() {
             options?.onSuccess?.(data, variables, context, mutation);
           },
           onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to submit registration.");
+            let msg = error.message || "Failed to submit registration.";
+            if (typeof msg === "string" && (msg.includes("<html") || msg.includes("413"))) {
+              msg = "फ़ाइल का साइज़ बहुत बड़ा है (File size too large). कृपया छोटे साइज़ की फ़ोटो या फ़ाइल अपलोड करें।";
+            } else if (typeof msg === "string" && msg.toLowerCase().includes("timeout")) {
+              msg = "अनुरोध का समय समाप्त हो गया (Request timed out). कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।";
+            }
+            toast.error(msg);
             options?.onError?.(error, variables, context, mutation);
           },
         });
@@ -3101,7 +3318,13 @@ export default function InstructorRegistrationPage() {
             options?.onSuccess?.(data, variables, context, mutation);
           },
           onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to update registration.");
+            let msg = error.message || "Failed to update registration.";
+            if (typeof msg === "string" && (msg.includes("<html") || msg.includes("413"))) {
+              msg = "फ़ाइल का साइज़ बहुत बड़ा है (File size too large). कृपया छोटे साइज़ की फ़ोटो या फ़ाइल अपलोड करें।";
+            } else if (typeof msg === "string" && msg.toLowerCase().includes("timeout")) {
+              msg = "अनुरोध का समय समाप्त हो गया (Request timed out). कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।";
+            }
+            toast.error(msg);
             options?.onError?.(error, variables, context, mutation);
           },
         });
@@ -4887,6 +5110,8 @@ export default function InstructorRegistrationPage() {
         </div>
       );
     };
+
+export default function InstructorRegistrationPage() {
   const router = useRouter();
   const { user } = useAuth();
   const userId = user?.id ?? "";
@@ -5081,7 +5306,7 @@ export default function InstructorRegistrationPage() {
     );
   };
 
-    const handleFileChange = (
+    const handleFileChange = async (
     e: React_4.ChangeEvent<HTMLInputElement>,
     fieldName: FileField_2,
     nameField: NameField_2,
@@ -5105,29 +5330,38 @@ export default function InstructorRegistrationPage() {
       }
     }
 
-    if (file.size > 500 * 1024) {
-      toast.error(
-        `File too large! Max 500 KB. (Your file: ${(file.size / 1024).toFixed(1)} KB)`,
+    try {
+      const isImage = file.type.startsWith("image/");
+      const toastId = toast.loading(
+        isImage ? `Compressing and preparing ${file.name}...` : `Uploading ${file.name}...`,
       );
-      e.target.value = "";
-      return;
-    }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
-      form.setValue(fieldName, base64);
-      form.setValue(nameField, file.name);
+      const result = await processUploadedFile(file, {
+        maxWidth: 1200,
+        maxHeight: 1200,
+        quality: 0.72,
+        maxPdfSizeKb: 1024,
+      });
 
-      if (fieldName === "photoBase64") setPhotoPreview(base64);
-      if (nameField === "identityProofName") setIdentityProofName(file.name);
-      if (nameField === "educationCertName") setEducationCertName(file.name);
-      if (nameField === "experienceCertName") setExperienceCertName(file.name);
+      form.setValue(fieldName, result.base64);
+      form.setValue(nameField, result.fileName);
 
-      toast.success(`${file.name} uploaded successfully.`);
+      if (fieldName === "photoBase64") setPhotoPreview(result.base64);
+      if (nameField === "identityProofName") setIdentityProofName(result.fileName);
+      if (nameField === "educationCertName") setEducationCertName(result.fileName);
+      if (nameField === "experienceCertName") setExperienceCertName(result.fileName);
+
+      toast.dismiss(toastId);
+      toast.success(
+        result.isCompressed
+          ? `${result.fileName} compressed & uploaded successfully (${result.fileSizeKb} KB).`
+          : `${result.fileName} uploaded successfully (${result.fileSizeKb} KB).`,
+      );
       saveDraft();
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process file.");
+      e.target.value = "";
+    }
   };
 
     const handleAddQualification = () => {
@@ -5153,6 +5387,9 @@ export default function InstructorRegistrationPage() {
     let fieldsToValidate: FieldPath<TInstructorRegistration>[] = [];
 
     if (currentStep === 1) {
+      if (form.getValues("sameAsCurrentAddress")) {
+        form.setValue("permanentAddress", { ...form.getValues("currentAddress") });
+      }
       fieldsToValidate = [
         "fullName",
         "fatherSpouseName",
@@ -5164,12 +5401,16 @@ export default function InstructorRegistrationPage() {
         "currentAddress.state",
         "currentAddress.country",
         "currentAddress.pinCode",
-        "permanentAddress.local",
-        "permanentAddress.district",
-        "permanentAddress.state",
-        "permanentAddress.country",
-        "permanentAddress.pinCode",
       ];
+      if (!form.getValues("sameAsCurrentAddress")) {
+        fieldsToValidate.push(
+          "permanentAddress.local",
+          "permanentAddress.district",
+          "permanentAddress.state",
+          "permanentAddress.country",
+          "permanentAddress.pinCode",
+        );
+      }
     } else if (currentStep === 2) {
       fieldsToValidate = ["qualifications"];
     } else if (currentStep === 3) {
@@ -5201,6 +5442,15 @@ export default function InstructorRegistrationPage() {
   };
 
     const onSubmit = (values: TInstructorRegistration) => {
+    if (values.sameAsCurrentAddress && values.currentAddress) {
+      values.permanentAddress = { ...values.currentAddress };
+    }
+    if (!values.availability) {
+      const parts = [values.availabilityDays, values.availabilityTimeSlots].filter(Boolean);
+      if (parts.length > 0) {
+        values.availability = parts.join(", ");
+      }
+    }
     if (regMeResponse && regMeResponse.success && regMeResponse.data) {
       const updatePayload: InstructorRegistrationUpdatePayload = {
         fullName: values.fullName,

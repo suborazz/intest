@@ -1637,10 +1637,21 @@ export default function InstructorProfileDashboardPage() {
       },
 
       async getMyRegistration() {
-        const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
-          ENDPOINTS.INSTRUCTOR.REGISTER_ME,
-        );
-        return response.data;
+        try {
+          const response = await axiosInstance.get<GetInstructorRegistrationResponse>(
+            ENDPOINTS.INSTRUCTOR.REGISTER_ME,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (error?.response?.status === 404) {
+            return {
+              success: false,
+              data: null,
+              message: "No instructor registration found",
+            } as unknown as GetInstructorRegistrationResponse;
+          }
+          throw error;
+        }
       },
 
       async listAllRegistrations(params) {
@@ -2877,7 +2888,7 @@ export default function InstructorProfileDashboardPage() {
   }
 
   const s = regMeResponse.data;
-  const isApproved = Boolean(s?.isApproved || profileResponse?.data?.isApproved);
+  const isApproved = Boolean((s as any)?.isApproved || profileResponse?.data?.isApproved);
 
     const currentAddress = {
     local: s.currentAddressLocal || "",

@@ -1661,15 +1661,25 @@ function DataTableSearch({
 
   useEffect(() => {
     const handler = setTimeout(() => {
+      const currentVal = params?.get(searchKey) || "";
+      if (searchTerm.trim() === currentVal.trim()) {
+        return;
+      }
+
       const newParams = new URLSearchParams(params?.toString());
-      if (searchTerm === "") {
+      if (searchTerm.trim() === "") {
         newParams.delete(searchKey);
       } else {
-        newParams.set(searchKey, searchTerm);
+        newParams.set(searchKey, searchTerm.trim());
         newParams.set("page", "1");
       }
-      router.push(path + "?" + newParams.toString());
-    }, 500); 
+
+      const currentQuery = params?.toString() || "";
+      const newQuery = newParams.toString();
+      if (newQuery !== currentQuery) {
+        router.push(path + (newQuery ? `?${newQuery}` : ""));
+      }
+    }, 500);
 
     return () => clearTimeout(handler);
   }, [searchTerm, path, router, params, searchKey]);

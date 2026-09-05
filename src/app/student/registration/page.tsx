@@ -35,6 +35,7 @@ import { Controller, ControllerProps, FieldValues, FormProvider } from "react-ho
 import { AuthContext } from "@/x/8789d6dc";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
+import { processUploadedFile } from "@/lib/fileCompressor";
 const Form = FormProvider;
 
 const buttonVariants = cva(
@@ -1317,7 +1318,7 @@ const studentRegistrationSchema = z.object({
       category: z.string().min(1, "Category is required"),
       localAddress: addressSchema,
       sameAsLocal: z.boolean(),
-      permanentAddress: addressSchema,
+      permanentAddress: addressSchema.optional().or(z.any()),
       mobileNo: z
         .string()
         .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
@@ -1748,8 +1749,7 @@ const stepsInfo = [
   ];
 
 
-export default function RegistrationPage() {
-    const StudentRegistrationService: IStudentRegistrationService = {
+const StudentRegistrationService: IStudentRegistrationService = {
       async submitRegistration(payload) {
         const response =
           await axiosInstance.post<SubmitStudentRegistrationResponse>(
@@ -1760,10 +1760,21 @@ export default function RegistrationPage() {
       },
 
       async getMyRegistration() {
-        const response = await axiosInstance.get<GetStudentRegistrationResponse>(
-          ENDPOINTS.STUDENTS.REGISTER_ME,
-        );
-        return response.data;
+        try {
+          const response = await axiosInstance.get<GetStudentRegistrationResponse>(
+            ENDPOINTS.STUDENTS.REGISTER_ME,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (error?.response?.status === 404) {
+            return {
+              success: false,
+              data: null,
+              message: "No student registration found",
+            } as unknown as GetStudentRegistrationResponse;
+          }
+          throw error;
+        }
       },
 
       async listAllRegistrations() {
@@ -1803,6 +1814,7 @@ export default function RegistrationPage() {
         return useQuery({
           queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
           queryFn: async () => await StudentRegistrationService.getMyRegistration(),
+          retry: false,
           ...options,
         });
       },
@@ -1827,7 +1839,13 @@ export default function RegistrationPage() {
             options?.onSuccess?.(data, variables, context, mutation);
           },
           onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to submit registration.");
+            let msg = error.message || "Failed to submit registration.";
+            if (typeof msg === "string" && (msg.includes("<html") || msg.includes("413"))) {
+              msg = "फ़ाइल का साइज़ बहुत बड़ा है (File size too large). कृपया छोटे साइज़ की फ़ोटो या फ़ाइल अपलोड करें।";
+            } else if (typeof msg === "string" && msg.toLowerCase().includes("timeout")) {
+              msg = "अनुरोध का समय समाप्त हो गया (Request timed out). कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।";
+            }
+            toast.error(msg);
             options?.onError?.(error, variables, context, mutation);
           },
         });
@@ -1875,7 +1893,13 @@ export default function RegistrationPage() {
             options?.onSuccess?.(data, variables, context, mutation);
           },
           onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to update registration profile.");
+            let msg = error.message || "Failed to update registration profile.";
+            if (typeof msg === "string" && (msg.includes("<html") || msg.includes("413"))) {
+              msg = "फ़ाइल का साइज़ बहुत बड़ा है (File size too large). कृपया छोटे साइज़ की फ़ोटो या फ़ाइल अपलोड करें।";
+            } else if (typeof msg === "string" && msg.toLowerCase().includes("timeout")) {
+              msg = "अनुरोध का समय समाप्त हो गया (Request timed out). कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।";
+            }
+            toast.error(msg);
             options?.onError?.(error, variables, context, mutation);
           },
         });
@@ -3366,6 +3390,8 @@ export default function RegistrationPage() {
         </div>
       );
     };
+
+export default function RegistrationPage() {
   const router = useRouter();
   const { user } = useAuth();
   const userId = user?.id ?? "";
@@ -3620,7 +3646,7 @@ export default function RegistrationPage() {
     saveDraft();
   };
 
-    const handleFileChange = (
+    const handleFileChange = async (
     e: React_4.ChangeEvent<HTMLInputElement>,
     fieldName: "photoBase64" | "signatureBase64",
     nameField: "photoName" | "signatureName",
@@ -3628,35 +3654,43 @@ export default function RegistrationPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 500 * 1024) {
-      toast.error(
-        `File is too large! Maximum limit is 500 KB. (Your file: ${(file.size / 1024).toFixed(1)} KB)`,
-      );
-      e.target.value = "";
-      return;
-    }
+    try {
+      const toastId = toast.loading(`Compressing ${file.name}...`);
+      const result = await processUploadedFile(file, {
+        maxWidth: 1000,
+        maxHeight: 1000,
+        quality: 0.72,
+        maxPdfSizeKb: 1024,
+      });
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      form.setValue(fieldName, base64String);
-      form.setValue(nameField, file.name);
+      form.setValue(fieldName, result.base64);
+      form.setValue(nameField, result.fileName);
 
       if (fieldName === "photoBase64") {
-        setPhotoPreview(base64String);
+        setPhotoPreview(result.base64);
       } else {
-        setSignaturePreview(base64String);
+        setSignaturePreview(result.base64);
       }
-      toast.success(`${file.name} uploaded successfully.`);
+      toast.dismiss(toastId);
+      toast.success(
+        result.isCompressed
+          ? `${result.fileName} compressed & uploaded successfully (${result.fileSizeKb} KB).`
+          : `${result.fileName} uploaded successfully (${result.fileSizeKb} KB).`,
+      );
       saveDraft();
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process file.");
+      e.target.value = "";
+    }
   };
 
     const handleNextStep = async () => {
     let fieldsToValidate: FieldPath<TStudentRegistration>[] = [];
 
     if (currentStep === 1) {
+      if (sameAsLocal) {
+        form.setValue("permanentAddress", { ...form.getValues("localAddress") });
+      }
       fieldsToValidate = [
         "fullName",
         "fatherName",
@@ -3669,13 +3703,17 @@ export default function RegistrationPage() {
         "localAddress.state",
         "localAddress.country",
         "localAddress.pinCode",
-        "permanentAddress.local",
-        "permanentAddress.district",
-        "permanentAddress.state",
-        "permanentAddress.country",
-        "permanentAddress.pinCode",
         "mobileNo",
       ];
+      if (!sameAsLocal) {
+        fieldsToValidate.push(
+          "permanentAddress.local",
+          "permanentAddress.district",
+          "permanentAddress.state",
+          "permanentAddress.country",
+          "permanentAddress.pinCode",
+        );
+      }
     } else if (currentStep === 2) {
       const isTempAcademicFilled = Object.values(tempAcademic).some(
         (val) =>
@@ -3711,6 +3749,16 @@ export default function RegistrationPage() {
   };
 
     const onSubmit = (values: TStudentRegistration) => {
+    if (values.sameAsLocal && values.localAddress) {
+      values.permanentAddress = {
+        local: values.localAddress.local,
+        block: values.localAddress.block || "",
+        district: values.localAddress.district,
+        state: values.localAddress.state,
+        country: values.localAddress.country || "India",
+        pinCode: values.localAddress.pinCode,
+      };
+    }
     if (regMeResponse && regMeResponse.success && regMeResponse.data) {
             const updatePayload: StudentRegistrationUpdatePayload = {
         fullName: values.fullName,

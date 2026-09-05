@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "@/x/cloudinary";
 import { z } from "zod";
 import { format } from "date-fns";
 import { prisma } from "@/x/e3746f45";
@@ -79,7 +79,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     function validationErrorResponse(
       error: ZodError,
     ): NextResponse<ApiErrorResponse> {
-      return errorResponse("VALIDATION_ERROR", "Request validation failed", {
+      const firstIssue = error.issues[0];
+      const message = firstIssue?.message || "Request validation failed";
+      return errorResponse("VALIDATION_ERROR", message, {
         status: HTTP.UNPROCESSABLE,
         details: error.flatten().fieldErrors,
       });
@@ -143,12 +145,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const addressSchema = z.object({
-      local: z.string().min(3, "Address line must be at least 3 characters"),
-      block: z.string().optional().or(z.literal("")),
-      district: z.string().min(2, "District is required"),
-      state: z.string().min(2, "State is required"),
-      country: z.string().min(2, "Country is required"),
-      pinCode: z.string().regex(/^\d{6}$/, "Pin code must be exactly 6 digits"),
+      local: z.string().min(1, "Address line is required"),
+      block: z.string().optional().nullable().or(z.literal("")).default(""),
+      district: z.string().min(1, "District is required"),
+      state: z.string().min(1, "State is required"),
+      country: z.string().min(1, "Country is required").default("India"),
+      pinCode: z.preprocess(
+        (val) => (typeof val === "string" ? val.trim() : val),
+        z.string().regex(/^\d{6}$/, "Pin code must be exactly 6 digits"),
+      ),
     });
 
     const academicDetailSchema = z.object({
@@ -157,10 +162,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       subject: z.string().min(1, "Subject is required"),
       instituteName: z
         .string()
-        .min(2, "Institute name must be at least 2 characters"),
+        .min(1, "Institute name must be at least 1 character"),
       universityName: z
         .string()
-        .min(2, "University name must be at least 2 characters"),
+        .min(1, "University name must be at least 1 character"),
       sessionYear: z.string().min(1, "Session year is required"),
       gradeDivision: z.string().min(1, "Grade/Division is required"),
       status: z.preprocess(
@@ -175,7 +180,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             ) {
               return "Pass Out";
             }
-            if (s === "Persuing" || s === "Pursuing" || s === "PURSUING") {
+            if (
+              s === "Persuing" ||
+              s === "Pursuing" ||
+              s === "PURSUING" ||
+              s === "persuing" ||
+              s === "pursuing"
+            ) {
               return "Persuing";
             }
           }
@@ -187,15 +198,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const studentSkillSchema = z.object({
       skillName: z.string().min(1, "Skill name/area is required"),
-      description: z
-        .string()
-        .min(5, "Description must be at least 5 characters")
-        .max(3000),
-      certifyingBody: z.string().optional().or(z.literal("")),
-      certYear: z.string().optional().or(z.literal("")),
+      description: z.string().optional().default(""),
+      certifyingBody: z.string().optional().nullable().or(z.literal("")),
+      certYear: z.string().optional().nullable().or(z.literal("")),
     });
 
-    const MAX_BASE64_CHARS = 800_000;
+    const MAX_BASE64_CHARS = 1_500_000;
 
     const studentRegistrationSchema = z.object({
       fullName: z.string().min(2, "Full name must be at least 2 characters").trim(),
@@ -207,48 +215,86 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .string()
         .min(2, "Mother name must be at least 2 characters")
         .trim(),
-      dob: z
-        .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
-      gender: z.enum(["Male", "Female", "Transgender"]),
+      dob: z.preprocess(
+        (val) => {
+          if (typeof val === "string") {
+            if (val.includes("T")) return val.split("T")[0];
+            return val.trim();
+          }
+          return val;
+        },
+        z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+      ),
+      gender: z.preprocess(
+        (val) => (typeof val === "string" ? val.trim() : val),
+        z.enum(["Male", "Female", "Transgender"]),
+      ),
       category: z.string().min(1, "Category is required"),
       localAddress: addressSchema,
-      sameAsLocal: z.boolean(),
-      permanentAddress: addressSchema,
-      mobileNo: z
-        .string()
-        .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+      sameAsLocal: z.preprocess((val) => Boolean(val), z.boolean()),
+      permanentAddress: addressSchema.optional().or(z.any()),
+      mobileNo: z.preprocess(
+        (val) => {
+          if (typeof val !== "string") return val;
+          let cleaned = val.replace(/[\s-]/g, "");
+          if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+          else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
+          else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
+          return cleaned;
+        },
+        z.string().regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+      ),
       academics: z
         .array(academicDetailSchema)
         .min(1, "At least one academic qualification is required"),
       skills: z.array(studentSkillSchema).optional().default([]),
-      internshipGoal: z.enum([
-        "Job",
-        "Freelancing",
-        "Higher Studies",
-        "Startup",
-        "Skill Enhancement",
-        "Other",
-      ]),
-      aadharNo: z
-        .string()
-        .regex(/^\d{12}$/, "Aadhar number must be exactly 12 digits")
-        .optional()
-        .nullable()
-        .or(z.literal("")),
+      internshipGoal: z.preprocess(
+        (val) => {
+          if (typeof val === "string") {
+            return val.replace(/_/g, " ").trim();
+          }
+          return val;
+        },
+        z.enum([
+          "Job",
+          "Freelancing",
+          "Higher Studies",
+          "Startup",
+          "Skill Enhancement",
+          "Other",
+        ]),
+      ),
+      aadharNo: z.preprocess(
+        (val) => {
+          if (!val) return "";
+          if (typeof val === "string") {
+            return val.replace(/[\s-]/g, "").trim();
+          }
+          return val;
+        },
+        z
+          .string()
+          .regex(/^\d{12}$/, "Aadhar number must be exactly 12 digits")
+          .optional()
+          .nullable()
+          .or(z.literal("")),
+      ),
       photoBase64: z
         .string()
         .min(1, "Photo is required")
-        .max(MAX_BASE64_CHARS, "Photo must be under 500 KB"),
+        .max(MAX_BASE64_CHARS, "Photo must be under 1 MB"),
       photoName: z.string().min(1, "Photo filename is required"),
       signatureBase64: z
         .string()
         .min(1, "Signature is required")
-        .max(MAX_BASE64_CHARS, "Signature must be under 500 KB"),
+        .max(MAX_BASE64_CHARS, "Signature must be under 1 MB"),
       signatureName: z.string().min(1, "Signature filename is required"),
-      agreeTerms: z.literal(true, {
-        error: "You must agree to terms and conditions",
-      }),
+      agreeTerms: z.preprocess(
+        (val) => val === true || val === "true",
+        z.literal(true, {
+          error: "You must agree to terms and conditions",
+        }),
+      ),
     });
 
     async function deleteAsset(
@@ -339,7 +385,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const body = await request.json();
+        const rawBody = await request.json();
+    const body = { ...rawBody };
+    if (body.sameAsLocal && body.localAddress) {
+      body.permanentAddress = { ...body.localAddress };
+    }
     const data = studentRegistrationSchema.parse(body);
 
         const existing = await prisma.studentRegistration.findUnique({
