@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "@/x/cloudinary";
 import { z, ZodError } from "zod";
 import { prisma } from "@/x/e3746f45";
 

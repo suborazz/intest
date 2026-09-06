@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { ZodError } from "zod";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
 export const dynamic = "force-dynamic";
 

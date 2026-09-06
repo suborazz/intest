@@ -2700,7 +2700,8 @@ export default function SuperAdminMediaDeskPage() {
             options?.onSuccess?.(data, variables, context, undefined as any);
           },
           onError: (err, variables, context) => {
-            toast.error(err.message || "Failed to upload photo.");
+            const apiMsg = (err as any)?.response?.data?.error?.message;
+            toast.error(apiMsg || err.message || "Failed to upload photo.");
             options?.onError?.(err, variables, context, undefined as any);
           },
         });
@@ -2726,7 +2727,8 @@ export default function SuperAdminMediaDeskPage() {
             options?.onSuccess?.(data, variables, context, undefined as any);
           },
           onError: (err, variables, context) => {
-            toast.error(err.message || "Failed to update photo.");
+            const apiMsg = (err as any)?.response?.data?.error?.message;
+            toast.error(apiMsg || err.message || "Failed to update photo.");
             options?.onError?.(err, variables, context, undefined as any);
           },
         });

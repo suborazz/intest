@@ -3,7 +3,7 @@ import fs from "fs";
 import { join } from "path";
 import PDFDocument from "pdfkit";
 import { ZodError } from "zod";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
 export const dynamic = "force-dynamic";
 
