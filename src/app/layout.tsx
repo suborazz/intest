@@ -68,9 +68,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/header-logo.png",
-        width: 800,
-        height: 600,
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
         alt: "International Institute of Internship Logo",
       },
     ],
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "International Institute of Internship™",
     description: "Empowering students worldwide with top-tier virtual and on-campus international internships.",
-    images: ["/header-logo.png"],
+    images: ["/logo.png"],
   },
   robots: {
     index: true,

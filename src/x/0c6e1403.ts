@@ -31,7 +31,7 @@ export function getBaseTemplate(title: string, content: string): string {
               <tr>
                 <td align="center" style="padding: 26px 30px 20px 30px; border-bottom: 2px solid #f1f5f9; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
                   <a href="${baseUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
-                    <img src="${baseUrl}/header-logo.png" alt="International Institute of Internship™" width="190" style="display: block; width: 190px; max-width: 100%; height: auto; margin: 0 auto 4px auto; border: 0;" />
+                    <img src="${baseUrl}/logo.png" alt="International Institute of Internship™" width="220" style="display: block; width: 220px; max-width: 100%; height: auto; margin: 0 auto 4px auto; border: 0;" />
                   </a>
                   <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">
                     Global Internship & Skill Development Platform
