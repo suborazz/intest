@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, Target, Users, Video } from "lucide-react";
+import { ChevronDown, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
 import Link from "next/link";
 import Link_2 from "next/link";
 import * as React from "react";
@@ -48,7 +48,7 @@ function NavigationMenuViewport({
 function NavigationMenu({
   className,
   children,
-  viewport = true,
+  viewport = false,
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Root> & {
   viewport?: boolean;
@@ -77,7 +77,7 @@ function NavigationMenuContent({
     <NavigationMenuPrimitive.Content
       data-slot="navigation-menu-content"
       className={cn(
-        "group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:ring-foreground/10 data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none group-data-[viewport=false]/navigation-menu:data-open:animate-in group-data-[viewport=false]/navigation-menu:data-open:fade-in-0 group-data-[viewport=false]/navigation-menu:data-open:zoom-in-95 group-data-[viewport=false]/navigation-menu:data-closed:animate-out group-data-[viewport=false]/navigation-menu:data-closed:fade-out-0 group-data-[viewport=false]/navigation-menu:data-closed:zoom-out-95 left-0 top-0 w-full p-1.5 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[viewport=false]/navigation-menu:top-full group-data-[viewport=false]/navigation-menu:mt-1.5 group-data-[viewport=false]/navigation-menu:overflow-hidden group-data-[viewport=false]/navigation-menu:rounded-xl group-data-[viewport=false]/navigation-menu:shadow-md group-data-[viewport=false]/navigation-menu:ring-1 group-data-[viewport=false]/navigation-menu:duration-300 md:absolute md:w-auto",
+        "absolute top-full left-0 mt-2 z-50 rounded-2xl bg-white shadow-2xl border border-gray-100/90 duration-200 animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
         className,
       )}
       {...props}
@@ -313,197 +313,230 @@ function SheetTitle({
   );
 }
 interface NavSubItem {
-      title: string;
-      href: string;
-      description?: string;
-      icon?: LucideIcon_2;
-    }
+  title: string;
+  href: string;
+  description?: string;
+  icon?: LucideIcon_2;
+}
 
 interface NavItem {
-      title: string;
-      href?: string;
-      isSubmenu?: boolean;
-      submenuItems?: NavSubItem[];
-      submenuFeatured?: {
-        title: string;
-        description: string;
-        href: string;
-        image: string;
-      };
-    }
+  title: string;
+  href?: string;
+  isSubmenu?: boolean;
+  submenuItems?: NavSubItem[];
+  submenuFeatured?: {
+    title: string;
+    description: string;
+    href: string;
+    image: string;
+  };
+}
 
 const navData: NavItem[] = [
-      { title: "Home", href: "/" },
+  { title: "Home", href: "/" },
+  {
+    title: "About Us",
+    isSubmenu: true,
+    submenuFeatured: {
+      title: "About Us",
+      description:
+        "Learn more about our history, mission, and the dedicated team driving our vision forward.",
+      href: "/about",
+      image:
+        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80",
+    },
+    submenuItems: [
       {
-        title: "About Us",
-        isSubmenu: true,
-        submenuFeatured: {
-          title: "About Us",
-          description:
-            "Learn more about our history, mission, and the dedicated team driving our vision forward.",
-          href: "/about",
-          image:
-            "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80",
-        },
-        submenuItems: [
-          {
-            title: "Organization History",
-            href: "/about/organization-history",
-            description: "Discover the roots and milestones of our journey.",
-            icon: Landmark,
-          },
-          {
-            title: "Vision & Mission",
-            href: "/about/vision-mission",
-            description: "Learn about our goals and the future we aim to build.",
-            icon: Target,
-          },
-          {
-            title: "Team Members",
-            href: "/about/team-members",
-            description: "Meet the dedicated professionals driving our success.",
-            icon: Users,
-          },
-          {
-            title: "What is Internship",
-            href: "/about/internship",
-            description:
-              "Understand the structure and benefits of our internships.",
-            icon: Briefcase,
-          },
-          {
-            title: "What is Immersion",
-            href: "/about/immersion",
-            description: "Explore our comprehensive immersion programs.",
-            icon: Globe,
-          },
-        ],
-      },
-      { title: "Notice", href: "/notice" },
-      {
-        title: "Internship Program",
-        isSubmenu: true,
-        submenuFeatured: {
-          title: "Internship Programs",
-          description:
-            "Accelerate your career with our exclusive virtual and on-campus internship opportunities.",
-          href: "/internship",
-          image:
-            "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=600&auto=format&fit=crop",
-        },
-        submenuItems: [
-          {
-            title: "Running Internships",
-            href: "/internship/running-internship",
-            description: "Explore our ongoing internship programs.",
-            icon: Activity,
-          },
-          {
-            title: "On Campus Internships",
-            href: "/internship/on-campus",
-            description: "Join our on-campus internship opportunities.",
-            icon: MapPin,
-          },
-          {
-            title: "Virtual Internships",
-            href: "/internship/virtual-internship",
-            description:
-              "Participate in remote and virtual internships from anywhere.",
-            icon: Laptop,
-          },
-        ],
-      },
-      { title: "Immersion", href: "/immersion" },
-      {
-        title: "Our Partners",
-        isSubmenu: true,
-        submenuFeatured: {
-          title: "Our Partners",
-          description:
-            "Collaborating with top educational institutes and industry leaders to provide the best opportunities.",
-          href: "/partners",
-          image:
-            "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80",
-        },
-        submenuItems: [
-          {
-            title: "Educational Institutes",
-            href: "/partners/educational-institutes",
-            description: "Collaborating with top academic institutions.",
-            icon: GraduationCap,
-          },
-          {
-            title: "Job Placement Companies",
-            href: "/partners/job-placement",
-            description: "Connecting you with leading hiring partners.",
-            icon: Building,
-          },
-          {
-            title: "Training & Technical Support",
-            href: "/partners/training-support",
-            description: "Enhancing skills through expert technical support.",
-            icon: Presentation,
-          },
-        ],
+        title: "Organization History",
+        href: "/about/organization-history",
+        description: "Discover the roots and milestones of our journey.",
+        icon: Landmark,
       },
       {
-        title: "Media",
-        isSubmenu: true,
-        submenuFeatured: {
-          title: "Media Room",
-          description: "Explore our latest videos, photos, and media coverage.",
-          href: "/media",
-          image:
-            "https://images.unsplash.com/photo-1492612235820-43dfb22144d7?auto=format&fit=crop&w=600&q=80",
-        },
-        submenuItems: [
-          {
-            title: "Video",
-            href: "/media/video",
-            description: "Watch highlights and educational video content.",
-            icon: Video,
-          },
-          {
-            title: "Photo",
-            href: "/media/photo",
-            description: "Browse through our vibrant campus and event galleries.",
-            icon: ImageIcon,
-          },
-          {
-            title: "Online Media",
-            href: "/media/online",
-            description: "Read our features across various online platforms.",
-            icon: Globe,
-          },
-          {
-            title: "News Paper",
-            href: "/media/newspaper",
-            description:
-              "Stay updated with our latest press releases and articles.",
-            icon: Newspaper,
-          },
-        ],
+        title: "Vision & Mission",
+        href: "/about/vision-mission",
+        description: "Learn about our goals and the future we aim to build.",
+        icon: Target,
       },
-      { title: "Success Story", href: "/success-story" },
-      { title: "Recruitment", href: "/recruitment" },
-      { title: "Contact Us", href: "/contact" },
-      { title: "Donate", href: "/donate" },
-    ];
+      {
+        title: "Team Members",
+        href: "/about/team-members",
+        description: "Meet the dedicated professionals driving our success.",
+        icon: Users,
+      },
+      {
+        title: "What is Internship",
+        href: "/about/internship",
+        description:
+          "Understand the structure and benefits of our internships.",
+        icon: Briefcase,
+      },
+    ],
+  },
+  {
+    title: "Internships",
+    isSubmenu: true,
+    submenuFeatured: {
+      title: "Internship Programs",
+      description:
+        "Accelerate your career with our exclusive virtual and on-campus internship opportunities.",
+      href: "/internship",
+      image:
+        "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=600&auto=format&fit=crop",
+    },
+    submenuItems: [
+      {
+        title: "All Internships",
+        href: "/internship",
+        description: "Browse all available domain internships.",
+        icon: Briefcase,
+      },
+      {
+        title: "Running Internships",
+        href: "/internship/running-internship",
+        description: "Explore our ongoing internship programs.",
+        icon: Activity,
+      },
+      {
+        title: "On Campus Internships",
+        href: "/internship/on-campus",
+        description: "Join our on-campus internship opportunities.",
+        icon: MapPin,
+      },
+      {
+        title: "Virtual Internships",
+        href: "/internship/virtual-internship",
+        description:
+          "Participate in remote and virtual internships from anywhere.",
+        icon: Laptop,
+      },
+      {
+        title: "Immersion Programs",
+        href: "/immersion",
+        description:
+          "Intensive experiential industrial training & learning cohorts.",
+        icon: Sparkles,
+      },
+    ],
+  },
+  {
+    title: "For Students",
+    isSubmenu: true,
+    submenuItems: [
+      {
+        title: "Student Registration",
+        href: "/student/registration",
+        description: "Register to explore and apply for verified internships.",
+        icon: GraduationCap,
+      },
+      {
+        title: "Student Login",
+        href: "/login",
+        description: "Login to your student portal and view applications.",
+        icon: Users,
+      },
+    ],
+  },
+  {
+    title: "For Instructors",
+    isSubmenu: true,
+    submenuItems: [
+      {
+        title: "Instructor Registration",
+        href: "/instructor/registration",
+        description: "Join our esteemed mentor network and train youth.",
+        icon: Presentation,
+      },
+      {
+        title: "Instructor Login",
+        href: "/login",
+        description: "Access instructor workspace and student cohorts.",
+        icon: Users,
+      },
+    ],
+  },
+  {
+    title: "Our Partners",
+    isSubmenu: true,
+    submenuItems: [
+      {
+        title: "Educational Institutes",
+        href: "/partners/educational-institutes",
+        description: "Collaborate with universities & colleges for internship integration.",
+        icon: Building,
+      },
+      {
+        title: "Job Placement",
+        href: "/partners/job-placement",
+        description: "Connect with hiring partners and industry recruiters.",
+        icon: Briefcase,
+      },
+      {
+        title: "Training & Support",
+        href: "/partners/training-support",
+        description: "Skill development and corporate technical training support.",
+        icon: Presentation,
+      },
+    ],
+  },
+  {
+    title: "Resources",
+    isSubmenu: true,
+    submenuItems: [
+      {
+        title: "Media Room",
+        href: "/media",
+        description: "Press releases, photos, videos and newspaper clips.",
+        icon: ImageIcon,
+      },
+      {
+        title: "Notice Board",
+        href: "/notice",
+        description: "Official notifications, announcements and circulars.",
+        icon: Newspaper,
+      },
+      {
+        title: "Success Stories",
+        href: "/success-story",
+        description: "Inspiring alumni journeys and placement achievements.",
+        icon: Target,
+      },
+      {
+        title: "FAQs",
+        href: "/faqs",
+        description: "Frequently asked questions and policy guidelines.",
+        icon: Activity,
+      },
+      {
+        title: "Donate",
+        href: "/donate",
+        description: "Support our non-profit educational mission.",
+        icon: Globe,
+      },
+      {
+        title: "Contact Us",
+        href: "/contact",
+        description: "Get in touch with our admissions & support team.",
+        icon: Mail,
+      },
+    ],
+  },
+];
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<"a"> {
-      title: string;
-      icon?: LucideIcon;
-    }
+  title: string;
+  icon?: LucideIcon;
+}
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="sheet" {...props} />;
-    }
+  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+}
 
 function SheetTrigger({
-      ...props
-    }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
-      return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
-    }
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
+  return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
+}
 
 
 export default function LandingLayout({
@@ -511,503 +544,574 @@ export default function LandingLayout({
 }: {
   children: React.ReactNode;
 }) {
-    function cn(...inputs: ClassValue[]) {
-      return twMerge(clsx(inputs));
-    }
+  function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+  }
 
-    const ListItem = React.forwardRef<React.ElementRef<"a">, ListItemProps>(
-      ({ className, title, children, icon: Icon, ...props }, ref) => {
-        return (
-          <li>
-            <NavigationMenuLink asChild>
-              <a
-                ref={ref}
-                className={cn(
-                  "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group flex select-none items-center gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors",
-                  className,
-                )}
-                {...props}
-              >
-                {Icon && (
-                  <div className="bg-muted/50 group-hover:bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-colors">
-                    <Icon className="text-primary h-5 w-5 transition-transform group-hover:scale-110" />
-                  </div>
-                )}
-                <div className="flex flex-col gap-1">
-                  <div
-                    className={cn(
-                      "text-foreground group-hover:text-primary text-sm leading-tight transition-colors",
-                      children ? "font-bold" : "font-semibold",
-                    )}
-                  >
-                    {title}
-                  </div>
-                  {children && (
-                    <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-                      {children}
-                    </p>
-                  )}
-                </div>
-              </a>
-            </NavigationMenuLink>
-          </li>
-        );
-      },
+  const ListItem = React.forwardRef<
+    React.ElementRef<typeof Link>,
+    ListItemProps & { href?: string }
+  >(({ className, title, children, icon: Icon, href = "#", ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <Link
+            ref={ref}
+            href={href}
+            className={cn(
+              "hover:bg-emerald-50/80 hover:text-[#0A5C36] focus:bg-emerald-50/80 focus:text-[#0A5C36] group flex select-none items-start gap-2.5 rounded-xl p-2.5 leading-none no-underline outline-none transition-all",
+              className,
+            )}
+            {...props}
+          >
+            {Icon && (
+              <div className="bg-emerald-50/90 group-hover:bg-[#0A5C36] group-hover:text-white flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#0A5C36] transition-colors mt-0.5">
+                <Icon className="h-4 w-4 transition-transform group-hover:scale-105" />
+              </div>
+            )}
+            <div className="flex flex-col gap-0.5">
+              <div className="text-slate-900 group-hover:text-[#0A5C36] text-xs font-bold leading-tight transition-colors">
+                {title}
+              </div>
+              {children && (
+                <p className="text-slate-500 line-clamp-2 text-[11px] leading-snug font-normal">
+                  {children}
+                </p>
+              )}
+            </div>
+          </Link>
+        </NavigationMenuLink>
+      </li>
     );
-    ListItem.displayName = "ListItem";
-    const [open, setOpen] = React.useState(false);
-    const [expandedMenu, setExpandedMenu] = React.useState<string | null>(null);
-    const pathname = usePathname();
-    const handleLinkClick = () => setOpen(false);
-    const [isScrolled, setIsScrolled] = React.useState(false);
-    React.useEffect(() => {
-            const handleScroll = () => {
-              setIsScrolled(window.scrollY > 20);
-            };
-            window.addEventListener("scroll", handleScroll);
-            return () => window.removeEventListener("scroll", handleScroll);
-          }, []);
+  });
+  ListItem.displayName = "ListItem";
+  const [open, setOpen] = React.useState(false);
+  const [expandedMenu, setExpandedMenu] = React.useState<string | null>(null);
+  const pathname = usePathname();
+  const handleLinkClick = () => setOpen(false);
 
-
-
-      return (
+  return (
     <>
-      <div className="pointer-events-none sticky top-0 z-50 flex w-full justify-center">
-                        <header
-                          className={`bg-background pointer-events-auto relative transition-all duration-300 ease-in-out ${
-                            isScrolled
-                              ? "border-border mx-auto mt-2 w-[95%] max-w-[100%] rounded-full border py-0 shadow-lg md:w-fit xl:max-w-max"
-                              : "mx-0 mt-0 w-full max-w-full rounded-none border-b-0 py-0 shadow-none"
-                          }`}
-                        >
-                          <div
-                            className={`mx-auto flex w-full items-center justify-between gap-1 transition-all duration-300 lg:gap-3 ${isScrolled ? "h-14 px-3 lg:px-5" : "h-16 max-w-screen-2xl px-4 md:px-8"}`}
+      {/* Top Announcement Bar */}
+      <div className="bg-[#063B27] text-white text-[11px] sm:text-xs py-2 px-4 sm:px-6 lg:px-8 border-b border-emerald-950/40">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 text-emerald-100 font-medium overflow-x-auto text-[11px] sm:text-xs no-scrollbar">
+            <a href="mailto:i3.office2025@gmail.com" className="flex items-center gap-1.5 hover:text-white transition shrink-0">
+              <Mail className="size-3.5 text-emerald-400 shrink-0" />
+              <span>i3.office2025@gmail.com</span>
+            </a>
+            <span className="text-emerald-700 hidden sm:inline">|</span>
+            <a href="tel:+919472351693" className="hidden sm:flex items-center gap-1.5 hover:text-white transition shrink-0">
+              <Phone className="size-3.5 text-emerald-400 shrink-0" />
+              <span>+91 9472351693</span>
+            </a>
+            <span className="text-emerald-700 hidden lg:inline">|</span>
+            <span className="hidden lg:inline text-emerald-200 truncate">
+              Empowering Youth Through Internship &amp; Skill Development
+            </span>
+          </div>
+          <a
+            href="https://www.dpkavishek.in/hrc-office.php"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-emerald-300 hover:text-white font-semibold text-[11px] sm:text-xs shrink-0 transition-colors group/trust"
+          >
+            <ShieldCheck className="size-3.5 text-emerald-400 group-hover/trust:scale-110 transition-transform" />
+            <span className="underline-offset-2 group-hover/trust:underline">A Unit of DPKHRC TRUST</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Main Navigation Header */}
+      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all duration-300">
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-3">
+          {/* Logo */}
+          <div className="flex shrink-0 items-center">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="International Institute of Internship Logo"
+                width={260}
+                height={70}
+                className="h-10 sm:h-11 w-auto object-contain"
+                priority
+              />
+            </Link>
+          </div>
+
+          {/* Desktop Navigation Links */}
+          <div className="hidden xl:flex items-center justify-center flex-1 max-w-fit px-2">
+            <NavigationMenu className="relative z-[100]">
+              <NavigationMenuList className="gap-0.5 2xl:gap-1 flex-nowrap">
+                {navData.map((item) => {
+                  const isActive = pathname === item.href;
+                  if (item.isSubmenu && item.submenuItems) {
+                    const isSubActive = item.submenuItems.some(sub => pathname === sub.href);
+                    return (
+                      <NavigationMenuItem key={item.title} value={item.title} className="shrink-0">
+                        <NavigationMenuTrigger className={cn(
+                          "bg-transparent px-2 2xl:px-2.5 py-1.5 text-[12.5px] 2xl:text-[13px] font-semibold text-slate-700 hover:text-[#0A5C36] hover:bg-emerald-50/60 focus:bg-emerald-50/60 focus:text-[#0A5C36] transition-colors rounded-lg whitespace-nowrap",
+                          isSubActive && "text-[#0A5C36] font-bold"
+                        )}>
+                          {item.title}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent className={cn(item.title === "Resources" && "right-0 left-auto")}>
+                          <ul
+                            className={cn(
+                              "grid gap-2 p-3 bg-white rounded-xl shadow-xl border border-gray-100",
+                              item.submenuFeatured
+                                ? "md:w-[520px] lg:w-[580px] lg:grid-cols-[.8fr_1fr]"
+                                : "flex w-[270px] flex-col",
+                            )}
                           >
-                            <div className="z-10 flex shrink-0 items-center gap-2 md:gap-4">
-                              <Link
-                                href="/"
-                                className="-ml-2 flex items-center space-x-2 lg:-ml-6"
-                              >
-                                <Image
-                                  src="/logo.png"
-                                  alt="Logo"
-                                  width={280}
-                                  height={100}
-                                  className={`w-auto origin-left object-contain transition-all duration-300 ${isScrolled ? "h-9 scale-[1.25] md:h-[2.8rem]" : "h-12 scale-[1.4] md:h-[3.5rem]"}`}
-                                />
-                              </Link>
-                            </div>
-
-                            <div className="hidden flex-1 items-center justify-center lg:flex">
-                              <NavigationMenu className="relative z-[100] pb-2">
-                                                  <NavigationMenuList>
-                                                    {navData.map((item) => {
-                                                      if (item.isSubmenu && item.submenuItems) {
-                                                        return (
-                                                          <NavigationMenuItem key={item.title}>
-                                                            <NavigationMenuTrigger className="hover:text-primary focus:text-primary bg-transparent px-1.5 text-[12px] lg:px-2 lg:text-[13.5px]">
-                                                              {item.title}
-                                                            </NavigationMenuTrigger>
-                                                            <NavigationMenuContent>
-                                                              <ul
-                                                                className={cn(
-                                                                  "grid gap-3 p-4",
-                                                                  item.submenuFeatured
-                                                                    ? "md:w-[500px] lg:w-[600px] lg:grid-cols-[.75fr_1fr]"
-                                                                    : "flex w-[250px] flex-col",
-                                                                )}
-                                                              >
-                                                                {item.submenuFeatured && (
-                                                                  <li className="group relative row-span-3 overflow-hidden rounded-md">
-                                                                    <NavigationMenuLink asChild>
-                                                                      <a
-                                                                        className="relative z-10 flex h-full w-full select-none flex-col items-center justify-center p-6 text-center no-underline outline-none transition-all focus:shadow-md"
-                                                                        href={item.submenuFeatured.href}
-                                                                      >
-                                                                        {}
-                                                                        <div className="bg-muted absolute inset-0 z-[-1]">
-                                                                          <img
-                                                                            src={item.submenuFeatured.image}
-                                                                            alt={item.submenuFeatured.title}
-                                                                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                                          />
-                                                                          <div className="absolute inset-0 bg-black/60 transition-colors group-hover:bg-black/50" />
-                                                                        </div>
-
-                                                                        <div className="mb-3 text-2xl font-bold text-white">
-                                                                          {item.submenuFeatured.title}
-                                                                        </div>
-                                                                        <p className="max-w-[220px] text-sm leading-relaxed text-white/90">
-                                                                          {item.submenuFeatured.description}
-                                                                        </p>
-                                                                      </a>
-                                                                    </NavigationMenuLink>
-                                                                  </li>
-                                                                )}
-
-                                                                {item.submenuItems.map((subItem) => (
-                                                                  <ListItem
-                                                                    key={subItem.title}
-                                                                    href={subItem.href}
-                                                                    title={subItem.title}
-                                                                    icon={subItem.icon}
-                                                                  >
-                                                                    {subItem.description}
-                                                                  </ListItem>
-                                                                ))}
-                                                              </ul>
-                                                            </NavigationMenuContent>
-                                                          </NavigationMenuItem>
-                                                        );
-                                                      }
-
-                                                      return (
-                                                        <NavigationMenuItem key={item.title}>
-                                                          <NavigationMenuLink asChild>
-                                                            <Link
-                                                              href={item.href!}
-                                                              className={cn(
-                                                                navigationMenuTriggerStyle(),
-                                                                "px-1.5 text-[12px] lg:px-2 lg:text-[13.5px]",
-                                                              )}
-                                                            >
-                                                              {item.title}
-                                                            </Link>
-                                                          </NavigationMenuLink>
-                                                        </NavigationMenuItem>
-                                                      );
-                                                    })}
-                                                  </NavigationMenuList>
-                                                </NavigationMenu>
-                            </div>
-
-                            <div className="z-10 flex items-center gap-3">
-                              <Button
-                                asChild
-                                className={`hidden rounded-full px-6 font-semibold shadow-md transition-transform hover:scale-105 active:scale-95 sm:inline-flex ${isScrolled ? "h-9" : "h-11"}`}
-                              >
-                                <Link href="/login">Login</Link>
-                              </Button>
-                              <div className="flex items-center lg:hidden">
-                                <Sheet open={open} onOpenChange={setOpen}>
-                                                      <SheetTrigger asChild>
-                                                        <Button
-                                                          variant="ghost"
-                                                          size="icon"
-                                                          className="text-primary hover:bg-primary/10 bg-primary/5 shrink-0 rounded-md"
-                                                        >
-                                                          <Menu className="h-6 w-6" />
-                                                          <span className="sr-only">Toggle navigation menu</span>
-                                                        </Button>
-                                                      </SheetTrigger>
-                                                      <SheetContent
-                                                        side="right"
-                                                        className="bg-background flex w-[85vw] flex-col border-l-0 p-0 shadow-2xl sm:w-[380px]"
-                                                      >
-                                                        <SheetHeader className="border-primary/10 bg-background flex shrink-0 flex-row items-center justify-between border-b px-5 py-2 text-left">
-                                                          <SheetTitle className="m-0 flex items-center">
-                                                            <Image
-                                                              src="/logo.png"
-                                                              alt="Logo"
-                                                              width={280}
-                                                              height={100}
-                                                              className="h-14 w-auto origin-left scale-125 object-contain"
-                                                            />
-                                                          </SheetTitle>
-                                                          <SheetDescription className="sr-only">
-                                                            Navigation menu for mobile devices
-                                                          </SheetDescription>
-                                                        </SheetHeader>
-
-                                                        <div className="flex-1 overflow-y-auto px-4 py-2">
-                                                          <div className="mt-1 flex flex-col space-y-1">
-                                                            {navData.map((item) => {
-                                                              if (item.isSubmenu && item.submenuItems) {
-                                                                const isSubmenuActive = item.submenuItems.some(
-                                                                  (subItem) => pathname === subItem.href,
-                                                                );
-                                                                const isExpanded =
-                                                                  expandedMenu === item.title || isSubmenuActive;
-
-                                                                return (
-                                                                  <div key={item.title} className="flex flex-col">
-                                                                    <button
-                                                                      onClick={() =>
-                                                                        setExpandedMenu(isExpanded ? null : item.title)
-                                                                      }
-                                                                      className={`group flex w-full items-center justify-between rounded-lg px-4 py-2.5 text-left text-[15px] font-semibold outline-none transition-all ${isSubmenuActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-primary/5 hover:text-primary"}`}
-                                                                    >
-                                                                      {item.title}
-                                                                      <div
-                                                                        className={`flex h-6 w-6 items-center justify-center rounded-full transition-colors duration-300 ${isExpanded ? "bg-primary text-white" : "bg-primary/10 text-primary group-hover:bg-primary/20"}`}
-                                                                      >
-                                                                        <ChevronDown
-                                                                          className={`h-3.5 w-3.5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-                                                                        />
-                                                                      </div>
-                                                                    </button>
-
-                                                                    <div
-                                                                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? "max-h-[500px] pb-2 pt-1 opacity-100" : "max-h-0 opacity-0"}`}
-                                                                    >
-                                                                      <div className="mt-1 flex flex-col space-y-1 px-2">
-                                                                        {item.submenuItems.map((subItem) => {
-                                                                          const isActive = pathname === subItem.href;
-                                                                          return (
-                                                                            <Link
-                                                                              key={subItem.title}
-                                                                              href={subItem.href}
-                                                                              className={`group flex items-start gap-3 rounded-lg px-3 py-2 transition-all ${isActive ? "bg-primary/10" : "hover:bg-primary/5"}`}
-                                                                              onClick={handleLinkClick}
-                                                                            >
-                                                                              {subItem.icon && (
-                                                                                <div
-                                                                                  className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-all duration-300 ${isActive ? "bg-primary text-white" : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white"}`}
-                                                                                >
-                                                                                  <subItem.icon className="h-4 w-4 transition-colors" />
-                                                                                </div>
-                                                                              )}
-                                                                              <div
-                                                                                className={`flex flex-col justify-center ${!subItem.icon ? "py-1" : ""}`}
-                                                                              >
-                                                                                <span
-                                                                                  className={`transition-colors ${isActive ? "text-primary" : "text-foreground group-hover:text-primary"} ${subItem.description ? "text-[13.5px] font-semibold" : "text-[14.5px] font-medium"}`}
-                                                                                >
-                                                                                  {subItem.title}
-                                                                                </span>
-                                                                                {subItem.description && (
-                                                                                  <span className="text-muted-foreground mt-0.5 line-clamp-1 text-[11px]">
-                                                                                    {subItem.description}
-                                                                                  </span>
-                                                                                )}
-                                                                              </div>
-                                                                            </Link>
-                                                                          );
-                                                                        })}
-                                                                      </div>
-                                                                    </div>
-                                                                  </div>
-                                                                );
-                                                              }
-
-                                                              const isActive = pathname === item.href;
-
-                                                              return (
-                                                                <Link
-                                                                  key={item.title}
-                                                                  href={item.href!}
-                                                                  className={`flex items-center justify-between rounded-lg px-4 py-2.5 text-[15px] font-semibold outline-none transition-all ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-primary/5 hover:text-primary"}`}
-                                                                  onClick={handleLinkClick}
-                                                                >
-                                                                  {item.title}
-                                                                </Link>
-                                                              );
-                                                            })}
-                                                          </div>
-                                                        </div>
-
-                                                        <div className="border-primary/10 bg-background mt-auto shrink-0 border-t px-5 py-3">
-                                                          <Button
-                                                            asChild
-                                                            className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 w-full rounded-lg text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                                          >
-                                                            <Link href="/login" onClick={handleLinkClick}>
-                                                              Login
-                                                            </Link>
-                                                          </Button>
-                                                        </div>
-                                                      </SheetContent>
-                                                    </Sheet>
-                              </div>
-                            </div>
-                          </div>
-                        </header>
-                      </div>
-      <main className="flex flex-1 flex-col">{children}</main>
-      <footer className="to-primary relative w-full overflow-hidden rounded-t-[30px] bg-gradient-to-br from-emerald-950 via-emerald-800 pb-6 pt-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:rounded-t-[50px]">
-                        {}
-                        <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(theme(colors.white/0.05)_1px,transparent_1px)] [background-size:24px_24px]"></div>
-
-                        <div className="relative z-10 mx-auto w-full max-w-[1380px] px-4 sm:px-6 lg:px-8">
-                          {}
-                          <div className="relative z-10 grid grid-cols-2 gap-8 border-b border-white/10 pb-8 lg:grid-cols-[1.4fr_0.9fr_1.3fr] lg:gap-8">
-                            {}
-                            <div className="col-span-2 flex flex-col lg:col-span-1">
-                              <div className="mb-6">
-                                <div className="inline-flex items-center justify-center rounded-[16px] border border-white/20 bg-white shadow-lg">
-                                  <img
-                                    src="/logo.png"
-                                    alt="Company Logo"
-                                    className="h-[45px] w-auto object-contain sm:h-[55px] lg:h-[65px]"
-                                  />
-                                </div>
-                              </div>
-                              <p className="m-0 max-w-sm text-[14px] leading-[1.6] text-[#edf7f1] opacity-90">
-                                We empower learners worldwide with top-tier education, practical
-                                skills, and interactive live classes to achieve your career goals.
-                              </p>
-                              <div className="mt-6 border-t border-white/10 pt-4">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-yellow-400">
-                                  Powered by
-                                </span>
-                                <h5 className="m-0 mt-0.5 text-[14px] font-bold text-[#f8fbf7]">
-                                  DPKHRC Trust
-                                </h5>
-                                <p className="m-0 mt-1 text-[12px] leading-snug text-[#edf7f1] opacity-80">
-                                  An ISO 21001:2018 Certified Research Institution
-                                </p>
-                                <ul className="m-0 mt-2 list-none space-y-1 p-0 text-[11px] leading-relaxed text-[#edf7f1] opacity-70">
-                                  <li>
-                                    • Registered Under Indian Trust Act, 1882, Government of India
-                                  </li>
-                                  <li>• Registered Under Niti Aayog, Government of India</li>
-                                  <li>
-                                    • Registered Under 12A & 80G Under Income Tax Department,
-                                    Ministry of Finance, Government of India
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>
-
-                            {}
-                            <div className="col-span-1 flex flex-col">
-                              <h3 className="m-0 mb-4 text-[18px] font-bold leading-snug text-[#f8fbf7]">
-                                Quick Links
-                              </h3>
-                              <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-                                {[
-                                  { label: "Home", href: "#" },
-                                  { label: "About", href: "#" },
-                                  { label: "Gallery", href: "#" },
-                                  { label: "Success Story", href: "#" },
-                                  { label: "FAQs", href: "/faqs" },
-                                ].map((item) => (
-                                  <li key={item.label}>
-                                    <a
-                                      href={item.href}
-                                      className="text-[14px] font-medium text-[#edf7f1] opacity-90 transition-colors hover:text-yellow-400 hover:opacity-100"
-                                    >
-                                      {item.label}
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {}
-                            <div className="col-span-2 flex flex-col lg:col-span-1">
-                              <h3 className="m-0 mb-4 text-[18px] font-bold leading-snug text-[#f8fbf7]">
-                                Get In Touch
-                              </h3>
-
-                              <div className="mb-6 mt-1 flex flex-col gap-4">
-                                {[
-                                  "BCC Greens, Deva Road, Lucknow, UP, India",
-                                  "Thekma, Azamgarh, UP, India",
-                                  "Jaihind Tendua, Aurangabad, Bihar",
-                                ].map((address) => (
-                                  <div key={address} className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-white/20 bg-white/10 shadow-sm backdrop-blur-md">
-                                      <MapPin className="h-4 w-4 text-white" strokeWidth={2.5} />
+                            {item.submenuFeatured && (
+                              <li className="group relative row-span-4 overflow-hidden rounded-lg">
+                                <NavigationMenuLink asChild>
+                                  <a
+                                    className="relative z-10 flex h-full w-full select-none flex-col items-center justify-center p-5 text-center no-underline outline-none transition-all focus:shadow-md"
+                                    href={item.submenuFeatured.href}
+                                  >
+                                    <div className="bg-muted absolute inset-0 z-[-1]">
+                                      <img
+                                        src={item.submenuFeatured.image}
+                                        alt={item.submenuFeatured.title}
+                                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                      />
+                                      <div className="absolute inset-0 bg-emerald-950/70 transition-colors group-hover:bg-emerald-950/60" />
                                     </div>
-                                    <span className="text-[14px] font-medium leading-snug text-[#edf7f1] opacity-90">
-                                      {address}
-                                    </span>
-                                  </div>
+
+                                    <div className="mb-2 text-xl font-bold text-white">
+                                      {item.submenuFeatured.title}
+                                    </div>
+                                    <p className="max-w-[200px] text-xs leading-relaxed text-emerald-100">
+                                      {item.submenuFeatured.description}
+                                    </p>
+                                  </a>
+                                </NavigationMenuLink>
+                              </li>
+                            )}
+
+                            {item.submenuItems.map((subItem) => (
+                              <ListItem
+                                key={subItem.title}
+                                href={subItem.href}
+                                title={subItem.title}
+                                icon={subItem.icon}
+                              >
+                                {subItem.description}
+                              </ListItem>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    );
+                  }
+
+                  return (
+                    <NavigationMenuItem key={item.title} value={item.title} className="shrink-0">
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={item.href!}
+                          className={cn(
+                            "px-2 2xl:px-2.5 py-1.5 text-[12.5px] 2xl:text-[13px] font-semibold text-slate-700 hover:text-[#0A5C36] hover:bg-emerald-50/60 transition-colors rounded-lg whitespace-nowrap inline-block",
+                            isActive && "text-[#0A5C36] font-bold relative after:absolute after:bottom-[-2px] after:left-2 after:right-2 after:h-[2px] after:bg-[#0A5C36] after:rounded-full",
+                          )}
+                        >
+                          {item.title}
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  );
+                })}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="hidden xl:flex items-center gap-2 shrink-0">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-2xs transition-all hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 whitespace-nowrap"
+            >
+              <Users className="size-3.5 text-slate-500" />
+              <span>Login</span>
+            </Link>
+            <Link
+              href="/student/registration"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-3.5 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#074026] hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              <GraduationCap className="size-3.5 text-white" />
+              <span>Student Registration</span>
+            </Link>
+          </div>
+
+          {/* Mobile / Tablet Drawer Trigger */}
+          <div className="flex items-center gap-2 xl:hidden">
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+            >
+              Login
+            </Link>
+            <Link
+              href="/student/registration"
+              className="inline-flex items-center justify-center gap-1 rounded-lg bg-[#0A5C36] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#074026]"
+            >
+              <GraduationCap className="size-3.5" />
+              <span>Register</span>
+            </Link>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-700 hover:text-[#0A5C36] hover:bg-emerald-50 shrink-0 rounded-lg"
+                >
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="bg-white flex w-[85vw] flex-col border-l-0 p-0 shadow-2xl sm:w-[380px]"
+              >
+                <SheetHeader className="border-gray-100 bg-white flex shrink-0 flex-row items-center justify-between border-b px-5 py-3 text-left">
+                  <SheetTitle className="m-0 flex items-center">
+                    <Image
+                      src="/logo.png"
+                      alt="Logo"
+                      width={220}
+                      height={60}
+                      className="h-10 w-auto object-contain"
+                    />
+                  </SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Navigation menu for mobile devices
+                  </SheetDescription>
+                </SheetHeader>
+
+                <div className="flex-1 overflow-y-auto px-4 py-2">
+                  <div className="mt-1 flex flex-col space-y-1">
+                    {navData.map((item) => {
+                      if (item.isSubmenu && item.submenuItems) {
+                        const isSubmenuActive = item.submenuItems.some(
+                          (subItem) => pathname === subItem.href,
+                        );
+                        const isExpanded =
+                          expandedMenu === item.title || isSubmenuActive;
+
+                        return (
+                          <div key={item.title} className="flex flex-col">
+                            <button
+                              onClick={() =>
+                                setExpandedMenu(isExpanded ? null : item.title)
+                              }
+                              className={cn(
+                                "group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold outline-none transition-all",
+                                isSubmenuActive ? "bg-emerald-50 text-[#0A5C36]" : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#0A5C36]"
+                              )}
+                            >
+                              {item.title}
+                              <ChevronDown
+                                className={cn(
+                                  "h-4 w-4 transition-transform duration-200 text-gray-400",
+                                  isExpanded && "rotate-180 text-[#0A5C36]"
+                                )}
+                              />
+                            </button>
+
+                            {isExpanded && (
+                              <div className="ml-3 my-1 flex flex-col space-y-1 border-l-2 border-emerald-100 pl-3">
+                                {item.submenuItems.map((subItem) => (
+                                  <Link
+                                    key={subItem.title}
+                                    href={subItem.href}
+                                    onClick={handleLinkClick}
+                                    className={cn(
+                                      "rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                                      pathname === subItem.href
+                                        ? "text-[#0A5C36] font-bold bg-emerald-50"
+                                        : "text-gray-600 hover:text-[#0A5C36] hover:bg-gray-50"
+                                    )}
+                                  >
+                                    {subItem.title}
+                                  </Link>
                                 ))}
-                                <div className="flex items-center gap-3">
-                                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-white/20 bg-white/10 shadow-sm backdrop-blur-md">
-                                    <Mail className="h-4 w-4 text-white" strokeWidth={2.5} />
-                                  </div>
-                                  <a
-                                    href="mailto:i3.office2025@gmail.com"
-                                    className="text-[14px] font-medium text-[#edf7f1] opacity-90 transition-colors hover:text-emerald-300 hover:opacity-100"
-                                  >
-                                    i3.office2025@gmail.com
-                                  </a>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-white/20 bg-white/10 shadow-sm backdrop-blur-md">
-                                    <Phone className="h-4 w-4 text-white" strokeWidth={2.5} />
-                                  </div>
-                                  <a
-                                    href="tel:+919472351693"
-                                    className="text-[14px] font-medium text-[#edf7f1] opacity-90 transition-colors hover:text-emerald-300 hover:opacity-100"
-                                  >
-                                    +91 9472351693
-                                  </a>
-                                </div>
                               </div>
-
-                              {}
-                              <h4 className="m-0 mb-3 text-[15px] font-bold text-[#f8fbf7]">
-                                Sign Up for Updates
-                              </h4>
-                              <form className="flex w-full items-center gap-2 rounded-[16px] bg-[#e5ddd5] p-1.5 pl-3 transition-all focus-within:ring-4 focus-within:ring-emerald-500/30 md:rounded-[20px] md:p-2 md:pl-4">
-                                <input
-                                  type="email"
-                                  placeholder="Your email here"
-                                  required
-                                  className="min-h-[36px] min-w-0 flex-1 border-none bg-transparent px-1 text-[13px] font-medium text-[#27352f] outline-none placeholder:text-[#27352f]/70 md:text-[14px]"
-                                />
-                                <button
-                                  type="submit"
-                                  className="from-primary hover:from-primary/90 text-primary-foreground group flex min-h-[36px] shrink-0 items-center justify-center gap-1.5 rounded-[12px] border-0 bg-gradient-to-r to-emerald-500 px-2 font-bold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:to-emerald-500/90 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)] sm:gap-2 sm:px-2.5"
-                                >
-                                  <span className="whitespace-nowrap pl-1 text-[12px] sm:text-[13px]">
-                                    Submit
-                                  </span>
-                                  <span className="bg-background text-primary group-hover:bg-foreground group-hover:text-background flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] shadow-sm transition-colors duration-300 sm:h-7 sm:w-7">
-                                    <ArrowRight
-                                      className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 sm:h-4 sm:w-4"
-                                      strokeWidth={2.5}
-                                    />
-                                  </span>
-                                </button>
-                              </form>
-                            </div>
+                            )}
                           </div>
+                        );
+                      }
 
-                          {}
-                          <div className="flex flex-col items-center justify-between gap-4 pt-5 text-center md:flex-row md:text-left">
-                            <p className="m-0 text-[13px] font-medium text-[#edf7f1] opacity-80">
-                              ©️2026 International Institute of Internship™️ All Rights Reserved.
-                            </p>
-                            <div className="flex items-center gap-6">
-                              <Link_2
-                                href="/privacy-policy"
-                                className="text-[13px] font-medium text-[#edf7f1] opacity-80 transition-colors hover:text-yellow-400 hover:opacity-100"
-                              >
-                                Privacy Policy
-                              </Link_2>
-                              <Link_2
-                                href="/internship-policy"
-                                className="text-[13px] font-medium text-[#edf7f1] opacity-80 transition-colors hover:text-yellow-400 hover:opacity-100"
-                              >
-                                Internship Policy
-                              </Link_2>
-                              <Link_2
-                                href="/terms-and-condition"
-                                className="text-[13px] font-medium text-[#edf7f1] opacity-80 transition-colors hover:text-yellow-400 hover:opacity-100"
-                              >
-                                Terms & Conditions
-                              </Link_2>
-                              <Link_2
-                                href="/refund-policy"
-                                className="text-[13px] font-medium text-[#edf7f1] opacity-80 transition-colors hover:text-yellow-400 hover:opacity-100"
-                              >
-                                Refund Policy
-                              </Link_2>
-                              <Link_2
-                                href="/other-policy"
-                                className="text-[13px] font-medium text-[#edf7f1] opacity-80 transition-colors hover:text-yellow-400 hover:opacity-100"
-                              >
-                                Other Policies
-                              </Link_2>
-                            </div>
-                          </div>
-                        </div>
-                      </footer>
+                      return (
+                        <Link
+                          key={item.title}
+                          href={item.href!}
+                          onClick={handleLinkClick}
+                          className={cn(
+                            "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+                            pathname === item.href
+                              ? "bg-emerald-50 text-[#0A5C36] font-bold"
+                              : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#0A5C36]"
+                          )}
+                        >
+                          {item.title}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="border-gray-100 bg-gray-50/60 mt-auto shrink-0 border-t p-4 flex flex-col gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full text-xs font-bold"
+                  >
+                    <Link href="/login" onClick={handleLinkClick}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    className="w-full bg-[#0A5C36] hover:bg-[#074026] text-white text-xs font-bold"
+                  >
+                    <Link href="/student/registration" onClick={handleLinkClick}>
+                      Student Registration
+                    </Link>
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </header>
+      <main className="flex flex-1 flex-col">{children}</main>
+      <footer className="to-primary relative w-full overflow-hidden rounded-t-[30px] bg-gradient-to-br from-emerald-950 via-emerald-900 to-[#04261a] pb-6 pt-12 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] lg:rounded-t-[50px]">
+        {/* Ambient background glow & grid */}
+        <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(theme(colors.white/0.05)_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="pointer-events-none absolute -right-20 -top-20 z-0 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+
+        <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          {/* Main Footer Columns */}
+          <div className="relative z-10 grid grid-cols-1 gap-8 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+            {/* Col 1: Brand & Powered by DPKHRC Trust (4 cols) */}
+            <div className="flex flex-col sm:col-span-2 lg:col-span-4">
+              <div className="mb-5">
+                <Link href="/" className="inline-flex items-center justify-center rounded-[16px] border border-white/20 bg-white px-3 py-1.5 shadow-lg">
+                  <img
+                    src="/logo.png"
+                    alt="International Institute of Internship Logo"
+                    className="h-[48px] w-auto object-contain sm:h-[56px]"
+                  />
+                </Link>
+              </div>
+              <p className="m-0 max-w-sm text-[13px] leading-[1.6] text-emerald-100/90">
+                Empowering youth across India and globally with UGC-aligned experiential internships, mentorship cohorts, and verifiable industry credentials.
+              </p>
+
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-yellow-400">
+                  Powered by
+                </span>
+                <h5 className="m-0 mt-0.5 text-[14px] font-bold text-white">
+                  <a
+                    href="https://www.dpkavishek.in/hrc-office.php"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-yellow-300 underline underline-offset-2 transition-colors inline-flex items-center gap-1"
+                  >
+                    <span>DPKHRC Trust</span>
+                    <ShieldCheck className="size-3.5 text-emerald-400" />
+                  </a>
+                </h5>
+                <p className="m-0 mt-1 text-[12px] leading-snug text-emerald-100/80">
+                  An ISO 21001:2018 Certified Research Institution
+                </p>
+                <ul className="m-0 mt-2 list-none space-y-1 p-0 text-[11px] leading-relaxed text-emerald-100/70">
+                  <li>• Registered Under Indian Trust Act, 1882, Govt. of India</li>
+                  <li>• Registered Under Niti Aayog, Govt. of India</li>
+                  <li>• 12A &amp; 80G Certified, Ministry of Finance, Govt. of India</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Col 2: About & Immersion (2 cols) */}
+            <div className="flex flex-col lg:col-span-2">
+              <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
+                About i3
+              </h3>
+              <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-xs sm:text-[13px]">
+                {[
+                  { label: "Organization History", href: "/about/organization-history" },
+                  { label: "Vision & Mission", href: "/about/vision-mission" },
+                  { label: "Team Members", href: "/about/team-members" },
+                  { label: "Immersion Programs", href: "/immersion" },
+                  { label: "What is Internship", href: "/about/internship" },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 3: Internships (2 cols) */}
+            <div className="flex flex-col lg:col-span-2">
+              <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
+                Internships
+              </h3>
+              <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-xs sm:text-[13px]">
+                {[
+                  { label: "All Internships", href: "/internship" },
+                  { label: "Running Internships", href: "/internship/running-internship" },
+                  { label: "On-Campus Programs", href: "/internship/on-campus" },
+                  { label: "Virtual Internships", href: "/internship/virtual-internship" },
+                  { label: "Student Registration", href: "/student/registration" },
+                  { label: "Student Login", href: "/login" },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 4: Partners & Resources (2 cols) */}
+            <div className="flex flex-col lg:col-span-2">
+              <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
+                Partners &amp; News
+              </h3>
+              <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-xs sm:text-[13px]">
+                {[
+                  { label: "Educational Institutes", href: "/partners/educational-institutes" },
+                  { label: "Job Placement", href: "/partners/job-placement" },
+                  { label: "Training & Support", href: "/partners/training-support" },
+                  { label: "Media Room", href: "/media" },
+                  { label: "Notice Board", href: "/notice" },
+                  { label: "Success Stories", href: "/success-story" },
+                  { label: "FAQs", href: "/faqs" },
+                  { label: "Contact Us", href: "/contact" },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 5: Get In Touch & Newsletter (2 cols) */}
+            <div className="flex flex-col sm:col-span-2 lg:col-span-2">
+              <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
+                Get In Touch
+              </h3>
+
+              <div className="mb-5 flex flex-col gap-3 text-xs text-emerald-100/90">
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span className="leading-snug">BCC Greens, Deva Road, Lucknow, UP</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Mail className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <a
+                    href="mailto:info@iiinternship.in"
+                    className="hover:text-yellow-300 transition-colors truncate font-medium"
+                  >
+                    info@iiinternship.in
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Phone className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <a
+                    href="tel:+919125051048"
+                    className="hover:text-yellow-300 transition-colors font-medium"
+                  >
+                    +91 9125051048
+                  </a>
+                </div>
+              </div>
+
+              <h4 className="m-0 mb-2 text-xs font-bold text-white uppercase tracking-wider">
+                Newsletter
+              </h4>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert("Thank you for subscribing to i3 updates!");
+                }}
+                className="flex w-full items-center gap-1.5 rounded-xl bg-white/10 p-1.5 border border-white/20 transition-all focus-within:border-emerald-400"
+              >
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  required
+                  className="min-h-[32px] min-w-0 flex-1 border-none bg-transparent px-2 text-xs font-medium text-white outline-none placeholder:text-emerald-200/60"
+                />
+                <button
+                  type="submit"
+                  className="flex h-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 text-xs font-bold text-white transition-all shadow-sm"
+                >
+                  Join
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Bottom Legal Policies & Copyright */}
+          <div className="flex flex-col items-center justify-between gap-4 pt-6 text-center md:flex-row md:text-left text-xs text-emerald-200/80">
+            <p className="m-0 font-medium">
+              © {new Date().getFullYear()} International Institute of Internship™ (i3). All Rights Reserved.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              <Link
+                href="/privacy-policy"
+                className="transition-colors hover:text-yellow-400"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/internship-policy"
+                className="transition-colors hover:text-yellow-400"
+              >
+                Internship Policy
+              </Link>
+              <Link
+                href="/terms-and-condition"
+                className="transition-colors hover:text-yellow-400"
+              >
+                Terms &amp; Conditions
+              </Link>
+              <Link
+                href="/refund-policy"
+                className="transition-colors hover:text-yellow-400"
+              >
+                Refund Policy
+              </Link>
+              <Link
+                href="/other-policy"
+                className="transition-colors hover:text-yellow-400"
+              >
+                Other Policies
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
