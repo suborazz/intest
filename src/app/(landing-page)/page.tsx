@@ -47,6 +47,7 @@ import {
   Palette,
   PieChart,
   Play,
+  Presentation,
   Rocket,
   Search,
   Shield,
@@ -882,85 +883,85 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white text-slate-900 selection:bg-emerald-100 selection:text-[#063A1E]">
       {/* =========================================================
-          1. HERO SECTION (Exact Mockup Match)
+          1. HERO SECTION (Exact Mockup Match - Compact 50/50 Split Flush Top & Right)
       ========================================================= */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F7FAF8] via-white to-white py-10 md:py-14 lg:py-16 border-b border-gray-100">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
-            {/* Left Content */}
-            <div className="flex flex-col items-start lg:col-span-7 xl:col-span-7">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F7FAF8] via-white to-white border-b border-gray-100">
+        <div className="w-full pl-4 sm:pl-6 lg:pl-10 pr-0 max-w-[1600px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-[360px] lg:min-h-[380px]">
+            {/* Left Content - Takes Left 50% (6 Cols) */}
+            <div className="flex flex-col items-start lg:col-span-6 xl:col-span-6 py-4 sm:py-5 lg:py-5 pr-4 sm:pr-6 lg:pr-8 z-10">
               {/* Main Headline */}
-              <h1 className="text-5xl sm:text-6xl lg:text-[62px] font-black tracking-tight text-[#0F2A1D] leading-[1.04]">
+              <h1 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-black tracking-tight text-[#0F2A1D] leading-[1.05]">
                 Learn Today,<br />Lead Tomorrow
               </h1>
 
               {/* Subhead */}
-              <p className="mt-4 text-xl sm:text-2xl md:text-[25px] font-extrabold tracking-tight text-slate-900">
-                Your Internship. Your Skills. <span className="text-[#15803D]">Your Future.</span>
+              <p className="mt-2.5 text-base sm:text-lg md:text-xl font-extrabold tracking-tight text-slate-900">
+                Your Internship. Your Skills. <span className="text-[#16A34A]">Your Future.</span>
               </p>
 
               {/* Description Paragraph */}
-              <p className="mt-4 max-w-xl text-sm sm:text-base leading-relaxed text-slate-600 font-normal">
+              <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-slate-600 font-normal max-w-lg">
                 International Institute of Internship (i3) is a not-for-profit initiative committed to providing quality internships and skill enhancement training to students, aligned with industry needs and future careers.
               </p>
 
               {/* 4 Feature Items (Horizontal 4 columns with circle icons + title + subtitle) */}
-              <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 w-full">
                 {/* Feature 1 */}
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/70 shadow-2xs">
-                    <GraduationCap className="h-5 w-5" />
+                <div className="flex items-start gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/80 shadow-2xs">
+                    <GraduationCap className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug">
+                    <h4 className="text-[12px] font-bold text-slate-900 leading-snug">
                       UGC Internship Aligned
                     </h4>
-                    <p className="mt-0.5 text-[11px] text-slate-500 leading-snug">
+                    <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
                       Structured as per UGC Internship Guidelines
                     </p>
                   </div>
                 </div>
 
                 {/* Feature 2 */}
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/70 shadow-2xs">
-                    <FileText className="h-5 w-5" />
+                <div className="flex items-start gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/80 shadow-2xs">
+                    <FileText className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug">
+                    <h4 className="text-[12px] font-bold text-slate-900 leading-snug">
                       Skill-Based Training
                     </h4>
-                    <p className="mt-0.5 text-[11px] text-slate-500 leading-snug">
+                    <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
                       Industry-relevant skills for real impact
                     </p>
                   </div>
                 </div>
 
                 {/* Feature 3 */}
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/70 shadow-2xs">
-                    <Briefcase className="h-5 w-5" />
+                <div className="flex items-start gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/80 shadow-2xs">
+                    <Briefcase className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug">
+                    <h4 className="text-[12px] font-bold text-slate-900 leading-snug">
                       Real-World Experience
                     </h4>
-                    <p className="mt-0.5 text-[11px] text-slate-500 leading-snug">
+                    <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
                       Work on live projects with expert mentors
                     </p>
                   </div>
                 </div>
 
                 {/* Feature 4 */}
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/70 shadow-2xs">
-                    <Award className="h-5 w-5" />
+                <div className="flex items-start gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/80 shadow-2xs">
+                    <Award className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug">
+                    <h4 className="text-[12px] font-bold text-slate-900 leading-snug">
                       Certificate &amp; Recognition
                     </h4>
-                    <p className="mt-0.5 text-[11px] text-slate-500 leading-snug">
+                    <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
                       Enhance your profile and career opportunities
                     </p>
                   </div>
@@ -968,10 +969,10 @@ export default function HomePage() {
               </div>
 
               {/* CTAs */}
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Link
                   href="/student/registration"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A5C36] px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:bg-[#074026] hover:shadow-lg hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A5C36] px-4.5 py-2.5 text-xs sm:text-[13px] font-bold text-white shadow-md transition-all hover:bg-[#074026] hover:shadow-lg hover:-translate-y-0.5"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span>Free Student Registration</span>
@@ -979,7 +980,7 @@ export default function HomePage() {
 
                 <Link
                   href="/internship"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4.5 py-2.5 text-xs sm:text-[13px] font-bold text-slate-800 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
                 >
                   <Search className="h-4 w-4 text-slate-600" />
                   <span>Find Internships</span>
@@ -987,31 +988,78 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Hero Image in Swoosh Container with Floating Quote Card */}
-            <div className="relative flex items-center justify-center lg:col-span-5 xl:col-span-5">
-              <div className="relative w-full max-w-[480px] lg:max-w-none">
-                {/* Curved green swoosh border background element */}
-                <div className="absolute -inset-2 rounded-r-3xl rounded-l-[110px] bg-gradient-to-br from-emerald-600/30 to-emerald-800/10 blur-sm pointer-events-none" />
-
-                {/* Curved container */}
-                <div className="relative overflow-hidden rounded-r-3xl rounded-l-[105px] border-[5px] border-emerald-600/20 shadow-2xl aspect-[4/3] sm:aspect-[14/11] lg:aspect-[4/3] bg-emerald-950">
-                  <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
-                    alt="Students collaborating during internship workshop"
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-950/20 via-transparent to-transparent" />
+            {/* Right Hero Image - Takes Right 50% (6 Cols) Flush with Top Navbar and Right Edge */}
+            <div className="relative lg:col-span-6 xl:col-span-6 h-full min-h-[360px] lg:min-h-[380px] flex items-stretch justify-end">
+              <div className="relative w-full h-full flex items-stretch justify-end">
+                {/* Subtle Dot Matrix Grid */}
+                <div className="pointer-events-none absolute top-3 left-6 lg:left-10 w-24 h-20 grid grid-cols-5 gap-2.5 opacity-30 z-0">
+                  {Array.from({ length: 25 }).map((_, i) => (
+                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                  ))}
                 </div>
 
-                {/* Floating Forest Green Quote Card at Top Right */}
-                <div className="absolute top-4 right-4 rounded-xl bg-[#063B27] px-4 py-3.5 text-white shadow-2xl border border-emerald-700/60 max-w-[220px]">
-                  <div className="flex items-center gap-1 text-xl font-serif text-emerald-400 leading-none mb-1">
-                    <span>❝</span>
+                {/* Unified SVG Canvas: Dual Concentric Swoosh Ribbons + Exact Matching Photo Clip */}
+                <div className="relative w-full h-full min-h-[360px] lg:min-h-[380px] z-10 flex items-stretch">
+                  <svg
+                    viewBox="0 0 760 540"
+                    className="w-full h-full"
+                    preserveAspectRatio="xMaxYMid slice"
+                  >
+                    <defs>
+                      {/* Mint-Green Ribbon Gradient */}
+                      <linearGradient id="hero-mint-ribbon" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#86EFAC" />
+                        <stop offset="45%" stopColor="#A7F3D0" />
+                        <stop offset="100%" stopColor="#4ADE80" />
+                      </linearGradient>
+
+                      {/* Vibrant Emerald Ribbon Gradient */}
+                      <linearGradient id="hero-emerald-ribbon" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#15803D" />
+                        <stop offset="50%" stopColor="#166534" />
+                        <stop offset="100%" stopColor="#0B4624" />
+                      </linearGradient>
+
+                      {/* Unified ClipPath for Student Photo matching the inner emerald curve */}
+                      <clipPath id="hero-photo-curve-clip">
+                        <path d="M 225 0 C 145 80, 65 180, 65 280 C 65 380, 125 480, 195 540 L 760 540 L 760 0 Z" />
+                      </clipPath>
+                    </defs>
+
+                    {/* 1. Outer Soft Mint-Green Ribbon (Solid shape to prevent gaps) */}
+                    <path
+                      d="M 160 0 C 80 80, 0 180, 0 280 C 0 380, 60 480, 130 540 L 760 540 L 760 0 Z"
+                      fill="url(#hero-mint-ribbon)"
+                    />
+
+                    {/* 2. Inner Vibrant Emerald-Green Ribbon (Solid shape on top) */}
+                    <path
+                      d="M 185 0 C 105 80, 25 180, 25 280 C 25 380, 85 480, 155 540 L 760 540 L 760 0 Z"
+                      fill="url(#hero-emerald-ribbon)"
+                    />
+
+                    {/* 3. Clipped Photo Element embedded seamlessly inside the curve */}
+                    <image
+                      href="/images/hero_students.jpg"
+                      x="0"
+                      y="0"
+                      width="760"
+                      height="540"
+                      preserveAspectRatio="xMidYMid slice"
+                      clipPath="url(#hero-photo-curve-clip)"
+                    />
+                  </svg>
+
+                  {/* Floating Forest Green Quote Card at Top Right */}
+                  <div className="absolute top-5 right-5 lg:right-8 rounded-xl bg-[#063B27] px-3.5 py-2.5 text-white shadow-2xl border border-emerald-700/60 max-w-[190px] sm:max-w-[210px] z-20 pointer-events-auto">
+                    <div className="flex items-center gap-1 text-base sm:text-lg font-serif text-emerald-400 leading-none mb-0.5">
+                      <span>❝</span>
+                    </div>
+                    <p className="text-[10.5px] sm:text-[11px] font-bold text-emerald-50 leading-snug">
+                      Building Competent Youth for a Better Tomorrow
+                    </p>
+                    <div className="mt-2 h-0.5 w-8 bg-emerald-400 rounded-full" />
                   </div>
-                  <p className="text-xs font-bold text-emerald-50 leading-snug">
-                    Building Competent Youth for a Better Tomorrow
-                  </p>
-                  <div className="mt-2.5 h-0.5 w-12 bg-emerald-400 rounded-full" />
                 </div>
               </div>
             </div>
@@ -1020,12 +1068,12 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================
-          2. UGC INTERNSHIP FRAMEWORK ALIGNED BANNER (Exact Mockup Match)
+          2. UGC INTERNSHIP FRAMEWORK ALIGNED BANNER (Exact Mockup Match - Compact)
       ========================================================= */}
-      <section className="py-6 bg-white">
+      <section className="py-3 bg-white">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-[#F4FAF6] p-5 sm:p-6 lg:p-7 shadow-xs">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-[#F4FAF6] p-4 sm:p-5 lg:p-6 shadow-xs">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
               {/* Left Logo + Title + Subtitle */}
               <div className="lg:col-span-5 flex items-start gap-3.5">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0A5C36] text-white shadow-sm">
@@ -1109,7 +1157,7 @@ export default function HomePage() {
                 {/* Instructors */}
                 <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-3.5 shadow-2xs hover:border-emerald-300 transition-all">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-[#0A5C36] mb-2">
-                    <Users className="h-5 w-5" />
+                    <Presentation className="h-5 w-5" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">Instructors</h4>
@@ -1135,7 +1183,7 @@ export default function HomePage() {
                 {/* Organizations */}
                 <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-3.5 shadow-2xs hover:border-emerald-300 transition-all">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-[#0A5C36] mb-2">
-                    <Briefcase className="h-5 w-5" />
+                    <HeartHandshake className="h-5 w-5" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">Organizations</h4>
@@ -1205,6 +1253,103 @@ export default function HomePage() {
                     Skill Training Programs
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          4. BOTTOM TRUST PILLARS & COMMUNITY BAR (Exact Mockup Match)
+      ========================================================= */}
+      <section className="bg-[#063B27] py-6 text-white border-t border-emerald-900/40">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Left 4 Pillars */}
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Pillar 1 */}
+                <div className="flex flex-col items-start">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <h4 className="text-xs font-bold text-white leading-tight">
+                    Not for Profit Initiative
+                  </h4>
+                  <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
+                    A unit of{" "}
+                    <a
+                      href="https://www.dpkavishek.in/hrc-office.php"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-white font-semibold transition-colors"
+                    >
+                      DPKHRC TRUST
+                    </a>{" "}
+                    working for higher education promotion
+                  </p>
+                </div>
+
+                {/* Pillar 2 */}
+                <div className="flex flex-col items-start">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
+                    <Award className="h-5 w-5" />
+                  </div>
+                  <h4 className="text-xs font-bold text-white leading-tight">
+                    Quality &amp; Integrity
+                  </h4>
+                  <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
+                    Committed to transparency, ethics and excellence
+                  </p>
+                </div>
+
+                {/* Pillar 3 */}
+                <div className="flex flex-col items-start">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <h4 className="text-xs font-bold text-white leading-tight">
+                    Future Ready Skills
+                  </h4>
+                  <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
+                    Industry relevant training for tomorrow&apos;s careers
+                  </p>
+                </div>
+
+                {/* Pillar 4 */}
+                <div className="flex flex-col items-start">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
+                    <Globe className="h-5 w-5" />
+                  </div>
+                  <h4 className="text-xs font-bold text-white leading-tight">
+                    Inclusivity
+                  </h4>
+                  <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
+                    Equal opportunities for learners across India
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Community Card */}
+            <div className="lg:col-span-4 flex justify-end">
+              <div className="w-full max-w-sm rounded-xl bg-white p-4 sm:p-5 text-slate-900 shadow-xl flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
+                    Be a Part of i3 Community
+                  </h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">
+                    Learn. Intern. Grow. Succeed.
+                  </p>
+                </div>
+
+                <Link
+                  href="/student/registration"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A5C36] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-all whitespace-nowrap shrink-0"
+                >
+                  <span>Join Us Today!</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
             </div>
           </div>
@@ -1883,105 +2028,6 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          14. BOTTOM TRUST & COMMUNITY BANNER (Exact Mockup Match)
-      ========================================================= */}
-      <section className="py-6 bg-white">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-[#063A1E] p-6 sm:p-8 text-white shadow-xl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              {/* Left 4 Value Pillars in a 4-Column Layout */}
-              <div className="lg:col-span-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Pillar 1 */}
-                  <div className="flex flex-col items-start">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
-                      <ShieldCheck className="h-5 w-5" />
-                    </div>
-                    <h4 className="text-xs font-bold text-white leading-tight">
-                      Not for Profit Initiative
-                    </h4>
-                    <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
-                      A unit of{" "}
-                      <a
-                        href="https://www.dpkavishek.in/hrc-office.php"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline hover:text-white font-semibold transition-colors"
-                      >
-                        DPKHRC TRUST
-                      </a>{" "}
-                      working for higher education promotion
-                    </p>
-                  </div>
-
-                  {/* Pillar 2 */}
-                  <div className="flex flex-col items-start">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
-                      <Award className="h-5 w-5" />
-                    </div>
-                    <h4 className="text-xs font-bold text-white leading-tight">
-                      Quality &amp; Integrity
-                    </h4>
-                    <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
-                      Committed to transparency, ethics and excellence
-                    </p>
-                  </div>
-
-                  {/* Pillar 3 */}
-                  <div className="flex flex-col items-start">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
-                      <Cpu className="h-5 w-5" />
-                    </div>
-                    <h4 className="text-xs font-bold text-white leading-tight">
-                      Future Ready Skills
-                    </h4>
-                    <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
-                      Industry relevant training for tomorrow&apos;s careers
-                    </p>
-                  </div>
-
-                  {/* Pillar 4 */}
-                  <div className="flex flex-col items-start">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 mb-2">
-                      <Globe className="h-5 w-5" />
-                    </div>
-                    <h4 className="text-xs font-bold text-white leading-tight">
-                      Inclusivity
-                    </h4>
-                    <p className="text-[10px] text-emerald-200/80 leading-normal mt-1">
-                      Equal opportunities for learners across India
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Community Card */}
-              <div className="lg:col-span-4 flex justify-end">
-                <div className="w-full max-w-sm rounded-xl bg-white p-4 sm:p-5 text-slate-900 shadow-xl flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
-                      Be a Part of i3 Community
-                    </h4>
-                    <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">
-                      Learn. Intern. Grow. Succeed.
-                    </p>
-                  </div>
-
-                  <Link
-                    href="/student/registration"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A5C36] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-all whitespace-nowrap shrink-0"
-                  >
-                    <span>Join Us Today!</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
