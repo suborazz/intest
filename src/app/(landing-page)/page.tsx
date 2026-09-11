@@ -26,14 +26,18 @@ import {
   ArrowRight,
   ArrowUpRight,
   Award,
+  BookOpen,
   Box,
   Briefcase,
   Building,
   Check,
+  CheckCircle,
   CheckCircle2,
   Compass,
   Cpu,
+  Download,
   FileCheck,
+  FileDown,
   FileText,
   Globe,
   GraduationCap,
@@ -43,6 +47,7 @@ import {
   Laptop,
   Layers,
   LucideIcon,
+  MapPin,
   Microscope,
   Palette,
   PieChart,
@@ -174,170 +179,245 @@ interface CategoryData {
 const CourseCategoryData: CategoryData[] = [
   {
     id: 1,
-    icon: PieChart,
-    title: "Finance & Accounting",
-    courses: "75 Courses",
-    description: "Master financial modeling, accounting principles, and investment strategies.",
+    icon: Cpu,
+    title: "AI, Quantum & Emerging Tech",
+    courses: "15+ Programs",
+    description: "Artificial Intelligence, GenAI, Quantum Computing, Cyber Security, Cloud DevOps & IoT.",
   },
   {
     id: 2,
-    icon: Briefcase,
-    title: "Business & Management",
-    courses: "96 Courses",
-    description: "Learn leadership, project management, and business communication.",
+    icon: Building,
+    title: "Core Engineering & Industry",
+    courses: "20+ Programs",
+    description: "Civil, Mechanical, Electrical, Semiconductor, Embedded Systems, ITI & Polytechnic training.",
   },
   {
     id: 3,
     icon: Palette,
-    title: "Creative Arts & Design",
-    courses: "120 Courses",
-    description: "Explore graphic design, UI/UX, and digital illustration.",
+    title: "Design, Media & Digital Creation",
+    courses: "18+ Programs",
+    description: "UI/UX Design, Animation, VFX, Multimedia, Digital Marketing, Journalism & Mass Communication.",
   },
   {
     id: 4,
-    icon: UserPlus,
-    title: "Personal Development",
-    courses: "751 Courses",
-    description: "Improve productivity, mindfulness, and essential soft skills.",
+    icon: PieChart,
+    title: "Business, FinTech & Operations",
+    courses: "22+ Programs",
+    description: "Finance & Accounting, FinTech, Blockchain, HR Management, E-Commerce & Supply Chain.",
   },
   {
     id: 5,
     icon: HeartPulse,
-    title: "Health & Wellness",
-    courses: "23 Courses",
-    description: "Discover courses on nutrition, fitness, and mental well-being.",
+    title: "Healthcare, Pharmacy & Bio",
+    courses: "12+ Programs",
+    description: "Healthcare Management, Public Health, Para-Medical, Biotechnology & Bioinformatics.",
   },
   {
     id: 6,
-    icon: Microscope,
-    title: "Science & Engineering",
-    courses: "16 Courses",
-    description: "Deep dive into physics, engineering mechanics, and data science.",
+    icon: Globe,
+    title: "Agri, Food & Renewable Energy",
+    courses: "14+ Programs",
+    description: "Agriculture & Allied, Food Industry, EV & Renewable Energy, Environmental & Water Management.",
+  },
+];
+
+// Complete 100+ Disciplines mapped from Page 3 of Prospectus
+export const PROSPECTUS_ALL_DISCIPLINES = [
+  { name: "General Internship (Humanities, Arts, Applied Science, Commerce, Law & Education)", category: "Humanities & General", icon: BookOpen },
+  { name: "Civil, Mechanical & Electrical Engineering Internship (Applied Industry Training)", category: "Engineering", icon: Building },
+  { name: "Artificial Intelligence & Generative AI Internship", category: "Emerging Tech", icon: Cpu },
+  { name: "Cyber Security & Ethical Hacking Internship", category: "Emerging Tech", icon: ShieldCheck },
+  { name: "Cloud Computing & DevOps Internship", category: "Emerging Tech", icon: Laptop },
+  { name: "Quantum Computing Internship", category: "Emerging Tech", icon: Sparkles },
+  { name: "Internet of Things (IoT) Internship", category: "Emerging Tech", icon: Activity },
+  { name: "Semiconductor & Embedded Systems Internship", category: "Engineering", icon: Cpu },
+  { name: "FinTech & Blockchain Internship", category: "Business & Finance", icon: PieChart },
+  { name: "UI/UX Design Internship", category: "Design & Media", icon: Palette },
+  { name: "Animation, VFX & Multimedia Internship", category: "Design & Media", icon: Layers },
+  { name: "Digital Marketing & Creation Internship", category: "Design & Media", icon: Target },
+  { name: "Media, Journalism & Mass Communication Internship", category: "Design & Media", icon: FileText },
+  { name: "Media & Entertainment Internship", category: "Design & Media", icon: Play },
+  { name: "Finance & Accounting Management Internship", category: "Business & Finance", icon: PieChart },
+  { name: "Human Resource Management Internship", category: "Business & Finance", icon: Users },
+  { name: "Business & Operations Internship", category: "Business & Finance", icon: Briefcase },
+  { name: "Logistics & Supply Chain Management Internship", category: "Business & Finance", icon: Box },
+  { name: "E-Commerce & Retail Management Internship", category: "Business & Finance", icon: Briefcase },
+  { name: "Inventory Management Internship", category: "Business & Finance", icon: Box },
+  { name: "Biotechnology & Bioinformatics Internship", category: "Healthcare & Life Sciences", icon: Microscope },
+  { name: "Healthcare Management Internship", category: "Healthcare & Life Sciences", icon: HeartPulse },
+  { name: "Public Health & Para-Medical Internship", category: "Healthcare & Life Sciences", icon: HeartHandshake },
+  { name: "Pharmacy Internship", category: "Healthcare & Life Sciences", icon: HeartPulse },
+  { name: "Agriculture & Allied Internship", category: "Agri & Green Tech", icon: Globe },
+  { name: "Food Industry Sector Internship", category: "Agri & Green Tech", icon: Award },
+  { name: "EV & Renewable Energy Internship", category: "Agri & Green Tech", icon: Zap },
+  { name: "Environmental Science Internship", category: "Agri & Green Tech", icon: Globe },
+  { name: "Water Management Internship", category: "Agri & Green Tech", icon: Activity },
+  { name: "Tourism & Hospitality Management Internship", category: "Specialized Sectors", icon: Compass },
+  { name: "Automobile Sector Internship", category: "Specialized Sectors", icon: Rocket },
+  { name: "Telecommunication Sector Internship", category: "Specialized Sectors", icon: Laptop },
+  { name: "Construction & Infrastructure Internship", category: "Engineering", icon: Building },
+  { name: "ITI & Polytechnique Internship", category: "Engineering", icon: Award },
+  { name: "Insurance Sector Internship", category: "Business & Finance", icon: Shield },
+  { name: "Leather Sector Internship", category: "Specialized Sectors", icon: Box },
+  { name: "Packaging Sector Internship", category: "Specialized Sectors", icon: Box },
+  { name: "Beauty & Wellness Internship", category: "Specialized Sectors", icon: Sparkles },
+  { name: "Mining Sector Internship", category: "Specialized Sectors", icon: Landmark },
+  { name: "Electronics Sector Internship", category: "Engineering", icon: Cpu },
+  { name: "Skill & Personality Development Internship", category: "Humanities & General", icon: UserPlus },
+  { name: "Other Tailored & Need-Based Internships", category: "Tailored", icon: Sparkles },
+];
+
+// Immersion Programs from Page 4 of Prospectus
+export const PROSPECTUS_IMMERSIONS = [
+  {
+    id: 1,
+    title: "Spirituality, Language & Culture Immersion",
+    locations: "Thailand, Sri Lanka, Bhutan",
+    duration: "15 - 180 Days",
+    type: "International Immersion",
+    desc: "Cross-border cultural understanding, comparative spiritual philosophy, and international cultural exchange.",
+  },
+  {
+    id: 2,
+    title: "Spirituality, Language & Culture Immersion (National)",
+    locations: "Uttarakhand, Himachal Pradesh, UP, Bihar, Gujarat, Rajasthan, Telangana, Tamil Nadu",
+    duration: "15 - 180 Days",
+    type: "National Immersion",
+    desc: "Deep linguistic roots, indigenous traditions, architectural heritage, and living traditions across India.",
+  },
+  {
+    id: 3,
+    title: "Himalayan Civilization & Culture Immersion",
+    locations: "Uttarakhand, HP, J&K, Sikkim, Assam, Arunachal Pradesh & Nepal",
+    duration: "15 - 180 Days",
+    type: "Regional & Cross-Border",
+    desc: "Ecology, community sustainability, high-altitude indigenous knowledge, and Himalayan civilizational research.",
+  },
+  {
+    id: 4,
+    title: "Rural Development & Social Welfare Immersion",
+    locations: "Pan India (Rural & Semi-Urban Clusters)",
+    duration: "15 - 180 Days",
+    type: "Grassroots Fieldwork",
+    desc: "Hands-on participation in community welfare, rural livelihood mapping, and grassroots social development initiatives.",
+  },
+  {
+    id: 5,
+    title: "Sadguru Kabir & Humanity Immersion",
+    locations: "Maghar, Sant Kabir Nagar, Uttar Pradesh",
+    duration: "15 - 180 Days",
+    type: "Humanistic Research",
+    desc: "Philosophical study of universal brotherhood, saint literature, societal harmony, and ethical leadership.",
   },
 ];
 
 const HeroCourseData = [
   {
     id: 1,
-    category: "DATA SCIENCE",
-    title: "Introduction to Data Science and Analytics",
-    rating: "4.8/ 2.6k Ratings",
-    price: "₹1,999",
-    oldPrice: "₹4,999",
-    students: "270 Students",
-    lessons: "40 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+    category: "AI & EMERGING TECH",
+    title: "Artificial Intelligence & Generative AI Internship",
+    rating: "4.9/ 3.4k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "Online / Hybrid / On-Campus",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/cl1.webp",
     hoverColor: "#2d8cff",
-    hoverText: "Learn core analytics, visualization, and practical data workflows for beginners.",
+    hoverText: "Build LLM applications, prompt engineering pipelines, and neural networks with live industry mentors.",
   },
   {
     id: 2,
-    category: "MARKETING",
-    title: "Digital Marketing Strategies and Tools",
-    rating: "4.8/ 2.6k Ratings",
-    price: "₹2,499",
-    oldPrice: "₹5,499",
-    students: "270 Students",
-    lessons: "40 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
+    category: "CORE ENGINEERING",
+    title: "Civil, Mechanical & Electrical Engineering (Applied Industry Training)",
+    rating: "4.8/ 2.8k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "On-Campus / Industrial Site",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/cl2.webp",
     hoverColor: "#30a46c",
-    hoverText: "Master campaigns, audience targeting, tools, and strategy for digital growth.",
+    hoverText: "Hands-on CAD/CAM, site analysis, power systems, automation, and structural quality compliance.",
   },
   {
     id: 3,
-    category: "MARKETING",
-    title: "Social Media Marketing Growth and Branding",
-    rating: "4.8/ 2.6k Ratings",
-    price: "₹1,499",
-    oldPrice: "₹3,999",
-    students: "82 Students",
-    lessons: "24 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
+    category: "AI & EMERGING TECH",
+    title: "Cyber Security & Ethical Hacking Internship",
+    rating: "4.9/ 2.9k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "Virtual / Hybrid",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/cl3.webp",
     hoverColor: "#3b82f6",
-    hoverText: "Build social campaigns, improve conversions, and grow a powerful brand presence.",
+    hoverText: "Vulnerability assessment, network defense, penetration testing, and SOC log forensics.",
   },
   {
     id: 4,
-    category: "PROGRAMMING",
-    title: "Full Stack Web Development & Cloud Deployment",
-    rating: "4.9/ 3.1k Ratings",
-    price: "₹2,999",
-    oldPrice: "₹6,999",
-    students: "520 Students",
-    lessons: "60 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80",
+    category: "BUSINESS & FINTECH",
+    title: "FinTech, Blockchain & Financial Management Internship",
+    rating: "4.8/ 2.1k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "Virtual / Hybrid",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/cl4.webp",
     hoverColor: "#2d8cff",
-    hoverText: "Learn React, Next.js, Node.js, databases, and real-world web applications from scratch.",
+    hoverText: "Explore smart contracts, digital banking APIs, risk analysis, and corporate financial modeling.",
   },
   {
     id: 5,
-    category: "GRAPHIC DESIGN",
-    title: "Mastering UI/UX & Product Design Fundamentals",
-    rating: "4.8/ 1.9k Ratings",
-    price: "₹1,899",
-    oldPrice: "₹4,299",
-    students: "189 Students",
-    lessons: "35 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=1200&q=80",
+    category: "DESIGN & MEDIA",
+    title: "UI/UX Design, Animation & VFX Multimedia Internship",
+    rating: "4.9/ 2.5k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "Virtual / On-Campus",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/c1.webp",
     hoverColor: "#6d5efc",
-    hoverText: "Understand design systems, Figma wireframing, typography, and interactive prototyping.",
+    hoverText: "Master Figma design systems, motion graphics, wireframing, and 3D visual storytelling.",
   },
   {
     id: 6,
-    category: "MANAGEMENT",
-    title: "Business Analytics & Financial Decision Making",
-    rating: "4.8/ 2.2k Ratings",
-    price: "Free",
-    oldPrice: "₹3,499",
-    students: "356 Students",
-    lessons: "20 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+    category: "HEALTHCARE & BIO",
+    title: "Healthcare Management, Pharmacy & Biotechnology Internship",
+    rating: "4.8/ 1.8k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "On-Campus / Virtual",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/c2.webp",
     hoverColor: "#2494ff",
-    hoverText: "Use data analytics techniques to make better business decisions and optimize performance.",
+    hoverText: "Clinical trial workflow, bio-informatics analysis, pharmacy logistics, and public health systems.",
   },
   {
     id: 7,
-    category: "PROGRAMMING",
-    title: "Cybersecurity & Ethical Hacking Essentials",
-    rating: "4.8/ 2.6k Ratings",
-    price: "₹2,799",
-    oldPrice: "₹5,999",
-    students: "142 Students",
-    lessons: "28 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1510915228340-29c85a43dcfe?auto=format&fit=crop&w=1200&q=80",
+    category: "AGRI & SUSTAINABILITY",
+    title: "EV & Renewable Energy, Environmental Science Internship",
+    rating: "4.8/ 1.9k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "Hybrid / On-Campus",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/c3.webp",
     hoverColor: "#3182ce",
-    hoverText: "Protect systems, understand threats, network defense, and build practical cybersecurity skills.",
+    hoverText: "Solar/wind power systems, battery management architectures, EV powertrains, and eco-auditing.",
   },
   {
     id: 8,
-    category: "MANAGEMENT",
-    title: "Corporate Communication & Storytelling",
-    rating: "4.8/ 2.5k Ratings",
-    price: "₹999",
-    oldPrice: "₹2,499",
-    students: "450 Students",
-    lessons: "16 Lessons",
-    image:
-      "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80",
+    category: "DESIGN & MEDIA",
+    title: "Digital Marketing, Media, Journalism & Mass Communication",
+    rating: "4.8/ 2.4k Reviews",
+    duration: "4 - 12 Weeks",
+    mode: "Virtual / Hybrid",
+    credits: "2 to 4 UGC Credits",
+    image: "/images/oc1.webp",
     hoverColor: "#30a46c",
-    hoverText: "Improve pitch presentations, team leadership, business writing, and confident expression.",
+    hoverText: "Brand storytelling, investigative journalism, digital ad pipelines, and viral content production.",
   },
 ];
 
 const HeroCourseTabs = [
   "ALL",
-  "PROGRAMMING",
-  "GRAPHIC DESIGN",
-  "DATA SCIENCE",
-  "MARKETING",
-  "MANAGEMENT",
+  "AI & EMERGING TECH",
+  "CORE ENGINEERING",
+  "BUSINESS & FINTECH",
+  "HEALTHCARE & BIO",
+  "DESIGN & MEDIA",
+  "AGRI & SUSTAINABILITY",
 ];
 
 const MentorsData = [
@@ -514,31 +594,31 @@ const row2 = [
 const HeroGoalCards = [
   {
     image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
-    title: "Daily Live Masterclasses",
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=900&q=80",
+    title: "Daily Live Industry Mentorship",
     description:
-      "Interact with educators, ask questions in real time, participate in polls, and clear project doubts.",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=80",
-    title: "Practice and Revise",
-    description:
-      "Learning extends beyond theory with hands-on practice modules, mock presentations, and mentor guidance.",
+      "Work directly with senior industry practitioners, sprint standups, and resolve live project roadblocks.",
   },
   {
     image:
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80",
-    title: "Learn & Build Anytime",
+    title: "UGC 60-120 hrs Credit Mapping",
     description:
-      "24/7 access to live cohorts, project repositories, recorded modules, and verifiable evaluations.",
+      "Structured practical modules meeting mandatory 2–4 academic college credits under NEP 2020.",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80",
+    title: "Verifiable Global Credentials",
+    description:
+      "24/7 project repository access, digital tamper-proof certificates, logbooks, and mock interview prep.",
   },
 ];
 
 const HeroGoalPoints = [
-  "Learn from top industry mentors & professors",
-  "UGC & NEP 2020 credit-transfer compliant",
-  "Live cohort problem solving & portfolio development",
+  "Hands-on Live Industry Projects & Mentorship",
+  "UGC Guidelines (2024) & NEP 2020 2-4 Credits",
+  "Verifiable Global Certificates & Mock Interviews",
 ];
 
 const HeroNewsItems = [
@@ -846,9 +926,48 @@ const itemVariants: Variants = {
   },
 };
 
+function TrackCardCover({
+  src,
+  alt,
+  category,
+}: {
+  src: string;
+  alt: string;
+  category: string;
+}) {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
+      {!hasError ? (
+        <img
+          src={src}
+          alt={alt}
+          onError={() => setHasError(true)}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-2 p-4 text-center z-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-emerald-300 backdrop-blur-md shadow-inner">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <span className="text-[11px] font-bold text-emerald-100/90 tracking-wide uppercase">
+            {category}
+          </span>
+        </div>
+      )}
+      <div className="absolute top-3 left-3 z-10 rounded-md bg-[#063A1E]/85 px-2.5 py-1 text-[10px] font-bold text-emerald-300 shadow-xs backdrop-blur-xs border border-emerald-500/20 pointer-events-none">
+        {category}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [showVideo, setShowVideo] = useState(false);
   const [activeTab, setActiveTab] = useState("ALL");
+  const [prospectusCategoryFilter, setProspectusCategoryFilter] = useState("ALL");
+  const [prospectusSearch, setProspectusSearch] = useState("");
   const [activeMentorId, setActiveMentorId] = useState<number>(MentorsData.length);
   const stackRef = useRef<StackRef>(null);
 
@@ -860,6 +979,19 @@ export default function HomePage() {
     if (activeTab === "ALL") return HeroCourseData;
     return HeroCourseData.filter((item) => item.category === activeTab);
   }, [activeTab]);
+
+  const filteredProspectusDisciplines = useMemo(() => {
+    return PROSPECTUS_ALL_DISCIPLINES.filter((item) => {
+      if (prospectusCategoryFilter !== "ALL" && item.category !== prospectusCategoryFilter) {
+        return false;
+      }
+      if (prospectusSearch.trim()) {
+        const q = prospectusSearch.toLowerCase().trim();
+        return item.name.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
+      }
+      return true;
+    });
+  }, [prospectusCategoryFilter, prospectusSearch]);
 
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
 
@@ -886,12 +1018,12 @@ export default function HomePage() {
           1. HERO SECTION (Exact Mockup Match - Compact 50/50 Split Flush Top & Right)
       ========================================================= */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#F7FAF8] via-white to-white border-b border-gray-100">
-        <div className="w-full pl-4 sm:pl-6 lg:pl-10 pr-0 max-w-[1600px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-[360px] lg:min-h-[380px]">
+        <div className="w-full px-4 sm:px-6 lg:pl-10 lg:pr-0 max-w-[1600px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-auto lg:min-h-[380px] gap-6 lg:gap-0">
             {/* Left Content - Takes Left 50% (6 Cols) */}
-            <div className="flex flex-col items-start lg:col-span-6 xl:col-span-6 py-4 sm:py-5 lg:py-5 pr-4 sm:pr-6 lg:pr-8 z-10">
+            <div className="flex flex-col items-start lg:col-span-6 xl:col-span-6 py-5 sm:py-6 lg:py-6 pr-0 lg:pr-8 z-10">
               {/* Main Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-black tracking-tight text-[#0F2A1D] leading-[1.05]">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] xl:text-[44px] font-black tracking-tight text-[#0F2A1D] leading-[1.08]">
                 Learn Today,<br />Lead Tomorrow
               </h1>
 
@@ -906,7 +1038,7 @@ export default function HomePage() {
               </p>
 
               {/* 4 Feature Items (Horizontal 4 columns with circle icons + title + subtitle) */}
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 w-full">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 w-full">
                 {/* Feature 1 */}
                 <div className="flex items-start gap-2">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] border border-emerald-200/80 shadow-2xs">
@@ -917,7 +1049,7 @@ export default function HomePage() {
                       UGC Internship Aligned
                     </h4>
                     <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
-                      Structured as per UGC Internship Guidelines
+                      Structured as per UGC Guidelines
                     </p>
                   </div>
                 </div>
@@ -932,7 +1064,7 @@ export default function HomePage() {
                       Skill-Based Training
                     </h4>
                     <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
-                      Industry-relevant skills for real impact
+                      Industry-relevant skills
                     </p>
                   </div>
                 </div>
@@ -947,7 +1079,7 @@ export default function HomePage() {
                       Real-World Experience
                     </h4>
                     <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
-                      Work on live projects with expert mentors
+                      Live mentor projects
                     </p>
                   </div>
                 </div>
@@ -962,17 +1094,17 @@ export default function HomePage() {
                       Certificate &amp; Recognition
                     </h4>
                     <p className="mt-0.5 text-[9.5px] text-slate-500 leading-snug">
-                      Enhance your profile and career opportunities
+                      Enhance career opportunities
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* CTAs */}
-              <div className="mt-5 flex flex-wrap items-center gap-3">
+              <div className="mt-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
                 <Link
                   href="/student/registration"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A5C36] px-4.5 py-2.5 text-xs sm:text-[13px] font-bold text-white shadow-md transition-all hover:bg-[#074026] hover:shadow-lg hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A5C36] px-4.5 py-2.5 text-xs sm:text-[13px] font-bold text-white shadow-md transition-all hover:bg-[#074026] hover:shadow-lg hover:-translate-y-0.5 text-center"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span>Free Student Registration</span>
@@ -980,26 +1112,35 @@ export default function HomePage() {
 
                 <Link
                   href="/internship"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4.5 py-2.5 text-xs sm:text-[13px] font-bold text-slate-800 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-[13px] font-bold text-slate-800 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300 text-center"
                 >
                   <Search className="h-4 w-4 text-slate-600" />
                   <span>Find Internships</span>
                 </Link>
+
+                <a
+                  href="/Internship-Prospectus.pdf"
+                  download="i3-Internship-Prospectus.pdf"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-400/70 bg-gradient-to-r from-amber-50 to-yellow-50 px-4 py-2.5 text-xs sm:text-[13px] font-bold text-amber-950 shadow-2xs transition-all hover:from-amber-100 hover:to-yellow-100 hover:border-amber-500 hover:shadow-xs hover:-translate-y-0.5 text-center"
+                >
+                  <Download className="h-4 w-4 text-amber-700 animate-bounce" />
+                  <span>Download Prospectus (PDF)</span>
+                </a>
               </div>
             </div>
 
             {/* Right Hero Image - Takes Right 50% (6 Cols) Flush with Top Navbar and Right Edge */}
-            <div className="relative lg:col-span-6 xl:col-span-6 h-full min-h-[360px] lg:min-h-[380px] flex items-stretch justify-end">
-              <div className="relative w-full h-full flex items-stretch justify-end">
+            <div className="relative lg:col-span-6 xl:col-span-6 h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[380px] flex items-stretch justify-end">
+              <div className="relative w-full h-full max-w-[540px] lg:max-w-none mx-auto flex items-stretch justify-end">
                 {/* Subtle Dot Matrix Grid */}
-                <div className="pointer-events-none absolute top-3 left-6 lg:left-10 w-24 h-20 grid grid-cols-5 gap-2.5 opacity-30 z-0">
+                <div className="pointer-events-none absolute top-3 left-6 lg:left-10 w-24 h-20 hidden sm:grid grid-cols-5 gap-2.5 opacity-30 z-0">
                   {Array.from({ length: 25 }).map((_, i) => (
                     <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                   ))}
                 </div>
 
                 {/* Unified SVG Canvas: Dual Concentric Swoosh Ribbons + Exact Matching Photo Clip */}
-                <div className="relative w-full h-full min-h-[360px] lg:min-h-[380px] z-10 flex items-stretch">
+                <div className="relative w-full h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[380px] z-10 flex items-stretch">
                   <svg
                     viewBox="0 0 760 540"
                     className="w-full h-full"
@@ -1051,14 +1192,14 @@ export default function HomePage() {
                   </svg>
 
                   {/* Floating Forest Green Quote Card at Top Right */}
-                  <div className="absolute top-5 right-5 lg:right-8 rounded-xl bg-[#063B27] px-3.5 py-2.5 text-white shadow-2xl border border-emerald-700/60 max-w-[190px] sm:max-w-[210px] z-20 pointer-events-auto">
-                    <div className="flex items-center gap-1 text-base sm:text-lg font-serif text-emerald-400 leading-none mb-0.5">
+                  <div className="absolute top-3 right-3 sm:top-5 sm:right-5 lg:right-8 rounded-xl bg-[#063B27] px-3 py-2 sm:px-3.5 sm:py-2.5 text-white shadow-2xl border border-emerald-700/60 max-w-[170px] sm:max-w-[210px] z-20 pointer-events-auto">
+                    <div className="flex items-center gap-1 text-sm sm:text-base font-serif text-emerald-400 leading-none mb-0.5">
                       <span>❝</span>
                     </div>
-                    <p className="text-[10.5px] sm:text-[11px] font-bold text-emerald-50 leading-snug">
+                    <p className="text-[9.5px] sm:text-[11px] font-bold text-emerald-50 leading-snug">
                       Building Competent Youth for a Better Tomorrow
                     </p>
-                    <div className="mt-2 h-0.5 w-8 bg-emerald-400 rounded-full" />
+                    <div className="mt-1.5 sm:mt-2 h-0.5 w-6 sm:w-8 bg-emerald-400 rounded-full" />
                   </div>
                 </div>
               </div>
@@ -1073,11 +1214,11 @@ export default function HomePage() {
       <section className="py-3 bg-white">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-[#F4FAF6] p-4 sm:p-5 lg:p-6 shadow-xs">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-center">
               {/* Left Logo + Title + Subtitle */}
-              <div className="lg:col-span-5 flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0A5C36] text-white shadow-sm">
-                  <Landmark className="h-6 w-6" />
+              <div className="lg:col-span-5 flex items-start gap-3 sm:gap-3.5">
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-[#0A5C36] text-white shadow-sm">
+                  <Landmark className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase text-[#0A5C36]">
@@ -1092,23 +1233,23 @@ export default function HomePage() {
               {/* Middle 2 Checklist Columns */}
               <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-[11px] sm:text-xs font-medium text-slate-700">
                 <div className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3]" />
+                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3] shrink-0" />
                   <span>60 to 120 hours of internship</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3]" />
-                  <span>To be integrated by HEIs in the curriculum</span>
+                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3] shrink-0" />
+                  <span>Integrated in HEI curriculum</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3]" />
-                  <span>2 to 4 Academic Credits as per UGC Framework</span>
+                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3] shrink-0" />
+                  <span>2 to 4 Academic Credits</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3]" />
-                  <span>Enhancing employability &amp; real-world exposure</span>
+                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3] shrink-0" />
+                  <span>Enhancing employability</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:col-span-2">
-                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3]" />
+                  <Check className="h-3.5 w-3.5 text-[#0A5C36] stroke-[3] shrink-0" />
                   <span>Experiential Learning &amp; Skill Development</span>
                 </div>
               </div>
@@ -1117,7 +1258,7 @@ export default function HomePage() {
               <div className="lg:col-span-3 flex justify-start lg:justify-end">
                 <Link
                   href="/about/internship"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-colors whitespace-nowrap"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-colors text-center"
                 >
                   <span>Know More About UGC Guidelines</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -1333,7 +1474,7 @@ export default function HomePage() {
 
             {/* Right Community Card */}
             <div className="lg:col-span-4 flex justify-end">
-              <div className="w-full max-w-sm rounded-xl bg-white p-4 sm:p-5 text-slate-900 shadow-xl flex items-center justify-between gap-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-4 sm:p-5 text-slate-900 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
                 <div>
                   <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
                     Be a Part of i3 Community
@@ -1345,7 +1486,7 @@ export default function HomePage() {
 
                 <Link
                   href="/student/registration"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A5C36] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0A5C36] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-all text-center shrink-0"
                 >
                   <span>Join Us Today!</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -1377,7 +1518,7 @@ export default function HomePage() {
                   <Star
                     className="h-4 w-4 sm:h-5 sm:w-5 animate-[spin_10s_linear_infinite] fill-amber-950 text-amber-950"
                   />
-                  <span className="whitespace-nowrap text-sm sm:text-base md:text-lg font-extrabold uppercase tracking-tight text-amber-950">
+                  <span className="whitespace-nowrap text-xs sm:text-base md:text-lg font-extrabold uppercase tracking-tight text-amber-950">
                     {item}
                   </span>
                 </div>
@@ -1390,34 +1531,46 @@ export default function HomePage() {
       {/* =========================================================
           5. LEARNING FOCUSED ON YOUR GOALS (Dark Green Section)
       ========================================================= */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-emerald-950 via-[#063A1E] to-emerald-900 py-12 sm:py-16 text-white">
-        <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:24px_24px]" />
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-[#04261A] via-[#063A1E] to-[#0A4D2B] py-12 sm:py-16 lg:py-18 text-white">
+        <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 items-center">
-            {/* Left Photo + Play Video Badge */}
-            <div className="lg:col-span-5 flex flex-col items-center lg:items-start">
-              <div className="group relative h-[220px] w-full max-w-[340px] overflow-hidden rounded-3xl shadow-2xl border border-emerald-500/20">
+          <div className="grid grid-cols-1 gap-8 lg:gap-10 lg:grid-cols-12 items-center">
+            {/* Left Photo + Video CTA */}
+            <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div className="group relative h-[220px] sm:h-[280px] w-full max-w-[380px] overflow-hidden rounded-3xl shadow-2xl border border-emerald-400/20">
                 <img
                   src="https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=1200&q=80"
-                  alt="Students learning together"
+                  alt="Students learning together in an internship cohort"
                   className="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#04261A]/90 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between text-xs text-emerald-100">
+                  <span className="font-bold flex items-center gap-1.5 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-xs text-[10.5px] sm:text-xs">
+                    <CheckCircle className="size-3.5 text-yellow-400" />
+                    UGC 2024 Framework
+                  </span>
+                  <span className="text-yellow-300 font-bold bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-xs text-[10.5px] sm:text-xs">
+                    60-120 Hours
+                  </span>
+                </div>
               </div>
 
-              <div className="mt-6 flex items-center gap-4 text-left">
+              <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row items-center sm:items-start gap-3.5 sm:gap-4 text-center sm:text-left">
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-slate-950 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110 active:scale-95"
+                  className="relative flex h-13 w-13 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-slate-950 shadow-lg shadow-yellow-500/30 transition-transform hover:scale-110 active:scale-95"
+                  aria-label="Play overview video"
                 >
-                  <Play className="ml-1 h-6 w-6 fill-current" />
+                  <Play className="ml-0.5 sm:ml-1 h-5 w-5 sm:h-6 sm:w-6 fill-current" />
                 </button>
                 <div>
-                  <h4 className="text-base font-bold text-white">
-                    Learn with 200+ Institutions &amp; Educators
+                  <h4 className="text-sm sm:text-base font-bold text-white leading-snug">
+                    Learn with 500+ Partner Institutions &amp; Mentors
                   </h4>
                   <p className="text-xs text-emerald-200/90 mt-0.5">
-                    Watch our overview video to see how cohorts collaborate.
+                    Watch our overview video to discover how cohorts collaborate on live projects.
                   </p>
                 </div>
               </div>
@@ -1425,39 +1578,43 @@ export default function HomePage() {
 
             {/* Right Goals Grid */}
             <div className="lg:col-span-7">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-yellow-400">
-                    Cohort Experience
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-                    Learning Focused on Your Goals
-                  </h2>
-                </div>
+              <div className="mb-5 sm:mb-6">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-yellow-300 border border-yellow-400/30">
+                  <Sparkles className="size-3" />
+                  COHORT &amp; IMMERSION EXPERIENCE
+                </span>
+                <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight">
+                  Learning Focused on Your Career Goals
+                </h2>
               </div>
 
-              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 mb-5 sm:mb-6">
                 {HeroGoalPoints.map((pt, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs font-medium text-emerald-100">
+                  <li key={i} className="flex items-start gap-2 text-xs font-semibold text-emerald-100 bg-white/5 p-2.5 rounded-xl border border-white/10">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-yellow-400 mt-0.5" />
                     <span>{pt}</span>
                   </li>
                 ))}
               </ul>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
                 {HeroGoalCards.map((card, idx) => (
                   <div
                     key={idx}
-                    className="overflow-hidden rounded-2xl bg-white/10 p-4 border border-white/10 backdrop-blur-xs transition-transform hover:-translate-y-1"
+                    className="group overflow-hidden rounded-2xl bg-white/10 p-4 border border-white/15 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/15 hover:border-emerald-400/40 shadow-lg"
                   >
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="h-28 w-full rounded-xl object-cover mb-3"
-                    />
-                    <h4 className="text-sm font-bold text-white">{card.title}</h4>
-                    <p className="mt-1 text-xs text-emerald-200/80 leading-snug">
+                    <div className="relative h-28 w-full rounded-xl overflow-hidden mb-3.5 bg-emerald-950/40">
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
+                      {card.title}
+                    </h4>
+                    <p className="mt-1.5 text-[11px] text-emerald-100/80 leading-relaxed">
                       {card.description}
                     </p>
                   </div>
@@ -1469,53 +1626,60 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================
-          6. 3D FLIPPING COURSES & CATEGORIES
+          6. CORE DOMAIN CATEGORIES (Modern, Responsive, Mobile-Optimized)
       ========================================================= */}
-      <section className="py-14 bg-white">
+      <section className="py-12 sm:py-16 bg-white border-b border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
-              Domain Categories
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0A5C36] border border-emerald-200">
+              <Award className="size-3.5" />
+              100+ PROSPECTUS DISCIPLINES
             </span>
-            <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Explore Our Top Disciplines
+            <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
+              Explore Our Core Internship Domains
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-slate-600">
-              From engineering and data science to arts and business strategy, select the domain that aligns with your goals.
+            <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Select from over 100+ UGC-aligned internship tracks structured across emerging technologies, core engineering, design, healthcare, agriculture, and business management.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {CourseCategoryData.map((item) => {
               const Icon = item.icon;
               return (
                 <div
                   key={item.id}
-                  className="group relative h-[200px] w-full cursor-pointer [perspective:1000px]"
+                  className="group relative flex flex-col justify-between rounded-2xl border border-gray-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-[#0A5C36] hover:shadow-xl"
                 >
-                  <div className="relative h-full w-full duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-                    {/* Front */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-emerald-100 bg-gradient-to-br from-[#0A5C36] to-[#063A1E] p-4 text-center text-white shadow-md [backface-visibility:hidden]">
-                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 shadow-sm backdrop-blur-md">
-                        <Icon className="h-6 w-6 text-white" />
+                  <div>
+                    <div className="flex items-center justify-between gap-3 mb-3.5">
+                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-emerald-50 text-[#0A5C36] border border-emerald-200 group-hover:bg-[#0A5C36] group-hover:text-white transition-all shadow-2xs">
+                        <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                       </div>
-                      <h3 className="text-xs sm:text-sm font-bold leading-tight text-white line-clamp-2">
-                        {item.title}
-                      </h3>
-                      <p className="mt-1 text-[11px] font-semibold text-yellow-300">
+                      <span className="rounded-full bg-emerald-100/80 px-2.5 py-1 text-[10.5px] sm:text-[11px] font-extrabold text-[#0A5C36]">
                         {item.courses}
-                      </p>
-                    </div>
-
-                    {/* Back */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-emerald-200 bg-white p-4 text-center shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                      <p className="text-[11px] text-slate-600 leading-snug mb-3">
-                        {item.description}
-                      </p>
-                      <span className="inline-flex items-center justify-center rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-[#0A5C36]">
-                        Explore <ArrowRight className="ml-1 h-3 w-3" />
                       </span>
                     </div>
+
+                    <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-[#0A5C36] transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3.5 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      UGC 2024 Aligned
+                    </span>
+                    <Link
+                      href="/internship"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0A5C36] group-hover:underline"
+                    >
+                      <span>Explore Tracks</span>
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                   </div>
                 </div>
               );
@@ -1525,11 +1689,279 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================
+          6.5 DEDICATED OFFICIAL PROSPECTUS DOWNLOAD & 100+ DISCIPLINES DIRECTORY
+      ========================================================= */}
+      <section className="py-12 bg-gradient-to-b from-[#F2F8F4] to-white border-y border-emerald-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Prospectus Download Main Card */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#063B27] via-[#084D34] to-[#04261A] p-5 sm:p-8 lg:p-10 text-white shadow-xl">
+            <div className="pointer-events-none absolute -right-20 -bottom-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="pointer-events-none absolute left-1/3 top-0 h-60 w-60 rounded-full bg-yellow-400/10 blur-3xl" />
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
+              {/* Left Details */}
+              <div className="lg:col-span-7 flex flex-col items-start">
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold text-yellow-300 backdrop-blur-md border border-white/10">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>OFFICIAL PROSPECTUS &amp; CURRICULUM</span>
+                </div>
+
+                <h2 className="mt-3 text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight">
+                  Download the Official i3 Internship &amp; Immersion Prospectus
+                </h2>
+
+                <p className="mt-3 text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl">
+                  International Institute of Internship (i3) — An ISO 21001:2018 Certified Research Institution registered under the Indian Trusts Act, 1882 and NITI Aayog (A unit of DPKHRC Trust). Explore complete guidelines for 100+ internship disciplines, 4–12 week cohorts, UGC NEP-2020 credit frameworks, and global immersion programs.
+                </p>
+
+                {/* Key Points */}
+                <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full text-xs text-emerald-50">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
+                    <span>100+ Tailored &amp; Industry Aligned Domains</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
+                    <span>UGC Guidelines 2024: 60-120 hrs / 2-4 Credits</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
+                    <span>Duration: 4-12 Weeks (Flexible Modes)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
+                    <span>Global Verifiable Certificate &amp; Mock Interviews</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+                  <a
+                    href="/Internship-Prospectus.pdf"
+                    download="i3-Internship-Prospectus.pdf"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-5 py-3 text-xs sm:text-sm font-extrabold text-slate-950 shadow-lg transition-all hover:bg-yellow-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 text-center"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Download Official Prospectus (PDF)</span>
+                  </a>
+
+                  <a
+                    href="/Internship-Prospectus.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-xs sm:text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/40 text-center"
+                  >
+                    <FileText className="h-4 w-4 text-emerald-300" />
+                    <span>View Online</span>
+                  </a>
+
+                  <Link
+                    href="/student/registration"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-400/40 bg-emerald-500/20 px-4 py-3 text-xs sm:text-sm font-bold text-emerald-200 transition-all hover:bg-emerald-500/30 hover:text-white text-center"
+                  >
+                    <span>Apply for Cohort</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Mini Preview / Stats */}
+              <div className="lg:col-span-5 flex flex-col gap-4">
+                <div className="rounded-2xl border border-white/15 bg-white/10 p-4 sm:p-5 backdrop-blur-md shadow-inner">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-400/20 text-yellow-300">
+                        <Award className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                          Prospectus Highlights
+                        </h4>
+                        <p className="text-[10px] text-emerald-200">ISO 21001:2018 Certified</p>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-yellow-400/20 px-2.5 py-0.5 text-[10px] font-bold text-yellow-300">
+                      PDF Document
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-2.5 text-xs text-emerald-100">
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Offered By:</span>
+                      <span className="font-semibold text-white">i3 (DPKHRC Trust)</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Total Disciplines:</span>
+                      <span className="font-semibold text-yellow-300">100+ Programs</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Internship Duration:</span>
+                      <span className="font-semibold text-white">4 to 12 Weeks</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Immersion Duration:</span>
+                      <span className="font-semibold text-white">15 to 180 Days</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Languages:</span>
+                      <span className="font-semibold text-white">Hindi, English &amp; Indian Lang.</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-emerald-200/80">Mode of Training:</span>
+                      <span className="font-semibold text-white">On-Campus, Physical &amp; Hybrid</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Searchable Directory of all 34+ Prospectus Disciplines */}
+          <div className="mt-10 sm:mt-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5 sm:mb-6">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
+                  Complete Program Directory
+                </span>
+                <h3 className="mt-1 text-xl sm:text-2xl font-extrabold text-slate-900">
+                  All 100+ Internship Programs Listed in Prospectus
+                </h3>
+                <p className="mt-1 text-xs text-slate-600">
+                  Search or filter by category to find your target domain track.
+                </p>
+              </div>
+
+              {/* Search input */}
+              <div className="relative w-full md:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={prospectusSearch}
+                  onChange={(e) => setProspectusSearch(e.target.value)}
+                  placeholder="Search disciplines..."
+                  className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+            </div>
+
+            {/* Category Filter Chips */}
+            <div className="mb-5 sm:mb-6 flex items-center gap-1.5 overflow-x-auto pb-2 sm:flex-wrap scrollbar-none">
+              {[
+                "ALL",
+                "Emerging Tech",
+                "Engineering",
+                "Business & Finance",
+                "Design & Media",
+                "Healthcare & Life Sciences",
+                "Agri & Green Tech",
+                "Humanities & General",
+                "Specialized Sectors",
+              ].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setProspectusCategoryFilter(cat)}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-[11px] font-semibold transition-all whitespace-nowrap shrink-0",
+                    prospectusCategoryFilter === cat
+                      ? "bg-[#0A5C36] text-white shadow-xs"
+                      : "bg-white text-slate-600 border border-gray-200 hover:bg-emerald-50 hover:text-[#0A5C36]",
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Grid of disciplines */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 max-h-[380px] overflow-y-auto p-1.5 border border-gray-100 rounded-2xl bg-white shadow-2xs">
+              {filteredProspectusDisciplines.map((item, idx) => {
+                const ItemIcon = item.icon || CheckCircle2;
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-slate-50/50 hover:bg-emerald-50/50 hover:border-emerald-200 transition-colors"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-[#0A5C36] mt-0.5">
+                      <ItemIcon className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-slate-900 leading-snug truncate">
+                        {item.name}
+                      </h4>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="inline-block rounded bg-emerald-100/70 px-1.5 py-0.5 text-[9.5px] font-semibold text-[#0A5C36]">
+                          {item.category}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-medium">4-12 Weeks</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Immersion Programs Showcase from Page 4 */}
+          <div className="mt-10 sm:mt-12 pt-8 sm:pt-10 border-t border-emerald-100">
+            <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
+                Page 4 of Prospectus
+              </span>
+              <h3 className="mt-1 text-xl sm:text-2xl font-extrabold text-slate-900">
+                i3 Immersion Programs (15 to 180 Days)
+              </h3>
+              <p className="mt-1 text-xs text-slate-600">
+                Experiential learning, cultural exploration, grassroots community development, and leadership immersions.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {PROSPECTUS_IMMERSIONS.map((imm) => (
+                <div
+                  key={imm.id}
+                  className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-white p-4 sm:p-5 shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-[#0A5C36]">
+                        {imm.type}
+                      </span>
+                      <span className="text-[10.5px] font-bold text-amber-600">{imm.duration}</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                      {imm.title}
+                    </h4>
+                    <div className="mt-2 flex items-start gap-1.5 text-[11px] font-semibold text-emerald-800">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[#0A5C36] mt-0.5" />
+                      <span>{imm.locations}</span>
+                    </div>
+                    <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                      {imm.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <Link
+                      href="/immersion"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0A5C36] hover:underline"
+                    >
+                      <span>Explore Immersion</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
           7. TABBED COURSE & INTERNSHIP SHOWCASE
       ========================================================= */}
-      <section className="py-14 bg-slate-50/60 border-y border-gray-100">
+      <section className="py-12 sm:py-14 bg-slate-50/60 border-y border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
                 Trending Programs
@@ -1548,13 +1980,13 @@ export default function HomePage() {
           </div>
 
           {/* Tabs */}
-          <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
+          <div className="mb-6 sm:mb-8 flex items-center gap-1.5 overflow-x-auto pb-2 sm:justify-center sm:flex-wrap scrollbar-none px-1">
             {HeroCourseTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-bold transition-all",
+                  "rounded-full px-3.5 sm:px-4 py-1.5 text-xs font-bold transition-all whitespace-nowrap shrink-0",
                   activeTab === tab
                     ? "bg-[#0A5C36] text-white shadow-sm"
                     : "bg-white text-slate-600 hover:bg-emerald-50 hover:text-[#0A5C36] border border-gray-200",
@@ -1572,47 +2004,47 @@ export default function HomePage() {
                 key={course.id}
                 className="group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-200/80 shadow-2xs transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-emerald-300"
               >
-                <div className="relative h-44 w-full overflow-hidden bg-slate-100">
-                  <img
-                    src={course.image}
-                    alt={course.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute top-3 left-3 rounded-md bg-[#063A1E]/80 px-2.5 py-1 text-[10px] font-bold text-emerald-300 backdrop-blur-xs">
-                    {course.category}
-                  </div>
-                </div>
+                <TrackCardCover
+                  src={course.image}
+                  alt={course.title}
+                  category={course.category}
+                />
 
                 <div className="flex flex-1 flex-col p-4">
-                  <h3 className="text-sm font-bold text-slate-900 line-clamp-2 min-h-[40px] leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 line-clamp-2 min-h-[40px] leading-snug group-hover:text-[#0A5C36] transition-colors">
                     {course.title}
                   </h3>
 
-                  <div className="mt-2 flex items-center gap-1 text-amber-500">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                    <span className="text-xs font-semibold text-slate-600">{course.rating}</span>
+                  <div className="mt-2 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1 text-amber-500">
+                      <Star className="h-3.5 w-3.5 fill-current" />
+                      <span className="font-semibold text-slate-600">{course.rating}</span>
+                    </div>
+                    <span className="font-bold text-[#0A5C36] bg-emerald-50 px-2 py-0.5 rounded text-[10.5px]">
+                      {course.duration}
+                    </span>
                   </div>
 
                   <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed">
                     {course.hoverText}
                   </p>
 
+                  <div className="mt-3 flex items-center gap-2 text-[10.5px] font-semibold text-slate-600">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[#0A5C36]" />
+                    <span>{course.credits}</span>
+                  </div>
+
                   <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-base font-extrabold text-[#0A5C36]">
-                        {course.price}
-                      </span>
-                      <span className="text-xs text-slate-400 line-through">
-                        {course.oldPrice}
-                      </span>
-                    </div>
+                    <span className="text-[11px] font-bold text-slate-700">
+                      {course.mode}
+                    </span>
 
                     <Link
                       href="/student/registration"
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0A5C36] group-hover:underline"
+                      className="inline-flex items-center gap-1 font-bold text-xs text-[#0A5C36] hover:text-[#074026] transition-all group-hover:translate-x-0.5"
                     >
                       <span>Enroll</span>
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </div>
                 </div>
@@ -1625,9 +2057,9 @@ export default function HomePage() {
       {/* =========================================================
           8. 3D MENTORS CAROUSEL STACK
       ========================================================= */}
-      <section className="py-14 bg-white">
+      <section className="py-12 sm:py-14 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
               Faculty &amp; Mentors
             </span>
@@ -1639,9 +2071,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div className="grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-16">
             {/* 3D Stack */}
-            <div className="relative mx-auto h-[300px] w-full max-w-[280px] sm:h-[360px] sm:max-w-[340px]">
+            <div className="relative mx-auto h-[280px] w-full max-w-[270px] sm:h-[340px] sm:max-w-[340px]">
               <MentorStack
                 ref={stackRef}
                 cards={mentorStackCards}
@@ -1653,7 +2085,7 @@ export default function HomePage() {
             </div>
 
             {/* Mentor Details */}
-            <div className="flex flex-col items-start justify-center">
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left justify-center">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeMentor.id}
@@ -1677,7 +2109,7 @@ export default function HomePage() {
                   </motion.p>
                   <motion.p
                     variants={itemVariants}
-                    className="mt-4 text-sm sm:text-base leading-relaxed text-slate-600 italic"
+                    className="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base leading-relaxed text-slate-600 italic"
                   >
                     &ldquo;{activeMentor.quote}&rdquo;
                   </motion.p>
@@ -1685,22 +2117,22 @@ export default function HomePage() {
               </AnimatePresence>
 
               {/* Navigation buttons */}
-              <div className="mt-8 flex items-center gap-3">
+              <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-3">
                 <button
                   onClick={() => stackRef.current?.prev()}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A5C36] text-white shadow-md hover:bg-[#063A1E] transition-all active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A5C36] text-white shadow-md hover:bg-[#063A1E] transition-all active:scale-95 shrink-0"
                   aria-label="Previous mentor"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => stackRef.current?.next()}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A5C36] text-white shadow-md hover:bg-[#063A1E] transition-all active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A5C36] text-white shadow-md hover:bg-[#063A1E] transition-all active:scale-95 shrink-0"
                   aria-label="Next mentor"
                 >
                   <ArrowRight className="h-5 w-5" />
                 </button>
-                <span className="text-xs text-slate-500 ml-2 font-medium">
+                <span className="text-xs text-slate-500 font-medium">
                   Swipe or click cards to view next mentor
                 </span>
               </div>
@@ -1712,9 +2144,9 @@ export default function HomePage() {
       {/* =========================================================
           9. WHAT OUR STUDENTS HAVE TO SAY (Floating Avatars Slider)
       ========================================================= */}
-      <section className="py-14 bg-slate-50/70 border-t border-gray-100 overflow-hidden">
+      <section className="py-12 sm:py-14 bg-slate-50/70 border-t border-gray-100 overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-center">
             {/* Left Title & Avatars */}
             <div className="relative lg:col-span-6 flex flex-col justify-center lg:min-h-[400px]">
               <div className="pointer-events-none absolute inset-0 hidden lg:block opacity-60">
@@ -1732,14 +2164,14 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="relative z-10">
+              <div className="relative z-10 text-center lg:text-left">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
                   Real Outcomes
                 </span>
-                <h2 className="mt-2 text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
                   What Our Students Have to Say
                 </h2>
-                <p className="mt-3 text-sm text-slate-600 max-w-md">
+                <p className="mt-3 text-xs sm:text-sm text-slate-600 max-w-md mx-auto lg:mx-0">
                   Our students consistently praise the transformative project experience and UGC credit validation. Here is what they say.
                 </p>
               </div>
@@ -1747,36 +2179,36 @@ export default function HomePage() {
 
             {/* Right Testimonial Card */}
             <div className="lg:col-span-6">
-              <div className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-md">
-                <div className="flex items-center gap-1 text-amber-500 mb-4">
+              <div className="rounded-3xl border border-gray-200/80 bg-white p-5 sm:p-8 shadow-md">
+                <div className="flex items-center gap-1 text-amber-500 mb-3 sm:mb-4">
                   {[...Array(DUMMY_TESTIMONIALS[currentTestimonialIndex].stars)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current" />
                   ))}
                   <span className="text-xs font-bold text-slate-700 ml-2">5.0 Star Feedback</span>
                 </div>
 
-                <p className="text-sm sm:text-base font-medium leading-relaxed text-slate-700 italic">
+                <p className="text-xs sm:text-sm md:text-base font-medium leading-relaxed text-slate-700 italic">
                   &ldquo;{DUMMY_TESTIMONIALS[currentTestimonialIndex].text}&rdquo;
                 </p>
 
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
                   <div className="flex items-center gap-3">
                     <img
                       src={DUMMY_TESTIMONIALS[currentTestimonialIndex].image}
                       alt={DUMMY_TESTIMONIALS[currentTestimonialIndex].name}
-                      className="h-12 w-12 rounded-full object-cover ring-2 ring-emerald-100"
+                      className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-emerald-100 shrink-0"
                     />
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">
                         {DUMMY_TESTIMONIALS[currentTestimonialIndex].name}
                       </h4>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-[11px] sm:text-xs text-slate-500">
                         {DUMMY_TESTIMONIALS[currentTestimonialIndex].role}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 self-end sm:self-center">
                     <button
                       onClick={handlePrevTestimonial}
                       className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] hover:bg-[#0A5C36] hover:text-white transition-colors"
@@ -1802,7 +2234,7 @@ export default function HomePage() {
       {/* =========================================================
           10. FREE WORKSHOP SECTION
       ========================================================= */}
-      <section className="py-14 bg-white">
+      <section className="py-12 sm:py-14 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
             {/* Visual with Play video button */}
@@ -1815,10 +2247,10 @@ export default function HomePage() {
                 />
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-xl transition-transform hover:scale-110"
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-xl transition-transform hover:scale-110 active:scale-95"
                   aria-label="Play workshop video"
                 >
-                  <Play className="ml-1 h-7 w-7 fill-current" />
+                  <Play className="ml-1 h-6 w-6 sm:h-7 sm:w-7 fill-current" />
                 </button>
               </div>
             </div>
@@ -1829,14 +2261,14 @@ export default function HomePage() {
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>Free Interactive Masterclass</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
                 Join Our Weekly Free Tech &amp; Career Workshops
               </h2>
-              <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Experience firsthand how i3 instructors conduct live problem-solving sessions, explain NEP credit integration, and review real-world industry case studies.
               </p>
 
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#0A5C36]">
                     <Users className="h-5 w-5" />
@@ -1845,7 +2277,7 @@ export default function HomePage() {
                     <h4 className="text-xs sm:text-sm font-bold text-slate-900">
                       Live Q&amp;A Sessions
                     </h4>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       Clear doubts directly with seasoned industry architects.
                     </p>
                   </div>
@@ -1859,17 +2291,17 @@ export default function HomePage() {
                     <h4 className="text-xs sm:text-sm font-bold text-slate-900">
                       Career Roadmap
                     </h4>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       Guidance on resume building and LinkedIn optimization.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <Link
                   href="/student/registration"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#0A5C36] px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-[#063A1E] transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A5C36] px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-[#063A1E] transition-all text-center"
                 >
                   <span>Register for Next Free Workshop</span>
                   <ArrowRight className="h-4 w-4" />
@@ -1883,24 +2315,24 @@ export default function HomePage() {
       {/* =========================================================
           11. WHY STUDENTS CHOOSE US
       ========================================================= */}
-      <section className="py-14 bg-slate-50/70 border-t border-gray-100">
+      <section className="py-12 sm:py-14 bg-slate-50/70 border-t border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
+          <div className="grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-12">
             <div className="lg:col-span-6">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
                 Why Choose Us
               </span>
-              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-900">
+              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
                 Why Students &amp; Colleges Choose i3 for Their Future
               </h2>
-              <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
                 As a unit of DPKHRC Trust, our sole objective is ensuring fair, high-caliber, and verifiable internship education that prepares Indian students for global opportunities.
               </p>
 
-              <div className="mt-6 space-y-3">
+              <div className="mt-5 sm:mt-6 space-y-2.5 sm:space-y-3">
                 {whyChoosePoints.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div key={idx} className="flex items-start gap-2.5 sm:gap-3">
+                    <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 shrink-0 mt-0.5" />
                     <span className="text-xs sm:text-sm font-semibold text-slate-800">
                       {item}
                     </span>
@@ -1908,10 +2340,10 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <Link
                   href="/about"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white border border-gray-300 px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-300 px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-gray-50 hover:border-gray-400 transition-all text-center"
                 >
                   <span>Learn More About Our Trust</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -1919,16 +2351,16 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="lg:col-span-6 grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="lg:col-span-6 grid grid-cols-2 gap-2.5 sm:gap-4">
               <img
                 src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80"
                 alt="Collab"
-                className="h-44 w-full rounded-2xl object-cover shadow-sm"
+                className="h-36 sm:h-44 w-full rounded-2xl object-cover shadow-sm"
               />
               <img
                 src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80"
                 alt="Study"
-                className="h-44 w-full rounded-2xl object-cover shadow-sm mt-4"
+                className="h-36 sm:h-44 w-full rounded-2xl object-cover shadow-sm mt-3 sm:mt-4"
               />
             </div>
           </div>
@@ -1938,17 +2370,17 @@ export default function HomePage() {
       {/* =========================================================
           12. DUAL-DIRECTION PARTNERS MARQUEE
       ========================================================= */}
-      <section className="py-12 bg-white overflow-hidden border-t border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-8">
+      <section className="py-10 sm:py-12 bg-white overflow-hidden border-t border-gray-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-6 sm:mb-8">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
             Trusted Ecosystem
           </span>
-          <h3 className="mt-1 text-lg sm:text-xl font-bold text-slate-800">
+          <h3 className="mt-1 text-base sm:text-lg md:text-xl font-bold text-slate-800">
             Trusted by Leading Educational Institutions &amp; Industry Networks
           </h3>
         </div>
 
-        <div className="relative flex flex-col gap-4">
+        <div className="relative flex flex-col gap-3 sm:gap-4">
           <div className="group flex overflow-hidden">
             <div className="animate-marquee flex w-max shrink-0 py-1">
               {[...row1, ...row1, ...row1].map((partner, i) => {
@@ -1956,10 +2388,10 @@ export default function HomePage() {
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-2.5 px-6 text-slate-400 opacity-70 hover:opacity-100 hover:text-[#0A5C36] transition-all cursor-default"
+                    className="flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 text-slate-400 opacity-70 hover:opacity-100 hover:text-[#0A5C36] transition-all cursor-default"
                   >
-                    <Icon className="h-5 w-5" />
-                    <span className="text-sm font-bold">{partner.name}</span>
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="text-xs sm:text-sm font-bold">{partner.name}</span>
                   </div>
                 );
               })}
@@ -1976,10 +2408,10 @@ export default function HomePage() {
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-2.5 px-6 text-slate-400 opacity-70 hover:opacity-100 hover:text-[#0A5C36] transition-all cursor-default"
+                    className="flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 text-slate-400 opacity-70 hover:opacity-100 hover:text-[#0A5C36] transition-all cursor-default"
                   >
-                    <Icon className="h-5 w-5" />
-                    <span className="text-sm font-bold">{partner.name}</span>
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="text-xs sm:text-sm font-bold">{partner.name}</span>
                   </div>
                 );
               })}
@@ -1991,9 +2423,9 @@ export default function HomePage() {
       {/* =========================================================
           13. MOMENTS & CAMPUS GALLERY
       ========================================================= */}
-      <section className="py-14 bg-slate-50/60 border-t border-gray-100">
+      <section className="py-12 sm:py-14 bg-slate-50/60 border-t border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0A5C36]">
                 Our Moments
@@ -2011,7 +2443,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid auto-rows-[160px] grid-cols-2 gap-3 sm:gap-4 md:auto-rows-[220px] md:grid-cols-4">
+          <div className="grid auto-rows-[130px] sm:auto-rows-[180px] md:auto-rows-[220px] grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
             {galleryItems.map((item) => (
               <div
                 key={item.id}
@@ -2022,9 +2454,9 @@ export default function HomePage() {
                   alt={item.title}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 text-white">
-                  <h4 className="text-sm font-bold">{item.title}</h4>
-                  <p className="text-xs text-slate-200">{item.subtitle}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 sm:p-4 text-white">
+                  <h4 className="text-xs sm:text-sm font-bold">{item.title}</h4>
+                  <p className="text-[10px] sm:text-xs text-slate-200">{item.subtitle}</p>
                 </div>
               </div>
             ))}

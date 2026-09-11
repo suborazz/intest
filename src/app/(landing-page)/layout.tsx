@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
+import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
 import Link from "next/link";
 import Link_2 from "next/link";
 import * as React from "react";
@@ -1001,6 +1001,7 @@ export default function LandingLayout({
                   { label: "Notice Board", href: "/notice" },
                   { label: "Success Stories", href: "/success-story" },
                   { label: "FAQs", href: "/faqs" },
+                  { label: "Download Prospectus (PDF)", href: "/Internship-Prospectus.pdf" },
                   { label: "Contact Us", href: "/contact" },
                 ].map((item) => (
                   <li key={item.label}>
@@ -1021,27 +1022,35 @@ export default function LandingLayout({
                 Get In Touch
               </h3>
 
-              <div className="mb-5 flex flex-col gap-3 text-xs text-emerald-100/90">
+              <div className="mb-5 flex flex-col gap-2.5 text-xs text-emerald-100/90">
                 <div className="flex items-start gap-2.5">
                   <MapPin className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="leading-snug">BCC Greens, Deva Road, Lucknow, UP</span>
+                  <span className="leading-snug">BCC Greens, Deva Road, Lucknow, UP, India</span>
                 </div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span className="leading-snug">Thekma, Azamgarh, UP, India</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span className="leading-snug">Jaihind Tendua, Aurangabad, Bihar</span>
+                </div>
+                <div className="flex items-center gap-2.5 pt-1">
                   <Mail className="h-4 w-4 text-emerald-400 shrink-0" />
                   <a
-                    href="mailto:info@iiinternship.in"
+                    href="mailto:i3.office2025@gmail.com"
                     className="hover:text-yellow-300 transition-colors truncate font-medium"
                   >
-                    info@iiinternship.in
+                    i3.office2025@gmail.com
                   </a>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Phone className="h-4 w-4 text-emerald-400 shrink-0" />
                   <a
-                    href="tel:+919125051048"
+                    href="tel:+919472351693"
                     className="hover:text-yellow-300 transition-colors font-medium"
                   >
-                    +91 9125051048
+                    +91 9472351693
                   </a>
                 </div>
               </div>
