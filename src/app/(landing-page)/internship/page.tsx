@@ -220,7 +220,7 @@ export default function AllInternshipsPage() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-200 backdrop-blur-md">
               <Zap className="h-3.5 w-3.5 text-yellow-300" />
-              Verified & Industry Aligned
+              300+ Internship Programs &amp; 600+ Skill Tracks
             </div>
 
             <h1 className="text-white font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-[clamp(2.2rem,4.5vw,3.6rem)] font-bold leading-[1.15] tracking-tight">
@@ -228,7 +228,7 @@ export default function AllInternshipsPage() {
             </h1>
 
             <p className="mt-4 text-emerald-100/90 text-[1rem] leading-[1.6] sm:text-[1.1rem]">
-              Accelerate your technical mastery with UGC-aligned virtual, on-campus, and running internships backed by industry mentors and recognized certifications.
+              Accelerate your career with 300+ UGC-aligned virtual, on-campus, and running internships and 600+ skill enhancement training programs backed by industry mentors.
             </p>
 
             {/* Quick Search Bar */}

@@ -423,39 +423,27 @@ const HeroCourseTabs = [
 const MentorsData = [
   {
     id: 1,
-    name: "James Wilson",
-    role: "Marketing Director & Senior Mentor",
+    name: "Dr. Avishek Kumar",
+    role: "Master Trainer & Academic Advisor (NSDC / DPKHRC Trust)",
     quote:
-      "Working with i3 cohorts has completely elevated practical youth readiness. The structured UGC framework ensures every student builds genuine industry competency.",
-    image:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80",
+      "Under DPKHRC Trust, this initiative bridges academic theory and real-world competency with complete dedication to student career outcomes and practical UGC credits.",
+    image: "/images/mentors/dr-avishek-kumar.jpg?v=2",
   },
   {
     id: 2,
-    name: "Emily Rodriguez",
-    role: "Product Design Head",
+    name: "Rajesh Kumar Pandey",
+    role: "Master Trainer & Technical Assessor (NSDC)",
     quote:
-      "I've mentored across many platforms, but i3 stands out. The architecture, hands-on project workflow, and mentor feedback system are world-class.",
-    image:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80",
+      "Guiding i3 interns through hands-on technical architectures and real engineering projects ensures they become genuinely job-ready from Day 1.",
+    image: "/images/mentors/rajesh-kumar-pandey.jpg",
   },
   {
     id: 3,
-    name: "Michael Chen",
-    role: "Lead Software Architect",
+    name: "Aman Goel",
+    role: "Faculty & Academic Administrator (LRC)",
     quote:
-      "An absolutely incredible experience working with the students. The attention to detail is unmatched, and our interns solve genuine engineering challenges.",
-    image:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 4,
-    name: "Dr. Arvind Sharma",
-    role: "Higher Education Advisor",
-    quote:
-      "Under DPKHRC Trust, this non-profit initiative bridges the gap between academic theory and corporate expectations with utmost integrity.",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+      "The structured NEP 2020 credit curriculum and daily sprint reviews give our students unmatched confidence, technical clarity, and verified credentials.",
+    image: "/images/mentors/aman-goel.jpg",
   },
 ];
 
@@ -525,70 +513,53 @@ const floatingFaces = [
 const galleryItems = [
   {
     id: 1,
-    title: "Campus Life",
-    subtitle: "Students collaborating",
-    image:
-      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
+    title: "Convocation & Degree Honours",
+    subtitle: "Graduating scholars & honorary doctorate awards",
+    image: "/images/gallery/moment-7.png",
     className: "col-span-2 row-span-2",
   },
   {
     id: 2,
-    title: "Study Sessions",
-    subtitle: "Library focus",
-    image:
-      "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80",
+    title: "International Buddha Award Ceremony",
+    subtitle: "Global recognition & cross-border cultural honors",
+    image: "/images/gallery/moment-1.jpg",
     className: "col-span-1 row-span-1",
   },
   {
     id: 3,
-    title: "Graduation",
-    subtitle: "Class of 2024",
-    image:
-      "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-    className: "col-span-1 row-span-2",
-  },
-  {
-    id: 4,
-    title: "Tech Labs",
-    subtitle: "Modern equipment",
-    image:
-      "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80",
+    title: "Airport Welcome of International Delegation",
+    subtitle: "Warm reception accorded to visiting global delegates",
+    image: "/images/gallery/moment-2.png",
     className: "col-span-1 row-span-1",
   },
   {
+    id: 4,
+    title: "Grand National Awards Assembly",
+    subtitle: "Trophies, citations & leadership honors on dais",
+    image: "/images/gallery/moment-14.jpg",
+    className: "col-span-2 row-span-1",
+  },
+  {
     id: 5,
-    title: "Creative Arts",
-    subtitle: "Design studio",
-    image:
-      "https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1200&q=80",
+    title: "Inaugural Lamp Lighting (Deep Prajjwalan)",
+    subtitle: "Traditional assembly with faculty, leaders & delegates",
+    image: "/images/gallery/moment-16.png",
     className: "col-span-2 row-span-1",
   },
   {
     id: 6,
-    title: "Sports & Activities",
-    subtitle: "Annual athletics",
-    image:
-      "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80",
-    className: "col-span-2 row-span-1",
+    title: "Training Centre Faculty & Mentors",
+    subtitle: "Instructors, academic leaders & scholars cohort",
+    image: "/images/gallery/moment-13.jpg",
+    className: "col-span-1 row-span-1",
   },
-];
-
-const row1 = [
-  { icon: Rocket, name: "Acme Corp" },
-  { icon: Zap, name: "FlashTech" },
-  { icon: Sparkles, name: "NovaLabs" },
-  { icon: Cpu, name: "Quantum" },
-  { icon: Globe, name: "GlobalNet" },
-  { icon: Layers, name: "Stackify" },
-];
-
-const row2 = [
-  { icon: Box, name: "BlockChain" },
-  { icon: Compass, name: "NorthStar" },
-  { icon: Anchor, name: "MarinaTech" },
-  { icon: Shield, name: "SecureIQ" },
-  { icon: Target, name: "Bullseye" },
-  { icon: Activity, name: "PulseFlow" },
+  {
+    id: 7,
+    title: "Internship Certificate Distribution",
+    subtitle: "Field training & practical project completion felicitation",
+    image: "/images/gallery/moment-8.jpg",
+    className: "col-span-1 row-span-1",
+  },
 ];
 
 const HeroGoalCards = [
@@ -622,12 +593,13 @@ const HeroGoalPoints = [
 ];
 
 const HeroNewsItems = [
-  "UGC Aligned Certifications",
-  "Top Industry Instructors",
-  "50+ Domain Streams",
-  "10,000+ Active Students",
-  "Unit of DPKHRC Trust",
-  "Expert Mentorship",
+  "300+ Internship Programs Available",
+  "600+ Skill Enhancement Training Programs",
+  "100+ Immersion Programs Available",
+  "10,000+ Students Empowered",
+  "500+ Partner Organizations & Mentors",
+  "UGC Guidelines (2024) & NEP 2020 Aligned",
+  "Unit of DPKHRC Trust (ISO 21001:2018 Certified)",
 ];
 
 const whyChoosePoints = [
@@ -1034,7 +1006,7 @@ export default function HomePage() {
 
               {/* Description Paragraph */}
               <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-slate-600 font-normal max-w-lg">
-                International Institute of Internship (i3) is a not-for-profit initiative committed to providing quality internships and skill enhancement training to students, aligned with industry needs and future careers.
+                International Institute of Internship (i3) is a not-for-profit initiative offering over 300+ UGC-aligned internship programs, 600+ skill enhancement training modules, and 100+ global &amp; national immersion cohorts.
               </p>
 
               {/* 4 Feature Items (Horizontal 4 columns with circle icons + title + subtitle) */}
@@ -1217,8 +1189,12 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-center">
               {/* Left Logo + Title + Subtitle */}
               <div className="lg:col-span-5 flex items-start gap-3 sm:gap-3.5">
-                <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-[#0A5C36] text-white shadow-sm">
-                  <Landmark className="h-5 w-5 sm:h-6 sm:w-6" />
+                <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-emerald-200/90 p-1.5 shadow-2xs">
+                  <img
+                    src="/images/ugc-logo.png"
+                    alt="UGC - University Grants Commission"
+                    className="h-full w-full object-contain"
+                  />
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase text-[#0A5C36]">
@@ -1256,13 +1232,17 @@ export default function HomePage() {
 
               {/* Right CTA Button */}
               <div className="lg:col-span-3 flex justify-start lg:justify-end">
-                <Link
-                  href="/about/internship"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#074026] transition-colors text-center"
+                <a
+                  href="/docs/ugc-internship-guidelines.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download="UGC-Internship-Research-Guidelines-2024.pdf"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#0A5C36] px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#074026] hover:shadow-md transition-all text-center group"
                 >
-                  <span>Know More About UGC Guidelines</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
+                  <FileDown className="h-4 w-4 text-yellow-300 transition-transform group-hover:-translate-y-0.5" />
+                  <span>Download UGC Guidelines (PDF)</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </a>
               </div>
             </div>
           </div>
@@ -1308,26 +1288,26 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Institutions */}
+                {/* Educational Institute */}
                 <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-3.5 shadow-2xs hover:border-emerald-300 transition-all">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-[#0A5C36] mb-2">
                     <Building className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900">Institutions</h4>
+                    <h4 className="text-xs font-bold text-slate-900">Educational Institute</h4>
                     <p className="mt-1 text-[10px] text-slate-500 leading-snug">
                       Integrate internships into curriculum &amp; enhance learning
                     </p>
                   </div>
                 </div>
 
-                {/* Organizations */}
+                {/* University */}
                 <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-3.5 shadow-2xs hover:border-emerald-300 transition-all">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-[#0A5C36] mb-2">
-                    <HeartHandshake className="h-5 w-5" />
+                    <Landmark className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900">Organizations</h4>
+                    <h4 className="text-xs font-bold text-slate-900">University</h4>
                     <p className="mt-1 text-[10px] text-slate-500 leading-snug">
                       Connect with talent, build projects &amp; create impact
                     </p>
@@ -1359,39 +1339,39 @@ export default function HomePage() {
                 {/* Stat 2 */}
                 <div className="flex flex-col items-center">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full text-[#0A5C36] mb-1">
-                    <Building className="h-5 w-5" />
+                    <Briefcase className="h-5 w-5" />
                   </div>
                   <div className="text-base sm:text-lg font-black text-slate-900">
-                    500+
+                    300+
                   </div>
                   <div className="text-[10px] font-semibold text-slate-600">
-                    Partner Organizations
+                    Internship Programs
                   </div>
                 </div>
 
                 {/* Stat 3 */}
                 <div className="flex flex-col items-center">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full text-[#0A5C36] mb-1">
-                    <Briefcase className="h-5 w-5" />
+                    <Award className="h-5 w-5" />
                   </div>
                   <div className="text-base sm:text-lg font-black text-slate-900">
-                    1000+
+                    600+
                   </div>
                   <div className="text-[10px] font-semibold text-slate-600">
-                    Internships Available
+                    Skill Training Programs
                   </div>
                 </div>
 
                 {/* Stat 4 */}
                 <div className="flex flex-col items-center">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full text-[#0A5C36] mb-1">
-                    <Award className="h-5 w-5" />
+                    <Globe className="h-5 w-5" />
                   </div>
                   <div className="text-base sm:text-lg font-black text-slate-900">
-                    50+
+                    100+
                   </div>
                   <div className="text-[10px] font-semibold text-slate-600">
-                    Skill Training Programs
+                    Immersion Programs
                   </div>
                 </div>
               </div>
@@ -1541,8 +1521,8 @@ export default function HomePage() {
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <div className="group relative h-[220px] sm:h-[280px] w-full max-w-[380px] overflow-hidden rounded-3xl shadow-2xl border border-emerald-400/20">
                 <img
-                  src="https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=1200&q=80"
-                  alt="Students learning together in an internship cohort"
+                  src="/images/gallery/moment-1.jpg"
+                  alt="Students participating in an official academic internship convocation"
                   className="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#04261A]/90 via-transparent to-transparent" />
@@ -1570,7 +1550,7 @@ export default function HomePage() {
                     Learn with 500+ Partner Institutions &amp; Mentors
                   </h4>
                   <p className="text-xs text-emerald-200/90 mt-0.5">
-                    Watch our overview video to discover how cohorts collaborate on live projects.
+                    Watch our overview video to discover how interns collaborate on live projects.
                   </p>
                 </div>
               </div>
@@ -1581,7 +1561,7 @@ export default function HomePage() {
               <div className="mb-5 sm:mb-6">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-yellow-300 border border-yellow-400/30">
                   <Sparkles className="size-3" />
-                  COHORT &amp; IMMERSION EXPERIENCE
+                  INTERNSHIP &amp; IMMERSION EXPERIENCE
                 </span>
                 <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight">
                   Learning Focused on Your Career Goals
@@ -1633,13 +1613,13 @@ export default function HomePage() {
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0A5C36] border border-emerald-200">
               <Award className="size-3.5" />
-              100+ PROSPECTUS DISCIPLINES
+              300+ PROSPECTUS DISCIPLINES &amp; 600+ SKILL TRACKS
             </span>
             <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
               Explore Our Core Internship Domains
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Select from over 100+ UGC-aligned internship tracks structured across emerging technologies, core engineering, design, healthcare, agriculture, and business management.
+              Select from over 300+ UGC-aligned internship tracks and 600+ skill enhancement training programs structured across emerging technologies, core engineering, design, healthcare, agriculture, and business management.
             </p>
           </div>
 
@@ -1711,14 +1691,14 @@ export default function HomePage() {
                 </h2>
 
                 <p className="mt-3 text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl">
-                  International Institute of Internship (i3) — An ISO 21001:2018 Certified Research Institution registered under the Indian Trusts Act, 1882 and NITI Aayog (A unit of DPKHRC Trust). Explore complete guidelines for 100+ internship disciplines, 4–12 week cohorts, UGC NEP-2020 credit frameworks, and global immersion programs.
+                  International Institute of Internship (i3) — An ISO 21001:2018 Certified Research Institution registered under the Indian Trusts Act, 1882 and NITI Aayog (A unit of DPKHRC Trust). Explore complete guidelines for 300+ internship disciplines, 600+ skill enhancement programs, UGC NEP-2020 credit frameworks, and 100+ global immersion cohorts.
                 </p>
 
                 {/* Key Points */}
                 <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full text-xs text-emerald-50">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
-                    <span>100+ Tailored &amp; Industry Aligned Domains</span>
+                    <span>300+ Internship &amp; 600+ Skill Programs</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
@@ -1730,7 +1710,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-yellow-400 shrink-0" />
-                    <span>Global Verifiable Certificate &amp; Mock Interviews</span>
+                    <span>100+ Global Immersion Programs</span>
                   </div>
                 </div>
 
@@ -1791,24 +1771,24 @@ export default function HomePage() {
                       <span className="font-semibold text-white">i3 (DPKHRC Trust)</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b border-white/5">
-                      <span className="text-emerald-200/80">Total Disciplines:</span>
-                      <span className="font-semibold text-yellow-300">100+ Programs</span>
+                      <span className="text-emerald-200/80">Internship Programs:</span>
+                      <span className="font-semibold text-yellow-300">300+ Programs</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Skill Training Modules:</span>
+                      <span className="font-semibold text-yellow-300">600+ Tracks</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                      <span className="text-emerald-200/80">Immersion Programs:</span>
+                      <span className="font-semibold text-yellow-300">100+ Cohorts</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b border-white/5">
                       <span className="text-emerald-200/80">Internship Duration:</span>
                       <span className="font-semibold text-white">4 to 12 Weeks</span>
                     </div>
-                    <div className="flex justify-between items-center py-1 border-b border-white/5">
-                      <span className="text-emerald-200/80">Immersion Duration:</span>
-                      <span className="font-semibold text-white">15 to 180 Days</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <div className="flex justify-between items-center py-1">
                       <span className="text-emerald-200/80">Languages:</span>
                       <span className="font-semibold text-white">Hindi, English &amp; Indian Lang.</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1">
-                      <span className="text-emerald-200/80">Mode of Training:</span>
-                      <span className="font-semibold text-white">On-Campus, Physical &amp; Hybrid</span>
                     </div>
                   </div>
                 </div>
@@ -1824,7 +1804,7 @@ export default function HomePage() {
                   Complete Program Directory
                 </span>
                 <h3 className="mt-1 text-xl sm:text-2xl font-extrabold text-slate-900">
-                  All 100+ Internship Programs Listed in Prospectus
+                  All 300+ Internship Programs Listed in Prospectus
                 </h3>
                 <p className="mt-1 text-xs text-slate-600">
                   Search or filter by category to find your target domain track.
@@ -2367,58 +2347,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* =========================================================
-          12. DUAL-DIRECTION PARTNERS MARQUEE
-      ========================================================= */}
-      <section className="py-10 sm:py-12 bg-white overflow-hidden border-t border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-6 sm:mb-8">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Trusted Ecosystem
-          </span>
-          <h3 className="mt-1 text-base sm:text-lg md:text-xl font-bold text-slate-800">
-            Trusted by Leading Educational Institutions &amp; Industry Networks
-          </h3>
-        </div>
 
-        <div className="relative flex flex-col gap-3 sm:gap-4">
-          <div className="group flex overflow-hidden">
-            <div className="animate-marquee flex w-max shrink-0 py-1">
-              {[...row1, ...row1, ...row1].map((partner, i) => {
-                const Icon = partner.icon;
-                return (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 text-slate-400 opacity-70 hover:opacity-100 hover:text-[#0A5C36] transition-all cursor-default"
-                  >
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="text-xs sm:text-sm font-bold">{partner.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="group flex overflow-hidden">
-            <div
-              className="animate-marquee flex w-max shrink-0 py-1"
-              style={{ animationDirection: "reverse" }}
-            >
-              {[...row2, ...row2, ...row2].map((partner, i) => {
-                const Icon = partner.icon;
-                return (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 text-slate-400 opacity-70 hover:opacity-100 hover:text-[#0A5C36] transition-all cursor-default"
-                  >
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="text-xs sm:text-sm font-bold">{partner.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* =========================================================
           13. MOMENTS & CAMPUS GALLERY
@@ -2435,31 +2364,52 @@ export default function HomePage() {
               </h2>
             </div>
             <Link
-              href="/media"
+              href="/media/photo"
               className="text-xs font-bold text-[#0A5C36] hover:underline inline-flex items-center gap-1"
             >
-              <span>Visit Media Room</span>
+              <span>View Full Photo Gallery</span>
               <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
 
           <div className="grid auto-rows-[130px] sm:auto-rows-[180px] md:auto-rows-[220px] grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
             {galleryItems.map((item) => (
-              <div
+              <Link
                 key={item.id}
-                className={`relative overflow-hidden rounded-2xl group cursor-pointer ${item.className}`}
+                href="/media/photo"
+                className={`relative overflow-hidden rounded-2xl group cursor-pointer ${item.className} block border border-slate-200/60 shadow-2xs hover:shadow-md transition-all`}
               >
                 <img
                   src={item.image}
                   alt={item.title}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 sm:p-4 text-white">
-                  <h4 className="text-xs sm:text-sm font-bold">{item.title}</h4>
-                  <p className="text-[10px] sm:text-xs text-slate-200">{item.subtitle}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 sm:p-4 text-white">
+                  <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-wider">i3 Moment</span>
+                  <h4 className="text-xs sm:text-sm font-bold leading-snug">{item.title}</h4>
+                  <p className="text-[10px] sm:text-xs text-slate-200 line-clamp-1">{item.subtitle}</p>
                 </div>
-              </div>
+              </Link>
             ))}
+          </div>
+
+          {/* Media Room CTA Banner */}
+          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl bg-emerald-900/5 border border-emerald-800/15 p-4 sm:p-6 text-center sm:text-left">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                Explore our full institutional visual archive &amp; delegation gallery
+              </h3>
+              <p className="text-xs text-slate-600 mt-0.5">
+                Browse official high-resolution photographs with interactive year &amp; category filters in our Photo Gallery.
+              </p>
+            </div>
+            <Link
+              href="/media/photo"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A5C36] px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#074026] hover:shadow-md transition-all whitespace-nowrap shrink-0"
+            >
+              <span>Explore Photo Gallery</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>

@@ -127,7 +127,7 @@ In social and developmental programs, the objective of immersion is to connect p
 
 Therefore, in short, Emerson's method is a process in which an individual learns, explores, and develops themselves by becoming fully immersed in an experience, environment, or subject. It is a powerful and effective method of connecting knowledge to life, which is considered essential for today's experience-based education and social development.
 
-*The International Institute of Internship (i3) provides its students, young people, and researchers from India and abroad with the opportunity to immerse themselves in various fields and situations, giving them a real-world experience and practical insights. Anyone can register for the Emerson program on the i3 portal and participate in the immersion program at any time. The certificates received after successful completion of the immersion program will prove useful in various aspects of life.*
+*The International Institute of Internship (i3) provides its students, young scholars, and researchers from India and abroad with access to over **100+ Immersion Programs** across social, industrial, environmental, and technological domains. Anyone can register on the i3 portal and participate in these immersive cohorts. Verifiable certificates awarded upon successful completion provide strong academic credit recognition and career distinction.*
 
 ---
 

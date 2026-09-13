@@ -156,10 +156,10 @@ All internship programs of the International Institute of Internship (i3) are ba
 ## Types of Internships
 ### Types of Internships at i3
 
-The International Institute of Internship offers structured internships in various fields—
+The International Institute of Internship offers over **300+ Internship Programs** and **600+ Skill Enhancement Training Tracks** in various fields—
 
 - Academic & Research Internship
-- Skill Development Internship
+- Skill Development & Technical Internship
 - Social & Community Internship
 - Digital, Media & Content Internship
 - Management & Entrepreneurship Internship

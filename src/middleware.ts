@@ -30,6 +30,7 @@ const PUBLIC_API_ROUTES = [
   "/api/v1/recruit-user/register",
   "/api/v1/recruit-user/login",
   "/api/v1/immersion-participant/register",
+  "/api/v1/visitors",
 ];
 
 function isProtectedApiRoute(pathname: string, method: string): boolean {
@@ -183,6 +184,7 @@ const EXTERNAL_CALLER_ROUTES = [
   "/api/v1/payments/webhook",
   "/api/health",
   "/api/docs",
+  "/api/v1/visitors",
 ];
 
 const SPOOFABLE_IDENTITY_HEADERS = ["x-user-id", "x-user-email", "x-user-role"];

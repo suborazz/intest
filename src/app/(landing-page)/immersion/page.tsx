@@ -2394,9 +2394,9 @@ export default function ImmersionPage() {
                     <div className="relative mx-auto mt-12 grid w-[min(1300px,calc(100%-56px))] grid-cols-1 items-center gap-8 text-center md:mt-20 lg:grid-cols-2 lg:gap-0 lg:text-left">
                       {}
                       <div className="relative z-30 mx-auto w-full max-w-[560px] lg:mx-0">
-                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/90 backdrop-blur-md">
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/90 backdrop-blur-md">
                           <Rocket_2 className="h-4 w-4 fill-yellow-300 text-yellow-300" />
-                          Accelerate Your Career
+                          100+ Immersion Programs Available
                         </div>
 
                         {}
@@ -2406,9 +2406,7 @@ export default function ImmersionPage() {
 
                         {}
                         <p className="text-primary-foreground/85 mx-auto mt-[12px] max-w-[500px] text-left text-[0.9rem] leading-[1.6] sm:text-[1.1rem] lg:mx-0">
-                          Dive deep into real-world tech. Experience a corporate environment,
-                          work on live industry projects, and bridge the gap between academic
-                          learning and professional mastery.
+                          Dive deep into 100+ immersive industry cohorts and leadership programs. Experience corporate environments, work on live projects, and master professional skills.
                         </p>
                       </div>
 

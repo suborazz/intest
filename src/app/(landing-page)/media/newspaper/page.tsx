@@ -1,8 +1,9 @@
 "use client";
 
 import { Calendar, ExternalLink, LayoutGrid, List, Filter, Newspaper } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "motion/react";
+import { MediaNav } from "../media-nav";
 import * as z from "zod";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -2096,16 +2097,49 @@ export default function NewspaperPage() {
       },
     };
 
-    function NewspaperGrid() {
+    interface PublicArticle {
+      id: string;
+      title: string;
+      publication?: string;
+      date?: string;
+      year?: string;
+      category?: string;
+      imageUrl?: string;
+      description?: string;
+    }
+
+    function NewspaperGrid({
+      selectedYear,
+      selectedCategory,
+    }: {
+      selectedYear: string[];
+      selectedCategory: string[];
+    }) {
       const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
       const { data: articlesRaw = [], isLoading } =
         StudentDataHook.usePublicNewspapers();
-      const articles = articlesRaw as unknown as NewspaperArticle[];
+
+      const articles = useMemo(() => {
+        const serverArticles = ((articlesRaw as unknown as PublicArticle[]) || []).map((a) => ({
+          ...a,
+        }));
+
+        return serverArticles.filter((item) => {
+          if (selectedYear.length > 0) {
+            const itemYear = item.year || (item.date ? new Date(item.date).getFullYear().toString() : "2026");
+            if (!selectedYear.includes(itemYear)) return false;
+          }
+          if (selectedCategory.length > 0) {
+            if (!item.category || !selectedCategory.includes(item.category)) return false;
+          }
+          return true;
+        });
+      }, [articlesRaw, selectedYear, selectedCategory]);
 
       if (isLoading) {
         return (
           <div className="flex items-center justify-center py-16">
-            <div className="border-primary size-8 animate-spin rounded-full border-4 border-t-transparent" />
+            <div className="border-[#0A5C36] size-8 animate-spin rounded-full border-4 border-t-transparent" />
           </div>
         );
       }
@@ -2113,85 +2147,101 @@ export default function NewspaperPage() {
       return (
         <section className="w-full">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-foreground text-lg font-bold">Latest Mentions</h2>
-            <div className="bg-background/80 border-border/50 flex items-center rounded-2xl border p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-2xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`rounded-xl p-2 transition-all duration-300 ${viewMode === "grid" ? "bg-primary/10 text-primary scale-105" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
-                title="Grid View"
-              >
-                <LayoutGrid className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`rounded-xl p-2 transition-all duration-300 ${viewMode === "list" ? "bg-primary/10 text-primary scale-105" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
-                title="List View"
-              >
-                <List className="h-5 w-5" />
-              </button>
+            <div>
+              <h2 className="text-slate-900 text-lg font-bold">Press &amp; Newspaper Clippings</h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {articles.length > 0 ? `Showing ${articles.length} news publications and print media mentions` : "Official print media archive"}
+              </p>
             </div>
+            {articles.length > 0 && (
+              <div className="bg-white border border-gray-200 flex items-center rounded-xl p-1 shadow-sm">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`rounded-lg p-1.5 transition-all duration-200 ${viewMode === "grid" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
+                  title="Grid View"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`rounded-lg p-1.5 transition-all duration-200 ${viewMode === "list" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
+                  title="List View"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
 
           {articles.length === 0 ? (
-            <div className="text-muted-foreground py-12 text-center font-semibold">
-              No newspapers clippings available.
+            <div className="text-slate-500 py-16 text-center font-medium bg-white rounded-2xl border border-dashed border-gray-200 p-8 shadow-2xs">
+              <Newspaper className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-slate-800">No Newspaper Clippings Published Yet</h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                Official press clippings and national print publications will appear here once released by the trust council.
+              </p>
             </div>
           ) : (
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3"
+                  ? "grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3"
                   : "flex flex-col gap-4"
               }
             >
               {articles.map((article, index) => (
                 <motion.div
                   key={article.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className={`group flex ${viewMode === "grid" ? "flex-col" : "flex-row items-stretch"} border-border/50 bg-background/40 text-card-foreground h-auto overflow-hidden rounded-[2rem] border p-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] sm:p-3`}
+                  transition={{ duration: 0.35, delay: index * 0.05 }}
+                  className={`group flex ${viewMode === "grid" ? "flex-col" : "flex-col sm:flex-row items-stretch"} bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all duration-300 overflow-hidden`}
                 >
                   <div
-                    className={`border-border/20 relative shrink-0 overflow-hidden rounded-2xl border shadow-sm sm:rounded-3xl ${viewMode === "grid" ? "aspect-video w-full" : "min-h-[100px] w-28 sm:min-h-[160px] sm:w-64 lg:w-72"}`}
+                    className={`relative shrink-0 overflow-hidden bg-slate-900 ${viewMode === "grid" ? "aspect-[16/10] w-full" : "w-full sm:w-64 min-h-[160px]"}`}
                   >
                     <img
-                      src={article.imageUrl}
+                      src={article.imageUrl || "/images/Breadcrum-iit.webp"}
                       alt={article.title}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    <div className="absolute top-3 left-3 bg-[#0A5C36] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
+                      {article.publication || "Press"}
+                    </div>
                   </div>
                   <div
-                    className={`flex w-full flex-grow flex-col ${viewMode === "grid" ? "p-4 pt-6" : "px-3 py-1 sm:px-6 sm:py-2"}`}
+                    className={`flex w-full flex-grow flex-col justify-between p-4`}
                   >
-                    <div className="bg-primary/10 text-primary mb-3 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {new Date(article.date).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        {article.category && (
+                          <div className="bg-emerald-50 text-[#0A5C36] inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold border border-emerald-200/60">
+                            {article.category}
+                          </div>
+                        )}
+                        {article.date && (
+                          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {article.date}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="group-hover:text-[#0A5C36] text-sm font-bold text-slate-900 leading-snug transition-colors line-clamp-2">
+                        {article.title}
+                      </h3>
+                      {article.description && (
+                        <p className="text-slate-500 text-xs line-clamp-3 leading-relaxed mt-1.5">
+                          {article.description}
+                        </p>
+                      )}
                     </div>
-                    <h3 className="group-hover:text-primary mb-2 text-lg font-bold leading-tight transition-colors">
-                      {article.title}
-                    </h3>
-                    <div className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-                      {article.publication}
+                    <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400 font-medium">Source: {article.publication}</span>
+                      <span className="text-[#0A5C36] font-bold group-hover:underline flex items-center gap-1">
+                        Read Clipping <ExternalLink className="h-3 w-3" />
+                      </span>
                     </div>
-                    <p className="text-muted-foreground mb-4 flex-grow text-[13px] leading-relaxed">
-                      {article.description}
-                    </p>
-                    {article.imageUrl && (
-                      <a
-                        href={article.imageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary mt-auto flex w-fit items-center text-sm font-medium hover:underline"
-                      >
-                        Read Article <ExternalLink className="ml-1.5 h-4 w-4" />
-                      </a>
-                    )}
                   </div>
                 </motion.div>
               ))}
@@ -2201,152 +2251,138 @@ export default function NewspaperPage() {
       );
     }
 
+  const [selectedYears, setSelectedYears] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const toggleYear = (yr: string) => {
+    setSelectedYears((prev) =>
+      prev.includes(yr) ? prev.filter((y) => y !== yr) : [...prev, yr],
+    );
+  };
+
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
+    );
+  };
+
+  const CATEGORY_LIST = ["Press Release", "Interview", "Feature", "Campus"];
+
   return (
-    <main className="bg-background relative flex min-h-screen flex-col overflow-hidden">
-      <section className="to-primary relative isolate min-h-[520px] overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-800 pb-[130px] pt-[20px] md:pt-[2px]">
-                    <div className="pointer-events-none absolute inset-0 -z-[4] bg-[radial-gradient(theme(colors.white/0.05)_1px,transparent_1px)] [background-size:24px_24px]"></div>
-                    {}
-                    <div
-                      className="absolute inset-0 -z-[3]"
-                      style={{
-                        background: `radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.04), transparent 34%), radial-gradient(circle at 81% 12%, rgba(255, 255, 255, 0.04), transparent 30%)`,
-                      }}
-                    />
+    <main className="bg-slate-50/50 relative flex min-h-screen flex-col overflow-hidden">
+      <section className="to-primary relative isolate min-h-[420px] overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-[#04261A] pb-[90px] pt-[30px]">
+        <div className="pointer-events-none absolute inset-0 -z-[4] bg-[radial-gradient(theme(colors.white/0.05)_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        <img
+          src="/images/bg-lines.png"
+          alt=""
+          className="absolute inset-0 -z-[2] h-full w-full object-cover opacity-[0.14]"
+        />
 
-                    {}
-                    <img
-                      src="/images/bg-lines.png"
-                      alt=""
-                      className="absolute inset-0 -z-[2] h-full w-full object-cover opacity-[0.14]"
-                    />
+        <div className="relative mx-auto grid w-[min(1300px,calc(100%-56px))] grid-cols-1 items-center gap-8 text-center lg:grid-cols-2 lg:gap-0 lg:text-left">
+          <div className="relative z-30 mx-auto w-full max-w-[560px] lg:mx-0">
+            <span className="text-xs font-bold uppercase tracking-wider text-yellow-400">
+              Official Media &amp; Press Room
+            </span>
+            <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mt-1 leading-[1.15]">
+              Newspaper Coverage
+            </h1>
+            <p className="text-emerald-100/90 mx-auto mt-3 max-w-[500px] text-xs sm:text-sm leading-relaxed lg:mx-0">
+              Discover official print coverage, press releases, and nationwide newspaper mentions celebrating our institutional milestones and impact.
+            </p>
+          </div>
 
-                    <div className="relative mx-auto grid w-[min(1300px,calc(100%-56px))] grid-cols-1 items-center gap-8 text-center lg:grid-cols-2 lg:gap-0 lg:text-left">
-                      {}
-                      <div className="relative z-30 mx-auto w-full max-w-[560px] lg:mx-0">
-                        <div
-                          className="relative mx-auto mb-[10px] h-[52px] w-[82px] lg:mx-0"
-                          aria-hidden="true"
-                        >
-                          <svg
-                            className="absolute left-0 top-[14px] h-[28px] w-[28px] text-yellow-400"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                          >
-                            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                          </svg>
+          <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[40px] lg:justify-end">
+            <img
+              src="/images/Breadcrum-iit.webp"
+              alt="Media Cover"
+              className="relative z-10 w-full max-w-[420px] lg:max-w-[480px]"
+            />
+          </div>
+        </div>
+      </section>
 
-                          <svg
-                            className="absolute left-[44px] top-[1px] h-[16px] w-[16px] text-yellow-300/80"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                          >
-                            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                          </svg>
-                        </div>
+      {/* Media Sub-Navigation */}
+      <div className="relative z-30 -mt-7 mb-2">
+        <MediaNav />
+      </div>
 
-                        {}
-                        <h1 className="text-primary-foreground font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-[clamp(2.3rem,6vw,5rem)] leading-[1.1]">
-                          Newspaper Mentions
-                        </h1>
+      <div className="relative z-30 mx-auto flex w-full max-w-[1300px] flex-col items-start gap-8 px-4 pb-16 pt-2 lg:flex-row">
+        <aside className="z-10 w-full shrink-0 self-start lg:sticky lg:top-24 lg:w-[280px]">
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+            <div className="text-slate-900 mb-5 flex items-center justify-between text-sm font-bold border-b border-gray-100 pb-3">
+              <span className="flex items-center gap-2">
+                <Filter className="text-[#0A5C36] h-4 w-4" />
+                <span>Filter Media</span>
+              </span>
+              {(selectedYears.length > 0 || selectedCategories.length > 0) && (
+                <button
+                  onClick={() => {
+                    setSelectedYears([]);
+                    setSelectedCategories([]);
+                  }}
+                  className="text-[11px] text-emerald-700 font-semibold hover:underline"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
 
-                        {}
-                        <p className="text-primary-foreground/85 mx-auto mt-[12px] max-w-[500px] text-left text-[0.9rem] leading-[1.6] sm:text-[1.1rem] lg:mx-0">
-                          Discover our impact across various print publications and recognized
-                          newspapers.
-                        </p>
-                      </div>
-
-                      {}
-                      <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[60px] lg:justify-end xl:translate-y-[80px]">
-                        <div className="absolute left-1/2 top-[20px] h-[260px] w-[300px] -translate-x-1/2 rotate-[10deg] rounded-[20px] bg-yellow-400 lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
-
-                        <img
-                          src="/images/Breadcrum-iit.webp"
-                          alt="Media Cover"
-                          className="relative z-10 w-full max-w-[500px] lg:max-w-[550px]"
-                        />
-                      </div>
-                    </div>
-
-                    {}
-                    <div
-                      className="pointer-events-none absolute bottom-[-6px] left-0 z-20 w-full overflow-hidden"
-                      aria-hidden="true"
+            <div className="space-y-5">
+              <div>
+                <h4 className="text-slate-400 mb-2.5 text-[11px] font-bold uppercase tracking-wider">
+                  Year
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {["2026", "2025"].map((year) => (
+                    <label
+                      key={year}
+                      className="group flex cursor-pointer items-center gap-2"
                     >
-                      <svg
-                        viewBox="0 0 1440 180"
-                        preserveAspectRatio="none"
-                        className="h-[280px] w-full"
-                      >
-                        <path
-                          d="M0,125 C260,145 520,78 790,92 C1020,104 1225,70 1440,62 L1440,180 L0,180 Z"
-                          className="fill-background"
-                        />
-                      </svg>
-                    </div>
-                  </section>
+                      <input
+                        type="checkbox"
+                        checked={selectedYears.includes(year)}
+                        onChange={() => toggleYear(year)}
+                        className="h-4 w-4 rounded border-gray-300 text-[#0A5C36] focus:ring-[#0A5C36]"
+                      />
+                      <span className="text-xs font-semibold text-slate-700 group-hover:text-[#0A5C36] transition-colors">
+                        {year}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
-      {}
-      <div className="bg-primary pointer-events-none absolute left-[-5%] top-[300px] z-0 h-[300px] w-[300px] rounded-full opacity-30 mix-blend-multiply blur-[100px] filter md:h-[400px] md:w-[400px] md:blur-[120px]"></div>
-      <div className="bg-primary pointer-events-none absolute bottom-[10%] right-[-5%] z-0 h-[400px] w-[400px] rounded-full opacity-20 mix-blend-multiply blur-[120px] filter md:h-[500px] md:w-[500px] md:blur-[150px]"></div>
-
-      <div className="relative z-30 mx-auto -mt-8 flex w-full max-w-[1300px] flex-col items-start gap-8 px-2 pb-12 pt-0 md:px-4 md:pb-16 md:pt-0 lg:flex-row">
-        <aside className="z-10 mb-6 w-full shrink-0 self-start lg:sticky lg:top-24 lg:mb-0 lg:w-[280px]">
-          <div className="border-border/50 bg-background/40 sticky top-24 rounded-[2rem] border p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl">
-                            <div className="text-foreground mb-6 flex items-center gap-2 text-base font-bold">
-                              <Filter className="text-primary h-5 w-5" />
-                              Filter Media
-                            </div>
-
-                            <div className="space-y-6">
-                              <div>
-                                <h4 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-                                  Year
-                                </h4>
-                                <div className="flex flex-col gap-2">
-                                  {["2026", "2025", "2024"].map((year) => (
-                                    <label
-                                      key={year}
-                                      className="group flex cursor-pointer items-center gap-2"
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        className="border-border text-primary focus:ring-primary h-4 w-4 rounded"
-                                      />
-                                      <span className="group-hover:text-primary text-[13px] font-medium transition-colors">
-                                        {year}
-                                      </span>
-                                    </label>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div>
-                                <h4 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-                                  Category
-                                </h4>
-                                <div className="flex flex-col gap-2">
-                                  {["Press Release", "Interview", "Feature", "Campus"].map((cat) => (
-                                    <label
-                                      key={cat}
-                                      className="group flex cursor-pointer items-center gap-2"
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        className="border-border text-primary focus:ring-primary h-4 w-4 rounded"
-                                      />
-                                      <span className="group-hover:text-primary text-[13px] font-medium transition-colors">
-                                        {cat}
-                                      </span>
-                                    </label>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+              <div className="border-t border-gray-100 pt-4">
+                <h4 className="text-slate-400 mb-2.5 text-[11px] font-bold uppercase tracking-wider">
+                  Category
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {CATEGORY_LIST.map((cat) => (
+                    <label
+                      key={cat}
+                      className="group flex cursor-pointer items-center gap-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(cat)}
+                        onChange={() => toggleCategory(cat)}
+                        className="h-4 w-4 rounded border-gray-300 text-[#0A5C36] focus:ring-[#0A5C36]"
+                      />
+                      <span className="text-xs font-medium text-slate-700 group-hover:text-[#0A5C36] transition-colors">
+                        {cat}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </aside>
         <div className="w-full min-w-0 flex-1">
-          <NewspaperGrid />
+          <NewspaperGrid
+            selectedYear={selectedYears}
+            selectedCategory={selectedCategories}
+          />
         </div>
       </div>
     </main>

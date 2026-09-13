@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
+import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LogIn, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
 import Link from "next/link";
 import Link_2 from "next/link";
 import * as React from "react";
@@ -538,6 +538,64 @@ function SheetTrigger({
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
+function VisitorCounter() {
+  const [visitorCount, setVisitorCount] = useState<number>(1482);
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
+
+    async function syncVisitorCount() {
+      try {
+        const hasVisited = sessionStorage.getItem("i3_visited_session_db");
+        // If first visit in this session, increment (+1) in DB, else just fetch current count
+        const method = hasVisited ? "GET" : "POST";
+        const res = await fetch("/api/v1/visitors", {
+          method,
+          cache: "no-store",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data.count === "number") {
+            setVisitorCount(data.count);
+            localStorage.setItem("i3_last_known_visitors", data.count.toString());
+            if (!hasVisited) {
+              sessionStorage.setItem("i3_visited_session_db", "true");
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Visitor counter sync error:", err);
+      }
+
+      // Safe local fallback if network/db is briefly unreachable
+      try {
+        const cached = localStorage.getItem("i3_last_known_visitors");
+        if (cached) {
+          const val = parseInt(cached, 10);
+          if (!isNaN(val) && val >= 1482) {
+            setVisitorCount(val);
+          }
+        }
+      } catch {}
+    }
+
+    syncVisitorCount();
+  }, []);
+
+  return (
+    <div
+      title="Live Global Visitor Count (Database Synced)"
+      className="inline-flex items-center justify-center rounded-lg bg-[#FF451A] px-3 py-1.5 shadow-md shadow-orange-950/30 transition-all hover:brightness-110 hover:scale-[1.02] select-none shrink-0"
+    >
+      <span className="text-[12.5px] sm:text-[13px] font-black tracking-wide text-white leading-none drop-shadow-xs">
+        Visitors: {mounted ? visitorCount.toLocaleString("en-IN") : "1,482"}
+      </span>
+    </div>
+  );
+}
 
 export default function LandingLayout({
   children,
@@ -624,16 +682,16 @@ export default function LandingLayout({
 
       {/* Main Navigation Header */}
       <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all duration-300">
-        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-3">
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-3 sm:px-6 lg:px-8 gap-2 sm:gap-4">
           {/* Logo */}
           <div className="flex shrink-0 items-center">
             <Link href="/" className="flex items-center">
               <Image
                 src="/logo.png"
                 alt="International Institute of Internship Logo"
-                width={260}
-                height={70}
-                className="h-10 sm:h-11 w-auto object-contain"
+                width={420}
+                height={105}
+                className="h-12 sm:h-14 md:h-16 w-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px] object-contain object-left transition-all"
                 priority
               />
             </Link>
@@ -737,11 +795,11 @@ export default function LandingLayout({
               <span>Login</span>
             </Link>
             <Link
-              href="/student/registration"
+              href="/sign-up"
               className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-3.5 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#074026] hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
             >
               <GraduationCap className="size-3.5 text-white" />
-              <span>Student Registration</span>
+              <span>Register</span>
             </Link>
           </div>
 
@@ -754,8 +812,8 @@ export default function LandingLayout({
               Login
             </Link>
             <Link
-              href="/student/registration"
-              className="inline-flex items-center justify-center gap-1 rounded-lg bg-[#0A5C36] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#074026]"
+              href="/sign-up"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#074026] shadow-xs"
             >
               <GraduationCap className="size-3.5" />
               <span>Register</span>
@@ -780,9 +838,9 @@ export default function LandingLayout({
                     <Image
                       src="/logo.png"
                       alt="Logo"
-                      width={220}
-                      height={60}
-                      className="h-10 w-auto object-contain"
+                      width={280}
+                      height={70}
+                      className="h-11 sm:h-12 w-auto max-w-[270px] object-contain object-left"
                     />
                   </SheetTitle>
                   <SheetDescription className="sr-only">
@@ -862,22 +920,33 @@ export default function LandingLayout({
                   </div>
                 </div>
 
-                <div className="border-gray-100 bg-gray-50/60 mt-auto shrink-0 border-t p-4 flex flex-col gap-2">
+                <div className="border-gray-100 bg-gray-50/70 mt-auto shrink-0 border-t p-4 flex flex-col gap-2.5">
                   <Button
                     asChild
-                    variant="outline"
-                    className="w-full text-xs font-bold"
+                    className="w-full bg-[#0A5C36] hover:bg-[#074026] text-white text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all"
                   >
-                    <Link href="/login" onClick={handleLinkClick}>
-                      Login
+                    <Link href="/student/registration" onClick={handleLinkClick}>
+                      <GraduationCap className="size-4" />
+                      <span>Student Registration</span>
                     </Link>
                   </Button>
                   <Button
                     asChild
-                    className="w-full bg-[#0A5C36] hover:bg-[#074026] text-white text-xs font-bold"
+                    variant="outline"
+                    className="w-full border-emerald-600/30 bg-emerald-50/60 hover:bg-emerald-100/70 text-[#0A5C36] text-xs sm:text-sm font-bold flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all shadow-2xs"
                   >
-                    <Link href="/student/registration" onClick={handleLinkClick}>
-                      Student Registration
+                    <Link href="/instructor/registration" onClick={handleLinkClick}>
+                      <Presentation className="size-4 text-[#0A5C36]" />
+                      <span>Instructor Registration</span>
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    className="w-full bg-[#063A1E] hover:bg-[#04261A] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 py-2.5 rounded-xl shadow-xs transition-all"
+                  >
+                    <Link href="/login" onClick={handleLinkClick}>
+                      <LogIn className="size-4" />
+                      <span>Login</span>
                     </Link>
                   </Button>
                 </div>
@@ -907,7 +976,7 @@ export default function LandingLayout({
                 </Link>
               </div>
               <p className="m-0 max-w-sm text-[13px] leading-[1.6] text-emerald-100/90">
-                Empowering youth across India and globally with UGC-aligned experiential internships, mentorship cohorts, and verifiable industry credentials.
+                Empowering youth across India and globally with 300+ UGC-aligned internship programs, 600+ skill enhancement training modules, and 100+ immersion learning cohorts.
               </p>
 
               <div className="mt-6 border-t border-white/10 pt-4">
@@ -938,6 +1007,9 @@ export default function LandingLayout({
 
             {/* Col 2: About & Immersion (2 cols) */}
             <div className="flex flex-col lg:col-span-2">
+              <div className="mb-3.5 flex items-center">
+                <VisitorCounter />
+              </div>
               <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
                 About i3
               </h3>
