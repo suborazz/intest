@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, Briefcase, Building, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LogIn, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
+import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, ArrowUpRight, Briefcase, Building, ExternalLink, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LogIn, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
 import Link from "next/link";
 import Link_2 from "next/link";
 import * as React from "react";
@@ -539,7 +539,7 @@ function SheetTrigger({
 }
 
 function VisitorCounter() {
-  const [visitorCount, setVisitorCount] = useState<number>(1482);
+  const [visitorCount, setVisitorCount] = useState<number>(14820);
   const [mounted, setMounted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -575,7 +575,7 @@ function VisitorCounter() {
         const cached = localStorage.getItem("i3_last_known_visitors");
         if (cached) {
           const val = parseInt(cached, 10);
-          if (!isNaN(val) && val >= 1482) {
+          if (!isNaN(val) && val >= 14820) {
             setVisitorCount(val);
           }
         }
@@ -591,7 +591,7 @@ function VisitorCounter() {
       className="inline-flex items-center justify-center rounded-lg bg-[#FF451A] px-3 py-1.5 shadow-md shadow-orange-950/30 transition-all hover:brightness-110 hover:scale-[1.02] select-none shrink-0"
     >
       <span className="text-[12.5px] sm:text-[13px] font-black tracking-wide text-white leading-none drop-shadow-xs">
-        Visitors: {mounted ? visitorCount.toLocaleString("en-IN") : "1,482"}
+        Visitors: {mounted ? visitorCount.toLocaleString("en-IN") : "14,820"}
       </span>
     </div>
   );
@@ -963,8 +963,8 @@ export default function LandingLayout({
 
         <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
           {/* Main Footer Columns */}
-          <div className="relative z-10 grid grid-cols-1 gap-8 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
-            {/* Col 1: Brand & Powered by DPKHRC Trust (4 cols) */}
+          <div className="relative z-10 grid grid-cols-1 gap-8 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-6 xl:gap-8">
+            {/* Col 1: Brand & Powered by DPKHRC Trust (lg:col-span-4) */}
             <div className="flex flex-col sm:col-span-2 lg:col-span-4">
               <div className="mb-5">
                 <Link href="/" className="inline-flex items-center justify-center rounded-[16px] border border-white/20 bg-white px-3 py-1.5 shadow-lg">
@@ -1005,11 +1005,8 @@ export default function LandingLayout({
               </div>
             </div>
 
-            {/* Col 2: About & Immersion (2 cols) */}
+            {/* Col 2: About i3 (lg:col-span-2) */}
             <div className="flex flex-col lg:col-span-2">
-              <div className="mb-3.5 flex items-center">
-                <VisitorCounter />
-              </div>
               <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
                 About i3
               </h3>
@@ -1020,6 +1017,8 @@ export default function LandingLayout({
                   { label: "Team Members", href: "/about/team-members" },
                   { label: "Immersion Programs", href: "/immersion" },
                   { label: "What is Internship", href: "/about/internship" },
+                  { label: "Media Room", href: "/media" },
+                  { label: "Notice Board", href: "/notice" },
                 ].map((item) => (
                   <li key={item.label}>
                     <Link
@@ -1033,7 +1032,7 @@ export default function LandingLayout({
               </ul>
             </div>
 
-            {/* Col 3: Internships (2 cols) */}
+            {/* Col 3: Internships (lg:col-span-2) */}
             <div className="flex flex-col lg:col-span-2">
               <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
                 Internships
@@ -1045,6 +1044,7 @@ export default function LandingLayout({
                   { label: "On-Campus Programs", href: "/internship/on-campus" },
                   { label: "Virtual Internships", href: "/internship/virtual-internship" },
                   { label: "Student Registration", href: "/student/registration" },
+                  { label: "Instructor Registration", href: "/instructor/registration" },
                   { label: "Student Login", href: "/login" },
                 ].map((item) => (
                   <li key={item.label}>
@@ -1059,45 +1059,93 @@ export default function LandingLayout({
               </ul>
             </div>
 
-            {/* Col 4: Partners & Resources (2 cols) */}
+            {/* Col 4: Our Other Services (lg:col-span-2) */}
             <div className="flex flex-col lg:col-span-2">
               <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
-                Partners &amp; News
+                Our Other Services
               </h3>
               <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-xs sm:text-[13px]">
-                {[
-                  { label: "Educational Institutes", href: "/partners/educational-institutes" },
-                  { label: "Job Placement", href: "/partners/job-placement" },
-                  { label: "Training & Support", href: "/partners/training-support" },
-                  { label: "Media Room", href: "/media" },
-                  { label: "Notice Board", href: "/notice" },
-                  { label: "Success Stories", href: "/success-story" },
-                  { label: "FAQs", href: "/faqs" },
-                  { label: "Download Prospectus (PDF)", href: "/Internship-Prospectus.pdf" },
-                  { label: "Contact Us", href: "/contact" },
-                ].map((item) => (
-                  <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <a
+                    href="https://dpkavishek.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium inline-flex items-center gap-1 group"
+                  >
+                    <span>DPK Humanity Research Centre</span>
+                    <ArrowUpRight className="size-3 text-emerald-400 group-hover:text-yellow-400 transition-colors" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://dbmsonline.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium inline-flex items-center gap-1 group"
+                  >
+                    <span>DBMS Online™</span>
+                    <ArrowUpRight className="size-3 text-emerald-400 group-hover:text-yellow-400 transition-colors" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://ouruniverse.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium inline-flex items-center gap-1 group"
+                  >
+                    <span>Unique Records of Universe™</span>
+                    <ArrowUpRight className="size-3 text-emerald-400 group-hover:text-yellow-400 transition-colors" />
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    href="/partners/educational-institutes"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                  >
+                    Educational Institutes
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/partners/job-placement"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                  >
+                    Job Placement
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/success-story"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                  >
+                    Success Stories
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/faqs"
+                    className="text-emerald-100/85 transition-colors hover:text-yellow-400 font-medium"
+                  >
+                    FAQs
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Col 5: Get In Touch & Newsletter (2 cols) */}
+            {/* Col 5: Get In Touch (lg:col-span-2) */}
             <div className="flex flex-col sm:col-span-2 lg:col-span-2">
+              <div className="mb-3.5 flex items-center">
+                <VisitorCounter />
+              </div>
               <h3 className="m-0 mb-4 text-[16px] font-bold leading-snug text-white">
                 Get In Touch
               </h3>
 
-              <div className="mb-5 flex flex-col gap-2.5 text-xs text-emerald-100/90">
+              <div className="flex flex-col gap-2.5 text-xs text-emerald-100/90">
                 <div className="flex items-start gap-2.5">
                   <MapPin className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="leading-snug">BCC Greens, Deva Road, Lucknow, UP, India</span>
+                  <span className="leading-snug">BCC Greens, Deva Road, Lucknow, UP</span>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <MapPin className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -1126,35 +1174,11 @@ export default function LandingLayout({
                   </a>
                 </div>
               </div>
-
-              <h4 className="m-0 mb-2 text-xs font-bold text-white uppercase tracking-wider">
-                Newsletter
-              </h4>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert("Thank you for subscribing to i3 updates!");
-                }}
-                className="flex w-full items-center gap-1.5 rounded-xl bg-white/10 p-1.5 border border-white/20 transition-all focus-within:border-emerald-400"
-              >
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  required
-                  className="min-h-[32px] min-w-0 flex-1 border-none bg-transparent px-2 text-xs font-medium text-white outline-none placeholder:text-emerald-200/60"
-                />
-                <button
-                  type="submit"
-                  className="flex h-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 text-xs font-bold text-white transition-all shadow-sm"
-                >
-                  Join
-                </button>
-              </form>
             </div>
           </div>
 
           {/* Bottom Legal Policies & Copyright */}
-          <div className="flex flex-col items-center justify-between gap-4 pt-6 text-center md:flex-row md:text-left text-xs text-emerald-200/80">
+          <div className="flex flex-col items-center justify-between gap-4 pt-4 text-center md:flex-row md:text-left text-xs text-emerald-200/80">
             <p className="m-0 font-medium">
               © {new Date().getFullYear()} International Institute of Internship™ (i3). All Rights Reserved.
             </p>

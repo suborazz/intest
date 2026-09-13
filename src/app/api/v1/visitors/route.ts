@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/x/e3746f45";
 
 const SETTING_KEY = "total_visitors";
-const INITIAL_BASE_COUNT = 1482;
+const INITIAL_BASE_COUNT = 14820;
 
 /**
  * GET /api/v1/visitors
@@ -19,6 +19,17 @@ export async function GET() {
       const parsed = parseInt(setting.value, 10);
       if (!isNaN(parsed) && parsed >= INITIAL_BASE_COUNT) {
         count = parsed;
+      } else {
+        // Automatically upgrade existing database record if it was lower than 14,820
+        count = INITIAL_BASE_COUNT;
+        await prisma.systemSetting.upsert({
+          where: { key: SETTING_KEY },
+          update: { value: INITIAL_BASE_COUNT.toString() },
+          create: {
+            key: SETTING_KEY,
+            value: INITIAL_BASE_COUNT.toString(),
+          },
+        });
       }
     } else {
       // Initialize in database if not present
