@@ -962,8 +962,8 @@ export default function LandingLayout({
         <div className="pointer-events-none absolute -right-20 -top-20 z-0 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
 
         <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          {/* Main Footer Columns */}
-          <div className="relative z-10 grid grid-cols-1 gap-8 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-6 xl:gap-8">
+          {/* Desktop & Tablet 5-Column Grid (hidden on mobile) */}
+          <div className="relative z-10 hidden sm:grid sm:grid-cols-2 lg:grid-cols-12 lg:gap-6 xl:gap-8 border-b border-white/10 pb-10">
             {/* Col 1: Brand & Powered by DPKHRC Trust (lg:col-span-4) */}
             <div className="flex flex-col sm:col-span-2 lg:col-span-4">
               <div className="mb-5">
@@ -1173,6 +1173,162 @@ export default function LandingLayout({
                     +91 9472351693
                   </a>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Accordion & Compact Footer (< sm screens only) */}
+          <div className="sm:hidden flex flex-col pb-6">
+            {/* Mobile Brand & Trust */}
+            <div className="flex flex-col items-start pb-4 border-b border-white/10">
+              <Link href="/" className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white px-2.5 py-1 shadow-md mb-3">
+                <img
+                  src="/logo.png"
+                  alt="International Institute of Internship Logo"
+                  className="h-10 w-auto object-contain"
+                />
+              </Link>
+              <p className="m-0 text-xs leading-relaxed text-emerald-100/90 font-medium">
+                Empowering youth with 300+ UGC-aligned internships, 600+ skills, and 100+ immersion programs.
+              </p>
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-emerald-200">
+                <span className="font-bold text-yellow-400">Powered by</span>
+                <a
+                  href="https://www.dpkavishek.in/hrc-office.php"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline font-bold text-white inline-flex items-center gap-1"
+                >
+                  DPKHRC Trust <ShieldCheck className="size-3 text-emerald-400" />
+                </a>
+              </div>
+            </div>
+
+            {/* Mobile Accordions */}
+            <div className="flex flex-col divide-y divide-white/10 border-b border-white/10 my-2">
+              {/* Accordion Item: About i3 */}
+              <details className="group py-2.5 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer items-center justify-between text-xs font-bold text-white group-hover:text-yellow-300 transition-colors select-none">
+                  <span>About i3</span>
+                  <ChevronDown className="h-4 w-4 text-emerald-300 transition-transform duration-200 group-open:rotate-180 group-open:text-yellow-400" />
+                </summary>
+                <ul className="mt-2.5 mb-1 flex flex-col gap-2 pl-1 text-[11.5px]">
+                  {[
+                    { label: "Organization History", href: "/about/organization-history" },
+                    { label: "Vision & Mission", href: "/about/vision-mission" },
+                    { label: "Team Members", href: "/about/team-members" },
+                    { label: "Immersion Programs", href: "/immersion" },
+                    { label: "What is Internship", href: "/about/internship" },
+                    { label: "Media Room", href: "/media" },
+                    { label: "Notice Board", href: "/notice" },
+                  ].map((item) => (
+                    <li key={item.label}>
+                      <Link href={item.href} className="text-emerald-100/80 hover:text-yellow-300 py-0.5 block">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
+              {/* Accordion Item: Internships */}
+              <details className="group py-2.5 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer items-center justify-between text-xs font-bold text-white group-hover:text-yellow-300 transition-colors select-none">
+                  <span>Internships</span>
+                  <ChevronDown className="h-4 w-4 text-emerald-300 transition-transform duration-200 group-open:rotate-180 group-open:text-yellow-400" />
+                </summary>
+                <ul className="mt-2.5 mb-1 flex flex-col gap-2 pl-1 text-[11.5px]">
+                  {[
+                    { label: "All Internships", href: "/internship" },
+                    { label: "Running Internships", href: "/internship/running-internship" },
+                    { label: "On-Campus Programs", href: "/internship/on-campus" },
+                    { label: "Virtual Internships", href: "/internship/virtual-internship" },
+                    { label: "Student Registration", href: "/student/registration" },
+                    { label: "Instructor Registration", href: "/instructor/registration" },
+                    { label: "Student Login", href: "/login" },
+                  ].map((item) => (
+                    <li key={item.label}>
+                      <Link href={item.href} className="text-emerald-100/80 hover:text-yellow-300 py-0.5 block">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
+              {/* Accordion Item: Our Other Services */}
+              <details className="group py-2.5 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer items-center justify-between text-xs font-bold text-white group-hover:text-yellow-300 transition-colors select-none">
+                  <span>Our Other Services</span>
+                  <ChevronDown className="h-4 w-4 text-emerald-300 transition-transform duration-200 group-open:rotate-180 group-open:text-yellow-400" />
+                </summary>
+                <ul className="mt-2.5 mb-1 flex flex-col gap-2 pl-1 text-[11.5px]">
+                  <li>
+                    <a
+                      href="https://dpkavishek.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-100/80 hover:text-yellow-300 py-0.5 inline-flex items-center gap-1"
+                    >
+                      <span>DPK Humanity Research Centre</span>
+                      <ArrowUpRight className="size-3 text-emerald-400" />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://dbmsonline.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-100/80 hover:text-yellow-300 py-0.5 inline-flex items-center gap-1"
+                    >
+                      <span>DBMS Online™</span>
+                      <ArrowUpRight className="size-3 text-emerald-400" />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://ouruniverse.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-100/80 hover:text-yellow-300 py-0.5 inline-flex items-center gap-1"
+                    >
+                      <span>Unique Records of Universe™</span>
+                      <ArrowUpRight className="size-3 text-emerald-400" />
+                    </a>
+                  </li>
+                  {[
+                    { label: "Educational Institutes", href: "/partners/educational-institutes" },
+                    { label: "Job Placement", href: "/partners/job-placement" },
+                    { label: "Success Stories", href: "/success-story" },
+                    { label: "FAQs", href: "/faqs" },
+                  ].map((item) => (
+                    <li key={item.label}>
+                      <Link href={item.href} className="text-emerald-100/80 hover:text-yellow-300 py-0.5 block">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+
+            {/* Mobile Contact & Visitor Counter */}
+            <div className="pt-3 flex flex-col gap-2.5 text-xs text-emerald-100/90">
+              <div className="flex items-center justify-between gap-3">
+                <VisitorCounter />
+                <a
+                  href="tel:+919472351693"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/15"
+                >
+                  <Phone className="size-3 text-emerald-400" />
+                  <span>+91 9472351693</span>
+                </a>
+              </div>
+              <div className="flex items-center gap-2 text-[11.5px] pt-1">
+                <Mail className="size-3.5 text-emerald-400 shrink-0" />
+                <a href="mailto:i3.office2025@gmail.com" className="hover:text-yellow-300 truncate">
+                  i3.office2025@gmail.com
+                </a>
               </div>
             </div>
           </div>
