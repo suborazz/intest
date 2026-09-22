@@ -2199,12 +2199,12 @@ export default function NewspaperPage() {
                   className={`group flex ${viewMode === "grid" ? "flex-col" : "flex-col sm:flex-row items-stretch"} bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all duration-300 overflow-hidden`}
                 >
                   <div
-                    className={`relative shrink-0 overflow-hidden bg-slate-900 ${viewMode === "grid" ? "aspect-[16/10] w-full" : "w-full sm:w-64 min-h-[160px]"}`}
+                    className={`relative shrink-0 overflow-hidden bg-slate-900 ${viewMode === "grid" ? "aspect-[4/3] w-full" : "w-full sm:w-72 min-h-[190px]"}`}
                   >
                     <img
-                      src={article.imageUrl || "/images/Breadcrum-iit.webp"}
+                      src={article.imageUrl || "/images/hero-media-room.jpg"}
                       alt={article.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute top-3 left-3 bg-[#0A5C36] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
                       {article.publication || "Press"}
@@ -2293,9 +2293,12 @@ export default function NewspaperPage() {
 
           <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[40px] lg:justify-end">
             <img
-              src="/images/Breadcrum-iit.webp"
+              src="/images/hero-media-room.jpg"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/images/hero-media-room.jpg";
+              }}
               alt="Media Cover"
-              className="relative z-10 w-full max-w-[420px] lg:max-w-[480px]"
+              className="relative z-10 aspect-[4/3] w-full max-w-[420px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[480px]"
             />
           </div>
         </div>

@@ -1518,8 +1518,8 @@ export default function RecruitProfilePage() {
                 </p>
               </div>
               <Button asChild size="sm">
-                <Link href="/recruit/personal-information">
-                  Go to Personal Information
+                <Link href="/recruit/registration">
+                  Complete Registration Profile
                 </Link>
               </Button>
             </CardContent>

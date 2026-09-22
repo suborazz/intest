@@ -75,7 +75,7 @@ const buildConfig = (): AppConfig => ({
     "SMTP_SENDER_EMAIL",
     getEnv("SMTP_USER", "i3.office2025@gmail.com"),
   ),
-  smtpSenderName: getEnv("SMTP_SENDER_NAME", "II Internship"),
+  smtpSenderName: getEnv("SMTP_SENDER_NAME", "International Institute of Internship™"),
   clientUrl: getEnv("NEXT_PUBLIC_CLIENT_URL", "http://localhost:3000"),
   razorpayKeyId: getEnv("RAZORPAY_KEY_ID", "mock-razorpay-key-id"),
   razorpayKeySecret: getEnv("RAZORPAY_KEY_SECRET", "mock-razorpay-key-secret"),

@@ -87,7 +87,6 @@ const HeroSection_8: React_2.FC<HeroSectionProps> = ({
 
               {}
               <div className="relative mt-8 flex justify-center lg:mt-0 lg:justify-end">
-                <div className="absolute left-1/2 top-[10px] z-[1] h-[140px] w-[220px] -translate-x-1/2 rotate-[12deg] rounded-[20px] bg-gradient-to-br from-[#ffd700] to-[#ffea70] md:top-[20px] md:h-[180px] md:w-[300px] lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
 
                 <img
                   src={imageSrc}
@@ -166,8 +165,8 @@ export default function OrganizationHistoryPage() {
         }
         breadcrumbCurrent="Organization History"
         subtitle="The International Institute has built a strong reputation through its commitment to excellence, advanced training programs, and student-focused growth over the years."
-        imageSrc="/images/Breadcrum-iit.webp"
-        imageAlt="Students learning"
+        imageSrc="/images/hero-org-history.jpg"
+        imageAlt="Organization History"
       />
 
       <article className="mx-auto max-w-4xl px-6 pb-24 pt-2">

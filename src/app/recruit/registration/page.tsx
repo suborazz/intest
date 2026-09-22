@@ -4300,7 +4300,7 @@ export default function RecruitRegistrationPage() {
       updateProfileMutation.mutate(values, {
         onSuccess: () => {
           toast.success("Profile updated successfully!");
-          router.push("/recruit/personal-information");
+          router.push("/recruit/profile");
         },
       });
     } else {

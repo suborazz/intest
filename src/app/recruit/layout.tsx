@@ -19,7 +19,7 @@ export default async function RecruitLayout({
         <div className="relative flex h-[280px] w-full shrink-0 flex-col justify-between overflow-hidden bg-zinc-950 p-6 md:h-auto md:w-1/2 md:p-12 print:hidden">
           <div className="absolute inset-0 z-0">
             <Image
-              src="/images/auth-bg.png"
+              src="/images/auth-banner.webp"
               alt="Recruiter Registration Background"
               fill
               priority

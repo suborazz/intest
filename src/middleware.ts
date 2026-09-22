@@ -31,6 +31,7 @@ const PUBLIC_API_ROUTES = [
   "/api/v1/recruit-user/login",
   "/api/v1/immersion-participant/register",
   "/api/v1/visitors",
+  "/api/v1/contact",
 ];
 
 function isProtectedApiRoute(pathname: string, method: string): boolean {
@@ -398,6 +399,10 @@ export async function middleware(request: NextRequest) {
       const requiredRole = ROLE_ROUTE_MAP[matchedRoutePrefix];
 
             if (!token) {
+        if (pathname.includes("/registration")) {
+          const roleQuery = requiredRole ? `?role=${requiredRole}` : "";
+          return createRedirectResponse(`/sign-up${roleQuery}`, request.url, requestHeaders);
+        }
         return createRedirectResponse("/login", request.url, requestHeaders);
       }
 

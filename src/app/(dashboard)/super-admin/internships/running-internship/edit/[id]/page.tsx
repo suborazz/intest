@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import * as React from "react";
-import { Award, Bold, BookOpen, Briefcase as Briefcase_2, Building2, Calendar as Calendar_3, Clock as Clock_2, Code, DollarSign, Edit, FileText, Italic, Layers, Link as LinkIcon, List, ListOrdered, Loader2, MapPin as MapPin_2, Minus, Quote, Redo2, RemoveFormatting, Sparkles as Sparkles_2, Undo2, UserCheck, Users as Users_2 } from "lucide-react";
+import { Award, Bold, BookOpen, Briefcase as Briefcase_2, Building2, Calendar as Calendar_3, Clock as Clock_2, Code, DollarSign, Edit, FileText, Image as ImageIcon_2, Italic, Layers, Link as LinkIcon, List, ListOrdered, Loader2, MapPin as MapPin_2, Minus, Quote, Redo2, RemoveFormatting, Sparkles as Sparkles_2, Trash2, Undo2, Upload, UserCheck, Users as Users_2 } from "lucide-react";
 import React_3 from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { clsx, ClassValue } from "clsx";
@@ -1512,6 +1512,8 @@ interface CreateInternshipPayload {
       careerOpportunity?: string;
       organizer?: string;
       instructorId?: string;
+      imageUrl?: string | null;
+      imageBase64?: string | null;
 
       mode?: string;
       remoteDetails?: string;
@@ -1567,6 +1569,8 @@ interface AdminInternshipPublic_3 extends InternshipPublic {
       careerOpportunity?: string | null;
       department?: string | null;
       credits?: string | number | null;
+      imageUrl?: string | null;
+      imagePublicId?: string | null;
     }
 
 function Select_23({
@@ -4718,6 +4722,36 @@ export default function EditInternshipPage() {
             return all.filter((inst: any) => inst.isApproved);
       }, [instructorsResp]);
 
+      const [imagePreview, setImagePreview] = React_3.useState<string | null>(
+        data.imageUrl || null,
+      );
+      const [imageBase64, setImageBase64] = React_3.useState<string | null>(null);
+      const [isImageRemoved, setIsImageRemoved] = React_3.useState(false);
+
+      const handleImageChange = (e: React_3.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image size exceeds 5MB limit");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const res = reader.result as string;
+            setImagePreview(res);
+            setImageBase64(res);
+            setIsImageRemoved(false);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleRemoveImage = () => {
+        setImagePreview(null);
+        setImageBase64(null);
+        setIsImageRemoved(true);
+      };
+
       const form = useForm<TCreateInternship>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(ZCreateInternship) as any,
@@ -4814,6 +4848,7 @@ export default function EditInternshipPage() {
           contact: values.contact || undefined,
           organizer: values.organizer || undefined,
           instructorId: values.instructorId || undefined,
+          ...(imageBase64 ? { imageBase64 } : isImageRemoved ? { imageUrl: null } : {}),
         };
 
         updateInternship({ id: data.id, payload });
@@ -4832,7 +4867,67 @@ export default function EditInternshipPage() {
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 pb-4 pt-2"
             >
-              {}
+              {/* Cover Banner Image Section */}
+              <div className="bg-muted/30 border-border/50 space-y-3 rounded-xl border p-4">
+                <div className="border-border/30 flex items-center justify-between border-b pb-2">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon_2 className="text-primary size-4" />
+                    <h3 className="text-foreground text-sm font-bold">
+                      Internship Cover Banner / Photo
+                    </h3>
+                  </div>
+                  {imagePreview && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      className="text-destructive hover:bg-destructive/10 h-7 text-xs"
+                    >
+                      <Trash2 className="mr-1 size-3.5" /> Remove Image
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="bg-muted relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl border sm:w-48">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Internship Banner"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-center p-2">
+                        <ImageIcon_2 className="text-muted-foreground/60 size-7" />
+                        <span className="text-muted-foreground text-[10px]">No banner attached</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    <label
+                      htmlFor="internship-banner-upload-edit"
+                      className="bg-background text-foreground hover:bg-muted/40 inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors"
+                    >
+                      <Upload className="size-3.5" />
+                      {imagePreview ? "Change Photo / Banner" : "Upload Internship Photo"}
+                      <input
+                        id="internship-banner-upload-edit"
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Upload a high quality cover image (PNG, JPG, WEBP, max 5MB). This image will appear at the top of the internship card.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Basic Information */}
               <div className="bg-muted/30 border-border/50 space-y-4 rounded-xl border p-4">
                 <div className="border-border/30 flex items-center gap-2 border-b pb-2">
                   <Briefcase_2 className="text-primary size-4" />

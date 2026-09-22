@@ -57,13 +57,18 @@ export function NavUser({ user, onSignOut }: NavUserProps) {
   const [open, setOpen] = React_2.useState(false);
   const [showSignOut, setShowSignOut] = React_2.useState(false);
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React_2.useState(false);
+
+  React_2.useEffect(() => {
+    setMounted(true);
+  }, []);
 
       const EDIT_PROFILE_PATH: Record<string, string> = {
     SUPER_ADMIN: "/super-admin/settings",
     STUDENT: "/student/settings",
     INSTRUCTOR: "/instructor/profile",
     IMMERSION_USER: "/immersion/profile",
-    RECRUIT_USER: "/recruit/personal-information",
+    RECRUIT_USER: "/recruit/profile",
   };
 
   const editProfilePath = role ? EDIT_PROFILE_PATH[role] : undefined;
@@ -79,8 +84,10 @@ export function NavUser({ user, onSignOut }: NavUserProps) {
           className={cn(sidebarOpen ? "pl-1 " : "-translate-x-1.5 pl-2")}
         >
           <DropdownMenu open={open} onOpenChange={setOpen}>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild id="nav-user-dropdown-trigger">
               <SidebarMenuButton
+                id="nav-user-dropdown-button"
+                suppressHydrationWarning
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
               >
@@ -141,12 +148,12 @@ export function NavUser({ user, onSignOut }: NavUserProps) {
               <DropdownMenuItem
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
-                {theme === "dark" ? (
+                {mounted && theme === "dark" ? (
                   <SunIcon size={14} className="mr-4" />
                 ) : (
                   <MoonIcon size={14} className="mr-4" />
                 )}
-                {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                {mounted && theme === "dark" ? "Light Mode" : "Dark Mode"}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowSignOut(true)}>

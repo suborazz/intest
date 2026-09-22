@@ -2712,12 +2712,8 @@ export default function DonatePage() {
 
                       {}
                       <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[20px] lg:justify-end">
-                        <div className="absolute left-1/2 top-[20px] h-[260px] w-[300px] -translate-x-1/2 rotate-[10deg] rounded-[20px] bg-yellow-400 lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
                         <img
-                          src="/images/donation-hero.jpg" 
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/images/F-img.webp"; 
-                          }}
+                          src="/images/hero-donation-v2.jpg" 
                           alt="Donate"
                           className="relative z-10 aspect-[4/3] w-full max-w-[450px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[500px]"
                         />

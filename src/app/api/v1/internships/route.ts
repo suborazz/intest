@@ -6,6 +6,7 @@ import type {
 } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
+import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
 
 interface PaginationMeta {
@@ -171,7 +172,10 @@ const createInternshipSchema = z.object({
   duration: z.string().min(1, "Duration is required"),
   startDate: z.coerce.date().optional(),
   onboardingDetails: z.string().optional(),
-  instructorId: z.string().cuid("Invalid Instructor ID").optional().nullable(),
+  instructorId: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  imagePublicId: z.string().optional().nullable(),
+  imageBase64: z.string().optional().nullable(),
 });
 
 const listInternshipsQuerySchema = z.object({
@@ -427,46 +431,84 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        if (data.instructorId) {
-      const instructor = await prisma.user.findFirst({
+        let resolvedInstructorId: string | null = null;
+    if (data.instructorId && data.instructorId !== "none" && data.instructorId !== "null") {
+      let targetUserId = data.instructorId;
+      let instructor = await prisma.user.findFirst({
         where: {
-          id: data.instructorId,
+          id: targetUserId,
           role: "INSTRUCTOR",
           deletedAt: null,
-          instructorProfile: { isApproved: true },
         },
       });
 
       if (!instructor) {
+        const reg = await prisma.instructorRegistration.findFirst({
+          where: {
+            OR: [{ id: data.instructorId }, { instructorId: data.instructorId }],
+            deletedAt: null,
+          },
+          select: { userId: true },
+        });
+        if (reg?.userId) {
+          targetUserId = reg.userId;
+          instructor = await prisma.user.findFirst({
+            where: {
+              id: targetUserId,
+              role: "INSTRUCTOR",
+              deletedAt: null,
+            },
+          });
+        }
+      }
+
+      if (!instructor) {
         return errorResponse(
           "VALIDATION_ERROR",
-          "The specified instructor does not exist, is not a instructor (INSTRUCTOR), or is not yet verified/approved by Super Admin.",
+          "The specified instructor does not exist or is not an active instructor.",
           {
             status: HTTP_2.UNPROCESSABLE,
             details: {
               instructorId: [
-                "Invalid instructor selected. Must be a verified/approved INSTRUCTOR.",
+                "Invalid instructor selected. Must be an active INSTRUCTOR.",
               ],
             },
           },
         );
       }
+      resolvedInstructorId = targetUserId;
     }
 
-        const finalPrice = data.type === "PAID" ? (data.price ?? null) : null;
+    const finalPrice = data.type === "PAID" ? (data.price ?? null) : null;
     const finalStipend =
       data.type === "STIPEND" ? (data.stipendAmount ?? null) : null;
 
     const isInstructor = requesterRole === "INSTRUCTOR";
     const assignedInstructorId = isInstructor
       ? requesterId
-      : (data.instructorId ?? null);
+      : resolvedInstructorId;
     const approvedStatus = !isInstructor; 
     const activeStatus = !isInstructor; 
 
         const finalCategory = isInstructor
       ? "RUNNING"
       : (data.category ?? "RUNNING");
+
+    let finalImageUrl: string | null = data.imageUrl ?? null;
+    let finalImagePublicId: string | null = data.imagePublicId ?? null;
+
+    if (data.imageBase64 && data.imageBase64.startsWith("data:")) {
+      try {
+        const uploadRes = await cloudinary.uploader.upload(data.imageBase64, {
+          folder: "internships",
+          resource_type: "image",
+        });
+        finalImageUrl = uploadRes.secure_url;
+        finalImagePublicId = uploadRes.public_id;
+      } catch (uploadErr) {
+        console.error("[Cloudinary Internship Upload Error]", uploadErr);
+      }
+    }
 
     const internship = await prisma.internship.create({
       data: {
@@ -495,11 +537,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         duration: data.duration,
         startDate: data.startDate ?? null,
         onboardingDetails: data.onboardingDetails ?? null,
+        imageUrl: finalImageUrl,
+        imagePublicId: finalImagePublicId,
         createdById: requesterId,
         instructorId: assignedInstructorId,
         isApproved: approvedStatus,
         isActive: activeStatus,
-      },
+      } as any,
     });
 
     const formattedCode = formatInternshipCode(

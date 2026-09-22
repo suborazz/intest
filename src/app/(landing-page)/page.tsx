@@ -424,7 +424,7 @@ const MentorsData = [
   {
     id: 1,
     name: "Dr. Avishek Kumar",
-    role: "Master Trainer & Academic Advisor (NSDC / DPKHRC Trust)",
+    role: "Master Trainer & Academic Advisor (DPKHRC Trust)",
     quote:
       "Under DPKHRC Trust, this initiative bridges academic theory and real-world competency with complete dedication to student career outcomes and practical UGC credits.",
     image: "/images/mentors/dr-avishek-kumar.jpg?v=2",
@@ -432,7 +432,7 @@ const MentorsData = [
   {
     id: 2,
     name: "Rajesh Kumar Pandey",
-    role: "Master Trainer & Technical Assessor (NSDC)",
+    role: "Master Trainer & Technical Assessor",
     quote:
       "Guiding i3 interns through hands-on technical architectures and real engineering projects ensures they become genuinely job-ready from Day 1.",
     image: "/images/mentors/rajesh-kumar-pandey.jpg",
@@ -1005,8 +1005,11 @@ export default function HomePage() {
               </p>
 
               {/* Description Paragraph */}
-              <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-slate-600 font-normal max-w-lg">
-                International Institute of Internship (i3) is a not-for-profit initiative offering over 300+ UGC-aligned internship programs, 600+ skill enhancement training modules, and 100+ global &amp; national immersion cohorts.
+              <p className="mt-2 text-xs sm:text-[13.5px] leading-relaxed text-slate-600 font-normal max-w-lg">
+                <strong className="font-bold text-[#800000] text-sm sm:text-[15px]">
+                  International Institute of Internship [i3]
+                </strong>{" "}
+                is a not-for-profit initiative offering over 300+ UGC-aligned internship programs, 600+ skill enhancement training modules, and 100+ global &amp; national immersion cohorts.
               </p>
 
               {/* 4 Feature Items (Horizontal 4 columns with circle icons + title + subtitle) */}
@@ -1153,7 +1156,7 @@ export default function HomePage() {
 
                     {/* 3. Clipped Photo Element embedded seamlessly inside the curve */}
                     <image
-                      href="/images/hero_students.jpg"
+                      href="/images/Main-image.webp"
                       x="0"
                       y="0"
                       width="760"

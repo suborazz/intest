@@ -5553,46 +5553,46 @@ export default function InstructorRegistrationPage() {
 
           <div className="bg-card/80 border-border/60 rounded-2xl border px-4 py-4 shadow-xl backdrop-blur-md transition-all duration-300 hover:shadow-2xl sm:p-6 md:p-8">
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8"
-              >
-                {currentStep === 1 && (
-                  <StepPersonalInfo_2
-                    sameAsCurrentAddress={sameAsCurrentAddress}
-                    onNext={handleNextStep}
-                  />
-                )}
-                {currentStep === 2 && (
-                  <StepEducation_2
-                    tempQualification={tempQualification}
-                    setTempQualification={setTempQualification}
-                    onAddQualification={handleAddQualification}
-                    onNext={handleNextStep}
-                    onPrev={handlePrevStep}
-                  />
-                )}
-                {currentStep === 3 && (
-                  <StepProfessional_2
-                    onNext={handleNextStep}
-                    onPrev={handlePrevStep}
-                  />
-                )}
-                {currentStep === 4 && (
-                  <StepDocuments_2
-                    photoPreview={photoPreview}
-                    identityProofName={identityProofName}
-                    educationCertName={educationCertName}
-                    experienceCertName={experienceCertName}
-                    handleFileChange={handleFileChange}
-                    onPrev={handlePrevStep}
-                    isSubmitting={isSubmitting || isUpdating}
-                  />
-                )}
-              </form>
-            </Form>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
+                  {currentStep === 1 && (
+                    <StepPersonalInfo_2
+                      sameAsCurrentAddress={sameAsCurrentAddress}
+                      onNext={handleNextStep}
+                    />
+                  )}
+                  {currentStep === 2 && (
+                    <StepEducation_2
+                      tempQualification={tempQualification}
+                      setTempQualification={setTempQualification}
+                      onAddQualification={handleAddQualification}
+                      onNext={handleNextStep}
+                      onPrev={handlePrevStep}
+                    />
+                  )}
+                  {currentStep === 3 && (
+                    <StepProfessional_2
+                      onNext={handleNextStep}
+                      onPrev={handlePrevStep}
+                    />
+                  )}
+                  {currentStep === 4 && (
+                    <StepDocuments_2
+                      photoPreview={photoPreview}
+                      identityProofName={identityProofName}
+                      educationCertName={educationCertName}
+                      experienceCertName={experienceCertName}
+                      handleFileChange={handleFileChange}
+                      onPrev={handlePrevStep}
+                      isSubmitting={isSubmitting || isUpdating}
+                    />
+                  )}
+                </form>
+              </Form>
+            </div>
           </div>
-        </div>
       )}
     </div>
   );

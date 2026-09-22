@@ -62,7 +62,7 @@ export const sidebarData: SidebarData_2 = {
       },
       {
         title: "My Profile",
-        url: "/recruit/personal-information",
+        url: "/recruit/profile",
         icon: "User",
       },
     ],

@@ -42,11 +42,17 @@ import {
 const transporter = nodemailer.createTransport({
   host: config.smtpHost,
   port: config.smtpPort,
-  secure: config.smtpPort === 465, 
+  secure: config.smtpPort === 465,
   auth: {
     user: config.smtpUser,
-    pass: config.smtpPass,
+    pass: (config.smtpPass || "").replace(/\s+/g, ""),
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 50,
 });
 
 export async function verifyEmailConnection(): Promise<boolean> {
@@ -99,6 +105,16 @@ export async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
   }
 
   try {
+    const logoFilePath = join(process.cwd(), "public", "logo.png");
+    const inlineAttachments: any[] = [];
+    if (fs.existsSync(logoFilePath)) {
+      inlineAttachments.push({
+        filename: "logo.png",
+        path: logoFilePath,
+        cid: "brand-logo@iiinternship",
+      });
+    }
+
     const mailOptions = {
       from: `"${smtpSenderName}" <${smtpSenderEmail}>`,
       to: payload.to
@@ -106,12 +122,15 @@ export async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
         .join(", "),
       subject: payload.subject,
       html: payload.htmlContent,
-      attachments: payload.attachment
-        ? payload.attachment.map((att) => ({
-            filename: att.name,
-            content: Buffer.from(att.content, "base64"),
-          }))
-        : [],
+      attachments: [
+        ...inlineAttachments,
+        ...(payload.attachment
+          ? payload.attachment.map((att) => ({
+              filename: att.name,
+              content: Buffer.from(att.content, "base64"),
+            }))
+          : []),
+      ],
     };
 
     await transporter.sendMail(mailOptions);

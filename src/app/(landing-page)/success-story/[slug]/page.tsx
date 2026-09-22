@@ -12,6 +12,7 @@ import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseMutationR
 import { toast } from "sonner";
 import { create } from "zustand";
 import { axiosInstance } from "@/x/acfb3dca";
+import { getMergedBlogs } from "../cohort-stories";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -2324,8 +2325,11 @@ export default function BlogDetailsPage({ params }: PageProps) {
         <section className="relative flex h-[420px] items-center justify-center overflow-hidden md:h-[480px]">
           <div className="absolute inset-0 z-0">
             <Image
-              src={blog.image}
-              alt={blog.title}
+              src={
+                blog.image ||
+                "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1200"
+              }
+              alt={blog.title || "Success Story"}
               fill
               className="object-cover"
               priority
@@ -2355,8 +2359,8 @@ export default function BlogDetailsPage({ params }: PageProps) {
                 <div className="flex items-center gap-2.5">
                   <div className="border-primary relative h-8 w-8 overflow-hidden rounded-full border-2">
                     <Image
-                      src={blog.authorImage}
-                      alt={blog.author}
+                      src={blog.authorImage || "/images/bg-lines.png"}
+                      alt={blog.author || "Author"}
                       fill
                       className="object-cover"
                     />
@@ -2409,8 +2413,11 @@ export default function BlogDetailsPage({ params }: PageProps) {
                   <div className="flex flex-col bg-transparent transition-all duration-300">
                     <div className="border-border/10 relative mb-5 h-44 w-full overflow-hidden rounded-2xl border">
                       <Image
-                        src={item.image}
-                        alt={item.title}
+                        src={
+                          item.image ||
+                          "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1200"
+                        }
+                        alt={item.title || "Related Story"}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
@@ -2425,8 +2432,8 @@ export default function BlogDetailsPage({ params }: PageProps) {
                         <div className="flex items-center gap-2">
                           <div className="border-primary/30 relative h-6 w-6 overflow-hidden rounded-full border">
                             <Image
-                              src={item.authorImage}
-                              alt={item.author}
+                              src={item.authorImage || "/images/bg-lines.png"}
+                              alt={item.author || "Author"}
                               fill
                               className="object-cover"
                             />
@@ -2650,13 +2657,15 @@ export default function BlogDetailsPage({ params }: PageProps) {
 
   const { slug } = use(params);
   const { data: blogsRaw = [], isLoading } = StudentDataHook.usePublicBlogs();
-  const blogs = blogsRaw as unknown as (BlogPublic & {
+  const rawMerged = getMergedBlogs(blogsRaw as any[]);
+  const blogs = rawMerged as unknown as (BlogPublic & {
     slug?: string;
     author?: string;
+    authorImage?: string;
     excerpt?: string;
     summary?: string;
     readTime?: string;
-    internshipDetails?: string;
+    internshipDetails?: string | any;
   })[];
 
   if (isLoading) {
@@ -2692,6 +2701,7 @@ export default function BlogDetailsPage({ params }: PageProps) {
     ...blog,
     image:
       blog.imageUrl ||
+      (blog as any).image ||
       "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1200",
     date:
       blog.date ||
@@ -2704,7 +2714,7 @@ export default function BlogDetailsPage({ params }: PageProps) {
         : "Recently"),
     author: blog.authorName || blog.author || "IIInternship Team",
     authorRole: blog.authorRole || "Mentor",
-    authorImage: "/images/bg-lines.png",
+    authorImage: blog.authorImage || "/images/bg-lines.png",
     excerpt:
       blog.excerpt ||
       blog.summary ||
@@ -2733,11 +2743,14 @@ export default function BlogDetailsPage({ params }: PageProps) {
           readTime?: string;
           slug?: string;
           author?: string;
+          authorImage?: string;
+          image?: string;
         },
       ) => ({
         ...b,
         image:
           b.imageUrl ||
+          (b as any).image ||
           "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1200",
         date:
           b.date ||
@@ -2750,6 +2763,7 @@ export default function BlogDetailsPage({ params }: PageProps) {
             : "Recently"),
         author: b.authorName || b.author || "IIInternship Team",
         authorRole: b.authorRole || "Mentor",
+        authorImage: b.authorImage || "/images/bg-lines.png",
         excerpt:
           b.excerpt ||
           b.summary ||

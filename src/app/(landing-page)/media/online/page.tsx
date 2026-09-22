@@ -2293,9 +2293,12 @@ export default function OnlinePage() {
 
           <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[40px] lg:justify-end">
             <img
-              src="/images/Breadcrum-iit.webp"
+              src="/images/hero-media-room.jpg"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/images/hero-media-room.jpg";
+              }}
               alt="Media Cover"
-              className="relative z-10 w-full max-w-[420px] lg:max-w-[480px]"
+              className="relative z-10 aspect-[4/3] w-full max-w-[420px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[480px]"
             />
           </div>
         </div>

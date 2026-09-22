@@ -90,6 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     let sentCount = 0;
+    const failureList: string[] = [];
     // Process in parallel batches of 5 to avoid SMTP timeouts
     const BATCH_SIZE = 5;
     for (let i = 0; i < usersNeedingReminder.length; i += BATCH_SIZE) {
@@ -103,12 +104,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (r.status === "fulfilled" && r.value) {
           sentCount++;
         } else {
+          const reason =
+            r.status === "rejected"
+              ? String(r.reason)
+              : "SMTP delivery failed";
+          failureList.push(`${batch[idx].email}: ${reason}`);
           console.error(
             `[Send Reminder Error] Failed for ${batch[idx].email}:`,
-            r.status === "rejected" ? r.reason : "SMTP dispatch failed",
+            reason,
           );
         }
       });
+    }
+
+    if (sentCount === 0 && usersNeedingReminder.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "SMTP_DISPATCH_FAILED",
+            message: `ईमेल भेजने में विफल। (SMTP Dispatch Failed: ${failureList[0] || "Check SMTP server settings / password"})`,
+          },
+        },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({
@@ -118,6 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           ? `रिमाइंडर ईमेल सफलतापूर्वक भेज दिया गया (${usersNeedingReminder[0].email})`
           : `कुल ${sentCount} यूज़र्स को प्रोफाइल रिमाइंडर ईमेल सफलतापूर्वक भेज दिए गए।`,
       sentCount,
+      failedCount: failureList.length,
     });
   } catch (error) {
     console.error("[Send Reminder API Exception]:", error);

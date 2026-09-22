@@ -16,6 +16,7 @@ import { Slot } from "radix-ui";
 import { ClassValue, clsx as clsx_2 } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { axiosInstance } from "@/x/acfb3dca";
+import { getMergedBlogs } from "./cohort-stories";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx_2(inputs));
@@ -2349,7 +2350,7 @@ export default function BlogsPage() {
 
     function BlogCard_2({ blog, viewMode, onShare }: BlogCardProps) {
       const images = React_3.useMemo(() => {
-        const list = [blog.image];
+        const list = [blog.image || "/images/hero-success-stories.jpg"];
         if (blog.internshipDetails?.gallery) {
           blog.internshipDetails.gallery.forEach((item) => {
             if (item.image && !list.includes(item.image)) {
@@ -2388,8 +2389,8 @@ export default function BlogsPage() {
                 {images.map((img, idx) => (
                   <Image
                     key={idx}
-                    src={img}
-                    alt={blog.title}
+                    src={img || "/images/hero-success-stories.jpg"}
+                    alt={blog.title || "Story"}
                     fill
                     className={`object-cover transition-opacity duration-700 ${
                       idx === currentImageIndex
@@ -2427,15 +2428,15 @@ export default function BlogsPage() {
                 {}
                 <button
                   onClick={(e) => onShare(e, blog)}
-                  className="bg-background/60 text-foreground hover:bg-primary hover:text-primary-foreground shadow-xs absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 backdrop-blur-md transition-all"
+                  className="bg-background/65 text-foreground hover:bg-primary hover:text-primary-foreground shadow-xs absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 backdrop-blur-md transition-all"
                 >
                   <Share2 className="h-3.5 w-3.5" />
                 </button>
               </div>
 
               {}
-              <div className="flex flex-1 flex-col pl-1">
-                <h3 className="text-foreground group-hover:text-primary text-lg! mb-2.5 line-clamp-2 font-bold leading-snug transition-colors duration-300">
+              <div className="flex flex-1 flex-col">
+                <h3 className="group-hover:text-primary text-foreground mb-3 line-clamp-2 text-base font-bold leading-snug transition-colors duration-300">
                   {blog.title}
                 </h3>
 
@@ -2443,8 +2444,8 @@ export default function BlogsPage() {
                   <div className="flex shrink-0 items-center gap-2">
                     <div className="border-primary/30 relative h-7 w-7 overflow-hidden rounded-full border">
                       <Image
-                        src={blog.authorImage}
-                        alt={blog.author}
+                        src={blog.authorImage || "/images/bg-lines.png"}
+                        alt={blog.author || "Author"}
                         fill
                         className="object-cover"
                       />
@@ -2498,8 +2499,8 @@ export default function BlogsPage() {
               {images.map((img, idx) => (
                 <Image
                   key={idx}
-                  src={img}
-                  alt={blog.title}
+                  src={img || "/images/hero-success-stories.jpg"}
+                  alt={blog.title || "Story"}
                   fill
                   className={`object-cover transition-opacity duration-700 ${
                     idx === currentImageIndex
@@ -2555,8 +2556,8 @@ export default function BlogsPage() {
                   <div className="flex shrink-0 items-center gap-1.5">
                     <div className="border-primary/30 relative h-7 w-7 shrink-0 overflow-hidden rounded-full border">
                       <Image
-                        src={blog.authorImage}
-                        alt={blog.author}
+                        src={blog.authorImage || "/images/bg-lines.png"}
+                        alt={blog.author || "Author"}
                         fill
                         className="object-cover"
                       />
@@ -2670,7 +2671,7 @@ export default function BlogsPage() {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                href="javascript:void(0)"
+                href={`?page=${Math.max(1, currentPage - 1)}`}
                 onClick={(e: React_3.MouseEvent<HTMLAnchorElement>) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -2689,7 +2690,7 @@ export default function BlogsPage() {
               return (
                 <PaginationItem key={page}>
                   <PaginationLink
-                    href="javascript:void(0)"
+                    href={`?page=${page}`}
                     isActive={isActive}
                     onClick={(e: React_3.MouseEvent<HTMLAnchorElement>) => {
                       e.preventDefault();
@@ -2710,7 +2711,7 @@ export default function BlogsPage() {
 
             <PaginationItem>
               <PaginationNext
-                href="javascript:void(0)"
+                href={`?page=${Math.min(totalPages, currentPage + 1)}`}
                 onClick={(e: React_3.MouseEvent<HTMLAnchorElement>) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -2769,12 +2770,14 @@ export default function BlogsPage() {
       );
     }
 
+
   const [activeCategory, setActiveCategory] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: blogsRaw = [], isLoading } = StudentDataHook.usePublicBlogs();
-  const blogs = blogsRaw as unknown as (BlogPublic & {
+  const rawMerged = getMergedBlogs(blogsRaw as any[]);
+  const blogs = rawMerged as unknown as (BlogPublic & {
     slug?: string;
     author?: string;
     excerpt?: string;
@@ -2851,9 +2854,11 @@ export default function BlogsPage() {
 
                       {}
                       <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[20px] lg:justify-end">
-                        <div className="absolute left-1/2 top-[20px] h-[260px] w-[300px] -translate-x-1/2 rotate-[10deg] rounded-[20px] bg-yellow-400 lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
                         <img
-                          src="/images/F-img.webp"
+                          src="/images/hero-success-stories.jpg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/hero-success-stories.jpg";
+                          }}
                           alt="Success Story Hero"
                           className="relative z-10 aspect-[4/3] w-full max-w-[450px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[500px]"
                         />

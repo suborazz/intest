@@ -10,6 +10,8 @@ function formatRoleName(role: string): string {
       return "Instructor / Mentor";
     case "IMMERSION_USER":
       return "Immersion Participant";
+    case "RECRUIT_USER":
+      return "Job Applicant / Recruiter";
     case "SUPER_ADMIN":
       return "Super Admin";
     default:

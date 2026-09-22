@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React_2 from "react";
-import { Briefcase as Briefcase_2, Building as Building_2, Eye, EyeOff, GraduationCap as GraduationCap_2, Lock, Mail as Mail_2, Phone, Presentation as Presentation_2, User } from "lucide-react";
+import { Briefcase as Briefcase_2, Building as Building_2, Eye, EyeOff, GraduationCap as GraduationCap_2, Lock, Mail as Mail_2, Phone, Presentation as Presentation_2, User, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,7 @@ import * as LabelPrimitive_2 from "@radix-ui/react-label";
 import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext } from "react-hook-form";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
+import { RegistrationFlyerModal } from "@/components/registration/RegistrationFlyerModal";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -252,29 +253,43 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
-  const input = (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
-        Icon && "pl-8",
-        className,
-      )}
-      {...props}
-    />
-  );
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, icon: Icon, id, ...props }, ref) => {
+    if (Icon) {
+      return (
+        <div className="relative flex w-full items-center">
+          <Icon className="text-muted-foreground pointer-events-none absolute left-2.5 size-4" />
+          <input
+            ref={ref}
+            id={id}
+            type={type}
+            data-slot="input"
+            className={cn(
+              "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border pl-8 pr-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+              className,
+            )}
+            {...props}
+          />
+        </div>
+      );
+    }
 
-  if (!Icon) return input;
-
-  return (
-    <div className="relative flex w-full items-center">
-      <Icon className="text-muted-foreground pointer-events-none absolute left-2.5 size-4" />
-      {input}
-    </div>
-  );
-}
+    return (
+      <input
+        ref={ref}
+        id={id}
+        type={type}
+        data-slot="input"
+        className={cn(
+          "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
+Input.displayName = "Input";
 type TMutationOptions<
       TData,
       TError = Error,
@@ -1036,8 +1051,13 @@ export default function SignUpPage() {
       };
 
       return (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <>
+          <RegistrationFlyerModal
+            initialRole={form.watch("role") || defaultRole}
+            onSelectRole={(selectedRole) => form.setValue("role", selectedRole as any)}
+          />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {}
             <FormField
               control={form.control}
@@ -1096,13 +1116,15 @@ export default function SignUpPage() {
               )}
             />
 
-            {}
+            {/* Role Selection */}
             <FormField
               control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem className="space-y-1.5">
-                  <FormLabel>Register as*</FormLabel>
+                  <span className="text-foreground ml-1 flex items-center text-[0.75rem] font-semibold uppercase">
+                    Register as<span className="text-destructive ml-0.5 text-sm font-semibold">*</span>
+                  </span>
                   <FormControl>
                     <div className="grid grid-cols-2 gap-2.5">
                       {rolesList.map((r) => {
@@ -1142,13 +1164,13 @@ export default function SignUpPage() {
             />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {}
+              {/* Password */}
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem className="space-y-1.5">
-                    <FormLabel>Create Password*</FormLabel>
+                    <FormLabel>Create Password</FormLabel>
                     <div className="relative">
                       <FormControl>
                         <Input
@@ -1179,13 +1201,13 @@ export default function SignUpPage() {
                 )}
               />
 
-              {}
+              {/* Confirm Password */}
               <FormField
                 control={form.control}
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem className="space-y-1.5">
-                    <FormLabel>Confirm Password*</FormLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <div className="relative">
                       <FormControl>
                         <Input
@@ -1217,7 +1239,7 @@ export default function SignUpPage() {
               />
             </div>
 
-            {}
+            {/* Terms and Conditions */}
             <FormField
               control={form.control}
               name="agreeTerms"
@@ -1231,7 +1253,7 @@ export default function SignUpPage() {
                     />
                   </FormControl>
                   <div className="space-y-1">
-                    <FormLabel className="text-muted-foreground flex cursor-pointer select-none flex-wrap items-center gap-x-1 gap-y-0.5">
+                    <div className="text-muted-foreground flex select-none flex-wrap items-center gap-x-1 gap-y-0.5 text-xs">
                       <span>I agree to the</span>
                       <Link
                         href="/internship-policy"
@@ -1253,7 +1275,7 @@ export default function SignUpPage() {
                       >
                         Privacy Policy.
                       </Link>
-                    </FormLabel>
+                    </div>
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -1273,8 +1295,9 @@ export default function SignUpPage() {
             </Button>
           </form>
         </Form>
-      );
-    };
+      </>
+    );
+  };
 
   return (
     <div className="bg-background text-foreground flex min-h-screen w-full flex-col font-sans md:flex-row">
@@ -1283,7 +1306,7 @@ export default function SignUpPage() {
         {}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/auth-bg.png"
+            src="/images/auth-banner.webp"
             alt="Secure Authentication Background"
             fill
             priority
@@ -1293,12 +1316,11 @@ export default function SignUpPage() {
           <div className="absolute inset-0 bg-black/5" />
         </div>
 
-        {}
-        <div className="relative z-10 hidden w-full max-w-md rounded-2xl border border-white/15 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-xl transition-all hover:border-white/25 md:block">
+        {/* Center Quote/Testimonial Card */}
+        <div className="relative z-10 hidden w-full max-w-md rounded-2xl border border-emerald-500/25 bg-emerald-950/40 p-8 text-white shadow-2xl backdrop-blur-2xl transition-all hover:border-emerald-400/40 md:block">
           <div className="flex flex-col space-y-6">
-            {}
-            <div className="inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/10">
-              <svg className="size-4 fill-white" viewBox="0 0 24 24">
+            <div className="inline-flex size-9 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-300">
+              <svg className="size-4 fill-emerald-400" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-4.765 2.627-4.765 5.986h4.754V21h-9.967zm-11 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-4.765 2.627-4.765 5.986h4.753V21H3.017z" />
               </svg>
             </div>
@@ -1309,11 +1331,11 @@ export default function SignUpPage() {
               and international career paths.&rdquo;
             </p>
 
-            <div className="border-t border-white/10 pt-4">
-              <p className="font-semibold text-white">
+            <div className="border-t border-emerald-500/20 pt-4">
+              <p className="font-semibold text-emerald-300">
                 Registration & Support Group
               </p>
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-emerald-100/70">
                 iiInternship Platform Administration
               </p>
             </div>
@@ -1325,7 +1347,16 @@ export default function SignUpPage() {
       <div className="bg-background relative z-10 -mt-6 flex w-full flex-col justify-center rounded-t-[30px] px-6 pb-8 pt-5 md:mt-0 md:w-1/2 md:rounded-none md:px-12 md:py-8 lg:px-20 xl:px-24">
         {}
         <div className="mx-auto w-full max-w-[400px]">
-          {}
+          <div className="mb-4">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+              <span>Back to Home</span>
+            </Link>
+          </div>
+
           <div className="mb-6 space-y-1 text-center">
             <h1 className="text-foreground text-2xl font-semibold tracking-tight">
               Create an account

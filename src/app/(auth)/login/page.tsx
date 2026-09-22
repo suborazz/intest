@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React_2 from "react";
-import { Eye, EyeOff, Lock, Mail as Mail_2, User } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail as Mail_2, User, AlertCircle, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -2626,8 +2626,13 @@ export default function LoginPage() {
             );
             options?.onSuccess?.(data, variables, context, mutation);
           },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to login.");
+          onError: (error: any, variables, context, mutation) => {
+            const errorMsg =
+              error?.response?.data?.error?.message ||
+              error?.response?.data?.message ||
+              error?.message ||
+              "Invalid email or password. Please try again.";
+            toast.error(errorMsg);
             options?.onError?.(error, variables, context, mutation);
           },
         });
@@ -3658,104 +3663,119 @@ export default function LoginPage() {
 
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
+    const [loginError, setLoginError] = useState<string | null>(null);
+
     const form = useForm<TLogin>({
-            resolver: zodResolver(ZLogin),
-            defaultValues: {
-              email: "student@hilux.com",
-              password: "",
-              rememberMe: false,
-            },
-          });
+      resolver: zodResolver(ZLogin),
+      defaultValues: {
+        email: "",
+        password: "",
+        rememberMe: false,
+      },
+    });
+
     const { mutate: login, isPending } = AuthDataHook.useLogin({
-            onSuccess: async (data) => {
-              console.log("Backend Response:", data);
-              console.log("User Role:", data.data?.user.role);
-              const userRole = data.data?.user.role;
-              const userId = data.data?.user.id ?? "";
+      onSuccess: async (data) => {
+        setLoginError(null);
+        console.log("Backend Response:", data);
+        console.log("User Role:", data.data?.user.role);
+        const userRole = data.data?.user.role;
+        const userId = data.data?.user.id ?? "";
 
-              const checkAndRedirect = async (
-                serviceCall: () => Promise<any>,
-                storageKey: string,
-                dashboardPath: string,
-                registrationPath: string,
-                errorLogMsg: string,
-                isRegistered: (data: any) => boolean = (data) =>
-                  Array.isArray(data) ? data.length > 0 : !!data,
-              ) => {
-                try {
-                  const res = await serviceCall();
-                  if (res?.success && isRegistered(res.data)) {
-                    localStorage.setItem(storageKey, "true");
-                    router.replace(dashboardPath);
-                  } else {
-                    localStorage.removeItem(storageKey);
-                    router.replace(registrationPath);
-                  }
-                } catch (error: any) {
-                  if (
-                    (error as { response?: { status?: number } })?.response?.status ===
-                    404
-                  ) {
-                    localStorage.removeItem(storageKey);
-                    router.replace(registrationPath);
-                    return;
-                  }
-                  console.error(errorLogMsg, error);
-                  const isComplete = localStorage.getItem(storageKey) === "true";
-                  router.replace(isComplete ? dashboardPath : registrationPath);
-                }
-              };
+        const checkAndRedirect = async (
+          serviceCall: () => Promise<any>,
+          storageKey: string,
+          dashboardPath: string,
+          registrationPath: string,
+          errorLogMsg: string,
+          isRegistered: (data: any) => boolean = (data) =>
+            Array.isArray(data) ? data.length > 0 : !!data,
+        ) => {
+          try {
+            const res = await serviceCall();
+            if (res?.success && isRegistered(res.data)) {
+              localStorage.setItem(storageKey, "true");
+              router.replace(dashboardPath);
+            } else {
+              localStorage.removeItem(storageKey);
+              router.replace(registrationPath);
+            }
+          } catch (error: any) {
+            if (
+              (error as { response?: { status?: number } })?.response?.status ===
+              404
+            ) {
+              localStorage.removeItem(storageKey);
+              router.replace(registrationPath);
+              return;
+            }
+            console.error(errorLogMsg, error);
+            const isComplete = localStorage.getItem(storageKey) === "true";
+            router.replace(isComplete ? dashboardPath : registrationPath);
+          }
+        };
 
-              if (userRole === "STUDENT") {
-                await checkAndRedirect(
-                  StudentRegistrationService.getMyRegistration,
-                  `student_registration_complete_${userId}`,
-                  "/student/dashboard",
-                  "/student/registration",
-                  "Failed to fetch student registration status:",
-                );
-              } else if (userRole === "INSTRUCTOR") {
-                await checkAndRedirect(
-                  InstructorService.getMyRegistration,
-                  `instructor_registration_complete_${userId}`,
-                  "/instructor/dashboard",
-                  "/instructor/registration",
-                  "Failed to fetch instructor registration status:",
-                );
-              } else if (userRole === "IMMERSION_USER") {
-                await checkAndRedirect(
-                  EmersionService.getMyApplication,
-                  `immersion_registration_complete_${userId}`,
-                  "/immersion/dashboard",
-                  "/immersion/registration",
-                  "Failed to fetch immersion registration status:",
-                            (data) => {
-                    const app = pickPrimaryImmersionApplication(
-                      Array.isArray(data) ? data : data ? [data] : [],
-                    );
-                    return !!app && app.status !== "DRAFT";
-                  },
-                );
-              } else if (userRole === "RECRUIT_USER") {
-                await checkAndRedirect(
-                  RecruitService.getMyProfile,
-                  `recruit_registration_complete_${userId}`,
-                  "/recruit/dashboard",
-                  "/recruit/registration",
-                  "Failed to fetch recruitment profile status:",
-                                                (data) => !!data && !!(data as { id?: string }).id,
-                );
-              } else if (userRole === "SUPER_ADMIN")
-                router.replace("/super-admin/dashboard");
-              else router.replace("/");
+        if (userRole === "STUDENT") {
+          await checkAndRedirect(
+            StudentRegistrationService.getMyRegistration,
+            `student_registration_complete_${userId}`,
+            "/student/dashboard",
+            "/student/registration",
+            "Failed to fetch student registration status:",
+          );
+        } else if (userRole === "INSTRUCTOR") {
+          await checkAndRedirect(
+            InstructorService.getMyRegistration,
+            `instructor_registration_complete_${userId}`,
+            "/instructor/dashboard",
+            "/instructor/registration",
+            "Failed to fetch instructor registration status:",
+          );
+        } else if (userRole === "IMMERSION_USER") {
+          await checkAndRedirect(
+            EmersionService.getMyApplication,
+            `immersion_registration_complete_${userId}`,
+            "/immersion/dashboard",
+            "/immersion/registration",
+            "Failed to fetch immersion registration status:",
+            (data) => {
+              const app = pickPrimaryImmersionApplication(
+                Array.isArray(data) ? data : data ? [data] : [],
+              );
+              return !!app && app.status !== "DRAFT";
             },
-          });
+          );
+        } else if (userRole === "RECRUIT_USER") {
+          await checkAndRedirect(
+            RecruitService.getMyProfile,
+            `recruit_registration_complete_${userId}`,
+            "/recruit/dashboard",
+            "/recruit/registration",
+            "Failed to fetch recruitment profile status:",
+            (data) => !!data && !!(data as { id?: string }).id,
+          );
+        } else if (userRole === "SUPER_ADMIN")
+          router.replace("/super-admin/dashboard");
+        else router.replace("/");
+      },
+      onError: (error: any) => {
+        const errorMsg =
+          error?.response?.data?.error?.message ||
+          error?.response?.data?.message ||
+          error?.message ||
+          "Invalid email or password. Please try again.";
+        setLoginError(errorMsg);
+        toast.error(errorMsg);
+      },
+    });
+
     const onSubmit = async (values: TLogin) => {
-            login({
-              email: values.email,
-              password: values.password,
-            });
-          };
+      setLoginError(null);
+      login({
+        email: values.email,
+        password: values.password,
+      });
+    };
 
 
   return (
@@ -3765,7 +3785,7 @@ export default function LoginPage() {
         {}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/auth-bg.png"
+            src="/images/auth-banner.webp"
             alt="Secure Authentication Background"
             fill
             priority
@@ -3775,12 +3795,11 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-black/5" />
         </div>
 
-        {}
-        <div className="relative z-10 hidden w-full max-w-md rounded-2xl border border-white/15 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-xl transition-all hover:border-white/25 md:block">
+        {/* Center Quote/Testimonial Card */}
+        <div className="relative z-10 hidden w-full max-w-md rounded-2xl border border-emerald-500/25 bg-emerald-950/40 p-8 text-white shadow-2xl backdrop-blur-2xl transition-all hover:border-emerald-400/40 md:block">
           <div className="flex flex-col space-y-6">
-            {}
-            <div className="inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/10">
-              <svg className="size-4 fill-white" viewBox="0 0 24 24">
+            <div className="inline-flex size-9 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-300">
+              <svg className="size-4 fill-emerald-400" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-4.765 2.627-4.765 5.986h4.754V21h-9.967zm-11 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-4.765 2.627-4.765 5.986h4.753V21H3.017z" />
               </svg>
             </div>
@@ -3791,10 +3810,10 @@ export default function LoginPage() {
               experience, and unlock worldwide opportunities.&rdquo;
             </p>
 
-            <div className="border-t border-white/10 pt-4">
-              <p className="font-semibold text-white">Global Placement Cell</p>
-              <p className="text-xs text-white/60">
-                International Institute of Internship
+            <div className="border-t border-emerald-500/20 pt-4">
+              <p className="font-semibold text-emerald-300">Global Placement Cell</p>
+              <p className="text-xs text-emerald-100/70">
+                International Institute of Internship™
               </p>
             </div>
           </div>
@@ -3805,7 +3824,16 @@ export default function LoginPage() {
       <div className="bg-background relative z-10 -mt-6 flex w-full flex-col justify-center rounded-t-[30px] px-6 pb-8 pt-5 md:mt-0 md:w-1/2 md:rounded-none md:px-12 md:py-8 lg:px-20 xl:px-24">
         {}
         <div className="mx-auto w-full max-w-[400px]">
-          {}
+          <div className="mb-4">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+              <span>Back to Home</span>
+            </Link>
+          </div>
+
           <div className="mb-6 space-y-1 text-center">
             <h1 className="text-foreground text-2xl font-semibold tracking-tight">
               Welcome back
@@ -3816,9 +3844,15 @@ export default function LoginPage() {
           </div>
 
           <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                              {}
-                              <FormField
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              {loginError && (
+                <div className="flex items-start gap-2.5 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-semibold text-red-600 dark:text-red-400 animate-in fade-in duration-200">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  <span className="leading-snug">{loginError}</span>
+                </div>
+              )}
+              {}
+              <FormField
                                 control={form.control}
                                 name="email"
                                 render={({ field }) => (

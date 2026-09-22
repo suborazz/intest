@@ -1363,6 +1363,7 @@ interface InternshipHeroProps {
         categoryLabel: string;
         department?: string;
         companyName: string;
+        imageUrl?: string | null;
       };
       setIsOpen: (open: boolean) => void;
     }
@@ -3173,7 +3174,18 @@ export default function InternshipDetailPage() {
       setIsOpen,
     }: InternshipHeroProps) => {
       return (
-        <div className="relative mb-4 py-2">
+        <div className="relative mb-6 py-2">
+          {internship.imageUrl && (
+            <div className="relative mb-6 w-full overflow-hidden rounded-2xl border border-border/40 shadow-sm">
+              <div className="aspect-16/9 sm:aspect-21/9 max-h-72 w-full overflow-hidden bg-muted/40">
+                <img
+                  src={internship.imageUrl}
+                  alt={internship.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+          )}
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div className="flex-1 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -3540,6 +3552,7 @@ export default function InternshipDetailPage() {
     fee: foundRaw.price ? `₹${foundRaw.price.toLocaleString()}` : "Free",
     categoryLabel,
     typeLabel,
+    imageUrl: (foundRaw as unknown as { imageUrl?: string | null }).imageUrl || null,
     timePeriod:
       (foundRaw as unknown as Record<string, string>).timePeriod ||
       "Non-Residential",

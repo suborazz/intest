@@ -1251,11 +1251,10 @@ const HeroSection_23 = () => {
             </div>
 
             <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[60px] lg:justify-end xl:translate-y-[80px]">
-              <div className="absolute left-1/2 top-[20px] h-[260px] w-[300px] -translate-x-1/2 rotate-[10deg] rounded-[20px] bg-yellow-400 lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
               <img
-                src="/images/Breadcrum-iit.webp"
+                src="/images/hero-edu-partners-v2.jpg"
                 alt="Educational Institutes"
-                className="relative z-10 w-full max-w-[500px] lg:max-w-[550px]"
+                className="relative z-10 aspect-[4/3] w-full max-w-[500px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[550px]"
               />
             </div>
           </div>
@@ -2216,7 +2215,7 @@ export default function EducationalInstitutesPage() {
                 >
                   <div className="relative h-[150px] w-full overflow-hidden bg-transparent p-2 pb-0">
                     <img
-                      src={institute.photoUrl || "/images/Breadcrum-iit.webp"}
+                      src={institute.photoUrl || "/images/hero-edu-partners-v2.jpg"}
                       alt={institute.name}
                       className="h-full w-full rounded-xl object-cover transition-transform duration-500 group-hover:scale-105"
                     />

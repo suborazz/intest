@@ -178,7 +178,6 @@ const HeroSection_8: React_2.FC<HeroSectionProps> = ({
 
               {}
               <div className="relative mt-8 flex justify-center lg:mt-0 lg:justify-end">
-                <div className="absolute left-1/2 top-[10px] z-[1] h-[140px] w-[220px] -translate-x-1/2 rotate-[12deg] rounded-[20px] bg-gradient-to-br from-[#ffd700] to-[#ffea70] md:top-[20px] md:h-[180px] md:w-[300px] lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
 
                 <img
                   src={imageSrc}
@@ -370,7 +369,7 @@ export default function FaqsPage() {
         }
         breadcrumbCurrent="FAQs"
         subtitle="Answers to common questions about our internships, eligibility, fees, certificates, and application process."
-        imageSrc="/images/Breadcrum-iit.webp"
+        imageSrc="/images/hero-faqs.jpg"
         imageAlt="Frequently Asked Questions"
       />
 
@@ -430,10 +429,10 @@ export default function FaqsPage() {
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium">
             <a
-              href="tel:+919472352693"
+              href="tel:+919472351693"
               className="text-primary hover:underline"
             >
-              +91 9472352693
+              +91 9472351693
             </a>
             <a
               href="mailto:i3.office2025@gmail.com"

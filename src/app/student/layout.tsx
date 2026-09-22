@@ -669,7 +669,7 @@ export default function StudentLayout({
           {}
           <div className="absolute inset-0 z-0">
             <Image
-              src="/images/auth-bg.png"
+              src="/images/auth-banner.webp"
               alt="Secure Registration Background"
               fill
               priority

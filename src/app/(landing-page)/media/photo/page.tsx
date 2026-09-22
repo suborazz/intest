@@ -2357,12 +2357,12 @@ export default function PhotoPage() {
                 >
                   <div
                     onClick={() => setSelectedPhoto(photo.imageUrl || null)}
-                    className={`relative shrink-0 overflow-hidden bg-slate-900 cursor-pointer ${viewMode === "grid" ? "aspect-[16/10] w-full" : "w-full sm:w-64 min-h-[160px]"}`}
+                    className={`relative shrink-0 overflow-hidden bg-slate-900 cursor-pointer ${viewMode === "grid" ? "aspect-[4/3] w-full" : "w-full sm:w-72 min-h-[190px]"}`}
                   >
                     <img
                       src={photo.imageUrl}
                       alt={photo.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
                       <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#0A5C36]/90 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold shadow-sm">
@@ -2486,9 +2486,12 @@ export default function PhotoPage() {
 
           <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[40px] lg:justify-end">
             <img
-              src="/images/Breadcrum-iit.webp"
+              src="/images/hero-media-room.jpg"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/images/hero-media-room.jpg";
+              }}
               alt="Media Cover"
-              className="relative z-10 w-full max-w-[420px] lg:max-w-[480px]"
+              className="relative z-10 aspect-[4/3] w-full max-w-[420px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[480px]"
             />
           </div>
         </div>

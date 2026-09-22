@@ -3832,6 +3832,13 @@ export default function RegistrationPage() {
     setCurrentStep(1);
     toast.info("You can now update your registration profile fields.");
   };
+  const formRef = useRef<HTMLDivElement>(null);
+  const scrollToForm = () => {
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const handleBackToDashboard = () => {
     router.replace("/student/dashboard");
   };
@@ -3847,8 +3854,7 @@ export default function RegistrationPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl py-4">
-      {}
+    <div className="mx-auto w-full max-w-6xl py-4 space-y-8">
       {isFinalSubmitted ? (
         <RegistrationPreview_4
           studentData={form.getValues()}
@@ -3859,65 +3865,63 @@ export default function RegistrationPage() {
           handleBackToDashboard={handleBackToDashboard}
         />
       ) : (
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h1 className="text-foreground text-2xl font-bold tracking-tight md:text-3xl">
-              Student Registration
-            </h1>
-            <p className="text-muted-foreground text-xs md:text-sm">
-              Please complete your student profile registration details.
-            </p>
+        <div ref={formRef} id="registration-form-section" className="space-y-6 pt-4">
+            <div className="space-y-1">
+              <h1 className="text-foreground text-2xl font-bold tracking-tight md:text-3xl">
+                Student Registration Form
+              </h1>
+              <p className="text-muted-foreground text-xs md:text-sm">
+                Please complete your student profile registration details below.
+              </p>
+            </div>
+
+            <StepIndicator_4 currentStep={currentStep} stepsInfo={stepsInfo} />
+
+            <div className="bg-card/80 border-border/60 rounded-2xl border px-4 py-4 shadow-xl backdrop-blur-md transition-all duration-300 hover:shadow-2xl sm:p-6 md:p-8">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
+                  {currentStep === 1 && (
+                    <StepBasicProfile
+                      sameAsLocal={sameAsLocal}
+                      onNext={handleNextStep}
+                    />
+                  )}
+
+                  {currentStep === 2 && (
+                    <StepAcademicDetails
+                      academicFields={academicFields}
+                      removeAcademic={removeAcademic}
+                      tempAcademic={tempAcademic}
+                      setTempAcademic={setTempAcademic}
+                      handleAddAcademic={handleAddAcademic}
+                      qualificationsList={qualificationsList_2}
+                      onNext={handleNextStep}
+                      onPrev={handlePrevStep}
+                    />
+                  )}
+
+                  {currentStep === 3 && (
+                    <StepSkills onNext={handleNextStep} onPrev={handlePrevStep} />
+                  )}
+
+                  {currentStep === 4 && (
+                    <StepDocuments_4
+                      photoPreview={photoPreview}
+                      signaturePreview={signaturePreview}
+                      handleFileChange={handleFileChange}
+                      onPrev={handlePrevStep}
+                      isPending={
+                        submitMutation.isPending || updateMutation.isPending
+                      }
+                    />
+                  )}
+                </form>
+              </Form>
+            </div>
           </div>
-
-          {}
-          <StepIndicator_4 currentStep={currentStep} stepsInfo={stepsInfo} />
-
-          {}
-          <div className="bg-card/80 border-border/60 rounded-2xl border px-4 py-4 shadow-xl backdrop-blur-md transition-all duration-300 hover:shadow-2xl sm:p-6 md:p-8">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8"
-              >
-                {currentStep === 1 && (
-                  <StepBasicProfile
-                    sameAsLocal={sameAsLocal}
-                    onNext={handleNextStep}
-                  />
-                )}
-
-                {currentStep === 2 && (
-                  <StepAcademicDetails
-                    academicFields={academicFields}
-                    removeAcademic={removeAcademic}
-                    tempAcademic={tempAcademic}
-                    setTempAcademic={setTempAcademic}
-                    handleAddAcademic={handleAddAcademic}
-                    qualificationsList={qualificationsList_2}
-                    onNext={handleNextStep}
-                    onPrev={handlePrevStep}
-                  />
-                )}
-
-                {currentStep === 3 && (
-                  <StepSkills onNext={handleNextStep} onPrev={handlePrevStep} />
-                )}
-
-                {currentStep === 4 && (
-                  <StepDocuments_4
-                    photoPreview={photoPreview}
-                    signaturePreview={signaturePreview}
-                    handleFileChange={handleFileChange}
-                    onPrev={handlePrevStep}
-                    isPending={
-                      submitMutation.isPending || updateMutation.isPending
-                    }
-                  />
-                )}
-              </form>
-            </Form>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -87,7 +87,6 @@ const HeroSection_8: React_2.FC<HeroSectionProps> = ({
 
               {}
               <div className="relative mt-8 flex justify-center lg:mt-0 lg:justify-end">
-                <div className="absolute left-1/2 top-[10px] z-[1] h-[140px] w-[220px] -translate-x-1/2 rotate-[12deg] rounded-[20px] bg-gradient-to-br from-[#ffd700] to-[#ffea70] md:top-[20px] md:h-[180px] md:w-[300px] lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
 
                 <img
                   src={imageSrc}
@@ -193,7 +192,7 @@ export default function ImmersionPage() {
         }
         breadcrumbCurrent="Immersion"
         subtitle="Experience real-world training with our purposeful, structured, and skill-based immersion programs."
-        imageSrc="/images/Breadcrum-iit.webp"
+        imageSrc="/images/hero-immersion.jpg"
         imageAlt="Internships & Immersion"
       />
 

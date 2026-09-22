@@ -926,7 +926,7 @@ function ResetPasswordContent() {
         {}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/auth-bg.png"
+            src="/images/auth-banner.webp"
             alt="Secure Authentication Background"
             fill
             priority
@@ -936,11 +936,11 @@ function ResetPasswordContent() {
           <div className="absolute inset-0 bg-black/5" />
         </div>
 
-        {}
-        <div className="relative z-10 hidden w-full max-w-md rounded-2xl border border-white/15 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-xl transition-all hover:border-white/25 md:block">
+        {/* Center Quote/Testimonial Card */}
+        <div className="relative z-10 hidden w-full max-w-md rounded-2xl border border-emerald-500/25 bg-emerald-950/40 p-8 text-white shadow-2xl backdrop-blur-2xl transition-all hover:border-emerald-400/40 md:block">
           <div className="flex flex-col space-y-6">
-            <div className="inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/10">
-              <svg className="size-4 fill-white" viewBox="0 0 24 24">
+            <div className="inline-flex size-9 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-300">
+              <svg className="size-4 fill-emerald-400" viewBox="0 0 24 24">
                 <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
               </svg>
             </div>
@@ -951,10 +951,10 @@ function ResetPasswordContent() {
               times.&rdquo;
             </p>
 
-            <div className="border-t border-white/10 pt-4">
-              <p className="font-semibold text-white">Global Placement Cell</p>
-              <p className="text-xs text-white/60">
-                International Institute of Internship
+            <div className="border-t border-emerald-500/20 pt-4">
+              <p className="font-semibold text-emerald-300">Global Placement Cell</p>
+              <p className="text-xs text-emerald-100/70">
+                International Institute of Internship™
               </p>
             </div>
           </div>

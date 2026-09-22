@@ -69,13 +69,6 @@ const HeroSection_8: React_2.FC<HeroSectionProps> = ({
                       🏠 Home
                     </Link_2>
                     <span>/</span>
-                    <Link_2
-                      href="/about"
-                      className="transition-colors hover:text-[#ffd700]"
-                    >
-                      About Us
-                    </Link_2>
-                    <span>/</span>
                     <span className="text-[#ffd700]">{breadcrumbCurrent}</span>
                   </div>
 
@@ -87,7 +80,6 @@ const HeroSection_8: React_2.FC<HeroSectionProps> = ({
 
               {}
               <div className="relative mt-8 flex justify-center lg:mt-0 lg:justify-end">
-                <div className="absolute left-1/2 top-[10px] z-[1] h-[140px] w-[220px] -translate-x-1/2 rotate-[12deg] rounded-[20px] bg-gradient-to-br from-[#ffd700] to-[#ffea70] md:top-[20px] md:h-[180px] md:w-[300px] lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
 
                 <img
                   src={imageSrc}
@@ -113,9 +105,9 @@ const HeroSection_8: React_2.FC<HeroSectionProps> = ({
     };
 
 const otherPolicyData = `
-# Other Policies
+## Other Policies
 
-## Certificate Verification Policy, Code of Conduct & Disclaimer
+### Certificate Verification Policy, Code of Conduct & Disclaimer
 
 **International Institute of Internship [i3]**  
 A Unit of  
@@ -261,8 +253,8 @@ export default function OtherPolicyPage() {
         }
         breadcrumbCurrent="Other Policies"
         subtitle="Certificate Verification Policy, Code of Conduct, and Disclaimer details."
-        imageSrc="/images/Breadcrum-iit.webp"
-        imageAlt="Students learning"
+        imageSrc="/images/hero-legal-policies.jpg"
+        imageAlt="Other Policies"
       />
 
       <article className="mx-auto max-w-4xl px-6 pb-24 pt-2">

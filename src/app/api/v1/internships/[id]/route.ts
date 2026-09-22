@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import type { InternshipMode, InternshipType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
+import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
 
 interface ApiErrorResponse {
@@ -151,7 +152,10 @@ const createInternshipSchema = z.object({
   duration: z.string().min(1, "Duration is required"),
   startDate: z.coerce.date().optional(),
   onboardingDetails: z.string().optional(),
-  instructorId: z.string().cuid("Invalid Instructor ID").optional().nullable(),
+  instructorId: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  imagePublicId: z.string().optional().nullable(),
+  imageBase64: z.string().optional().nullable(),
 });
 
 const updateInternshipSchema = createInternshipSchema.partial();
@@ -351,29 +355,55 @@ export async function PATCH(
       );
     }
 
-        if (data.instructorId !== undefined && data.instructorId !== null) {
-      const instructor = await prisma.user.findFirst({
-        where: {
-          id: data.instructorId,
-          role: "INSTRUCTOR",
-          deletedAt: null,
-          instructorProfile: { isApproved: true },
-        },
-      });
-
-      if (!instructor) {
-        return errorResponse(
-          "VALIDATION_ERROR",
-          "The specified instructor does not exist, is not a instructor (INSTRUCTOR), or is not yet verified/approved by Super Admin.",
-          {
-            status: HTTP_2.UNPROCESSABLE,
-            details: {
-              instructorId: [
-                "Invalid instructor selected. Must be a verified/approved INSTRUCTOR.",
-              ],
-            },
+        let finalInstructorId: string | null | undefined = undefined;
+    if (data.instructorId !== undefined) {
+      if (!data.instructorId || data.instructorId === "none" || data.instructorId === "null") {
+        finalInstructorId = null;
+      } else {
+        let targetUserId = data.instructorId;
+        let instructor = await prisma.user.findFirst({
+          where: {
+            id: targetUserId,
+            role: "INSTRUCTOR",
+            deletedAt: null,
           },
-        );
+        });
+
+        if (!instructor) {
+          const reg = await prisma.instructorRegistration.findFirst({
+            where: {
+              OR: [{ id: data.instructorId }, { instructorId: data.instructorId }],
+              deletedAt: null,
+            },
+            select: { userId: true },
+          });
+          if (reg?.userId) {
+            targetUserId = reg.userId;
+            instructor = await prisma.user.findFirst({
+              where: {
+                id: targetUserId,
+                role: "INSTRUCTOR",
+                deletedAt: null,
+              },
+            });
+          }
+        }
+
+        if (!instructor) {
+          return errorResponse(
+            "VALIDATION_ERROR",
+            "The specified instructor does not exist or is not an active instructor.",
+            {
+              status: HTTP_2.UNPROCESSABLE,
+              details: {
+                instructorId: [
+                  "Invalid instructor selected. Must be an active INSTRUCTOR.",
+                ],
+              },
+            },
+          );
+        }
+        finalInstructorId = targetUserId;
       }
     }
 
@@ -393,12 +423,42 @@ export async function PATCH(
       ...(data.onboardingDetails !== undefined
         ? { onboardingDetails: data.onboardingDetails }
         : {}),
-      ...(data.instructorId !== undefined
-        ? data.instructorId
-          ? { instructor: { connect: { id: data.instructorId } } }
+      ...(finalInstructorId !== undefined
+        ? finalInstructorId
+          ? { instructor: { connect: { id: finalInstructorId } } }
           : { instructor: { disconnect: true } }
         : {}),
     };
+
+    const existingAny = existing as unknown as { imagePublicId?: string | null };
+    const updateDataAny = updateData as unknown as { imageUrl?: string | null; imagePublicId?: string | null };
+
+    if (data.imageBase64 && data.imageBase64.startsWith("data:")) {
+      try {
+        const uploadRes = await cloudinary.uploader.upload(data.imageBase64, {
+          folder: "internships",
+          resource_type: "image",
+        });
+        updateDataAny.imageUrl = uploadRes.secure_url;
+        updateDataAny.imagePublicId = uploadRes.public_id;
+
+        if (existingAny.imagePublicId) {
+          cloudinary.uploader.destroy(existingAny.imagePublicId).catch(() => {});
+        }
+      } catch (uploadErr) {
+        console.error("[Cloudinary Internship Update Upload Error]", uploadErr);
+      }
+    } else if (data.imageUrl !== undefined) {
+      if (!data.imageUrl) {
+        updateDataAny.imageUrl = null;
+        updateDataAny.imagePublicId = null;
+        if (existingAny.imagePublicId) {
+          cloudinary.uploader.destroy(existingAny.imagePublicId).catch(() => {});
+        }
+      } else {
+        updateDataAny.imageUrl = data.imageUrl;
+      }
+    }
 
     if (isInstructor) {
       updateData.isApproved = false;
@@ -484,6 +544,15 @@ export async function DELETE(
           status: HTTP_2.FORBIDDEN,
         },
       );
+    }
+
+    if ((existing as unknown as { imagePublicId?: string | null }).imagePublicId) {
+      cloudinary.uploader
+        .destroy(
+          (existing as unknown as { imagePublicId?: string | null })
+            .imagePublicId!,
+        )
+        .catch(() => {});
     }
 
         await prisma.internship.update({

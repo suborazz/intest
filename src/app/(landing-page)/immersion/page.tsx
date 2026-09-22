@@ -2412,11 +2412,10 @@ export default function ImmersionPage() {
 
                       {}
                       <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[20px] lg:justify-end">
-                        <div className="absolute left-1/2 top-[20px] h-[260px] w-[300px] -translate-x-1/2 rotate-[10deg] rounded-[20px] bg-yellow-400 lg:left-auto lg:right-[60px] lg:translate-x-0"></div>
                         <img
-                          src="/images/immersion-hero.jpg" 
+                          src="/images/hero-immersion.jpg" 
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/images/F-img.webp"; 
+                            (e.target as HTMLImageElement).src = "/images/hero-immersion.jpg"; 
                           }}
                           alt="Immersion Program"
                           className="relative z-10 aspect-[4/3] w-full max-w-[450px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[500px]"
@@ -2473,7 +2472,7 @@ export default function ImmersionPage() {
 
                       <div className="mx-auto flex w-full max-w-lg flex-row items-stretch justify-center gap-2 sm:gap-4">
                         <Link_2
-                          href="/contact"
+                          href="/immersion/registration"
                           className="flex flex-1 items-center justify-center gap-1 rounded-full bg-yellow-400 px-2 py-3 text-[11px] font-bold text-yellow-950 transition-all hover:-translate-y-1 hover:bg-yellow-500 hover:shadow-[0_8px_20px_rgba(250,204,21,0.4)] sm:gap-2 sm:px-6 sm:py-3.5 sm:text-sm md:text-base"
                         >
                           <span className="hidden sm:inline">Apply for Immersion</span>

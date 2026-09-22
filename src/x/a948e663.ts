@@ -47,7 +47,7 @@ const buildConfig = (): AppConfig => ({
     "SMTP_SENDER_EMAIL",
     getEnv("SMTP_USER", "i3.office2025@gmail.com"),
   ),
-  smtpSenderName: getEnv("SMTP_SENDER_NAME", "II Internship"),
+  smtpSenderName: getEnv("SMTP_SENDER_NAME", "International Institute of Internship™"),
   clientUrl: getEnv(
     "NEXT_PUBLIC_CLIENT_URL",
     getEnv("CLIENT_URL", "https://www.iiinternship.in"),

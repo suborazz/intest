@@ -128,6 +128,8 @@ model Internship {
   approvedAt        DateTime?
   startDate         DateTime?
   onboardingDetails String?
+  imageUrl          String?
+  imagePublicId     String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   deletedAt         DateTime?
@@ -1454,4 +1456,20 @@ model SystemSetting {
   value String
 
   @@map("system_settings")
+}
+
+model ContactEnquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  mobile    String?
+  subject   String
+  message   String
+  status    String   @default("PENDING") // PENDING, IN_PROGRESS, RESOLVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
+  @@map("contact_enquiries")
 }

@@ -6662,9 +6662,11 @@ export default function SuperAdminUsersPage() {
             res.data?.message || `Reminder email sent to ${user.email}`,
           );
         } catch (err: unknown) {
+          const apiErr = err as { response?: { data?: { error?: { message?: string }; message?: string } }; message?: string };
           const errMsg =
-            (err as { response?: { data?: { error?: { message?: string } } } })
-              ?.response?.data?.error?.message ||
+            apiErr?.response?.data?.error?.message ||
+            apiErr?.response?.data?.message ||
+            apiErr?.message ||
             "Failed to send reminder email.";
           toast.error(errMsg);
         } finally {
@@ -6879,9 +6881,11 @@ export default function SuperAdminUsersPage() {
             "रिमाइंडर ईमेल सफलतापूर्वक भेज दिए गए।";
           toast.success(message);
         } catch (err: unknown) {
+          const apiErr = err as { response?: { data?: { error?: { message?: string }; message?: string } }; message?: string };
           const errMsg =
-            (err as { response?: { data?: { error?: { message?: string } } } })
-              ?.response?.data?.error?.message ||
+            apiErr?.response?.data?.error?.message ||
+            apiErr?.response?.data?.message ||
+            apiErr?.message ||
             "Failed to send reminder emails.";
           toast.error(errMsg);
         } finally {

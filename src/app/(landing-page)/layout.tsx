@@ -609,7 +609,7 @@ export default function LandingLayout({
   const ListItem = React.forwardRef<
     React.ElementRef<typeof Link>,
     ListItemProps & { href?: string }
-  >(({ className, title, children, icon: Icon, href = "#", ...props }, ref) => {
+  >(({ className, title, children, icon: Icon, href = "/", ...props }, ref) => {
     return (
       <li>
         <NavigationMenuLink asChild>
