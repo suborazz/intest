@@ -212,13 +212,20 @@ export async function GET(
     const requesterId = _request.headers.get("X-User-Id");
     const requesterRole = _request.headers.get("X-User-Role");
 
-        const where: Prisma.InternshipWhereInput = {
+    const where: Prisma.InternshipWhereInput = {
       id: targetId,
       deletedAt: null,
     };
 
     if (requesterRole !== "SUPER_ADMIN") {
-      where.isActive = true;
+      if (requesterRole === "INSTRUCTOR" && requesterId) {
+        where.OR = [
+          { isActive: true },
+          { createdById: requesterId },
+        ];
+      } else {
+        where.isActive = true;
+      }
     }
 
     const internship = await prisma.internship.findFirst({

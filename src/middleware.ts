@@ -312,42 +312,45 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-        if (isProtectedApiRoute(pathname, request.method)) {
-      const authHeader = request.headers.get("Authorization");
-      const token = authHeader?.startsWith("Bearer ")
-        ? authHeader.slice(7).trim()
-        : null;
+    const isProtected = isProtectedApiRoute(pathname, request.method);
+    const authHeader = request.headers.get("Authorization");
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice(7).trim()
+      : null;
 
-      if (!token) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: { code: "UNAUTHORIZED", message: "Authentication required" },
-          },
-          { status: 401, headers: corsHeaders },
-        );
-      }
+    if (!token && isProtected) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { code: "UNAUTHORIZED", message: "Authentication required" },
+        },
+        { status: 401, headers: corsHeaders },
+      );
+    }
 
+    if (token) {
       try {
         const secret = new TextEncoder().encode(
           process.env["JWT_SECRET"] ?? "",
         );
         const { payload } = await jwtVerify(token, secret);
 
-                requestHeaders.set("X-User-Id", String(payload["sub"] ?? ""));
+        requestHeaders.set("X-User-Id", String(payload["sub"] ?? ""));
         requestHeaders.set("X-User-Email", String(payload["email"] ?? ""));
         requestHeaders.set("X-User-Role", String(payload["role"] ?? "STUDENT"));
       } catch {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "INVALID_TOKEN",
-              message: "Token is invalid or expired",
+        if (isProtected) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: {
+                code: "INVALID_TOKEN",
+                message: "Token is invalid or expired",
+              },
             },
-          },
-          { status: 401, headers: corsHeaders },
-        );
+            { status: 401, headers: corsHeaders },
+          );
+        }
       }
     }
 
