@@ -161,6 +161,9 @@ function isProtectedApiRoute(pathname: string, method: string): boolean {
     return true;
   }
   if (pathname.startsWith("/api/v1/notices")) {
+    if (method === "GET") {
+      return false;
+    }
     return true;
   }
   if (pathname.startsWith("/api/v1/immersion")) {
