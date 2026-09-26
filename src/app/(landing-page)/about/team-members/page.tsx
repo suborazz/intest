@@ -148,7 +148,7 @@ export default function TeamMembersPage() {
             Guiding the Next Generation of Global Interns
           </h2>
           <p className="mt-3 text-base text-slate-600 leading-relaxed">
-            The foundation of the International Institute of Internship (i3) is built upon the dedication, expertise, and forward-thinking of its leadership. Our team consists of renowned educators, industry experts, and social activists committed to empowering the youth.
+            The foundation of the International Institute of Internship [i3] is built upon the dedication, expertise, and forward-thinking of its leadership. Our team consists of renowned educators, industry experts, and social activists committed to empowering the youth.
           </p>
         </div>
 

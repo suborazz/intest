@@ -134,7 +134,7 @@ export async function GET(
             }
 
             if (isFirstPage) {
-              doc.fontSize(15).font("Helvetica-Bold").fillColor("#065f46").text("International Institute of Internship (i3)", 35, 24, {
+              doc.fontSize(15).font("Helvetica-Bold").fillColor("#065f46").text("International Institute of Internship [i3]", 35, 24, {
                 align: "center",
                 width: contentWidth,
               });
@@ -148,7 +148,7 @@ export async function GET(
               });
               doc.moveTo(35, 68).lineTo(pageWidth - 35, 68).lineWidth(0.8).stroke("#cbd5e1");
             } else {
-              doc.fontSize(11).font("Helvetica-Bold").fillColor("#065f46").text("International Institute of Internship (i3)", 35, 24, {
+              doc.fontSize(11).font("Helvetica-Bold").fillColor("#065f46").text("International Institute of Internship [i3]", 35, 24, {
                 align: "center",
                 width: contentWidth,
               });
@@ -385,7 +385,7 @@ export async function GET(
           // 9. DECLARATION & OFFICIAL VERIFICATION
           drawSectionHeader("9. DECLARATION & OFFICIAL VERIFICATION");
           doc.fontSize(7.5).font("Helvetica").fillColor("#4b5563").text(
-            "I hereby declare that all information furnished in this Instructor Registration Application Form is true, complete, and accurate. I agree to abide by the rules, regulations, code of conduct, and internship mentorship guidelines of the International Institute of Internship (i3).",
+            "I hereby declare that all information furnished in this Instructor Registration Application Form is true, complete, and accurate. I agree to abide by the rules, regulations, code of conduct, and internship mentorship guidelines of the International Institute of Internship [i3].",
             35,
             currentY,
             { width: contentWidth, align: "justify", lineGap: 1 }
@@ -404,7 +404,7 @@ export async function GET(
           const sealX = pageWidth - margin - signBoxWidth;
           doc.rect(sealX, currentY, signBoxWidth, signBoxHeight).lineWidth(0.6).stroke("#059669");
           doc.fontSize(8).font("Helvetica-Bold").fillColor("#065f46").text("Authorized Signatory & Seal", sealX + 10, currentY + 12);
-          doc.fontSize(7).font("Helvetica").fillColor("#6b7280").text("International Institute of Internship (i3)", sealX + 10, currentY + 30);
+          doc.fontSize(7).font("Helvetica").fillColor("#6b7280").text("International Institute of Internship [i3]", sealX + 10, currentY + 30);
 
           // --- PAGE NUMBERS ---
           const range = doc.bufferedPageRange();

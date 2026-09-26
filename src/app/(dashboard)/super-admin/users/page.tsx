@@ -6825,6 +6825,44 @@ export default function SuperAdminUsersPage() {
         },
       },
       {
+        accessorKey: "createdAt",
+        header: "Registered On",
+        cell: ({ row }) => {
+          const rawDate = row.original.createdAt;
+          if (!rawDate) {
+            return <span className="text-muted-foreground text-xs font-semibold">—</span>;
+          }
+          try {
+            const dateObj = new Date(rawDate);
+            const datePart = dateObj.toLocaleDateString("en-IN", {
+              timeZone: "Asia/Kolkata",
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
+            const timePart = dateObj.toLocaleTimeString("en-IN", {
+              timeZone: "Asia/Kolkata",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            });
+            return (
+              <div className="flex flex-col gap-0.5">
+                <span className="text-foreground flex items-center gap-1.5 text-xs font-semibold">
+                  <Calendar className="text-emerald-600 dark:text-emerald-400 size-3 shrink-0" />
+                  {datePart}
+                </span>
+                <span className="text-muted-foreground pl-4 text-[10px] font-medium">
+                  {timePart}
+                </span>
+              </div>
+            );
+          } catch {
+            return <span className="text-muted-foreground text-xs">{String(rawDate)}</span>;
+          }
+        },
+      },
+      {
         accessorKey: "isActive",
         header: "Active Status",
         cell: ({ row }) => (

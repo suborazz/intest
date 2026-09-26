@@ -66,7 +66,7 @@ export async function GET(
             .fontSize(22)
             .font("Helvetica-Bold")
             .fillColor("#1E3A8A")
-            .text("International Institute of Internship (i3)", {
+            .text("International Institute of Internship [i3]", {
               align: "center",
             });
           doc.moveDown(0.2);

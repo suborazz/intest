@@ -1066,9 +1066,7 @@ export default function SignUpPage() {
                 <FormItem className="space-y-1.5">
                   <FormLabel>Full Name*</FormLabel>
                   <FormControl>
-                    <Input
-                      icon={User}
-                      placeholder="Enter your full name"
+                    <Input id="signup-name-input" icon={User} autoComplete="name" placeholder="Enter your full name"
                       {...field}
                     />
                   </FormControl>
@@ -1084,10 +1082,7 @@ export default function SignUpPage() {
                 <FormItem className="space-y-1.5">
                   <FormLabel>Email ID*</FormLabel>
                   <FormControl>
-                    <Input
-                      icon={Mail_2}
-                      type="email"
-                      placeholder="Enter your email"
+                    <Input id="signup-email-input" icon={Mail_2} type="email" autoComplete="email" placeholder="Enter your email"
                       {...field}
                     />
                   </FormControl>
@@ -1103,11 +1098,7 @@ export default function SignUpPage() {
                 <FormItem className="space-y-1.5">
                   <FormLabel>Mobile Number*</FormLabel>
                   <FormControl>
-                    <Input
-                      icon={Phone}
-                      type="tel"
-                      inputMode="numeric"
-                      placeholder="Enter your 10-digit mobile number"
+                    <Input id="signup-mobile-input" icon={Phone} type="tel" inputMode="numeric" autoComplete="tel" placeholder="Enter your 10-digit mobile number"
                       {...field}
                     />
                   </FormControl>
@@ -1173,10 +1164,7 @@ export default function SignUpPage() {
                     <FormLabel>Create Password</FormLabel>
                     <div className="relative">
                       <FormControl>
-                        <Input
-                          icon={Lock}
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••••••"
+                        <Input id="signup-password-input" icon={Lock} type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••••••"
                           {...field}
                           className="pr-10"
                         />
@@ -1210,10 +1198,7 @@ export default function SignUpPage() {
                     <FormLabel>Confirm Password</FormLabel>
                     <div className="relative">
                       <FormControl>
-                        <Input
-                          icon={Lock}
-                          type={showConfirmPassword ? "text" : "password"}
-                          placeholder="••••••••••••"
+                        <Input id="signup-confirm-password-input" icon={Lock} type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••••••"
                           {...field}
                           className="pr-10"
                         />

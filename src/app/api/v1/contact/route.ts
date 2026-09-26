@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
                 <div style="background: #064e3b; padding: 16px 20px; border-radius: 8px 8px 0 0; color: white;">
-                  <h2 style="margin: 0; font-size: 18px;">International Institute of Internship (i3)</h2>
+                  <h2 style="margin: 0; font-size: 18px;">International Institute of Internship [i3]</h2>
                   <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">New Contact Form Enquiry</p>
                 </div>
                 <div style="padding: 20px 0;">

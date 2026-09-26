@@ -91,7 +91,7 @@ export function RegistrationFlyerModal({
             </div>
             <div>
               <h2 className="text-xs sm:text-sm font-black tracking-tight text-[#0F2942] uppercase leading-tight font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)]">
-                INTERNATIONAL INSTITUTE OF INTERNSHIP™ (i3)
+                INTERNATIONAL INSTITUTE OF INTERNSHIP™ [i3]
               </h2>
               <p className="text-[10px] font-medium text-slate-500">
                 A Unit of DPKHRC Trust

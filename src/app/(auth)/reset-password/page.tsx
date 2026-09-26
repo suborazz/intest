@@ -1003,10 +1003,7 @@ function ResetPasswordContent() {
                       <FormLabel>New Password*</FormLabel>
                       <div className="relative">
                         <FormControl>
-                          <Input
-                            icon={Lock}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••••••"
+                          <Input id="reset-password-input" icon={Lock} type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••••••"
                             {...field}
                             className="pr-10"
                           />
@@ -1037,10 +1034,7 @@ function ResetPasswordContent() {
                       <FormLabel>Confirm New Password*</FormLabel>
                       <div className="relative">
                         <FormControl>
-                          <Input
-                            icon={Lock}
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="••••••••••••"
+                          <Input id="reset-confirm-password-input" icon={Lock} type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••••••"
                             {...field}
                             className="pr-10"
                           />

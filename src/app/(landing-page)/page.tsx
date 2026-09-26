@@ -1694,7 +1694,7 @@ export default function HomePage() {
                 </h2>
 
                 <p className="mt-3 text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl">
-                  International Institute of Internship (i3) — An ISO 21001:2018 Certified Research Institution registered under the Indian Trusts Act, 1882 and NITI Aayog (A unit of DPKHRC Trust). Explore complete guidelines for 300+ internship disciplines, 600+ skill enhancement programs, UGC NEP-2020 credit frameworks, and 100+ global immersion cohorts.
+                  International Institute of Internship [i3] — An ISO 21001:2018 Certified Research Institution registered under the Indian Trusts Act, 1882 and NITI Aayog (A unit of DPKHRC Trust). Explore complete guidelines for 300+ internship disciplines, 600+ skill enhancement programs, UGC NEP-2020 credit frameworks, and 100+ global immersion cohorts.
                 </p>
 
                 {/* Key Points */}

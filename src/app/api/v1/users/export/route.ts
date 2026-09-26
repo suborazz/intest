@@ -53,9 +53,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       { header: "Name", key: "name", width: 28 },
       { header: "Email Address", key: "email", width: 32 },
       { header: "Mobile Number", key: "mobile", width: 18 },
-      { header: "Role", key: "role", width: 22 },
-      { header: "Status", key: "status", width: 14 },
-      { header: "Created At", key: "createdAt", width: 18 },
+      { header: "Role", key: "role", width: 20 },
+      { header: "Profile Status", key: "profileStatus", width: 18 },
+      { header: "Registered On", key: "registeredOn", width: 18 },
+      { header: "Active Status", key: "status", width: 15 },
     ];
     sheet.getRow(1).font = { bold: true };
 
@@ -69,14 +70,48 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             user.recruitProfile?.mobileNo ||
             "—";
 
+      let profileStatus = "N/A";
+      if (user.role === "STUDENT") {
+        profileStatus =
+          user.studentRegistration && !user.studentRegistration.deletedAt
+            ? "Completed"
+            : "Not Created";
+      } else if (user.role === "INSTRUCTOR") {
+        profileStatus =
+          user.instructorRegistration && !user.instructorRegistration.deletedAt
+            ? "Completed"
+            : "Not Created";
+      } else if (user.role === "IMMERSION_USER") {
+        profileStatus = user.immersionParticipantProfile
+          ? "Completed"
+          : "Not Created";
+      } else if (user.role === "RECRUIT_USER") {
+        profileStatus = user.recruitProfile
+          ? "Completed"
+          : "Not Created";
+      }
+
+      let registeredOn = "—";
+      try {
+        registeredOn = user.createdAt.toLocaleDateString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      } catch {
+        registeredOn = user.createdAt.toISOString().split("T")[0] || "—";
+      }
+
       sheet.addRow({
         serialNumber: index + 1,
         name: user.name || "",
         email: user.email,
         mobile: resolvedMobile,
         role: user.role,
+        profileStatus: profileStatus,
+        registeredOn: registeredOn,
         status: user.isActive ? "Active" : "Inactive",
-        createdAt: user.createdAt.toISOString().split("T")[0],
       });
     });
 

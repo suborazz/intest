@@ -266,7 +266,7 @@ export async function GET(
             .fontSize(15)
             .font("Helvetica-Bold")
             .fillColor("#065f46")
-            .text("International Institute of Internship (i3)", 35, headerY, {
+            .text("International Institute of Internship [i3]", 35, headerY, {
               align: "center",
               width: doc.page.width - 70,
             });
@@ -917,7 +917,7 @@ export async function GET(
             .font("Helvetica")
             .fillColor("#94a3b8")
             .text(
-              "Official Internship Application Record from International Institute of Internship (i3).",
+              "Official Internship Application Record from International Institute of Internship [i3].",
               35,
               footerY,
               { align: "center", width: usableWidth },

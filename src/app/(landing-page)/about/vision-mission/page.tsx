@@ -115,7 +115,7 @@ const visionMissionData = `
 ## Our Vision
 ### Shaping Futures Through Experience & Purpose.
 
-The vision of the International Institute of Internship (i3) is to provide young people with experiential learning and meaningful internships that prepare them not just for a job, but for a fulfilling life, leadership, and service to society.
+The vision of the International Institute of Internship [i3] is to provide young people with experiential learning and meaningful internships that prepare them not just for a job, but for a fulfilling life, leadership, and service to society.
 
 **We envision a future where—**
 
@@ -128,7 +128,7 @@ The International Institute of Internship aims to develop young people from Indi
 ## Our Mission
 ### Bridging Education, Skills & Real-World Impact.
 
-The mission of the International Institute of Internship (i3) is to bridge the gap between education and the real world of work—through purposeful, skill-based, and value-centered internships.
+The mission of the International Institute of Internship [i3] is to bridge the gap between education and the real world of work—through purposeful, skill-based, and value-centered internships.
 
 **We pursue our mission with the following commitments—**
 

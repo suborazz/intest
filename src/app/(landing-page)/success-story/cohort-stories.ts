@@ -52,7 +52,7 @@ export const BUILTIN_COHORT_STORIES: BuiltinCohortStory[] = [
       "Over 450+ student interns graduated from our flagship Spring 2026 cohort with direct industry project implementations and recognized credits.",
     summary:
       "Over 450+ student interns graduated from our flagship Spring 2026 cohort with direct industry project implementations and recognized credits.",
-    content: `<p>The <strong>International Institute of Internship (i3)</strong> successfully concluded its Spring 2026 Flagship Cohort, marking an extraordinary milestone in hands-on industry training and experiential education. Over 450+ undergraduate and postgraduate scholars from engineering, management, and research disciplines participated in comprehensive project tracks.</p>
+    content: `<p>The <strong>International Institute of Internship [i3]</strong> successfully concluded its Spring 2026 Flagship Cohort, marking an extraordinary milestone in hands-on industry training and experiential education. Over 450+ undergraduate and postgraduate scholars from engineering, management, and research disciplines participated in comprehensive project tracks.</p>
 <p>Each cohort participant engaged in real-world software architecture, cloud deployments, full-stack microservices, and AI workflow integration guided by senior industry mentors.</p>
 [INTERNSHIP_OVERVIEW]
 <h3>Key Achievements and Real-World Impact</h3>

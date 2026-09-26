@@ -150,7 +150,7 @@ The new National Education Policy (NEP) 2020 has recognized internships as a man
 - Promotion of "Learning by Doing" and "Earn while Learn".
 - A multi-disciplinary and skill-based education system.
 
-All internship programs of the International Institute of Internship (i3) are based on these concepts of NEP 2020.
+All internship programs of the International Institute of Internship [i3] are based on these concepts of NEP 2020.
 
 ## Types of Internships
 ### Types of Internships at i3
@@ -176,7 +176,7 @@ The International Institute of Internship offers over **300+ Internship Programs
 ## Internship at International Institute of Internship
 ### More Than Just Training
 
-Internships at the International Institute of Internship (i3) are not just a formality, but a structured learning process that includes mentorship, guidance, and evaluation.
+Internships at the International Institute of Internship [i3] are not just a formality, but a structured learning process that includes mentorship, guidance, and evaluation.
 
 They have a positive impact on both society and your career.
 
@@ -184,7 +184,7 @@ We believe that—
 
 **An internship is not just preparation for the future, but the first step towards the future.**
 
-## International Institute of Internship (i3)
+## International Institute of Internship [i3]
 **Learning by Doing. Growing with Purpose. Building Careers.**
 
 ### In simple terms:

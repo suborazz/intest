@@ -286,12 +286,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const where: Prisma.InternshipWhereInput = {
       deletedAt: null,
       createdBy: { deletedAt: null },
+      isActive: true,
+      isApproved: true,
     };
-
-    if (requesterRole !== "SUPER_ADMIN") {
-      where.isActive = true;
-      where.isApproved = true;
-    }
     if (type) where.type = type as InternshipType;
     if (mode) where.mode = mode as InternshipMode;
     if (category) where.category = category as InternshipCategory;

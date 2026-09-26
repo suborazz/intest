@@ -1,5 +1,9 @@
 import { Prisma } from "@prisma/client";
-import type { InternshipMode, InternshipType } from "@prisma/client";
+import type {
+  InternshipCategory,
+  InternshipMode,
+  InternshipType,
+} from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { cloudinary } from "@/x/cloudinary";
@@ -425,6 +429,32 @@ export async function PATCH(
       ...(data.location !== undefined ? { location: data.location } : {}),
       ...(data.mode !== undefined ? { mode: data.mode as InternshipMode } : {}),
       ...(data.type !== undefined ? { type: data.type as InternshipType } : {}),
+      ...(data.category !== undefined
+        ? { category: data.category as InternshipCategory }
+        : {}),
+      ...(data.department !== undefined ? { department: data.department } : {}),
+      ...(data.modules !== undefined ? { modules: data.modules } : {}),
+      ...(data.projectFocus !== undefined
+        ? { projectFocus: data.projectFocus }
+        : {}),
+      ...(data.tools !== undefined ? { tools: data.tools } : {}),
+      ...(data.skills !== undefined ? { skills: data.skills } : {}),
+      ...(data.credits !== undefined ? { credits: data.credits } : {}),
+      ...(data.qualification !== undefined
+        ? { qualification: data.qualification }
+        : {}),
+      ...(data.timePeriod !== undefined ? { timePeriod: data.timePeriod } : {}),
+      ...(data.facilities !== undefined ? { facilities: data.facilities } : {}),
+      ...(data.careerOpportunity !== undefined
+        ? { careerOpportunity: data.careerOpportunity }
+        : {}),
+      ...(data.contact !== undefined ? { contact: data.contact } : {}),
+      ...(data.organizer !== undefined ? { organizer: data.organizer } : {}),
+      ...(data.lastDate !== undefined ? { lastDate: data.lastDate } : {}),
+      ...(data.price !== undefined ? { price: finalPrice } : {}),
+      ...(data.stipendAmount !== undefined
+        ? { stipendAmount: finalStipend }
+        : {}),
       ...(data.duration !== undefined ? { duration: data.duration } : {}),
       ...(data.startDate !== undefined ? { startDate: data.startDate } : {}),
       ...(data.onboardingDetails !== undefined

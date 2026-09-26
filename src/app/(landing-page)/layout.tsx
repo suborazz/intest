@@ -1336,7 +1336,7 @@ export default function LandingLayout({
           {/* Bottom Legal Policies & Copyright */}
           <div className="flex flex-col items-center justify-between gap-4 pt-4 text-center md:flex-row md:text-left text-xs text-emerald-200/80">
             <p className="m-0 font-medium">
-              © {new Date().getFullYear()} International Institute of Internship™ (i3). All Rights Reserved.
+              © {new Date().getFullYear()} International Institute of Internship™ [i3]. All Rights Reserved.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <Link

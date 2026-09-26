@@ -116,19 +116,19 @@ const organizationHistoryData = `
 
 ### Our Journey of Vision, Leadership & Experiential Learning.
 
-The **International Institute of Internship (i3)** was established on September 3, 2025, with a vision to empower youth not just through internships/academic certifications, but also through practical experience, skill-based learning, social awareness, and connect them with systematic employment opportunities.
+The **International Institute of Internship [i3]** was established on September 3, 2025, with a vision to empower youth not just through internships/academic certifications, but also through practical experience, skill-based learning, social awareness, and connect them with systematic employment opportunities.
 
-The institute is a flagship unit of the **Divya Prerak Kahaniyan Humanity Research Centre Trust (DPKHRC Trust)**. The DPKHRC Trust has been actively involved in humanities research, the publication of inspirational literature, social upliftment activities, and nation-building. It is within this ideological background that the International Institute of Internship (i3) was born.
+The institute is a flagship unit of the **Divya Prerak Kahaniyan Humanity Research Centre Trust (DPKHRC Trust)**. The DPKHRC Trust has been actively involved in humanities research, the publication of inspirational literature, social upliftment activities, and nation-building. It is within this ideological background that the International Institute of Internship [i3] was born.
 
 ## Founder's Vision
 
 The founder & CMD of the institute is **Dr. Avishek Kumar**, a renowned literary figure, thinker, educator, researcher, and social activist. He believes that education is meaningful when it empowers individuals with self-reliance, sensitivity, and social service.
 
-Under the leadership of **Dr. Avishek Kumar**, the International Institute of Internship (i3) was developed as a platform that connects academic knowledge with real-world work experiences, providing young people with the opportunity to learn, explore, and contribute.
+Under the leadership of **Dr. Avishek Kumar**, the International Institute of Internship [i3] was developed as a platform that connects academic knowledge with real-world work experiences, providing young people with the opportunity to learn, explore, and contribute.
 
 ## Inspiration & Guiding Thought
 
-**Mr. Tapas Kumar** (CEO, Learnify Consultancy, Lucknow) played an inspiring role in shaping the vision of the International Institute of Internship (i3). His ideas and encouragement paved the way for creating opportunities, developing skills, and fostering a global perspective for students. He always emphasized that internships should not be merely training, but a process of character and personality development, discipline, and professional understanding. His inspiration will always live on in the work culture of the International Institute of Internship.
+**Mr. Tapas Kumar** (CEO, Learnify Consultancy, Lucknow) played an inspiring role in shaping the vision of the International Institute of Internship [i3]. His ideas and encouragement paved the way for creating opportunities, developing skills, and fostering a global perspective for students. He always emphasized that internships should not be merely training, but a process of character and personality development, discipline, and professional understanding. His inspiration will always live on in the work culture of the International Institute of Internship.
 
 ## Alignment with National Education Policy 2020.
 
@@ -138,7 +138,7 @@ The new National Education Policy (NEP) 2020 has given internships and experient
 - Students should be connected to real-world work experience, fieldwork, research, and internships.
 - "Earn while learning" and learning by doing should be promoted.
 
-The **International Institute of Internship (i3)** model has been developed in line with these core concepts of NEP 2020. i3 provides students with academic knowledge, along with internships, practical skills, research insights, professional exposure, and employment opportunities, enabling them to meet future challenges.
+The **International Institute of Internship [i3]** model has been developed in line with these core concepts of NEP 2020. i3 provides students with academic knowledge, along with internships, practical skills, research insights, professional exposure, and employment opportunities, enabling them to meet future challenges.
 
 ## Moving Forward with Purpose
 
@@ -149,7 +149,7 @@ Today, the International Institute of Internship continues to collaborate with e
 - Bridge the gap between education and employment.
 - Conduct internship programs at nominal fees, both on-campus at educational institutions, colleges, and universities, and in a hybrid online mode.
 
-**The International Institute of Internship (i3) is not an institution, but a movement—where education becomes experience, and experience creates the future.**
+**The International Institute of Internship [i3] is not an institution, but a movement—where education becomes experience, and experience creates the future.**
 `;
 
 

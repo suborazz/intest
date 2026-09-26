@@ -4833,7 +4833,7 @@ export default function EditInternshipPage() {
             ? new Date(values.lastDate).toISOString()
             : undefined,
           onboardingDetails: values.onboardingDetails || undefined,
-          category: "RUNNING",
+          category: values.category || "RUNNING",
           mode: (values.mode as "OFFLINE" | "ONLINE" | "HYBRID") || "OFFLINE",
           department: values.department || undefined,
           modules: formatList(values.modules),
@@ -5248,17 +5248,18 @@ export default function EditInternshipPage() {
                           Category *
                         </FormLabel>
                         <Select_23
-                          disabled
                           onValueChange={field.onChange}
-                          value="RUNNING"
+                          value={field.value || "RUNNING"}
                         >
                           <FormControl>
-                            <SelectTrigger className="bg-muted/50 cursor-not-allowed">
-                              <SelectValue_23 placeholder="Running Program" />
+                            <SelectTrigger>
+                              <SelectValue_23 placeholder="Select Category" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="RUNNING">Running Program</SelectItem>
+                            <SelectItem value="ON_CAMPUS">On Campus Cohort</SelectItem>
+                            <SelectItem value="VIRTUAL">Virtual / Online Cohort</SelectItem>
                           </SelectContent>
                         </Select_23>
                         <FormMessage />

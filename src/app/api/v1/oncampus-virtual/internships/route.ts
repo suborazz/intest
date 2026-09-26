@@ -260,6 +260,8 @@ export async function GET(req: NextRequest) {
         in: ["ON_CAMPUS", "VIRTUAL"],
       },
       deletedAt: null,
+      isActive: true,
+      isApproved: true,
     };
 
     if (categoryParam === "ON_CAMPUS" || categoryParam === "VIRTUAL") {

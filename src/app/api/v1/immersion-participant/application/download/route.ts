@@ -251,7 +251,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             .fontSize(15)
             .font("Helvetica-Bold")
             .fillColor("#065f46")
-            .text("International Institute of Internship (i3)", 35, headerY, {
+            .text("International Institute of Internship [i3]", 35, headerY, {
               align: "center",
               width: doc.page.width - 70,
             });

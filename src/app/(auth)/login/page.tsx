@@ -3861,10 +3861,7 @@ export default function LoginPage() {
                                       Email ID
                                     </FormLabel>
                                     <FormControl>
-                                      <Input
-                                        icon={Mail_2}
-                                        type="email"
-                                        placeholder="Enter your email"
+                                      <Input id="login-email-input" icon={Mail_2} type="email" autoComplete="email" placeholder="Enter your email"
                                         {...field}
                                         className="border-border focus-visible:border-primary/50 focus-visible:ring-primary/20 h-11"
                                       />
@@ -3885,10 +3882,7 @@ export default function LoginPage() {
                                     </FormLabel>
                                     <div className="relative">
                                       <FormControl>
-                                        <Input
-                                          icon={Lock}
-                                          type={showPassword ? "text" : "password"}
-                                          placeholder="••••••••••••"
+                                        <Input id="login-password-input" icon={Lock} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••••••"
                                           {...field}
                                           className="border-border focus-visible:border-primary/50 focus-visible:ring-primary/20 h-11 pr-10"
                                         />
