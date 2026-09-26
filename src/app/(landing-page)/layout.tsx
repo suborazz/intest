@@ -105,10 +105,7 @@ function NavigationMenuLink({
   return (
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
-      className={cn(
-        "hover:bg-muted focus:bg-muted focus-visible:ring-ring/30 in-data-[slot=navigation-menu-content]:rounded-md data-[active=true]:bg-muted/50 data-[active=true]:hover:bg-muted data-[active=true]:focus:bg-muted flex items-center gap-1.5 rounded-lg p-2 text-xs/relaxed outline-none transition-all focus-visible:outline-1 focus-visible:ring-2 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
+      className={className}
       {...props}
     />
   );
@@ -371,10 +368,18 @@ const navData: NavItem[] = [
           "Understand the structure and benefits of our internships.",
         icon: Briefcase,
       },
+      {
+        title: "What is Immersion",
+        href: "/about/immersion",
+        description:
+          "Explore experiential training and immersive cohorts.",
+        icon: Sparkles,
+      },
     ],
   },
+  { title: "Notice", href: "/notice" },
   {
-    title: "Internships",
+    title: "Internship",
     isSubmenu: true,
     submenuFeatured: {
       title: "Internship Programs",
@@ -385,12 +390,6 @@ const navData: NavItem[] = [
         "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=600&auto=format&fit=crop",
     },
     submenuItems: [
-      {
-        title: "All Internships",
-        href: "/internship",
-        description: "Browse all available domain internships.",
-        icon: Briefcase,
-      },
       {
         title: "Running Internships",
         href: "/internship/running-internship",
@@ -410,51 +409,9 @@ const navData: NavItem[] = [
           "Participate in remote and virtual internships from anywhere.",
         icon: Laptop,
       },
-      {
-        title: "Immersion Programs",
-        href: "/immersion",
-        description:
-          "Intensive experiential industrial training & learning cohorts.",
-        icon: Sparkles,
-      },
     ],
   },
-  {
-    title: "For Students",
-    isSubmenu: true,
-    submenuItems: [
-      {
-        title: "Student Registration",
-        href: "/student/registration",
-        description: "Register to explore and apply for verified internships.",
-        icon: GraduationCap,
-      },
-      {
-        title: "Student Login",
-        href: "/login",
-        description: "Login to your student portal and view applications.",
-        icon: Users,
-      },
-    ],
-  },
-  {
-    title: "For Instructors",
-    isSubmenu: true,
-    submenuItems: [
-      {
-        title: "Instructor Registration",
-        href: "/instructor/registration",
-        description: "Join our esteemed mentor network and train youth.",
-        icon: Presentation,
-      },
-      {
-        title: "Instructor Login",
-        href: "/login",
-        description: "Access instructor workspace and student cohorts.",
-        icon: Users,
-      },
-    ],
-  },
+  { title: "Immersion", href: "/immersion" },
   {
     title: "Our Partners",
     isSubmenu: true,
@@ -466,13 +423,13 @@ const navData: NavItem[] = [
         icon: Building,
       },
       {
-        title: "Job Placement",
+        title: "Job Placement Companies",
         href: "/partners/job-placement",
         description: "Connect with hiring partners and industry recruiters.",
         icon: Briefcase,
       },
       {
-        title: "Training & Support",
+        title: "Training & Technical Support",
         href: "/partners/training-support",
         description: "Skill development and corporate technical training support.",
         icon: Presentation,
@@ -480,47 +437,33 @@ const navData: NavItem[] = [
     ],
   },
   {
-    title: "Resources",
+    title: "Media",
     isSubmenu: true,
     submenuItems: [
       {
-        title: "Media Room",
-        href: "/media",
-        description: "Press releases, photos, videos and newspaper clips.",
+        title: "Video",
+        href: "/media/video",
+        description: "Watch video highlights, ceremonies, and interviews.",
+        icon: Video,
+      },
+      {
+        title: "Photo",
+        href: "/media/photo",
+        description: "Browse photo galleries and event moments.",
         icon: ImageIcon,
       },
       {
-        title: "Notice Board",
-        href: "/notice",
-        description: "Official notifications, announcements and circulars.",
-        icon: Newspaper,
-      },
-      {
-        title: "Success Stories",
-        href: "/success-story",
-        description: "Inspiring alumni journeys and placement achievements.",
-        icon: Target,
-      },
-      {
-        title: "FAQs",
-        href: "/faqs",
-        description: "Frequently asked questions and policy guidelines.",
-        icon: Activity,
-      },
-      {
-        title: "Donate",
-        href: "/donate",
-        description: "Support our non-profit educational mission.",
+        title: "Online Media",
+        href: "/media/online",
+        description: "Digital coverage, online features, and press articles.",
         icon: Globe,
-      },
-      {
-        title: "Contact Us",
-        href: "/contact",
-        description: "Get in touch with our admissions & support team.",
-        icon: Mail,
       },
     ],
   },
+  { title: "Success Story", href: "/success-story" },
+  { title: "Recruitment", href: "/recruitment" },
+  { title: "Contact Us", href: "/contact" },
+  { title: "Donate", href: "/donate" },
 ];
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<"a"> {
@@ -708,18 +651,18 @@ export default function LandingLayout({
                     return (
                       <NavigationMenuItem key={item.title} value={item.title} className="shrink-0">
                         <NavigationMenuTrigger className={cn(
-                          "bg-transparent px-2 2xl:px-2.5 py-1.5 text-[12.5px] 2xl:text-[13px] font-semibold text-slate-700 hover:text-[#0A5C36] hover:bg-emerald-50/60 focus:bg-emerald-50/60 focus:text-[#0A5C36] transition-colors rounded-lg whitespace-nowrap",
+                          "bg-transparent px-1.5 2xl:px-2 py-1 text-[12px] 2xl:text-[12.5px] font-semibold text-slate-700 hover:text-[#0A5C36] hover:bg-emerald-50/70 focus:bg-emerald-50/70 focus:text-[#0A5C36] transition-colors rounded-lg whitespace-nowrap",
                           isSubActive && "text-[#0A5C36] font-bold"
                         )}>
                           {item.title}
                         </NavigationMenuTrigger>
-                        <NavigationMenuContent className={cn(item.title === "Resources" && "right-0 left-auto")}>
+                        <NavigationMenuContent className={cn((item.title === "Media" || item.title === "Our Partners") && "right-0 left-auto")}>
                           <ul
                             className={cn(
                               "grid gap-2 p-3 bg-white rounded-xl shadow-xl border border-gray-100",
                               item.submenuFeatured
-                                ? "md:w-[520px] lg:w-[580px] lg:grid-cols-[.8fr_1fr]"
-                                : "flex w-[270px] flex-col",
+                                ? "md:w-[500px] lg:w-[540px] lg:grid-cols-[.8fr_1fr]"
+                                : "flex w-[260px] flex-col",
                             )}
                           >
                             {item.submenuFeatured && (
@@ -765,19 +708,20 @@ export default function LandingLayout({
                     );
                   }
 
+                  const isDonate = item.title === "Donate";
+
                   return (
                     <NavigationMenuItem key={item.title} value={item.title} className="shrink-0">
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href={item.href!}
-                          className={cn(
-                            "px-2 2xl:px-2.5 py-1.5 text-[12.5px] 2xl:text-[13px] font-semibold text-slate-700 hover:text-[#0A5C36] hover:bg-emerald-50/60 transition-colors rounded-lg whitespace-nowrap inline-block",
-                            isActive && "text-[#0A5C36] font-bold relative after:absolute after:bottom-[-2px] after:left-2 after:right-2 after:h-[2px] after:bg-[#0A5C36] after:rounded-full",
-                          )}
-                        >
-                          {item.title}
-                        </Link>
-                      </NavigationMenuLink>
+                      <Link
+                        href={item.href!}
+                        className={cn(
+                          "px-1.5 2xl:px-2 py-1 text-[12px] 2xl:text-[12.5px] font-semibold text-slate-700 hover:text-[#0A5C36] hover:bg-emerald-50/70 transition-colors rounded-lg whitespace-nowrap inline-block",
+                          isDonate && "text-emerald-800 bg-emerald-100/70 hover:bg-emerald-200/80 font-bold px-2.5 py-0.5 rounded-full border border-emerald-300/60",
+                          isActive && !isDonate && "text-[#0A5C36] font-bold relative after:absolute after:bottom-[-2px] after:left-1 after:right-1 after:h-[2px] after:bg-[#0A5C36] after:rounded-full",
+                        )}
+                      >
+                        {item.title}
+                      </Link>
                     </NavigationMenuItem>
                   );
                 })}
@@ -785,21 +729,66 @@ export default function LandingLayout({
             </NavigationMenu>
           </div>
 
-          {/* Right Action Buttons */}
+          {/* Desktop Right Action Buttons */}
           <div className="hidden xl:flex items-center gap-2 shrink-0">
+            {/* Register Dropdown */}
+            <div className="relative group/reg">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#064E3B] px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-all hover:bg-[#04382A] hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap cursor-pointer"
+              >
+                <GraduationCap className="size-4 text-white" />
+                <span>Register</span>
+                <ChevronDown className="size-3.5 text-emerald-200 transition-transform duration-200 group-hover/reg:rotate-180" />
+              </button>
+
+              {/* Dropdown Card */}
+              <div className="invisible opacity-0 translate-y-2 group-hover/reg:visible group-hover/reg:opacity-100 group-hover/reg:translate-y-0 transition-all duration-200 ease-out absolute right-0 top-full pt-2 z-50 min-w-[270px]">
+                <div className="rounded-2xl bg-white p-2.5 shadow-2xl border border-gray-100 ring-1 ring-black/5 flex flex-col gap-1">
+                  <Link
+                    href="/student/registration"
+                    className="flex items-start gap-3 rounded-xl p-2.5 transition-colors hover:bg-emerald-50/90 group/item"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#064E3B] text-white transition-transform group-hover/item:scale-105 mt-0.5 shadow-2xs">
+                      <GraduationCap className="size-4.5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-900 group-hover/item:text-[#064E3B] transition-colors">
+                        Student Registration
+                      </span>
+                      <span className="text-[11px] text-slate-500 leading-tight">
+                        Explore &amp; apply for verified internships
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/instructor/registration"
+                    className="flex items-start gap-3 rounded-xl p-2.5 transition-colors hover:bg-emerald-50/90 group/item"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-600/30 bg-[#ECFDF5] text-[#064E3B] transition-transform group-hover/item:scale-105 mt-0.5 shadow-2xs">
+                      <Presentation className="size-4.5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-900 group-hover/item:text-[#064E3B] transition-colors">
+                        Instructor Registration
+                      </span>
+                      <span className="text-[11px] text-slate-500 leading-tight">
+                        Join as mentor &amp; train student cohorts
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Login Button */}
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-2xs transition-all hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-700/30 bg-white px-3.5 py-2 text-xs font-bold text-[#064E3B] shadow-2xs transition-all hover:bg-emerald-50 hover:border-emerald-700/60 hover:shadow-xs whitespace-nowrap"
             >
-              <Users className="size-3.5 text-slate-500" />
+              <LogIn className="size-3.5 text-[#064E3B]" />
               <span>Login</span>
-            </Link>
-            <Link
-              href="/sign-up"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-3.5 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#074026] hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
-            >
-              <GraduationCap className="size-3.5 text-white" />
-              <span>Register</span>
             </Link>
           </div>
 
@@ -807,13 +796,13 @@ export default function LandingLayout({
           <div className="flex items-center gap-2 xl:hidden">
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+              className="hidden sm:inline-flex items-center justify-center rounded-xl border border-emerald-700/30 bg-white px-3 py-1.5 text-xs font-bold text-[#064E3B] hover:bg-emerald-50 shadow-2xs"
             >
               Login
             </Link>
             <Link
-              href="/sign-up"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0A5C36] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#074026] shadow-xs"
+              href="/student/registration"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#064E3B] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#04382A] shadow-xs"
             >
               <GraduationCap className="size-3.5" />
               <span>Register</span>
@@ -823,7 +812,7 @@ export default function LandingLayout({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-700 hover:text-[#0A5C36] hover:bg-emerald-50 shrink-0 rounded-lg"
+                  className="text-gray-700 hover:text-[#064E3B] hover:bg-emerald-50 shrink-0 rounded-lg"
                 >
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Toggle navigation menu</span>
@@ -831,16 +820,16 @@ export default function LandingLayout({
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="bg-white flex w-[85vw] flex-col border-l-0 p-0 shadow-2xl sm:w-[380px]"
+                className="bg-white flex w-[85vw] flex-col border-l-0 p-0 shadow-2xl sm:w-[360px] h-full"
               >
-                <SheetHeader className="border-gray-100 bg-white flex shrink-0 flex-row items-center justify-between border-b px-5 py-3 text-left">
+                <SheetHeader className="border-gray-100 bg-white flex shrink-0 flex-row items-center justify-between border-b px-4 py-2 text-left">
                   <SheetTitle className="m-0 flex items-center">
                     <Image
                       src="/logo.png"
                       alt="Logo"
-                      width={280}
-                      height={70}
-                      className="h-11 sm:h-12 w-auto max-w-[270px] object-contain object-left"
+                      width={220}
+                      height={55}
+                      className="h-8 w-auto max-w-[220px] object-contain object-left"
                     />
                   </SheetTitle>
                   <SheetDescription className="sr-only">
@@ -848,8 +837,8 @@ export default function LandingLayout({
                   </SheetDescription>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto px-4 py-2">
-                  <div className="mt-1 flex flex-col space-y-1">
+                <div className="flex-1 overflow-y-auto px-3 py-1.5 no-scrollbar">
+                  <div className="flex flex-col space-y-0.5">
                     {navData.map((item) => {
                       if (item.isSubmenu && item.submenuItems) {
                         const isSubmenuActive = item.submenuItems.some(
@@ -865,31 +854,31 @@ export default function LandingLayout({
                                 setExpandedMenu(isExpanded ? null : item.title)
                               }
                               className={cn(
-                                "group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold outline-none transition-all",
-                                isSubmenuActive ? "bg-emerald-50 text-[#0A5C36]" : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#0A5C36]"
+                                "group flex w-full items-center justify-between rounded-md px-2.5 py-1 text-left text-[12.5px] font-semibold outline-none transition-all",
+                                isSubmenuActive ? "bg-emerald-50 text-[#064E3B]" : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#064E3B]"
                               )}
                             >
                               {item.title}
                               <ChevronDown
                                 className={cn(
-                                  "h-4 w-4 transition-transform duration-200 text-gray-400",
-                                  isExpanded && "rotate-180 text-[#0A5C36]"
+                                  "h-3.5 w-3.5 transition-transform duration-200 text-gray-400",
+                                  isExpanded && "rotate-180 text-[#064E3B]"
                                 )}
                               />
                             </button>
 
                             {isExpanded && (
-                              <div className="ml-3 my-1 flex flex-col space-y-1 border-l-2 border-emerald-100 pl-3">
+                              <div className="ml-2.5 my-0.5 flex flex-col space-y-0.5 border-l border-emerald-100 pl-2.5">
                                 {item.submenuItems.map((subItem) => (
                                   <Link
                                     key={subItem.title}
                                     href={subItem.href}
                                     onClick={handleLinkClick}
                                     className={cn(
-                                      "rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                                      "rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
                                       pathname === subItem.href
-                                        ? "text-[#0A5C36] font-bold bg-emerald-50"
-                                        : "text-gray-600 hover:text-[#0A5C36] hover:bg-gray-50"
+                                        ? "text-[#064E3B] font-bold bg-emerald-50"
+                                        : "text-gray-600 hover:text-[#064E3B] hover:bg-gray-50"
                                     )}
                                   >
                                     {subItem.title}
@@ -907,10 +896,10 @@ export default function LandingLayout({
                           href={item.href!}
                           onClick={handleLinkClick}
                           className={cn(
-                            "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+                            "rounded-md px-2.5 py-1 text-[12.5px] font-semibold transition-colors",
                             pathname === item.href
-                              ? "bg-emerald-50 text-[#0A5C36] font-bold"
-                              : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#0A5C36]"
+                              ? "bg-emerald-50 text-[#064E3B] font-bold"
+                              : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#064E3B]"
                           )}
                         >
                           {item.title}
@@ -920,32 +909,33 @@ export default function LandingLayout({
                   </div>
                 </div>
 
-                <div className="border-gray-100 bg-gray-50/70 mt-auto shrink-0 border-t p-4 flex flex-col gap-2.5">
+                <div className="border-gray-100 bg-gray-50/80 mt-auto shrink-0 border-t p-2.5 flex flex-col gap-1.5">
                   <Button
                     asChild
-                    className="w-full bg-[#0A5C36] hover:bg-[#074026] text-white text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all"
+                    className="w-full bg-[#064E3B] hover:bg-[#04382A] text-white text-[11.5px] font-bold shadow-xs flex items-center justify-center gap-1.5 py-2 h-8 rounded-lg transition-all"
                   >
                     <Link href="/student/registration" onClick={handleLinkClick}>
-                      <GraduationCap className="size-4" />
+                      <GraduationCap className="size-3.5" />
                       <span>Student Registration</span>
                     </Link>
                   </Button>
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-emerald-600/30 bg-emerald-50/60 hover:bg-emerald-100/70 text-[#0A5C36] text-xs sm:text-sm font-bold flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all shadow-2xs"
+                    className="w-full border-emerald-600/30 bg-[#ECFDF5] hover:bg-emerald-100/80 text-[#064E3B] text-[11.5px] font-bold flex items-center justify-center gap-1.5 py-2 h-8 rounded-lg transition-all shadow-2xs"
                   >
                     <Link href="/instructor/registration" onClick={handleLinkClick}>
-                      <Presentation className="size-4 text-[#0A5C36]" />
+                      <Presentation className="size-3.5 text-[#064E3B]" />
                       <span>Instructor Registration</span>
                     </Link>
                   </Button>
                   <Button
                     asChild
-                    className="w-full bg-[#063A1E] hover:bg-[#04261A] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 py-2.5 rounded-xl shadow-xs transition-all"
+                    variant="outline"
+                    className="w-full border-emerald-700/30 bg-white hover:bg-emerald-50 text-[#064E3B] text-[11.5px] font-bold flex items-center justify-center gap-1.5 py-2 h-8 rounded-lg shadow-2xs transition-all"
                   >
                     <Link href="/login" onClick={handleLinkClick}>
-                      <LogIn className="size-4" />
+                      <LogIn className="size-3.5 text-[#064E3B]" />
                       <span>Login</span>
                     </Link>
                   </Button>
