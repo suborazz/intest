@@ -3,20 +3,18 @@
 import React, { useState, useEffect } from "react";
 import {
   X,
-  Search,
   Users,
   TrendingUp,
   Award,
   BookOpen,
   Briefcase,
-  FileText,
   Laptop,
   ShieldCheck,
-  MapPin,
-  Phone,
-  Globe,
-  Mail,
-  UserPlus
+  FileEdit,
+  UserCheck,
+  IndianRupee,
+  Presentation,
+  ArrowRight,
 } from "lucide-react";
 
 interface RegistrationFlyerModalProps {
@@ -29,6 +27,7 @@ export function RegistrationFlyerModal({
   onSelectRole,
 }: RegistrationFlyerModalProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const isInstructor = initialRole === "INSTRUCTOR";
 
   // Handle escape key
   useEffect(() => {
@@ -64,7 +63,6 @@ export function RegistrationFlyerModal({
     >
       {/* Compact Poster Card */}
       <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in zoom-in-95 duration-150 p-4 sm:p-5 text-slate-900">
-        
         {/* Close Button at Top Right */}
         <button
           type="button"
@@ -101,145 +99,423 @@ export function RegistrationFlyerModal({
 
           <div className="hidden sm:block text-right">
             <span className="inline-block bg-[#0F2942] text-white text-[9px] font-bold px-2 py-0.5 rounded">
-              LEARN • PRACTICE • GROW
+              {isInstructor ? "TEACH • MENTOR • EMPOWER" : "LEARN • PRACTICE • GROW"}
             </span>
           </div>
         </div>
 
-        {/* 2. Hero: Headline + 100% Free Badge + Visual */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center py-2.5">
-          <div className="sm:col-span-7 space-y-1.5">
-            <div className="flex items-center gap-2.5">
-              <div>
-                <p className="text-xs font-bold text-[#0F2942] uppercase tracking-wide leading-none">
-                  Create Your
+        {/* ========================================================================= */}
+        {/* INSTRUCTOR FLYER VIEW */}
+        {/* ========================================================================= */}
+        {isInstructor ? (
+          <>
+            {/* 2. Hero Section for Instructor */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center py-2.5">
+              <div className="sm:col-span-7 space-y-1.5">
+                <div className="flex items-center gap-2.5">
+                  <div>
+                    <p className="text-xs font-bold text-[#0F2942] uppercase tracking-wide leading-none">
+                      Join as an
+                    </p>
+                    <h1 className="text-xl sm:text-2xl font-black text-[#0A5C36] leading-tight">
+                      i3 INSTRUCTOR
+                    </h1>
+                    <p className="text-xs font-black text-[#0F2942] leading-none">
+                      Empower Next-Gen Talent!
+                    </p>
+                  </div>
+
+                  {/* Verified Mentor Badge */}
+                  <div className="shrink-0 flex flex-col items-center justify-center h-13 w-13 rounded-full bg-gradient-to-br from-emerald-700 to-teal-900 text-white p-1 text-center shadow-md border border-emerald-300">
+                    <span className="text-[7.5px] font-black text-emerald-200 leading-tight">
+                      100%
+                    </span>
+                    <span className="text-[9px] font-black leading-tight">
+                      VERIFIED
+                    </span>
+                    <span className="text-[6.5px] font-bold text-emerald-100 leading-none">
+                      MENTOR
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-600 leading-snug">
+                  Lead training batches, provide{" "}
+                  <strong className="text-[#0F2942]">expert mentorship</strong>, evaluate{" "}
+                  <strong className="text-[#0F2942]">real-world projects</strong>, and earn{" "}
+                  <strong className="text-[#0A5C36]">honorarium / remuneration</strong>.
                 </p>
-                <h1 className="text-xl sm:text-2xl font-black text-[#16a34a] leading-tight">
-                  FREE ACCOUNT
-                </h1>
-                <p className="text-xs font-black text-[#0F2942] leading-none">
-                  Today!
+              </div>
+
+              <div className="sm:col-span-5">
+                <div className="relative aspect-[16/10] w-full rounded-lg overflow-hidden shadow-xs border border-slate-100 bg-slate-100">
+                  <img
+                    src="/images/hero-recruitment.jpg"
+                    alt="Instructor mentoring students"
+                    className="h-full w-full object-cover object-center"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "/images/hero-running-internship.jpg";
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Blue Ribbon Banner */}
+            <div className="bg-[#0F2942] text-white py-1.5 px-3 rounded-lg text-center my-1.5 shadow-xs">
+              <p className="text-[10.5px] sm:text-[11.5px] font-bold tracking-wide">
+                Be a Mentor.{" "}
+                <span className="text-yellow-400 font-extrabold">
+                  Build Skills. Shape Careers.
+                </span>
+              </p>
+            </div>
+
+            {/* 4. INSTRUCTOR BENEFITS (5 Steps with Flow matching screenshot) */}
+            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 my-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-[#0F2942] mb-1.5">
+                INSTRUCTOR BENEFITS &amp; PROCESS FLOW
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-1 text-center">
+                {/* Step 1 */}
+                <div className="flex-1 min-w-[80px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <div className="h-7 w-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-1">
+                    <FileEdit className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-800 leading-tight">
+                    Online Registration
+                  </span>
+                </div>
+
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0 hidden sm:block" />
+
+                {/* Step 2 */}
+                <div className="flex-1 min-w-[80px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <div className="h-7 w-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mb-1">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-800 leading-tight">
+                    Verification
+                  </span>
+                </div>
+
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0 hidden sm:block" />
+
+                {/* Step 3 */}
+                <div className="flex-1 min-w-[80px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <div className="h-7 w-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mb-1">
+                    <UserCheck className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-800 leading-tight">
+                    Instructor Approval
+                  </span>
+                </div>
+
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0 hidden sm:block" />
+
+                {/* Step 4 */}
+                <div className="flex-1 min-w-[80px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <div className="h-7 w-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center mb-1">
+                    <Presentation className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-800 leading-tight">
+                    Student Training
+                  </span>
+                </div>
+
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0 hidden sm:block" />
+
+                {/* Step 5 */}
+                <div className="flex-1 min-w-[80px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <div className="h-7 w-7 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center mb-1">
+                    <IndianRupee className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-800 leading-tight">
+                    Honorarium / Remuneration
+                  </span>
+                </div>
+              </div>
+
+              {/* Honorarium Policy Callout */}
+              <div className="mt-2 bg-amber-50/80 border border-amber-200/80 rounded-md p-1.5 text-center">
+                <p className="text-[9.5px] text-amber-900 leading-snug font-medium">
+                  Eligible instructors may receive{" "}
+                  <strong className="text-red-700 font-bold">
+                    honorarium/remuneration
+                  </strong>{" "}
+                  for providing internship, mentoring and skill-based training, as per
+                  applicable programme terms.
+                </p>
+              </div>
+            </div>
+
+            {/* 5. HOW IT WORKS */}
+            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 my-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-[#0F2942] mb-1.5">
+                HOW IT WORKS FOR INSTRUCTORS
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    1
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Sign Up
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Instructor role
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-emerald-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    2
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Verification
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Submit credentials
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    3
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Approval
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Get authorized
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-purple-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    4
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Train &amp; Earn
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Lead cohorts
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 6. Footer Ribbon & Security Note */}
+            <div className="bg-[#0F2942] text-white rounded-lg p-2 flex items-center justify-between text-xs mt-1.5">
+              <p className="text-[10px] font-bold">
+                Register Online as an{" "}
+                <span className="text-yellow-400 font-extrabold">i3 Instructor</span>
+              </p>
+              <span className="text-[9px] text-slate-200 font-mono">
+                www.iiinternship.in/sign-up?role=INSTRUCTOR
+              </span>
+            </div>
+          </>
+        ) : (
+          /* ========================================================================= */
+          /* STUDENT FLYER VIEW (Default) */
+          /* ========================================================================= */
+          <>
+            {/* 2. Hero: Headline + 100% Free Badge + Visual */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center py-2.5">
+              <div className="sm:col-span-7 space-y-1.5">
+                <div className="flex items-center gap-2.5">
+                  <div>
+                    <p className="text-xs font-bold text-[#0F2942] uppercase tracking-wide leading-none">
+                      Create Your
+                    </p>
+                    <h1 className="text-xl sm:text-2xl font-black text-[#16a34a] leading-tight">
+                      FREE ACCOUNT
+                    </h1>
+                    <p className="text-xs font-black text-[#0F2942] leading-none">
+                      Today!
+                    </p>
+                  </div>
+
+                  {/* 100% Free Badge */}
+                  <div className="shrink-0 flex flex-col items-center justify-center h-13 w-13 rounded-full bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-1 text-center shadow-md border border-emerald-300">
+                    <span className="text-[7.5px] font-black text-emerald-200 leading-tight">
+                      100%
+                    </span>
+                    <span className="text-[10px] font-black leading-tight">
+                      FREE
+                    </span>
+                    <span className="text-[6.5px] font-bold text-emerald-100 leading-none">
+                      SIGN-UP
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-600 leading-snug">
+                  Join thousands of students for{" "}
+                  <strong className="text-[#0F2942]">skill development</strong>,{" "}
+                  <strong className="text-[#0F2942]">practical experience</strong>{" "}
+                  and{" "}
+                  <strong className="text-[#e11d48]">career success</strong>.
                 </p>
               </div>
 
-              {/* 100% Free Badge */}
-              <div className="shrink-0 flex flex-col items-center justify-center h-13 w-13 rounded-full bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-1 text-center shadow-md border border-emerald-300">
-                <span className="text-[7.5px] font-black text-emerald-200 leading-tight">100%</span>
-                <span className="text-[10px] font-black leading-tight">FREE</span>
-                <span className="text-[6.5px] font-bold text-emerald-100 leading-none">SIGN-UP</span>
+              <div className="sm:col-span-5">
+                <div className="relative aspect-[16/10] w-full rounded-lg overflow-hidden shadow-xs border border-slate-100 bg-slate-100">
+                  <img
+                    src="/images/hero-running-internship.jpg"
+                    alt="Students studying"
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-600 leading-snug">
-              Join thousands of students for <strong className="text-[#0F2942]">skill development</strong>,{" "}
-              <strong className="text-[#0F2942]">practical experience</strong> and{" "}
-              <strong className="text-[#e11d48]">career success</strong>.
-            </p>
-          </div>
+            {/* 3. Blue Ribbon Banner */}
+            <div className="bg-[#0F2942] text-white py-1.5 px-3 rounded-lg text-center my-1.5 shadow-xs">
+              <p className="text-[10.5px] sm:text-[11.5px] font-bold tracking-wide">
+                Get Access to Amazing{" "}
+                <span className="text-yellow-400 font-extrabold">
+                  INTERNSHIP &amp; TRAINING
+                </span>{" "}
+                Opportunities
+              </p>
+            </div>
 
-          <div className="sm:col-span-5">
-            <div className="relative aspect-[16/10] w-full rounded-lg overflow-hidden shadow-xs border border-slate-100 bg-slate-100">
-              <img
-                src="/images/hero-running-internship.jpg"
-                alt="Students studying"
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Blue Ribbon Banner */}
-        <div className="bg-[#0F2942] text-white py-1.5 px-3 rounded-lg text-center my-1.5 shadow-xs">
-          <p className="text-[10.5px] sm:text-[11.5px] font-bold tracking-wide">
-            Get Access to Amazing <span className="text-yellow-400 font-extrabold">INTERNSHIP &amp; TRAINING</span> Opportunities
-          </p>
-        </div>
-
-        {/* 4. WHAT YOU GET (5 Compact Icons) */}
-        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 my-2">
-          <div className="text-[9px] font-bold uppercase tracking-wider text-[#0F2942] mb-1.5">
-            WHAT YOU GET
-          </div>
-          <div className="flex flex-wrap items-stretch justify-center gap-1.5 text-center">
-            {/* 1 */}
-            <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
-              <Briefcase className="h-4 w-4 text-[#0A5C36] mb-1" />
-              <span className="text-[9.5px] font-bold text-slate-800 leading-tight">Internship Opportunities</span>
-            </div>
-            {/* 2 */}
-            <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
-              <BookOpen className="h-4 w-4 text-amber-600 mb-1" />
-              <span className="text-[9.5px] font-bold text-slate-800 leading-tight">Skill Training</span>
-            </div>
-            {/* 3 */}
-            <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
-              <Laptop className="h-4 w-4 text-blue-600 mb-1" />
-              <span className="text-[9.5px] font-bold text-slate-800 leading-tight">Live Experience</span>
-            </div>
-            {/* 4 */}
-            <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
-              <TrendingUp className="h-4 w-4 text-purple-600 mb-1" />
-              <span className="text-[9.5px] font-bold text-slate-800 leading-tight">Career Growth</span>
-            </div>
-            {/* 5 */}
-            <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
-              <Users className="h-4 w-4 text-teal-700 mb-1" />
-              <span className="text-[9.5px] font-bold text-slate-800 leading-tight">Mentor Connect</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. HOW IT WORKS (4 Simple Steps) */}
-        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 my-2">
-          <div className="text-[9px] font-bold uppercase tracking-wider text-[#0F2942] mb-1.5">
-            HOW IT WORKS
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-            <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
-              <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">1</span>
-              <div>
-                <p className="text-[9px] font-bold text-slate-800 leading-tight">Sign Up</p>
-                <p className="text-[8px] text-slate-500 leading-none">Free account</p>
+            {/* 4. WHAT YOU GET (5 Compact Icons) */}
+            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 my-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-[#0F2942] mb-1.5">
+                WHAT YOU GET
+              </div>
+              <div className="flex flex-wrap items-stretch justify-center gap-1.5 text-center">
+                {/* 1 */}
+                <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <Briefcase className="h-4 w-4 text-[#0A5C36] mb-1" />
+                  <span className="text-[9.5px] font-bold text-slate-800 leading-tight">
+                    Internship Opportunities
+                  </span>
+                </div>
+                {/* 2 */}
+                <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <BookOpen className="h-4 w-4 text-amber-600 mb-1" />
+                  <span className="text-[9.5px] font-bold text-slate-800 leading-tight">
+                    Skill Training
+                  </span>
+                </div>
+                {/* 3 */}
+                <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <Laptop className="h-4 w-4 text-blue-600 mb-1" />
+                  <span className="text-[9.5px] font-bold text-slate-800 leading-tight">
+                    Live Experience
+                  </span>
+                </div>
+                {/* 4 */}
+                <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-purple-600 mb-1" />
+                  <span className="text-[9.5px] font-bold text-slate-800 leading-tight">
+                    Career Growth
+                  </span>
+                </div>
+                {/* 5 */}
+                <div className="flex-1 min-w-[95px] max-w-[125px] bg-white p-2 rounded-lg border border-slate-100 shadow-2xs flex flex-col items-center justify-center">
+                  <Users className="h-4 w-4 text-teal-700 mb-1" />
+                  <span className="text-[9.5px] font-bold text-slate-800 leading-tight">
+                    Mentor Connect
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
-              <span className="h-5 w-5 rounded-full bg-emerald-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">2</span>
-              <div>
-                <p className="text-[9px] font-bold text-slate-800 leading-tight">Profile</p>
-                <p className="text-[8px] text-slate-500 leading-none">Add skills</p>
+            {/* 5. HOW IT WORKS (4 Simple Steps) */}
+            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 my-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-[#0F2942] mb-1.5">
+                HOW IT WORKS
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    1
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Sign Up
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Free account
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-emerald-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    2
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Profile
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Add skills
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    3
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Explore
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Find programs
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
+                  <span className="h-5 w-5 rounded-full bg-purple-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                    4
+                  </span>
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-800 leading-tight">
+                      Learn
+                    </p>
+                    <p className="text-[8px] text-slate-500 leading-none">
+                      Gain experience
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
-              <span className="h-5 w-5 rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center shrink-0">3</span>
-              <div>
-                <p className="text-[9px] font-bold text-slate-800 leading-tight">Explore</p>
-                <p className="text-[8px] text-slate-500 leading-none">Find programs</p>
-              </div>
+            {/* 6. Footer Ribbon & Security Note */}
+            <div className="bg-[#0F2942] text-white rounded-lg p-2 flex items-center justify-between text-xs mt-1.5">
+              <p className="text-[10px] font-bold">
+                DON&apos;T WAIT,{" "}
+                <span className="text-yellow-400 font-extrabold">
+                  CREATE OPPORTUNITIES!
+                </span>
+              </p>
+              <span className="text-[9px] text-slate-200 font-mono">
+                www.iiinternship.in/sign-up
+              </span>
             </div>
+          </>
+        )}
 
-            <div className="bg-white p-1.5 rounded-md border border-slate-100 flex items-center gap-1.5">
-              <span className="h-5 w-5 rounded-full bg-purple-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">4</span>
-              <div>
-                <p className="text-[9px] font-bold text-slate-800 leading-tight">Learn</p>
-                <p className="text-[8px] text-slate-500 leading-none">Gain experience</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 6. Footer Ribbon & Security Note */}
-        <div className="bg-[#0F2942] text-white rounded-lg p-2 flex items-center justify-between text-xs mt-1.5">
-          <p className="text-[10px] font-bold">
-            DON&apos;T WAIT, <span className="text-yellow-400 font-extrabold">CREATE OPPORTUNITIES!</span>
-          </p>
-          <span className="text-[9px] text-slate-200">
-            www.iiinternship.in/sign-up
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between text-[9px] text-slate-500 pt-2">
+        {/* Global Footer info */}
+        <div className="flex items-center justify-between text-[9px] text-slate-500 pt-2 border-t border-slate-100 mt-2">
           <span className="flex items-center gap-1">
             <ShieldCheck className="h-3 w-3 text-emerald-600" />
             Trusted Platform • 100% Genuine Opportunities
@@ -248,7 +524,6 @@ export function RegistrationFlyerModal({
             📍 Lucknow • 📞 +91 9472351693
           </span>
         </div>
-
       </div>
     </div>
   );

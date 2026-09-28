@@ -76,7 +76,13 @@ const buildConfig = (): AppConfig => ({
     getEnv("SMTP_USER", "i3.office2025@gmail.com"),
   ),
   smtpSenderName: getEnv("SMTP_SENDER_NAME", "International Institute of Internship™"),
-  clientUrl: getEnv("NEXT_PUBLIC_CLIENT_URL", "http://localhost:3000"),
+  clientUrl: getEnv(
+    "NEXT_PUBLIC_CLIENT_URL",
+    getEnv(
+      "NEXT_PUBLIC_APP_URL",
+      getEnv("CLIENT_URL", "https://www.iiinternship.in"),
+    ),
+  ),
   razorpayKeyId: getEnv("RAZORPAY_KEY_ID", "mock-razorpay-key-id"),
   razorpayKeySecret: getEnv("RAZORPAY_KEY_SECRET", "mock-razorpay-key-secret"),
   razorpayWebhookSecret: getEnv(
@@ -140,7 +146,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   </style>
 `;
 
-    function getBaseTemplate(title: string, content: string): string {
+    function getBaseTemplate(title: string, content: string, clientUrl?: string): string {
+      const baseUrl =
+        clientUrl ||
+        config.clientUrl ||
+        (process.env.NODE_ENV === "production"
+          ? "https://www.iiinternship.in"
+          : "http://localhost:3000");
       return `
     <!DOCTYPE html>
     <html>
@@ -151,7 +163,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     <body>
       <div class="wrapper">
         <div class="header">
-          <a href="${config.clientUrl}" class="logo">II<span>Internship</span></a>
+          <a href="${baseUrl}" class="logo">II<span>Internship</span></a>
         </div>
         ${content}
         <div class="footer">
@@ -168,7 +180,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       name?: string,
       clientUrl?: string,
     ): string {
-      const baseUrl = clientUrl || config.clientUrl;
+      const baseUrl =
+        clientUrl ||
+        config.clientUrl ||
+        (process.env.NODE_ENV === "production"
+          ? "https://www.iiinternship.in"
+          : "http://localhost:3000");
       const resetUrl = `${baseUrl}/reset-password?token=${token}`;
       return getBaseTemplate(
         "Reset Your Password",
@@ -182,6 +199,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       </div>
       <p>If you did not request this change, you can safely ignore this email.</p>
     `,
+        baseUrl,
       );
     }
 
@@ -443,8 +461,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-        const origin = request.nextUrl.origin;
-    await sendPasswordResetEmail(email, token, user.name ?? undefined, origin);
+    const envAppUrl =
+      process.env.NEXT_PUBLIC_CLIENT_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.CLIENT_URL;
+
+    let resolvedBaseUrl = config.clientUrl;
+    if (envAppUrl && !envAppUrl.includes("localhost")) {
+      resolvedBaseUrl = envAppUrl;
+    } else if (process.env.NODE_ENV === "production") {
+      resolvedBaseUrl = "https://www.iiinternship.in";
+    } else if (request.nextUrl.origin && !request.nextUrl.origin.includes("localhost")) {
+      resolvedBaseUrl = request.nextUrl.origin;
+    } else if (envAppUrl) {
+      resolvedBaseUrl = envAppUrl;
+    } else {
+      resolvedBaseUrl = request.nextUrl.origin || "http://localhost:3000";
+    }
+
+    await sendPasswordResetEmail(
+      email,
+      token,
+      user.name ?? undefined,
+      resolvedBaseUrl,
+    );
 
     return successResponse(
       {

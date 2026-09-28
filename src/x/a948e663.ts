@@ -50,7 +50,15 @@ const buildConfig = (): AppConfig => ({
   smtpSenderName: getEnv("SMTP_SENDER_NAME", "International Institute of Internship™"),
   clientUrl: getEnv(
     "NEXT_PUBLIC_CLIENT_URL",
-    getEnv("CLIENT_URL", "https://www.iiinternship.in"),
+    getEnv(
+      "NEXT_PUBLIC_APP_URL",
+      getEnv(
+        "CLIENT_URL",
+        process.env.NODE_ENV === "production"
+          ? "https://www.iiinternship.in"
+          : "http://localhost:3000",
+      ),
+    ),
   ),
   razorpayKeyId: getEnv("RAZORPAY_KEY_ID", "mock-razorpay-key-id"),
   razorpayKeySecret: getEnv("RAZORPAY_KEY_SECRET", "mock-razorpay-key-secret"),
