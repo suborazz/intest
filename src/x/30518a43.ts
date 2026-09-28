@@ -76,22 +76,58 @@ export function getPasswordResetEmailTemplate(
   return getBaseTemplate(
     "Reset Your Password — IIInternship™",
     `
-      <h2 style="color: #0f172a; font-size: 22px; font-weight: 700; margin-top: 0; margin-bottom: 16px; text-align: center;">
-        Password Reset Request 🔐
+      <!-- Security Badge -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="display: inline-block; background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em;">
+          🔐 Account Security Request
+        </span>
+      </div>
+
+      <h2 style="color: #0f172a; font-size: 22px; font-weight: 800; margin: 0 0 14px 0; text-align: center; letter-spacing: -0.02em;">
+        Reset Your Password
       </h2>
-      <p style="font-size: 15px; color: #334155; line-height: 1.6; margin-bottom: 16px;">
-        Hello ${name || "User"},
+
+      <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 12px 0;">
+        Hello <strong>${name || "Valued User"}</strong>,
       </p>
-      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 24px;">
-        We received a request to reset the password for your IIInternship account. Click the button below to set a new password. This link will expire in 1 hour.
+
+      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 20px 0;">
+        We received a request to reset the password associated with your <strong>International Institute of Internship™ (IIInternship)</strong> account. Click the secure button below to choose your new password.
       </p>
-      <div style="text-align: center; margin: 28px 0;">
-        <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #0284c7; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);">
-          Reset Password
+
+      <!-- Expiration Warning Alert Box -->
+      <div style="background-color: #fefce8; border-left: 4px solid #eab308; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 26px;">
+        <p style="margin: 0; font-size: 13px; color: #854d0e; font-weight: 600;">
+          ⏳ <strong>Notice:</strong> This reset link is active for <strong>1 hour</strong> only.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button (Bulletproof Table Styling) -->
+      <div style="text-align: center; margin: 30px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="border-radius: 10px; background-color: #059669; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);">
+              <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 15px 36px; font-size: 15px; font-weight: 700; color: #ffffff !important; text-decoration: none; border-radius: 10px; letter-spacing: 0.01em;">
+                👉 Reset Password Now
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Fallback Link Box -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin: 26px 0;">
+        <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 700; color: #475569;">
+          Having trouble clicking the button? Copy and paste this URL into your browser:
+        </p>
+        <a href="${resetUrl}" target="_blank" style="font-size: 11.5px; color: #0284c7; word-break: break-all; font-family: monospace; text-decoration: underline;">
+          ${resetUrl}
         </a>
       </div>
-      <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-        If you did not request this change, you can safely ignore this email.
+
+      <!-- Security Advisory Note -->
+      <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 20px 0 0 0; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+        🛡️ If you did not request a password reset, you can safely disregard this email. Your password and account will remain completely secure.
       </p>
     `,
   );
