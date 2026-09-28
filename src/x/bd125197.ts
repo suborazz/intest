@@ -8,21 +8,108 @@ export function getPaymentConfirmationEmailTemplate(
   amount: number,
   paymentId: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const studentPortalUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+  const formattedAmount = Number(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   return getBaseTemplate(
-    "Payment Confirmed",
+    `Payment Confirmed: ${internshipTitle} — International Institute of Internship™`,
     `
-      <h2 class="title">Payment Successful! 🎉</h2>
-      <p>Hello ${name || "Student"},</p>
-      <p>We are excited to confirm your enrollment! Your payment for the following internship has been successfully processed.</p>
-      <table class="details-table">
-        <tr><th>Internship</th><td>${internshipTitle}</td></tr>
-        <tr><th>Amount Paid</th><td>INR ${amount.toFixed(2)}</td></tr>
-        <tr><th>Payment ID</th><td><code>${paymentId}</code></td></tr>
-        <tr><th>Status</th><td><span class="badge">COMPLETED</span></td></tr>
-      </table>
-      <p>You can now access all course modules, projects, and connect with your mentor from your student dashboard.</p>
-      <div style="text-align: center;">
-        <a href="${config.clientUrl}/student/dashboard" class="button">Go To Dashboard</a>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">💳</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Payment Confirmed & Enrolled
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Thank you! Your payment for <strong>${internshipTitle}</strong> on the <strong>International Institute of Internship™ [i3]</strong> platform was successful. Your seat in this program is officially confirmed.
+      </p>
+
+      <!-- Payment Receipt Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Program:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Amount Paid:</td>
+            <td style="padding: 6px 0; font-size: 14.5px; font-weight: 700; color: #059669;">
+              ₹${formattedAmount}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Transaction ID:</td>
+            <td style="padding: 6px 0; font-size: 13px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+              ${paymentId}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #ecfdf5; color: #059669; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #a7f3d0;">
+                PAID & ENROLLED
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- What to do next -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          🚀 Getting Started:
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Access your internship curriculum and project resources on your dashboard.<br>
+          • Connect with your assigned mentor for live orientation.<br>
+          • Complete hands-on assignments to earn your verified certificate.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${studentPortalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Go to Student Dashboard
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${studentPortalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${studentPortalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Billing or enrollment questions? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );
@@ -32,16 +119,99 @@ export function getInstructorProfileRegistrationCompletionEmailTemplate(
   name: string,
   instructorId: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const portalUrl = `${baseUrl}/instructor/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Instructor Registration Complete",
+    "Instructor Onboarding Submitted — International Institute of Internship™",
     `
-      <h2 class="title">Instructor Profile Submitted!</h2>
-      <p>Hello ${name},</p>
-      <p>Your detailed instructor profile and onboarding documentation have been submitted successfully.</p>
-      <div class="credentials">
-        <div class="credential-item"><span class="label">Instructor ID:</span> <span class="value">${instructorId}</span></div>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">👨‍🏫</span>
+            </td>
+          </tr>
+        </table>
       </div>
-      <p>Our administrator panel is reviewing your credentials. We will activate your dashboard once verified.</p>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Instructor Onboarding Submitted
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Thank you for submitting your instructor onboarding profile with the <strong>International Institute of Internship™ [i3]</strong>. Your documentation and credentials have been received successfully.
+      </p>
+
+      <!-- Instructor Record Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Instructor ID:</td>
+            <td style="padding: 6px 0; font-size: 14px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+              ${instructorId}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #fffbeb; color: #b45309; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #fde68a;">
+                UNDER REVIEW
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Role:</td>
+            <td style="padding: 6px 0; font-size: 13px; color: #334155; font-weight: 600;">
+              Faculty & Industry Mentor
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Review Timeline Information -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          ⏱ What happens next?
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Our academic committee reviews credentials within <strong>24–48 hours</strong>.<br>
+          • You will receive an approval email notification once verified.<br>
+          • Upon activation, you can create programs, host cohorts, and evaluate internships.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${portalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 200px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Check Onboarding Status
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${portalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${portalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Faculty questions or urgent onboarding support? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -50,18 +220,98 @@ export function getStudentProfileRegistrationCompletionEmailTemplate(
   name: string,
   studentId: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const studentPortalUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Student Registration Complete",
+    "Student Profile Registered — International Institute of Internship™",
     `
-      <h2 class="title">Student Registration Successful!</h2>
-      <p>Hello ${name},</p>
-      <p>Your detailed student registration profile, academic details, and documents have been received successfully.</p>
-      <div class="credentials">
-        <div class="credential-item"><span class="label">Student ID:</span> <span class="value">${studentId}</span></div>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">🎓</span>
+            </td>
+          </tr>
+        </table>
       </div>
-      <p>Your profile is fully configured. You can now apply for internships, verify certificates, and receive updates.</p>
-      <div style="text-align: center;">
-        <a href="${config.clientUrl}/student/dashboard" class="button">Visit Student Portal</a>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Profile Registration Completed
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Congratulations! Your student profile, academic information, and registration details have been verified and activated on the <strong>International Institute of Internship™ [i3]</strong> portal.
+      </p>
+
+      <!-- Student Record Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Student ID:</td>
+            <td style="padding: 6px 0; font-size: 14px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+              ${studentId}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Account Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #ecfdf5; color: #059669; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #a7f3d0;">
+                ACTIVE / VERIFIED
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Access:</td>
+            <td style="padding: 6px 0; font-size: 13px; color: #334155; font-weight: 600;">
+              Full Student Portal Access
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Quick Actions Checklist -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          🚀 What you can do next:
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Browse and apply for verified internships and mentorship programs.<br>
+          • Download your official <strong>Digital ID Card</strong>.<br>
+          • Track your project milestones and certificate issuances.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${studentPortalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 200px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Open Student Portal
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${studentPortalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${studentPortalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Have questions about your student profile? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );
@@ -72,13 +322,99 @@ export function getInternshipApplicationSubmittedEmailTemplate(
   internshipTitle: string,
   companyName: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const studentPortalUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Internship Application Submitted",
+    `Application Received: ${internshipTitle} — ${companyName} | International Institute of Internship™`,
     `
-      <h2 class="title">Internship Application Submitted</h2>
-      <p>Hello ${name},</p>
-      <p>You have successfully applied for the internship: <strong>${internshipTitle}</strong> at <strong>${companyName}</strong>.</p>
-      <p>Your application is currently <strong>UNDER REVIEW</strong>. The assigned instructor or admin will review your application soon.</p>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">📋</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Application Received
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Your application for <strong>${internshipTitle}</strong> with <strong>${companyName}</strong> has been successfully submitted through the <strong>International Institute of Internship™ [i3]</strong> platform.
+      </p>
+
+      <!-- Application Details Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Position:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Organization:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${companyName}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Current Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #fffbeb; color: #b45309; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #fde68a;">
+                UNDER REVIEW
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Review Timeline -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          ⏱ What happens next?
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • The mentor & recruiting committee will evaluate your profile within <strong>2–3 business days</strong>.<br>
+          • You will receive a direct email update once your application status changes.<br>
+          • You can track live progress and submit additional portfolio links from your portal.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${studentPortalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Track Application Status
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${studentPortalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${studentPortalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Questions regarding your application? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -88,16 +424,101 @@ export function getInternshipApplicationStatusUpdateEmailTemplate(
   internshipTitle: string,
   status: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const studentPortalUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+  const upperStatus = (status || "UPDATED").toUpperCase();
+
+  const isApproved = upperStatus === "APPROVED" || upperStatus === "ACCEPTED" || upperStatus === "SELECTED";
+  const isRejected = upperStatus === "REJECTED" || upperStatus === "DECLINED";
+
+  const badgeBg = isApproved ? "#ecfdf5" : isRejected ? "#fef2f2" : "#fffbeb";
+  const badgeColor = isApproved ? "#059669" : isRejected ? "#dc2626" : "#b45309";
+  const badgeBorder = isApproved ? "#a7f3d0" : isRejected ? "#fecaca" : "#fde68a";
+  const topIcon = isApproved ? "🎉" : isRejected ? "ℹ️" : "🔔";
+
   return getBaseTemplate(
-    "Application Update",
+    `Application Status Update: ${internshipTitle} [${upperStatus}] — International Institute of Internship™`,
     `
-      <h2 class="title">Internship Application Update</h2>
-      <p>Hello ${name},</p>
-      <p>We would like to inform you that your application for <strong>${internshipTitle}</strong> has been updated to:</p>
-      <div style="text-align: center; margin: 20px 0;">
-        <span class="badge" style="background-color: ${status === "APPROVED" ? "#10b981" : status === "REJECTED" ? "#ef4444" : "#f59e0b"}; padding: 8px 16px; font-size: 14px;">${status}</span>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: ${badgeBg}; border: 1px solid ${badgeBorder}; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">${topIcon}</span>
+            </td>
+          </tr>
+        </table>
       </div>
-      <p>Please log in to your dashboard to review enrollment details and get started.</p>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Application Status Update
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        We are writing to notify you that the status of your internship application on the <strong>International Institute of Internship™ [i3]</strong> portal has been updated.
+      </p>
+
+      <!-- Status Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Position:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Current Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 4px 12px; background-color: ${badgeBg}; color: ${badgeColor}; font-size: 12px; font-weight: 700; border-radius: 6px; border: 1px solid ${badgeBorder};">
+                ${upperStatus}
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Action Box -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 6px 0; font-size: 13px; color: #475569; line-height: 1.5;">
+          ${isApproved
+            ? "Congratulations! Please log in to your dashboard to complete your enrollment steps and access your mentor onboarding materials."
+            : isRejected
+            ? "Although this particular cohort is filled, we encourage you to explore other available industry programs suited to your skillset."
+            : "Please review the updated requirements and schedule directly from your student portal."}
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${studentPortalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                View Application in Portal
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${studentPortalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${studentPortalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Have questions regarding this decision? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -106,13 +527,99 @@ export function getInternshipPostingSubmittedForReviewEmailTemplate(
   name: string,
   internshipTitle: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const dashboardUrl = `${baseUrl}/instructor/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Internship Posted Successfully",
+    `Posting Under Review: ${internshipTitle} — International Institute of Internship™`,
     `
-      <h2 class="title">Internship Submitted for Review</h2>
-      <p>Hello ${name},</p>
-      <p>Your new internship posting <strong>"${internshipTitle}"</strong> has been submitted successfully.</p>
-      <p>It is currently pending approval. Once a Super Admin verifies the details, the internship will go live.</p>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">💼</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Internship Submitted for Review
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Your new opportunity posting <strong>"${internshipTitle}"</strong> has been successfully submitted to the <strong>International Institute of Internship™ [i3]</strong> curation board.
+      </p>
+
+      <!-- Posting Details Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Opportunity:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Current Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #fffbeb; color: #b45309; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #fde68a;">
+                PENDING VERIFICATION
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Type:</td>
+            <td style="padding: 6px 0; font-size: 13px; color: #334155; font-weight: 600;">
+              Industry Verified Opportunity
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Review Timeline -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          ⏱ What happens next?
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Our compliance & academic review board evaluates curriculum details within <strong>24 hours</strong>.<br>
+          • You will receive an immediate email confirmation as soon as your listing goes live.<br>
+          • Candidates across partnered institutions will be notified upon public publishing.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${dashboardUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                View Posting in Dashboard
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${dashboardUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${dashboardUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Need to expedite posting approval? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -121,13 +628,98 @@ export function getInternshipPostingApprovedEmailTemplate(
   name: string,
   internshipTitle: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const dashboardUrl = `${baseUrl}/instructor/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Internship Live!",
+    `Approved & Live: ${internshipTitle} — International Institute of Internship™`,
     `
-      <h2 class="title">Your Internship is Live! 📢</h2>
-      <p>Hello ${name},</p>
-      <p>Great news! The Super Admin has approved your internship: <strong>"${internshipTitle}"</strong>.</p>
-      <p>It is now live on the public listings page, and candidates can begin enrolling.</p>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">📢</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Your Internship is Now Live!
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Great news! Your opportunity posting <strong>"${internshipTitle}"</strong> has been approved by the <strong>International Institute of Internship™ [i3]</strong> administration and is now live on the public listings.
+      </p>
+
+      <!-- Live Listing Details Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Listing:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #ecfdf5; color: #059669; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #a7f3d0;">
+                LIVE & ACCEPTING APPLICANTS
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Audience:</td>
+            <td style="padding: 6px 0; font-size: 13px; color: #334155; font-weight: 600;">
+              Public Marketplace & Partner Universities
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Applicant Tools -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          🚀 Manage Your Cohort:
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Candidates can now view your curriculum and submit their applications.<br>
+          • Track incoming applicants, review resumes, and evaluate assessments live from your portal.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${dashboardUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Manage Listing & Applicants
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${dashboardUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${dashboardUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Have questions regarding listing management? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -137,13 +729,100 @@ export function getOnCampusVirtualInternshipInterestEmailTemplate(
   internshipTitle: string,
   type: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const dashboardUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+  const programType = type && type.trim() ? type.trim() : "Virtual / On-Campus";
+
   return getBaseTemplate(
-    "Expression of Interest",
+    `Interest Registered: ${internshipTitle} — International Institute of Internship™`,
     `
-      <h2 class="title">Expression of Interest Received</h2>
-      <p>Hello ${name},</p>
-      <p>Thank you for submitting your expression of interest for our <strong>${type} Internship</strong> program: <strong>${internshipTitle}</strong>.</p>
-      <p>Our academic advisors will evaluate your application profile and contact you soon.</p>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">📋</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Expression of Interest Received
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Thank you for submitting your expression of interest for our <strong>${programType} Internship</strong> program at the <strong>International Institute of Internship™ [i3]</strong>.
+      </p>
+
+      <!-- Program Interest Summary Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Program Track:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Delivery Mode:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #059669;">
+              ${programType}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Application Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #f0fdf4; color: #166534; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #bbf7d0;">
+                INTEREST LOGGED
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Next Steps Info Card -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          📌 What Happens Next?
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Our academic and industry partnership advisors will review your eligibility.<br>
+          • You will receive batch schedules, curriculum outlines, and orientation details.<br>
+          • Check your student dashboard anytime for real-time progress updates.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${dashboardUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 200px; padding: 14px 32px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                View Student Dashboard
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${dashboardUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${dashboardUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Questions about our internship tracks? Contact the academic office at <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">i3.office2025@gmail.com</a>.
+      </div>
     `,
   );
 }
@@ -153,20 +832,97 @@ export function getInternshipPaymentFailedEmailTemplate(
   internshipTitle: string,
   amount: number,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const retryUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+  const formattedAmount = Number(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   return getBaseTemplate(
-    "Payment Failed",
+    `Payment Unsuccessful: ${internshipTitle} — International Institute of Internship™`,
     `
-      <h2 class="title" style="color: #ef4444;">Payment Transaction Failed ❌</h2>
-      <p>Hello ${name},</p>
-      <p>We were unable to process your payment for the internship: <strong>${internshipTitle}</strong>.</p>
-      <table class="details-table">
-        <tr><th>Internship</th><td>${internshipTitle}</td></tr>
-        <tr><th>Amount</th><td>INR ${amount.toFixed(2)}</td></tr>
-        <tr><th>Status</th><td><span class="badge failed">FAILED</span></td></tr>
-      </table>
-      <p>Any amount deducted from your account during this transaction will be automatically refunded by your banking partner. Please try again.</p>
-      <div style="text-align: center;">
-        <a href="${config.clientUrl}/student/dashboard" class="button" style="background-color: #ef4444; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);">Try Re-enrollment</a>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #fef2f2; border: 1px solid #fee2e2; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">⚠️</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Payment Unsuccessful
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        We were unable to process your enrollment transaction for <strong>${internshipTitle}</strong> on the <strong>International Institute of Internship™ [i3]</strong> platform.
+      </p>
+
+      <!-- Transaction Details Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 20px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Program:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Attempted Amount:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ₹${formattedAmount}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Transaction Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #fef2f2; color: #dc2626; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #fecaca;">
+                PAYMENT FAILED
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Banking Safeguard Notice -->
+      <div style="background-color: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 4px; padding: 12px 14px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0; font-size: 12.5px; color: #92400e; line-height: 1.5;">
+          <strong>🛡️ Banking Safeguard:</strong> If any amount was deducted from your bank account or card during this attempt, your bank will automatically process a full reversal within 3–5 business days.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${retryUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Retry Program Enrollment
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${retryUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${retryUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Payment questions or need payment assistance? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );
@@ -177,14 +933,104 @@ export function getInternshipEnrollmentCompletedEmailTemplate(
   internshipTitle: string,
   companyName: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const studentPortalUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Internship Completed",
+    `Congratulations! Internship Completed: ${internshipTitle} — International Institute of Internship™`,
     `
-      <h2 class="title">Congratulations on Completion! 🎓</h2>
-      <p>Dear ${name},</p>
-      <p>We are delighted to inform you that your enrollment in the internship <strong>${internshipTitle}</strong> at <strong>${companyName}</strong> has been marked as <strong>COMPLETED</strong>.</p>
-      <p>Your mentor has reviewed your projects. Your official completion certificate will be issued shortly.</p>
-      <p>Well done on this milestone!</p>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">🎓</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Congratulations on Completion!
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        We are thrilled to celebrate your milestone! Your enrollment in <strong>${internshipTitle}</strong> in partnership with <strong>${companyName}</strong> on the <strong>International Institute of Internship™ [i3]</strong> platform has been marked as <strong>COMPLETED</strong>.
+      </p>
+
+      <!-- Program Summary Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Program:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Partner Company:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${companyName}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Completion Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #ecfdf5; color: #059669; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #a7f3d0;">
+                COMPLETED & VERIFIED
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Evaluation:</td>
+            <td style="padding: 6px 0; font-size: 13px; color: #334155; font-weight: 600;">
+              All Deliverables Approved by Mentor
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Next Steps & Credential Info -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          📜 What happens next?
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Your official tamper-proof <strong>Certificate of Completion</strong> will be issued to your portal shortly.<br>
+          • You can add your verified credential and skill badges directly to LinkedIn and your professional resume.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${studentPortalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                View Completed Program
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${studentPortalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${studentPortalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Have questions regarding certificate issuance? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -194,18 +1040,104 @@ export function getCertificateIssuedEmailTemplate(
   internshipTitle: string,
   certificateNo: string,
 ): string {
+  const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const studentPortalUrl = `${baseUrl}/student/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Certificate Issued",
+    `Official Certificate Issued: ${internshipTitle} [${certificateNo}] — International Institute of Internship™`,
     `
-      <h2 class="title">Official Certificate Issued! 📜</h2>
-      <p>Dear ${name},</p>
-      <p>Your completion certificate for <strong>${internshipTitle}</strong> is now officially generated and issued.</p>
-      <div class="credentials" style="background-color: #f0fdf4; border-color: #bbf7d0;">
-        <div class="credential-item"><span class="label" style="color: #15803d;">Certificate No:</span> <span class="value" style="color: #166534;">${certificateNo}</span></div>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">📜</span>
+            </td>
+          </tr>
+        </table>
       </div>
-      <p>You can view and download your high-quality PDF certificate from your student portal.</p>
-      <div style="text-align: center;">
-        <a href="${config.clientUrl}/student/dashboard" class="button" style="background-color: #10b981; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);">Download Certificate</a>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Official Certificate Issued
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Your official verified Certificate of Completion for <strong>${internshipTitle}</strong> has been generated and permanently issued by the <strong>International Institute of Internship™ [i3]</strong>.
+      </p>
+
+      <!-- Certificate Credential Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Program:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">
+              ${internshipTitle}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Certificate ID:</td>
+            <td style="padding: 6px 0; font-size: 14px; font-weight: 700; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+              ${certificateNo}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Verification:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #ecfdf5; color: #059669; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: 1px solid #a7f3d0;">
+                AUTHENTICATED & VERIFIED
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Issuing Body:</td>
+            <td style="padding: 6px 0; font-size: 13px; color: #334155; font-weight: 600;">
+              International Institute of Internship™ [i3]
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Credential Sharing Guide -->
+      <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #0f172a;">
+          🌟 Credential Verification & Sharing:
+        </p>
+        <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #475569; line-height: 1.5;">
+          • Download your high-resolution vector PDF certificate with verified QR code.<br>
+          • Add your credential to your LinkedIn profile and professional resume.<br>
+          • Employers can verify this certificate anytime using your Certificate ID.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${studentPortalUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 220px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                View & Download Certificate
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${studentPortalUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${studentPortalUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Need certificate verification help? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );

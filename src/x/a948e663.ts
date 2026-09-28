@@ -35,7 +35,12 @@ const buildConfig = (): AppConfig => ({
   jwtExpiresIn: getEnv("JWT_EXPIRES_IN", "7d"),
   jwtRefreshSecret: requireEnv("JWT_REFRESH_SECRET"),
   jwtRefreshExpiresIn: getEnv("JWT_REFRESH_EXPIRES_IN", "30d"),
-  allowedOrigins: getEnv("ALLOWED_ORIGINS", "http://localhost:3000")
+  allowedOrigins: getEnv(
+    "ALLOWED_ORIGINS",
+    process.env.NODE_ENV === "production"
+      ? "https://www.iiinternship.in,https://iiinternship.in"
+      : "http://localhost:3000,http://127.0.0.1:3000",
+  )
     .split(",")
     .map((s) => s.trim()),
   bcryptRounds: getEnvNumber("BCRYPT_ROUNDS", 12),

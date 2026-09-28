@@ -152,7 +152,7 @@ export async function sendWelcomeEmail(
   const htmlContent = getWelcomeEmailTemplate(name, role);
   return sendEmail({
     to: [{ email, name }],
-    subject: "Welcome to IIInternship! 🎉",
+    subject: "Welcome to International Institute of Internship™",
     htmlContent,
   });
 }
@@ -164,7 +164,7 @@ export async function sendImmersionWelcomeEmail(
   const htmlContent = getImmersionWelcomeEmailTemplate(name);
   return sendEmail({
     to: [{ email, name }],
-    subject: "Welcome to IIInternship Immersion Program! 🚀",
+    subject: "Welcome to the Immersion Program — International Institute of Internship™",
     htmlContent,
   });
 }
@@ -178,7 +178,7 @@ export async function sendPasswordResetEmail(
   const htmlContent = getPasswordResetEmailTemplate(token, name, clientUrl);
   return sendEmail({
     to: [{ email, ...(name ? { name } : {}) }],
-    subject: "Reset Your Password — IIInternship",
+    subject: "Reset your password — International Institute of Internship™",
     htmlContent,
   });
 }
@@ -197,7 +197,7 @@ export async function sendAdminCreatedUserEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: "Your Account Has Been Created — IIInternship",
+    subject: "Your Account Has Been Created — International Institute of Internship™",
     htmlContent,
   });
 }
@@ -217,7 +217,7 @@ export async function sendPaymentConfirmationEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Payment Confirmed: ${internshipTitle} — IIInternship`,
+    subject: `Payment Confirmed: ${internshipTitle} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -226,26 +226,28 @@ export async function sendDonationReceiptEmail(
   email: string,
   name: string,
   amount: number,
-  receiptBuffer: Buffer,
+  receiptBuffer?: Buffer,
 ): Promise<boolean> {
   let attachmentPayload: { content: string; name: string }[] | undefined;
 
-  try {
-    const base64Content = receiptBuffer.toString("base64");
-    attachmentPayload = [
-      {
-        content: base64Content,
-        name: `80G_Donation_Receipt_${name.replace(/\s+/g, "_")}.pdf`,
-      },
-    ];
-  } catch (err) {
-    console.error("[Email Service] Failed to attach donation receipt:", err);
+  if (receiptBuffer && Buffer.isBuffer(receiptBuffer)) {
+    try {
+      const base64Content = receiptBuffer.toString("base64");
+      attachmentPayload = [
+        {
+          content: base64Content,
+          name: `80G_Donation_Receipt_${name.replace(/\s+/g, "_")}.pdf`,
+        },
+      ];
+    } catch (err) {
+      console.error("[Email Service] Failed to attach donation receipt:", err);
+    }
   }
 
   const htmlContent = getDonationReceiptEmailTemplate(name, amount);
   return sendEmail({
     to: [{ email, name }],
-    subject: `Thank You for Your Donation — IIInternship Trust`,
+    subject: `Official 80G Tax Exemption Receipt — International Institute of Internship™`,
     htmlContent,
     attachment: attachmentPayload,
   });
@@ -260,10 +262,11 @@ export async function sendJobApplicationSubmittedEmail(
   const htmlContent = getJobApplicationSubmittedEmailTemplate(
     jobTitle,
     companyName,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Application Received: ${jobTitle} — ${companyName}`,
+    subject: `Application Received: ${jobTitle} — ${companyName} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -285,10 +288,11 @@ export async function sendJobApplicationStatusUpdateEmail(
     message,
     attachmentUrl,
     link,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Update on your application for ${jobTitle} — ${companyName}`,
+    subject: `Application Status: ${status.toUpperCase()} — ${jobTitle} at ${companyName}`,
     htmlContent,
   });
 }
@@ -304,10 +308,11 @@ export async function sendSupportTicketReceivedEmail(
     ticketNo,
     title,
     description,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `[Support Ticket: ${ticketNo}] ${title}`,
+    subject: `Support Request Logged [${ticketNo}] — ${title} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -323,10 +328,11 @@ export async function sendSupportTicketStatusUpdateEmail(
     ticketNo,
     title,
     status,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Update: Ticket ${ticketNo} is ${status}`,
+    subject: `Ticket ${status.toUpperCase()} [${ticketNo}] — ${title} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -342,10 +348,11 @@ export async function sendSupportTicketReplyEmail(
     ticketNo,
     title,
     replyMessage,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Reply: Support Ticket ${ticketNo} — ${title}`,
+    subject: `Support Response [${ticketNo}] — ${title} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -355,10 +362,13 @@ export async function sendJobPlacementLeadConfirmationEmail(
   name: string,
   companyName: string,
 ): Promise<boolean> {
-  const htmlContent = getJobPlacementLeadConfirmationEmailTemplate(companyName);
+  const htmlContent = getJobPlacementLeadConfirmationEmailTemplate(
+    companyName,
+    name,
+  );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Placement Interest Confirmed — ${companyName}`,
+    subject: `Placement Expression of Interest: ${companyName} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -374,7 +384,7 @@ export async function sendInstructorProfileRegistrationCompletionEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Instructor Onboarding Submitted: ID ${instructorId}`,
+    subject: `Instructor Onboarding Submitted: ID ${instructorId} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -390,7 +400,7 @@ export async function sendStudentProfileRegistrationCompletionEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Student Profile Completed: ID ${studentId}`,
+    subject: `Student Profile Registered: ID ${studentId} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -408,7 +418,7 @@ export async function sendInternshipApplicationSubmittedEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Applied successfully: ${internshipTitle} — ${companyName}`,
+    subject: `Application Received: ${internshipTitle} — ${companyName} | International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -424,9 +434,10 @@ export async function sendInternshipApplicationStatusUpdateEmail(
     internshipTitle,
     status,
   );
+  const upperStatus = (status || "UPDATED").toUpperCase();
   return sendEmail({
     to: [{ email, name }],
-    subject: `Application Status Update: ${internshipTitle} is ${status}`,
+    subject: `Application Status Update: ${internshipTitle} [${upperStatus}] — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -442,7 +453,7 @@ export async function sendInternshipPostingSubmittedForReviewEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Posting Review: "${internshipTitle}" — IIInternship`,
+    subject: `Posting Under Review: ${internshipTitle} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -458,7 +469,7 @@ export async function sendInternshipPostingApprovedEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Approved: "${internshipTitle}" is now live! 📢`,
+    subject: `Approved & Live: ${internshipTitle} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -476,10 +487,11 @@ export async function sendAdminPublishedNoticeNotificationEmail(
     category,
     description,
     pdfUrl,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Official Notice: ${title} [${category}]`,
+    subject: `Official Circular: ${title} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -497,10 +509,11 @@ export async function sendInstructorBroadcastedNoticeNotificationEmail(
     title,
     category,
     description,
+    name,
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Class Update: ${title} by ${instructorName}`,
+    subject: `Classroom Broadcast: ${title} by ${instructorName} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -518,7 +531,7 @@ export async function sendOnCampusVirtualInternshipInterestEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Interest Received: ${internshipTitle} (${type})`,
+    subject: `Interest Registered: ${internshipTitle} (${type}) — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -536,7 +549,7 @@ export async function sendInternshipPaymentFailedEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Enrollment Payment Failed: ${internshipTitle}`,
+    subject: `Payment Unsuccessful: ${internshipTitle} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -554,7 +567,7 @@ export async function sendInternshipEnrollmentCompletedEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Congratulations! Internship Completed: ${internshipTitle}`,
+    subject: `Congratulations! Internship Completed: ${internshipTitle} — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -572,7 +585,7 @@ export async function sendCertificateIssuedEmail(
   );
   return sendEmail({
     to: [{ email, name }],
-    subject: `Certificate Issued: ${internshipTitle} (${certificateNo})`,
+    subject: `Official Certificate Issued: ${internshipTitle} [${certificateNo}] — International Institute of Internship™`,
     htmlContent,
   });
 }
@@ -590,7 +603,7 @@ export async function sendProfileCompletionReminderEmail(
 
   return sendEmail({
     to: [{ email, name }],
-    subject: "Action Required: Complete Your IIInternship™ Profile",
+    subject: "Action Required: Complete Your Profile — International Institute of Internship™",
     htmlContent,
   });
 }

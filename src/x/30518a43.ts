@@ -22,22 +22,92 @@ function formatRoleName(role: string): string {
 export function getWelcomeEmailTemplate(name: string, role: string): string {
   const roleDisplay = formatRoleName(role);
   const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const loginUrl = `${baseUrl}/login`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Welcome to IIInternship™",
+    "Welcome to International Institute of Internship™",
     `
-      <h2 style="color: #0f172a; font-size: 22px; font-weight: 700; margin-top: 0; margin-bottom: 16px; text-align: center;">
-        Welcome to IIInternship, ${name}! 🎉
-      </h2>
-      <p style="font-size: 15px; color: #334155; line-height: 1.6; margin-bottom: 16px;">
-        Thank you for joining our global platform. Your account has been created successfully with the role of <strong style="color: #0284c7;">${roleDisplay}</strong>.
+      <!-- Welcome Icon Indicator -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">🎓</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading (26px, Clean Charcoal) -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 26px; font-weight: 700; margin: 0 0 22px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Welcome to i3 Platform
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 14px 0;">
+        Hi ${userName},
       </p>
-      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 24px;">
-        You can now log in and access your personalized dashboard to explore verified internships, courses, and opportunities.
+
+      <!-- Body Copy -->
+      <p style="font-size: 15px; color: #334155; line-height: 1.65; margin: 0 0 22px 0;">
+        Thank you for joining the <strong>International Institute of Internship™</strong>. Your account has been registered successfully.
       </p>
-      <div style="text-align: center; margin: 28px 0;">
-        <a href="${baseUrl}/login" style="display: inline-block; padding: 14px 32px; background-color: #0284c7; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);">
-          👉 Access Your Portal
-        </a>
+
+      <!-- Account Role Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="font-size: 13px; color: #64748b; font-weight: 500;">
+              Registered Account Role:
+            </td>
+            <td align="right" style="font-size: 13px; font-weight: 700; color: #059669;">
+              ${roleDisplay}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Getting Started Checklist -->
+      <div style="margin: 0 0 28px 0; text-align: left;">
+        <p style="margin: 0 0 10px 0; font-size: 12.5px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.04em;">
+          Next Steps to Get Started:
+        </p>
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="padding: 5px 0; font-size: 13.5px; color: #475569; line-height: 1.5;">
+              ✅ <strong>Complete Profile</strong> — Access your official Digital ID Card.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; font-size: 13.5px; color: #475569; line-height: 1.5;">
+              💼 <strong>Explore Internships</strong> — Apply for verified domain opportunities.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; font-size: 13.5px; color: #475569; line-height: 1.5;">
+              📜 <strong>Earn Credentials</strong> — Complete milestones and earn digital certificates.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 28px 0 24px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${loginUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 190px; padding: 14px 36px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Access my portal
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Need assistance getting started? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );
@@ -45,22 +115,86 @@ export function getWelcomeEmailTemplate(name: string, role: string): string {
 
 export function getImmersionWelcomeEmailTemplate(name: string): string {
   const baseUrl = config.clientUrl || "https://www.iiinternship.in";
+  const dashboardUrl = `${baseUrl}/immersion/dashboard`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Welcome to Immersion Program — IIInternship™",
+    "Welcome to the Immersion Program — International Institute of Internship™",
     `
-      <h2 style="color: #0f172a; font-size: 22px; font-weight: 700; margin-top: 0; margin-bottom: 16px; text-align: center;">
-        Welcome to the Immersion Program! 🚀
-      </h2>
-      <p style="font-size: 15px; color: #334155; line-height: 1.6; margin-bottom: 16px;">
-        Hello ${name},
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">🚀</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Welcome to the Immersion Program
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
       </p>
-      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 24px;">
-        We are thrilled to welcome you to our exclusive Immersion Program. Your registration has been received and processed successfully.
+
+      <!-- Welcome Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        Congratulations! Your registration for the <strong>International Institute of Internship™ [i3] Immersion Program</strong> has been successfully processed. We are thrilled to partner with you on this intensive career advancement journey.
       </p>
-      <div style="text-align: center; margin: 28px 0;">
-        <a href="${baseUrl}/login" style="display: inline-block; padding: 14px 32px; background-color: #0284c7; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);">
-          👉 Launch Immersion Dashboard
-        </a>
+
+      <!-- Program Highlights Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 700; color: #0f172a; letter-spacing: -0.01em;">
+          🌟 What to Expect in Your Immersion Journey:
+        </p>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="vertical-align: top; padding: 4px 8px 8px 0; width: 22px; font-size: 14px;">🌐</td>
+            <td style="font-size: 13px; color: #475569; line-height: 1.5; padding-bottom: 8px;">
+              <strong>Industry-Aligned Projects:</strong> Work on practical case studies and production-grade deliverables.
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top; padding: 4px 8px 8px 0; width: 22px; font-size: 14px;">👥</td>
+            <td style="font-size: 13px; color: #475569; line-height: 1.5; padding-bottom: 8px;">
+              <strong>Expert Mentorship:</strong> Direct guidance, periodic reviews, and interactive AMA sessions.
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top; padding: 4px 8px 0 0; width: 22px; font-size: 14px;">📜</td>
+            <td style="font-size: 13px; color: #475569; line-height: 1.5;">
+              <strong>Verified Credentials:</strong> Earn your recognized Digital Certificate and program badge upon completion.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${dashboardUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Launch Immersion Dashboard
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${dashboardUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${dashboardUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Have questions or need technical support? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );
@@ -73,62 +207,77 @@ export function getPasswordResetEmailTemplate(
 ): string {
   const baseUrl = clientUrl || config.clientUrl || "https://www.iiinternship.in";
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Reset Your Password — IIInternship™",
+    "Reset your password — International Institute of Internship™",
     `
-      <!-- Security Badge -->
-      <div style="text-align: center; margin-bottom: 20px;">
-        <span style="display: inline-block; background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em;">
-          🔐 Account Security Request
-        </span>
-      </div>
-
-      <h2 style="color: #0f172a; font-size: 22px; font-weight: 800; margin: 0 0 14px 0; text-align: center; letter-spacing: -0.02em;">
-        Reset Your Password
-      </h2>
-
-      <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 12px 0;">
-        Hello <strong>${name || "Valued User"}</strong>,
-      </p>
-
-      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 20px 0;">
-        We received a request to reset the password associated with your <strong>International Institute of Internship™ (IIInternship)</strong> account. Click the secure button below to choose your new password.
-      </p>
-
-      <!-- Expiration Warning Alert Box -->
-      <div style="background-color: #fefce8; border-left: 4px solid #eab308; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 26px;">
-        <p style="margin: 0; font-size: 13px; color: #854d0e; font-weight: 600;">
-          ⏳ <strong>Notice:</strong> This reset link is active for <strong>1 hour</strong> only.
-        </p>
-      </div>
-
-      <!-- Primary CTA Button (Bulletproof Table Styling) -->
-      <div style="text-align: center; margin: 30px 0;">
+      <!-- Security Icon Indicator -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
           <tr>
-            <td align="center" style="border-radius: 10px; background-color: #059669; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);">
-              <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 15px 36px; font-size: 15px; font-weight: 700; color: #ffffff !important; text-decoration: none; border-radius: 10px; letter-spacing: 0.01em;">
-                👉 Reset Password Now
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">🔒</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Heading (26px, Clean Charcoal) -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 26px; font-weight: 700; margin: 0 0 22px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Reset your password
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 14px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Body Copy -->
+      <p style="font-size: 15px; color: #334155; line-height: 1.65; margin: 0 0 28px 0;">
+        We received a request to reset the password for your <strong>International Institute of Internship™</strong> account.
+      </p>
+
+      <!-- Primary CTA Button (Prominent Green Button ~48px height, ~200px width, responsive on mobile) -->
+      <div style="text-align: center; margin: 28px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${resetUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 190px; padding: 14px 36px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Reset my password
               </a>
             </td>
           </tr>
         </table>
       </div>
 
-      <!-- Direct Fallback Link Box -->
-      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin: 26px 0;">
-        <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 700; color: #475569;">
-          Having trouble clicking the button? Copy and paste this URL into your browser:
+      <!-- Expiration Note -->
+      <p style="text-align: center; font-size: 12.5px; color: #64748b; margin: 0 0 28px 0; line-height: 1.5;">
+        ⏱ This password reset link expires in 1 hour.
+      </p>
+
+      <!-- Fallback URL Section -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 3px 0; font-size: 12px; font-weight: 600; color: #475569;">
+          Having trouble with the button?
         </p>
-        <a href="${resetUrl}" target="_blank" style="font-size: 11.5px; color: #0284c7; word-break: break-all; font-family: monospace; text-decoration: underline;">
+        <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; line-height: 1.4;">
+          Copy and paste this link into your browser:
+        </p>
+        <a href="${resetUrl}" target="_blank" style="font-size: 11.5px; color: #059669; word-break: break-all; word-wrap: break-word; overflow-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; text-decoration: underline; line-height: 1.5; display: block;">
           ${resetUrl}
         </a>
       </div>
 
-      <!-- Security Advisory Note -->
-      <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 20px 0 0 0; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-        🛡️ If you did not request a password reset, you can safely disregard this email. Your password and account will remain completely secure.
+      <!-- Security Message -->
+      <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0 0 22px 0;">
+        If you didn&apos;t request this password reset, you can safely ignore this email. Your password will remain unchanged.
       </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Need help? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }
@@ -142,26 +291,91 @@ export function getAdminCreatedUserEmailTemplate(
   const roleDisplay = formatRoleName(role);
   const baseUrl = config.clientUrl || "https://www.iiinternship.in";
   const loginUrl = `${baseUrl}/login`;
+  const userName = name && name.trim() ? name.trim() : "there";
+
   return getBaseTemplate(
-    "Your Account Details — IIInternship™",
+    "Your Account Has Been Created — International Institute of Internship™",
     `
-      <h2 style="color: #0f172a; font-size: 22px; font-weight: 700; margin-top: 0; margin-bottom: 16px; text-align: center;">
-        Your Account has been Created 🎉
-      </h2>
-      <p style="font-size: 15px; color: #334155; line-height: 1.6; margin-bottom: 16px;">
-        Hello ${name || "User"},
-      </p>
-      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 20px;">
-        An administrator has set up an account for you on the IIInternship platform with the role of <strong style="color: #0284c7;">${roleDisplay}</strong>.
-      </p>
-      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 20px 0;">
-        <div style="margin-bottom: 8px; font-size: 14px;"><strong style="color: #475569; display: inline-block; width: 140px;">Email:</strong> <span style="font-family: monospace; font-weight: bold; color: #0f172a;">${email}</span></div>
-        <div style="font-size: 14px;"><strong style="color: #475569; display: inline-block; width: 140px;">Temp Password:</strong> <span style="font-family: monospace; font-weight: bold; color: #0f172a;">${tempPass}</span></div>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #ecfdf5; border: 1px solid #d1fae5; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">🔑</span>
+            </td>
+          </tr>
+        </table>
       </div>
-      <div style="text-align: center; margin: 28px 0;">
-        <a href="${loginUrl}" style="display: inline-block; padding: 14px 32px; background-color: #0284c7; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);">
-          👉 Log In and Set Permanent Password
-        </a>
+
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Your Account Has Been Created
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
+      </p>
+
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        An administrator has provisioned an official <strong>International Institute of Internship™ [i3]</strong> account for you. Below are your account details and temporary login credentials:
+      </p>
+
+      <!-- Credentials Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 20px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600; width: 140px;">Assigned Role:</td>
+            <td style="padding: 6px 0;">
+              <span style="display: inline-block; padding: 3px 10px; background-color: #ecfdf5; color: #059669; font-size: 12px; font-weight: 700; border-radius: 6px; border: 1px solid #a7f3d0;">
+                ${roleDisplay}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Login Email:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+              ${email}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Temp Password:</td>
+            <td style="padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+              ${tempPass}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Security Notice Box -->
+      <div style="background-color: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 4px; padding: 12px 14px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0; font-size: 12.5px; color: #92400e; line-height: 1.5;">
+          <strong>Security Note:</strong> For your protection, please log in and update your temporary password immediately upon your first sign-in.
+        </p>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${loginUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 200px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Log In to Your Account
+              </a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
+        Direct link: <a href="${loginUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${loginUrl}</a>
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Need help logging in? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
       </div>
     `,
   );
@@ -175,73 +389,91 @@ export function getProfileCompletionReminderEmailTemplate(
   const roleDisplay = formatRoleName(role);
   const baseUrl = clientUrl || config.clientUrl || "https://www.iiinternship.in";
   const loginUrl = `${baseUrl}/login`;
+  const userName = name && name.trim() ? name.trim() : "there";
 
   return getBaseTemplate(
-    "Complete Your Profile — IIInternship™",
+    "Action Required: Complete Your Profile — International Institute of Internship™",
     `
-      <div style="text-align: center; margin-bottom: 24px;">
-        <span style="display: inline-block; background-color: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid #fde68a;">
-          ⚠️ Action Required • Profile Incomplete
-        </span>
+      <!-- Top Icon / Badge -->
+      <div style="text-align: center; margin: 0 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" style="width: 44px; height: 44px; border-radius: 50%; background-color: #fffbeb; border: 1px solid #fef3c7; text-align: center; vertical-align: middle;">
+              <span style="font-size: 18px; line-height: 44px; display: inline-block;">📝</span>
+            </td>
+          </tr>
+        </table>
       </div>
 
-      <h2 class="title" style="text-align: center; font-size: 22px; color: #0f172a; margin-bottom: 8px;">
-        Please Complete Your Registration Profile
-      </h2>
-      <p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 24px;">
-        Finish setting up your account to unlock all platform features and opportunities.
+      <!-- Heading -->
+      <h1 class="heading-responsive" style="color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 16px 0; text-align: center; letter-spacing: -0.02em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; line-height: 1.3;">
+        Please Complete Your Profile
+      </h1>
+
+      <!-- Personalized Greeting -->
+      <p style="font-size: 15px; color: #1e293b; line-height: 1.6; margin: 0 0 12px 0;">
+        Hi ${userName},
       </p>
 
-      <div style="background-color: #f8fafc; border-left: 4px solid #3b82f6; padding: 18px 20px; border-radius: 0 12px 12px 0; margin-bottom: 24px;">
-        <p style="margin: 0; font-size: 15px; color: #1e293b; font-weight: 600;">
-          Hello ${name || "Valued User"},
-        </p>
-        <p style="margin: 10px 0 0 0; font-size: 14px; color: #475569; line-height: 1.6;">
-          You have successfully registered an account on the <strong>International Institute of Internship™ (IIInternship)</strong> platform as a <span style="color: #2563eb; font-weight: 600;">${roleDisplay}</span>.
-        </p>
-        <p style="margin: 8px 0 0 0; font-size: 13px; color: #64748b; line-height: 1.5;">
-          However, our records show that your <strong>One-Time Registration Profile</strong> has not been completed yet. Completing your profile is required before you can access all portal features.
-        </p>
-      </div>
+      <!-- Message -->
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0;">
+        You have successfully registered on the <strong>International Institute of Internship™ [i3]</strong> platform as an <strong>${roleDisplay}</strong>. However, our records show that your <strong>One-Time Profile Registration</strong> is still incomplete.
+      </p>
 
-      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-        <p style="font-size: 14px; color: #334155; font-weight: 700; margin: 0 0 10px 0;">
+      <!-- Benefits Card -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin: 0 0 24px 0; text-align: left;">
+        <p style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 700; color: #0f172a; letter-spacing: -0.01em;">
           🌟 Why complete your profile today?
         </p>
-        <ul style="font-size: 13px; color: #475569; padding-left: 20px; margin: 0; line-height: 1.8;">
-          <li>Access your customized dashboard and official <strong>Digital ID Card</strong>.</li>
-          <li>Apply directly to curated global internship and mentorship programs.</li>
-          <li>Receive verified digital certificates and skill credentials.</li>
-        </ul>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="vertical-align: top; padding: 4px 8px 8px 0; width: 22px; font-size: 14px;">🪪</td>
+            <td style="font-size: 13px; color: #475569; line-height: 1.5; padding-bottom: 8px;">
+              <strong>Official Digital ID:</strong> Unlock your customized dashboard and verified digital credentials.
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top; padding: 4px 8px 8px 0; width: 22px; font-size: 14px;">💼</td>
+            <td style="font-size: 13px; color: #475569; line-height: 1.5; padding-bottom: 8px;">
+              <strong>Direct Program Access:</strong> Apply directly to curated global internship and mentorship programs.
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top; padding: 4px 8px 0 0; width: 22px; font-size: 14px;">📜</td>
+            <td style="font-size: 13px; color: #475569; line-height: 1.5;">
+              <strong>Verified Certificates:</strong> Enable automated issuance of digital certificates upon completion.
+            </td>
+          </tr>
+        </table>
       </div>
 
-      <!-- Login Panel Callout Box -->
-      <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 2px solid #10b981; border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);">
-        <h3 style="margin: 0 0 8px 0; font-size: 17px; color: #065f46; font-weight: 700;">
-          Log In to Update Your Profile
-        </h3>
-        <p style="margin: 0 0 20px 0; font-size: 13px; color: #047857;">
-          Click the button below to sign in and complete your registration details:
-        </p>
-
-        <a href="${loginUrl}" style="display: inline-block; padding: 14px 34px; background-color: #059669; color: #ffffff !important; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.35); letter-spacing: 0.02em;">
-          👉 Login to IIInternship Portal
-        </a>
-
-        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid #d1fae5;">
-          <span style="font-size: 11px; color: #065f46; display: block; margin-bottom: 4px; font-weight: 600;">
-            Direct Portal Login URL:
-          </span>
-          <a href="${loginUrl}" style="color: #059669; font-size: 12px; word-break: break-all; font-family: monospace; text-decoration: underline;">
-            ${loginUrl}
-          </a>
-        </div>
+      <!-- Primary CTA Button -->
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #059669; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+              <a href="${loginUrl}" target="_blank" class="btn-responsive" style="display: inline-block; min-width: 210px; padding: 14px 34px; font-size: 14.5px; font-weight: 600; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif; letter-spacing: 0.01em; text-align: center;">
+                Complete Your Profile Now
+              </a>
+            </td>
+          </tr>
+        </table>
       </div>
 
-      <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px; margin-bottom: 0;">
-        If you have recently completed your registration, please feel free to disregard this notice.<br>
-        Need help? Contact our support team directly from the portal.
+      <!-- Direct Link Fallback -->
+      <p style="text-align: center; font-size: 12px; color: #64748b; margin: 0 0 20px 0; line-height: 1.5;">
+        Direct link: <a href="${loginUrl}" target="_blank" style="color: #059669; word-break: break-all; text-decoration: underline;">${loginUrl}</a>
       </p>
+
+      <!-- Disregard note -->
+      <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0 0 20px 0; line-height: 1.5;">
+        If you have already completed your registration, you can safely disregard this notice.
+      </p>
+
+      <!-- Support Link -->
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 18px; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+        Need help? <a href="mailto:i3.office2025@gmail.com" style="color: #059669; font-weight: 600; text-decoration: none;">Contact i3 Support</a>.
+      </div>
     `,
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import React_4, { useEffect, useState } from "react";
@@ -3866,6 +3867,16 @@ export default function RegistrationPage() {
         />
       ) : (
         <div ref={formRef} id="registration-form-section" className="space-y-6 pt-4">
+            <div className="mb-2">
+              <Link
+                href="/"
+                className="group inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back to Home</span>
+              </Link>
+            </div>
+
             <div className="space-y-1">
               <h1 className="text-foreground text-2xl font-bold tracking-tight md:text-3xl">
                 Student Registration Form

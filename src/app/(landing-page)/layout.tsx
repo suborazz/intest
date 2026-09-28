@@ -820,16 +820,16 @@ export default function LandingLayout({
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="bg-white flex w-[85vw] flex-col border-l-0 p-0 shadow-2xl sm:w-[360px] h-full"
+                className="bg-white flex w-[88vw] max-w-[360px] flex-col border-l-0 p-0 shadow-2xl h-full"
               >
-                <SheetHeader className="border-gray-100 bg-white flex shrink-0 flex-row items-center justify-between border-b px-4 py-2 text-left">
+                <SheetHeader className="border-gray-100 bg-white flex shrink-0 flex-row items-center justify-between border-b px-4 py-2.5 text-left">
                   <SheetTitle className="m-0 flex items-center">
                     <Image
                       src="/logo.png"
                       alt="Logo"
                       width={220}
                       height={55}
-                      className="h-8 w-auto max-w-[220px] object-contain object-left"
+                      className="h-8 w-auto max-w-[210px] object-contain object-left"
                     />
                   </SheetTitle>
                   <SheetDescription className="sr-only">
@@ -837,7 +837,7 @@ export default function LandingLayout({
                   </SheetDescription>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto px-3 py-1.5 no-scrollbar">
+                <div className="flex-1 overflow-y-auto px-3 py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   <div className="flex flex-col space-y-0.5">
                     {navData.map((item) => {
                       if (item.isSubmenu && item.submenuItems) {
@@ -854,41 +854,52 @@ export default function LandingLayout({
                                 setExpandedMenu(isExpanded ? null : item.title)
                               }
                               className={cn(
-                                "group flex w-full items-center justify-between rounded-md px-2.5 py-1 text-left text-[12.5px] font-semibold outline-none transition-all",
-                                isSubmenuActive ? "bg-emerald-50 text-[#064E3B]" : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#064E3B]"
+                                "group flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-[14px] font-semibold outline-none transition-all active:scale-[0.98]",
+                                isSubmenuActive
+                                  ? "bg-emerald-50 text-[#064E3B] font-bold"
+                                  : "text-slate-800 hover:bg-emerald-50/60 hover:text-[#064E3B]"
                               )}
                             >
-                              {item.title}
+                              <span>{item.title}</span>
                               <ChevronDown
                                 className={cn(
-                                  "h-3.5 w-3.5 transition-transform duration-200 text-gray-400",
+                                  "size-3.5 transition-transform duration-200 text-slate-400 group-hover:text-[#064E3B]",
                                   isExpanded && "rotate-180 text-[#064E3B]"
                                 )}
                               />
                             </button>
 
                             {isExpanded && (
-                              <div className="ml-2.5 my-0.5 flex flex-col space-y-0.5 border-l border-emerald-100 pl-2.5">
-                                {item.submenuItems.map((subItem) => (
-                                  <Link
-                                    key={subItem.title}
-                                    href={subItem.href}
-                                    onClick={handleLinkClick}
-                                    className={cn(
-                                      "rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
-                                      pathname === subItem.href
-                                        ? "text-[#064E3B] font-bold bg-emerald-50"
-                                        : "text-gray-600 hover:text-[#064E3B] hover:bg-gray-50"
-                                    )}
-                                  >
-                                    {subItem.title}
-                                  </Link>
-                                ))}
+                              <div className="ml-3 my-0.5 flex flex-col space-y-0.5 border-l-2 border-emerald-100 pl-2.5">
+                                {item.submenuItems.map((subItem) => {
+                                  const isSubActive = pathname === subItem.href;
+                                  return (
+                                    <Link
+                                      key={subItem.title}
+                                      href={subItem.href}
+                                      onClick={handleLinkClick}
+                                      className={cn(
+                                        "rounded-md px-2.5 py-1 text-[12.5px] font-medium transition-colors flex items-center justify-between",
+                                        isSubActive
+                                          ? "text-[#064E3B] font-bold bg-emerald-50"
+                                          : "text-slate-600 hover:text-[#064E3B] hover:bg-slate-50"
+                                      )}
+                                    >
+                                      <span>{subItem.title}</span>
+                                      {isSubActive && (
+                                        <span className="size-1.5 rounded-full bg-[#064E3B]" />
+                                      )}
+                                    </Link>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
                         );
                       }
+
+                      const isDonate = item.title === "Donate";
+                      const isActive = pathname === item.href;
 
                       return (
                         <Link
@@ -896,43 +907,53 @@ export default function LandingLayout({
                           href={item.href!}
                           onClick={handleLinkClick}
                           className={cn(
-                            "rounded-md px-2.5 py-1 text-[12.5px] font-semibold transition-colors",
-                            pathname === item.href
+                            "flex items-center justify-between rounded-lg px-3 py-1.5 text-[14px] font-semibold transition-all active:scale-[0.98]",
+                            isDonate
+                              ? "bg-emerald-100/70 text-emerald-900 border border-emerald-300/60 hover:bg-emerald-200/80 font-bold my-0.5"
+                              : isActive
                               ? "bg-emerald-50 text-[#064E3B] font-bold"
-                              : "text-gray-700 hover:bg-emerald-50/50 hover:text-[#064E3B]"
+                              : "text-slate-800 hover:bg-emerald-50/60 hover:text-[#064E3B]"
                           )}
                         >
-                          {item.title}
+                          <span>{item.title}</span>
+                          {isActive && !isDonate && (
+                            <span className="size-1.5 rounded-full bg-[#064E3B]" />
+                          )}
+                          {isDonate && (
+                            <span className="text-[10px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                              Support
+                            </span>
+                          )}
                         </Link>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="border-gray-100 bg-gray-50/80 mt-auto shrink-0 border-t p-2.5 flex flex-col gap-1.5">
+                <div className="border-gray-100 bg-slate-50/90 mt-auto shrink-0 border-t p-2.5 flex flex-col gap-1.5">
                   <Button
                     asChild
-                    className="w-full bg-[#064E3B] hover:bg-[#04382A] text-white text-[11.5px] font-bold shadow-xs flex items-center justify-center gap-1.5 py-2 h-8 rounded-lg transition-all"
+                    className="w-full bg-[#064E3B] hover:bg-[#04382A] text-white text-[12.5px] font-bold shadow-xs flex items-center justify-center gap-1.5 h-8.5 rounded-lg transition-all active:scale-[0.99]"
                   >
                     <Link href="/student/registration" onClick={handleLinkClick}>
-                      <GraduationCap className="size-3.5" />
+                      <GraduationCap className="size-4" />
                       <span>Student Registration</span>
                     </Link>
                   </Button>
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-emerald-600/30 bg-[#ECFDF5] hover:bg-emerald-100/80 text-[#064E3B] text-[11.5px] font-bold flex items-center justify-center gap-1.5 py-2 h-8 rounded-lg transition-all shadow-2xs"
+                    className="w-full border-emerald-600/30 bg-[#ECFDF5] hover:bg-emerald-100/80 text-[#064E3B] text-[12.5px] font-bold flex items-center justify-center gap-1.5 h-8.5 rounded-lg transition-all shadow-2xs active:scale-[0.99]"
                   >
                     <Link href="/instructor/registration" onClick={handleLinkClick}>
-                      <Presentation className="size-3.5 text-[#064E3B]" />
+                      <Presentation className="size-4 text-[#064E3B]" />
                       <span>Instructor Registration</span>
                     </Link>
                   </Button>
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-emerald-700/30 bg-white hover:bg-emerald-50 text-[#064E3B] text-[11.5px] font-bold flex items-center justify-center gap-1.5 py-2 h-8 rounded-lg shadow-2xs transition-all"
+                    className="w-full border-emerald-700/30 bg-white hover:bg-emerald-50 text-[#064E3B] text-[12.5px] font-bold flex items-center justify-center gap-1.5 h-8 rounded-lg shadow-2xs transition-all active:scale-[0.99]"
                   >
                     <Link href="/login" onClick={handleLinkClick}>
                       <LogIn className="size-3.5 text-[#064E3B]" />
