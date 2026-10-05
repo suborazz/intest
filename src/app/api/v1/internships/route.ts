@@ -147,10 +147,10 @@ const internshipCategorySchema = z.enum([
 ]);
 
 const createInternshipSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(100),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  companyName: z.string().min(2, "Company name is required"),
-  location: z.string().min(2, "Location is required"),
+  title: z.string().min(2, "Title must be at least 2 characters").max(100),
+  description: z.string().min(3, "Description must be at least 3 characters"),
+  companyName: z.string().min(1, "Company name is required"),
+  location: z.string().optional().nullable(),
   mode: internshipModeSchema.default("OFFLINE"),
   type: internshipTypeSchema,
   category: internshipCategorySchema.default("RUNNING"),
@@ -170,8 +170,8 @@ const createInternshipSchema = z.object({
   price: z.number().nonnegative().optional().nullable(),
   stipendAmount: z.number().nonnegative().optional().nullable(),
   duration: z.string().min(1, "Duration is required"),
-  startDate: z.coerce.date().optional(),
-  onboardingDetails: z.string().optional(),
+  startDate: z.coerce.date().optional().nullable(),
+  onboardingDetails: z.string().optional().nullable(),
   instructorId: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   imagePublicId: z.string().optional().nullable(),
@@ -429,12 +429,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
         let resolvedInstructorId: string | null = null;
-    if (data.instructorId && data.instructorId !== "none" && data.instructorId !== "null") {
+    if (data.instructorId && data.instructorId !== "none" && data.instructorId !== "null" && data.instructorId.trim() !== "") {
       let targetUserId = data.instructorId;
       let instructor = await prisma.user.findFirst({
         where: {
           id: targetUserId,
-          role: "INSTRUCTOR",
           deletedAt: null,
         },
       });
@@ -452,28 +451,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           instructor = await prisma.user.findFirst({
             where: {
               id: targetUserId,
-              role: "INSTRUCTOR",
               deletedAt: null,
             },
           });
         }
       }
 
-      if (!instructor) {
-        return errorResponse(
-          "VALIDATION_ERROR",
-          "The specified instructor does not exist or is not an active instructor.",
-          {
-            status: HTTP_2.UNPROCESSABLE,
-            details: {
-              instructorId: [
-                "Invalid instructor selected. Must be an active INSTRUCTOR.",
-              ],
-            },
-          },
-        );
+      if (instructor) {
+        resolvedInstructorId = targetUserId;
       }
-      resolvedInstructorId = targetUserId;
     }
 
     const finalPrice = data.type === "PAID" ? (data.price ?? null) : null;
@@ -487,7 +473,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const approvedStatus = !isInstructor; 
     const activeStatus = !isInstructor; 
 
-        const finalCategory = isInstructor
+    const finalCategory = isInstructor
       ? "RUNNING"
       : (data.category ?? "RUNNING");
 
@@ -507,12 +493,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
+    const finalLocation =
+      data.location && data.location.trim()
+        ? data.location.trim()
+        : data.mode === "ONLINE"
+          ? "Online / Remote"
+          : "On-Premises / Offline";
+
     const internship = await prisma.internship.create({
       data: {
         title: data.title,
         description: data.description,
         companyName: data.companyName,
-        location: data.location,
+        location: finalLocation,
         mode: (data.mode ?? "OFFLINE") as InternshipMode,
         type: data.type as InternshipType,
         category: finalCategory as InternshipCategory,

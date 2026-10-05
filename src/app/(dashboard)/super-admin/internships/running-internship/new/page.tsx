@@ -1106,6 +1106,13 @@ const createInternshipSchema = z.object({
     });
 
 const ZCreateInternship = createInternshipSchema.extend({
+      title: z_2.string().min(2, "Title must be at least 2 characters").max(100),
+      description: z_2.string().min(3, "Description must be at least 3 characters"),
+      companyName: z_2.string().min(1, "Company name is required"),
+      duration: z_2.string().min(1, "Duration is required"),
+      location: z_2.string().optional().nullable(),
+      price: z_2.union([z_2.number(), z_2.string(), z_2.null()]).optional().nullable(),
+      stipendAmount: z_2.union([z_2.number(), z_2.string(), z_2.null()]).optional().nullable(),
       startDate: z_2.union([z_2.string(), z_2.date()]).optional().nullable(),
       lastDate: z_2.union([z_2.string(), z_2.date()]).optional().nullable(),
       department: z_2.string().optional().nullable(),
@@ -4761,43 +4768,69 @@ export default function NewInternshipPage() {
           };
 
     function onSubmit(values: TCreateInternshipInput) {
-            const payload: CreateInternshipPayload = {
-              title: values.title,
-              description: values.description,
-              companyName: values.companyName,
-              location: values.location,
-              type: values.type,
-              price: values.type === "PAID" ? values.price : null,
-              stipendAmount: values.type === "STIPEND" ? values.stipendAmount : null,
-              duration: values.duration,
-              startDate: values.startDate
-                ? new Date(values.startDate).toISOString()
-                : undefined,
-              lastDate: values.lastDate
-                ? new Date(values.lastDate).toISOString()
-                : undefined,
-              onboardingDetails: values.onboardingDetails || undefined,
-              category: values.category || "RUNNING",
-              mode: (values.mode as "OFFLINE" | "ONLINE" | "HYBRID") || "OFFLINE",
-              department: values.department || undefined,
-              modules: formatList(values.modules),
-              tools: formatList(values.tools),
-              skills: formatList(values.skills),
-              projectFocus: values.projectFocus || undefined,
-              credits: values.credits ? String(values.credits) : undefined,
-              qualification: values.qualification || undefined,
-              timePeriod: values.timePeriod || undefined,
-              facilities: values.facilities || undefined,
-              careerOpportunity: values.careerOpportunity || undefined,
-              contact: values.contact || undefined,
-              organizer: values.organizer || undefined,
-              instructorId: values.instructorId || undefined,
-              ...(imageBase64 ? { imageBase64 } : {}),
-            };
+      const finalLocation =
+        values.mode === "ONLINE"
+          ? (values.location && values.location.trim() ? values.location.trim() : "Online / Remote")
+          : (values.location && values.location.trim() ? values.location.trim() : "On-Premises / In-Person");
 
-            createInternship(payload);
-          }
+      const numPrice =
+        values.type === "PAID" && values.price !== null && values.price !== undefined && String(values.price).trim() !== ""
+          ? Number(values.price)
+          : null;
 
+      const numStipend =
+        values.type === "STIPEND" && values.stipendAmount !== null && values.stipendAmount !== undefined && String(values.stipendAmount).trim() !== ""
+          ? Number(values.stipendAmount)
+          : null;
+
+      const payload: CreateInternshipPayload = {
+        title: values.title,
+        description: values.description,
+        companyName: values.companyName,
+        location: finalLocation,
+        type: values.type,
+        price: numPrice,
+        stipendAmount: numStipend,
+        duration: values.duration,
+        startDate: values.startDate
+          ? new Date(values.startDate).toISOString()
+          : undefined,
+        lastDate: values.lastDate
+          ? new Date(values.lastDate).toISOString()
+          : undefined,
+        onboardingDetails: values.onboardingDetails || undefined,
+        category: values.category || "RUNNING",
+        mode: (values.mode as "OFFLINE" | "ONLINE" | "HYBRID") || "OFFLINE",
+        department: values.department || undefined,
+        modules: formatList(values.modules),
+        tools: formatList(values.tools),
+        skills: formatList(values.skills),
+        projectFocus: values.projectFocus || undefined,
+        credits: values.credits ? String(values.credits) : undefined,
+        qualification: values.qualification || undefined,
+        timePeriod: values.timePeriod || undefined,
+        facilities: values.facilities || undefined,
+        careerOpportunity: values.careerOpportunity || undefined,
+        contact: values.contact || undefined,
+        organizer: values.organizer || undefined,
+        instructorId: values.instructorId && values.instructorId !== "none" ? values.instructorId : undefined,
+        ...(imageBase64 ? { imageBase64 } : {}),
+      };
+
+      createInternship(payload);
+    }
+
+    const onInvalid = (errors: Record<string, any>) => {
+      console.error("[Form Validation Failed]", errors);
+      const errorKeys = Object.keys(errors);
+      if (errorKeys.length > 0) {
+        const errorDescriptions = errorKeys
+          .map((k) => `${k}: ${errors[k]?.message || "Invalid"}`)
+          .slice(0, 3)
+          .join(", ");
+        toast.error(`Please fix required fields: ${errorDescriptions}`);
+      }
+    };
 
   return (<ResponsiveDialog
             isOpen={showDialog}
@@ -4808,7 +4841,7 @@ export default function NewInternshipPage() {
           >
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(onSubmit, onInvalid)}
                 className="space-y-6 pb-4 pt-2"
               >
               {/* Cover Banner Image Section */}
@@ -4894,6 +4927,7 @@ export default function NewInternshipPage() {
                               placeholder="E.g. Software Engineering Practice (Full-Stack)"
                               icon={Briefcase_2}
                               {...field}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -4914,6 +4948,7 @@ export default function NewInternshipPage() {
                               placeholder="E.g. IIIT Center of Excellence"
                               icon={Building2}
                               {...field}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -4965,6 +5000,7 @@ export default function NewInternshipPage() {
                                 placeholder="E.g. BCC Greens, Deva Road, Lucknow, Uttar Pradesh"
                                 icon={MapPin_2}
                                 {...field}
+                                value={field.value || ""}
                               />
                             </FormControl>
                             <FormMessage />
@@ -4988,6 +5024,7 @@ export default function NewInternshipPage() {
                               placeholder="E.g. 3 Months"
                               icon={Clock_2}
                               {...field}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
