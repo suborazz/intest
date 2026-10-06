@@ -340,6 +340,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           isApproved: true,
           approvedAt: true,
           startDate: true,
+          imageUrl: true,
+          imagePublicId: true,
           createdAt: true,
           updatedAt: true,
           instructor: {

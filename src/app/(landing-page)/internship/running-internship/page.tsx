@@ -2795,8 +2795,8 @@ export default function RunningInternshipPage() {
             startDate: formatDate(i.startDate),
             fee: i.price ? `₹${i.price.toLocaleString()}` : "Free",
             lastDate: formatDate(i.lastDate),
-            mentor: i.instructor?.name || i.mentor?.name || "Senior Instructor",
-            contact: i.contact || "Program Desk (+91 9472351693)",
+            mentor: i.instructor?.name || (i as any).instructor?.fullName || i.mentor?.name || null,
+            contact: i.contact || "+91 9472351693",
             organizer: i.organizer || "IIIT Center of Excellence",
           };
         },

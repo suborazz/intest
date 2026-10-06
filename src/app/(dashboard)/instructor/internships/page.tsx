@@ -4475,8 +4475,7 @@ const columns_2 = ({
           const instName =
             item.instructor?.name ||
             item.instructor?.fullName ||
-            item.instructorId ||
-            "Senior Instructor";
+            (item.instructorId ? "Assigned" : "Unassigned");
 
           return (
             <div className="space-y-0.5 text-xs">
@@ -4533,44 +4532,12 @@ const columns_2 = ({
 
           const isInstructorCreated = createdBy === "INSTRUCTOR";
 
-          let superAdminStatus = "PENDING";
-          let instructorStatus = "PENDING";
-
-          if (isInstructorCreated) {
-            instructorStatus = item.instructorApprovalStatus || "APPROVED";
-            superAdminStatus =
-              item.superAdminApprovalStatus ||
-              (item.isApproved ? "APPROVED" : "PENDING");
-          } else {
-            superAdminStatus = item.superAdminApprovalStatus || "APPROVED";
-            instructorStatus =
-              item.instructorApprovalStatus ||
-              (item.isInstructorApproved
-                ? "APPROVED"
-                : !item.isApproved
-                  ? "REJECTED"
-                  : item.approvedAt
-                    ? "APPROVED"
-                    : "PENDING");
-          }
-
           let overallStatus = "PENDING";
-          if (superAdminStatus === "APPROVED" && instructorStatus === "APPROVED") {
+          if (item.isApproved || !isInstructorCreated) {
             overallStatus = "APPROVED";
-          } else if (
-            superAdminStatus === "REJECTED" ||
-            instructorStatus === "REJECTED"
-          ) {
+          } else if (item.isApproved === false && (item as unknown as { rejectedAt?: string }).rejectedAt) {
             overallStatus = "REJECTED";
-          } else if (
-            superAdminStatus === "APPROVED" &&
-            instructorStatus === "PENDING"
-          ) {
-            overallStatus = "WAITING FOR INSTRUCTOR";
-          } else if (
-            superAdminStatus === "PENDING" &&
-            instructorStatus === "APPROVED"
-          ) {
+          } else {
             overallStatus = "WAITING FOR ADMIN";
           }
 
@@ -4801,47 +4768,12 @@ const InternshipDetailDialog_3: React_3.FC<InternshipDetailDialogProps_2> = ({
 
       const isInstructorCreated = createdByRole === "INSTRUCTOR";
 
-      let superAdminApprovalStatus = "PENDING";
-      let instructorApprovalStatus = "PENDING";
-
-      if (isInstructorCreated) {
-        instructorApprovalStatus = item.instructorApprovalStatus || "APPROVED";
-        superAdminApprovalStatus =
-          item.superAdminApprovalStatus ||
-          (internship.isApproved ? "APPROVED" : "PENDING");
-      } else {
-        superAdminApprovalStatus = item.superAdminApprovalStatus || "APPROVED";
-        instructorApprovalStatus =
-          item.instructorApprovalStatus ||
-          (item.isInstructorApproved
-            ? "APPROVED"
-            : !item.isApproved
-              ? "REJECTED"
-              : item.approvedAt
-                ? "APPROVED"
-                : "PENDING");
-      }
-
       let overallStatus = "PENDING";
-      if (
-        superAdminApprovalStatus === "APPROVED" &&
-        instructorApprovalStatus === "APPROVED"
-      ) {
+      if (item.isApproved || !isInstructorCreated) {
         overallStatus = "APPROVED";
-      } else if (
-        superAdminApprovalStatus === "REJECTED" ||
-        instructorApprovalStatus === "REJECTED"
-      ) {
+      } else if (item.isApproved === false && (item as unknown as { rejectedAt?: string }).rejectedAt) {
         overallStatus = "REJECTED";
-      } else if (
-        superAdminApprovalStatus === "APPROVED" &&
-        instructorApprovalStatus === "PENDING"
-      ) {
-        overallStatus = "WAITING FOR INSTRUCTOR";
-      } else if (
-        superAdminApprovalStatus === "PENDING" &&
-        instructorApprovalStatus === "APPROVED"
-      ) {
+      } else {
         overallStatus = "WAITING FOR ADMIN";
       }
 

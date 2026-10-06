@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Award, Bold, BookOpen, Briefcase as Briefcase_2, Building2, Calendar as Calendar_3, Clock as Clock_2, Code, DollarSign, FileText, Italic, Layers, Link as LinkIcon, List, ListOrdered, Loader2, MapPin as MapPin_2, Minus, Quote, Redo2, RemoveFormatting, Sparkles as Sparkles_2, Undo2, UserCheck } from "lucide-react";
+import { Award, Bold, BookOpen, Briefcase as Briefcase_2, Building2, Calendar as Calendar_3, Clock as Clock_2, Code, DollarSign, FileText, Image as ImageIcon_2, Italic, Layers, Link as LinkIcon, List, ListOrdered, Loader2, MapPin as MapPin_2, Minus, Quote, Redo2, RemoveFormatting, Sparkles as Sparkles_2, Trash2, Undo2, Upload, UserCheck } from "lucide-react";
 import React_3 from "react";
 import { useEffect, useRef, useState } from "react";
 import { clsx, ClassValue } from "clsx";
@@ -1459,6 +1459,8 @@ interface CreateInternshipPayload {
 
       mode?: string;
       remoteDetails?: string;
+      imageBase64?: string | null;
+      imageUrl?: string | null;
     }
 
 interface ListMyStudentsParams {
@@ -3338,6 +3340,30 @@ export default function PostInternshipPage() {
       const [showDialog, setShowDialog] = React_3.useState(true);
       const [isStartDateOpen, setIsStartDateOpen] = React_3.useState(false);
       const [isLastDateOpen, setIsLastDateOpen] = React_3.useState(false);
+      const [imagePreview, setImagePreview] = React_3.useState<string | null>(null);
+      const [imageBase64, setImageBase64] = React_3.useState<string | null>(null);
+
+      const handleImageChange = (e: React_3.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image size exceeds 5MB limit");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const res = reader.result as string;
+            setImagePreview(res);
+            setImageBase64(res);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleRemoveImage = () => {
+        setImagePreview(null);
+        setImageBase64(null);
+      };
 
       const { mutate: createRunningInternship, isPending } =
         InstructorDataHooks.useCreateRunningInternship();
@@ -3426,6 +3452,7 @@ export default function PostInternshipPage() {
           facilities: values.facilities || undefined,
           careerOpportunity: values.careerOpportunity || undefined,
           organizer: values.organizer || undefined,
+          ...(imageBase64 ? { imageBase64 } : {}),
         };
 
         createRunningInternship(payload, {
@@ -3449,6 +3476,66 @@ export default function PostInternshipPage() {
             className={cn_13("space-y-6 pb-2 pt-4", className)}
             {...props}
           >
+            {/* Flyer / Banner Upload */}
+            <div className="bg-muted/30 border-border/50 space-y-4 rounded-xl border p-4">
+              <div className="border-border/30 flex items-center justify-between border-b pb-2">
+                <div className="flex items-center gap-2">
+                  <ImageIcon_2 className="size-4 text-emerald-600" />
+                  <h3 className="text-foreground text-sm font-bold">
+                    Internship Flyer / Banner Photo
+                  </h3>
+                </div>
+                {imagePreview && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveImage}
+                    className="text-destructive hover:bg-destructive/10 h-7 text-xs"
+                  >
+                    <Trash2 className="mr-1 size-3.5" /> Remove Image
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="bg-muted relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl border sm:w-48">
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Internship Banner"
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-center p-2">
+                      <ImageIcon_2 className="text-muted-foreground/60 size-7" />
+                      <span className="text-muted-foreground text-[10px]">No banner attached</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-1.5">
+                  <label
+                    htmlFor="instructor-internship-banner-upload"
+                    className="bg-background text-foreground hover:bg-muted/40 inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors"
+                  >
+                    <Upload className="size-3.5" />
+                    {imagePreview ? "Change Photo / Banner" : "Upload Internship Photo"}
+                    <input
+                      id="instructor-internship-banner-upload"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                  <p className="text-muted-foreground text-[11px]">
+                    Upload a high quality cover image or flyer (PNG, JPG, WEBP, max 5MB). This image will appear at the top of the internship details.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {}
             <div className="bg-muted/30 border-border/50 space-y-4 rounded-xl border p-4">
               <div className="border-border/30 flex items-center gap-2 border-b pb-2">
@@ -3928,7 +4015,7 @@ export default function PostInternshipPage() {
                       <FormControl>
                         <Input
                           id="contact"
-                          placeholder="e.g. Mr. Rajan Kumar (+91 9472351693)"
+                          placeholder="e.g. +91 9472351693"
                           icon={UserCheck}
                           {...field}
                           value={field.value || ""}

@@ -4,7 +4,7 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React_2, { useState } from "react";
-import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, GraduationCap as GraduationCap_2, HelpCircle, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Shield, Sparkles as Sparkles_2, Terminal, User, Check } from "lucide-react";
+import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, GraduationCap as GraduationCap_2, HelpCircle, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Shield, Sparkles as Sparkles_2, Terminal, User, Check, Maximize2, Eye, Download, X } from "lucide-react";
 import * as React from "react";
 import { clsx, ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -1363,9 +1363,16 @@ interface InternshipHeroProps {
         categoryLabel: string;
         department?: string;
         companyName: string;
+        location?: string;
+        mode?: string;
+        duration?: string;
+        fee?: string;
+        startDate?: string;
+        credits?: string | null;
         imageUrl?: string | null;
       };
       setIsOpen: (open: boolean) => void;
+      onOpenFlyer?: () => void;
     }
 
 interface InternshipSidebarProps {
@@ -1375,7 +1382,7 @@ interface InternshipSidebarProps {
         duration: string;
         startDate: string;
         lastDate: string;
-        credits?: string;
+        credits?: string | null;
         qualification: string;
         mentor?: string;
         organizer: string;
@@ -3172,92 +3179,174 @@ export default function InternshipDetailPage() {
     const InternshipHero = ({
       internship,
       setIsOpen,
+      onOpenFlyer,
     }: InternshipHeroProps) => {
+      const hasImage = Boolean(internship.imageUrl);
+
       return (
-        <div className="relative mb-6 py-2">
-          {internship.imageUrl && (
-            <div className="relative mb-6 w-full overflow-hidden rounded-2xl border border-border/40 shadow-sm">
-              <div className="aspect-16/9 sm:aspect-21/9 max-h-72 w-full overflow-hidden bg-muted/40">
-                <img
-                  src={internship.imageUrl}
-                  alt={internship.title}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-          )}
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div className="flex-1 space-y-4">
+        <div className="relative mb-8 overflow-hidden rounded-3xl border border-border/60 bg-linear-to-b from-muted/30 via-background to-background p-6 shadow-sm sm:p-8">
+          <div className={`grid grid-cols-1 gap-8 items-center ${hasImage ? "lg:grid-cols-12" : ""}`}>
+            
+            {/* Left Content Column */}
+            <div className={`space-y-5 ${hasImage ? "lg:col-span-7" : "w-full"}`}>
+              {/* Badges */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="bg-primary/10 border-primary/20 text-primary inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold uppercase">
-                  <Briefcase_2 className="h-3 w-3" />
+                <span className="bg-primary/10 border-primary/20 text-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                  <Briefcase_2 className="h-3.5 w-3.5" />
                   {internship.type}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold uppercase text-amber-600 dark:text-amber-400">
-                  <Sparkles_2 className="h-3 w-3" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  <Sparkles_2 className="h-3.5 w-3.5" />
                   {internship.categoryLabel}
                 </span>
                 {internship.department && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-bold uppercase text-blue-600 dark:text-blue-400">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                     {internship.department}
                   </span>
                 )}
+                {internship.mode && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    <MapPin_2 className="h-3.5 w-3.5" />
+                    {internship.mode}
+                  </span>
+                )}
               </div>
-              <h1 className="text-foreground text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
-                {internship.title}
-              </h1>
-              {!(
-                internship.type === "Virtual" || internship.type === "On-Campus"
-              ) && (
-                <p className="text-muted-foreground flex items-center gap-2 text-sm font-semibold">
-                  <Building_2 className="text-primary h-4 w-4" />
-                  {internship.companyName}
+
+              {/* Title & Organization */}
+              <div className="space-y-2">
+                <h1 className="text-foreground text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+                  {internship.title}
+                </h1>
+                <p className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                  <Building_2 className="text-primary h-4 w-4 shrink-0" />
+                  <span>{internship.companyName || "International Institute of Internship"}</span>
                 </p>
-              )}
+              </div>
+
+              {/* Key Quick Highlight Pills */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pt-1">
+                <div className="rounded-xl border border-border/50 bg-background/70 p-2.5 text-left backdrop-blur-xs">
+                  <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                    <Clock_2 className="size-3 text-blue-500" /> Duration
+                  </span>
+                  <p className="text-xs font-bold text-foreground mt-0.5 truncate">{internship.duration}</p>
+                </div>
+                <div className="rounded-xl border border-border/50 bg-background/70 p-2.5 text-left backdrop-blur-xs">
+                  <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                    <Sparkles_2 className="size-3 text-amber-500" /> Fee / Stipend
+                  </span>
+                  <p className="text-xs font-bold text-foreground mt-0.5 truncate">{internship.fee || "Free of Cost"}</p>
+                </div>
+                <div className="rounded-xl border border-border/50 bg-background/70 p-2.5 text-left backdrop-blur-xs">
+                  <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                    <Calendar className="size-3 text-emerald-500" /> Starts On
+                  </span>
+                  <p className="text-xs font-bold text-foreground mt-0.5 truncate">{internship.startDate || "Immediate"}</p>
+                </div>
+                {internship.credits ? (
+                  <div className="rounded-xl border border-border/50 bg-background/70 p-2.5 text-left backdrop-blur-xs">
+                    <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                      <Award className="size-3 text-purple-500" /> Credits
+                    </span>
+                    <p className="text-xs font-bold text-foreground mt-0.5 truncate">{internship.credits}</p>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-border/50 bg-background/70 p-2.5 text-left backdrop-blur-xs">
+                    <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                      <MapPin_2 className="size-3 text-emerald-500" /> Location
+                    </span>
+                    <p className="text-xs font-bold text-foreground mt-0.5 truncate">{internship.location || "Remote"}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Call-to-action buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                {internship.type === "Running" ? (
+                  <Link
+                    href="/sign-up?role=STUDENT"
+                    className="bg-linear-to-r from-emerald-600 via-teal-600 to-primary hover:opacity-95 flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-center font-bold text-white shadow-md shadow-emerald-500/20 transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    <Send className="h-4 w-4" />
+                    Apply Now
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => setIsOpen(true)}
+                    className="bg-linear-to-r from-emerald-600 via-teal-600 to-primary hover:opacity-95 flex items-center justify-center gap-2 rounded-xl px-7 py-3 font-bold text-white shadow-md shadow-emerald-500/20 transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    <Send className="h-4 w-4" />
+                    Express Interest
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    const url = window.location.href;
+                    const shareText = `Check out this Internship Opportunity: "${internship.title}" at ${internship.companyName}\nCategory: ${internship.categoryLabel}\nType: ${internship.type}\n\nApply Link: ${url}`;
+                    if (navigator.share) {
+                      navigator
+                        .share({
+                          title: internship.title,
+                          text: shareText,
+                          url: url,
+                        })
+                        .catch(console.error);
+                    } else {
+                      navigator.clipboard.writeText(shareText);
+                      toast.success("Internship details & apply link copied!");
+                    }
+                  }}
+                  className="text-foreground hover:bg-muted/80 inline-flex items-center justify-center gap-2 rounded-xl border border-border/70 bg-background px-5 py-3 text-sm font-semibold transition-colors"
+                  title="Share Internship"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </button>
+
+                {hasImage && onOpenFlyer && (
+                  <button
+                    type="button"
+                    onClick={onOpenFlyer}
+                    className="text-primary hover:bg-primary/10 inline-flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-5 py-3 text-sm font-semibold transition-colors"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                    View Full Flyer
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="flex min-w-[200px] flex-col gap-3 sm:flex-row md:flex-col">
-              {internship.type === "Running" ? (
-                <Link
-                  href="/sign-up?role=STUDENT"
-                  className="bg-linear-to-r from-primary hover:from-primary/95 flex items-center justify-center gap-2 rounded-xl to-emerald-500 px-6 py-3 text-center font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:to-emerald-500/95"
+            {/* Right Column: Full Uncropped Flyer Showcase Card */}
+            {hasImage && (
+              <div className="lg:col-span-5 flex flex-col items-center">
+                <div
+                  onClick={onOpenFlyer}
+                  className="group relative w-full cursor-pointer overflow-hidden rounded-2xl border border-border/70 bg-muted/20 p-2.5 shadow-lg transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10"
                 >
-                  <Send className="h-4 w-4" />
-                  Apply Now
-                </Link>
-              ) : (
-                <button
-                  onClick={() => setIsOpen(true)}
-                  className="bg-linear-to-r from-primary hover:from-primary/95 flex items-center justify-center gap-2 rounded-xl to-emerald-500 px-6 py-3 font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:to-emerald-500/95"
-                >
-                  <Send className="h-4 w-4" />
-                  Express Interest
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  const url = window.location.href;
-                  const shareText = `Check out this Internship Opportunity: "${internship.title}" at ${internship.companyName}\nCategory: ${internship.categoryLabel}\nType: ${internship.type}\n\nApply Link: ${url}`;
-                  if (navigator.share) {
-                    navigator
-                      .share({
-                        title: internship.title,
-                        text: shareText,
-                        url: url,
-                      })
-                      .catch(console.error);
-                  } else {
-                    navigator.clipboard.writeText(shareText);
-                    toast.success("Internship details & apply link copied!");
-                  }
-                }}
-                className="text-foreground flex items-center justify-center gap-2 rounded-xl border border-zinc-200/80 px-6 py-3 font-semibold transition-all hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-800/80"
-                title="Share Internship"
-              >
-                <Share2 className="h-4 w-4" />
-                Share Internship
-              </button>
-            </div>
+                  <div className="relative flex max-h-[360px] w-full items-center justify-center overflow-hidden rounded-xl bg-black/5 dark:bg-black/40">
+                    <img
+                      src={internship.imageUrl!}
+                      alt={internship.title}
+                      className="max-h-[360px] w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-black shadow-lg backdrop-blur-md">
+                        <Maximize2 className="size-3.5 text-primary" /> Click to Expand Flyer
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2.5 flex items-center justify-between px-2 text-xs text-muted-foreground">
+                    <span className="font-semibold flex items-center gap-1 text-[11px]">
+                      <Eye className="size-3.5 text-primary" /> Official Program Flyer
+                    </span>
+                    <span className="text-[11px] font-semibold text-primary group-hover:underline flex items-center gap-1">
+                      <Maximize2 className="size-3" /> Tap to Zoom
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -3382,8 +3471,8 @@ export default function InternshipDetailPage() {
                     </span>
                   </div>
 
-                  {}
-                  {internship.mentor ? (
+                  {/* Mentor */}
+                  {internship.mentor && (
                     <div className="flex flex-col">
                       <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
                         <User className="h-3.5 w-3.5 text-orange-500" />
@@ -3393,30 +3482,18 @@ export default function InternshipDetailPage() {
                         {internship.mentor}
                       </span>
                     </div>
-                  ) : (
-                    <div className="flex flex-col">
-                      <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
-                        <Building_2 className="h-3.5 w-3.5 text-sky-500" />
-                        Organizer
-                      </span>
-                      <span className="text-foreground/80 mt-0.5 text-xs font-bold leading-snug">
-                        {internship.organizer}
-                      </span>
-                    </div>
                   )}
 
-                  {}
-                  {internship.mentor && (
-                    <div className="flex flex-col">
-                      <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
-                        <Building_2 className="h-3.5 w-3.5 text-sky-500" />
-                        Organizer
-                      </span>
-                      <span className="text-foreground/80 mt-0.5 text-xs font-bold leading-snug">
-                        {internship.organizer}
-                      </span>
-                    </div>
-                  )}
+                  {/* Organizer */}
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
+                      <Building_2 className="h-3.5 w-3.5 text-sky-500" />
+                      Organizer
+                    </span>
+                    <span className="text-foreground/80 mt-0.5 text-xs font-bold leading-snug">
+                      {internship.organizer}
+                    </span>
+                  </div>
 
                   {}
                   <div className="flex flex-col">
@@ -3424,9 +3501,12 @@ export default function InternshipDetailPage() {
                       <Phone_2 className="h-3.5 w-3.5 text-teal-500" />
                       Contact
                     </span>
-                    <span className="text-foreground/80 mt-0.5 text-xs font-bold leading-snug">
+                    <a
+                      href={`tel:${internship.contact.replace(/\s+/g, "")}`}
+                      className="text-foreground/90 hover:text-primary mt-0.5 text-xs font-bold leading-snug transition-colors"
+                    >
                       {internship.contact}
-                    </span>
+                    </a>
                   </div>
                 </>
               )}
@@ -3471,8 +3551,12 @@ export default function InternshipDetailPage() {
     };
 
   const { id } = useParams() as { id: string };
-  const { data: res, isLoading } = StudentDataHook.useInternships();
+  const { data: detailRes, isLoading: isDetailLoading } = StudentDataHook.useInternship(id);
+  const { data: res, isLoading: isListLoading } = StudentDataHook.useInternships();
   const [isOpen, setIsOpen] = useState(false);
+  const [isFlyerModalOpen, setIsFlyerModalOpen] = useState(false);
+
+  const isLoading = isDetailLoading && isListLoading;
 
   if (isLoading) {
     return (
@@ -3487,8 +3571,8 @@ export default function InternshipDetailPage() {
     );
   }
 
-    const rawInternships = res?.data || [];
-  const foundRaw = rawInternships.find((i) => i.id === id);
+  const rawInternships = res?.data || [];
+  const foundRaw = detailRes?.data || rawInternships.find((i) => i.id === id);
 
   if (!foundRaw) {
     return (
@@ -3538,8 +3622,8 @@ export default function InternshipDetailPage() {
     modules: parseList(foundRaw.modules),
     tools: parseList(foundRaw.tools),
     skills: parseList(foundRaw.skills),
-    credits: foundRaw.credits ? String(foundRaw.credits) : "4 Credits",
-    contact: foundRaw.contact || "Program Desk (+91 9472351693)",
+    credits: foundRaw.credits ? (typeof foundRaw.credits === "number" ? `${foundRaw.credits} Credits` : String(foundRaw.credits)) : null,
+    contact: foundRaw.contact || "+91 9472351693",
     organizer: foundRaw.companyName || "IIIT Center of Excellence",
     startDate: foundRaw.startDate
       ? formatDate(foundRaw.startDate)
@@ -3560,7 +3644,12 @@ export default function InternshipDetailPage() {
       (foundRaw as unknown as Record<string, string>).facilities || "",
     careerOpportunity:
       (foundRaw as unknown as Record<string, string>).careerOpportunity || "",
-    mentor: foundRaw.mentor?.name || "Senior Instructor",
+    mentor:
+      (foundRaw as any).instructor?.name ||
+      (foundRaw as any).instructor?.fullName ||
+      (foundRaw as any).mentor?.name ||
+      (foundRaw as any).instructorName ||
+      null,
     qualification:
       (foundRaw as unknown as Record<string, string>).qualification ||
       "B.Tech/M.Tech (CS/IT) or equivalent",
@@ -3574,7 +3663,11 @@ export default function InternshipDetailPage() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {}
-        <InternshipHero internship={internship} setIsOpen={setIsOpen} />
+        <InternshipHero
+          internship={internship}
+          setIsOpen={setIsOpen}
+          onOpenFlyer={() => setIsFlyerModalOpen(true)}
+        />
 
         {}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -3606,6 +3699,59 @@ export default function InternshipDetailPage() {
         internshipId={internship.id}
         internshipTitle={internship.title}
       />
+
+      {/* High-Resolution Full Flyer Lightbox Modal */}
+      {isFlyerModalOpen && internship.imageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md transition-opacity duration-200"
+          onClick={() => setIsFlyerModalOpen(false)}
+        >
+          <div
+            className="relative flex max-h-[95vh] max-w-4xl flex-col items-center overflow-hidden rounded-2xl border border-white/20 bg-background/95 p-4 shadow-2xl backdrop-blur-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="mb-3 flex w-full items-center justify-between border-b border-border/60 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-foreground">
+                  {internship.title}
+                </h3>
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Eye className="size-3.5 text-primary" /> Official Program Poster / Flyer
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={internship.imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download="internship-flyer.jpg"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+                >
+                  <Download className="size-3.5" /> Full Size / Download
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setIsFlyerModalOpen(false)}
+                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  aria-label="Close flyer preview"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Image Body */}
+            <div className="relative flex max-h-[80vh] w-full items-center justify-center overflow-auto rounded-xl bg-black/10 dark:bg-black/40 p-2">
+              <img
+                src={internship.imageUrl}
+                alt={`${internship.title} Flyer`}
+                className="max-h-[78vh] w-auto max-w-full rounded-lg object-contain shadow-md"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

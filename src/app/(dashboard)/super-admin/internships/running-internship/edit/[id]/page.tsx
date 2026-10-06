@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import * as React from "react";
-import { Award, Bold, BookOpen, Briefcase as Briefcase_2, Building2, Calendar as Calendar_3, Clock as Clock_2, Code, DollarSign, Edit, FileText, Image as ImageIcon_2, Italic, Layers, Link as LinkIcon, List, ListOrdered, Loader2, MapPin as MapPin_2, Minus, Quote, Redo2, RemoveFormatting, Sparkles as Sparkles_2, Trash2, Undo2, Upload, UserCheck, Users as Users_2 } from "lucide-react";
+import { Award, Bold, BookOpen, Briefcase as Briefcase_2, Building2, Calendar as Calendar_3, Clock as Clock_2, Code, DollarSign, Edit, FileText, Image as ImageIcon_2, Italic, Layers, Link as LinkIcon, List, ListOrdered, Loader2, MapPin as MapPin_2, Minus, Quote, Redo2, RemoveFormatting, Sparkles as Sparkles_2, Trash2, Undo2, Upload, UserCheck, Users as Users_2, Search, Mail, Check, ChevronsUpDown, User } from "lucide-react";
 import React_3 from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { clsx, ClassValue } from "clsx";
@@ -4726,8 +4726,22 @@ export default function EditInternshipPage() {
       const instructors = React_3.useMemo(() => {
         if (!instructorsResp?.data) return [];
         const all = Array.isArray(instructorsResp.data) ? instructorsResp.data : [];
-            return all.filter((inst: any) => inst.isApproved);
+        return all.filter((inst: any) => inst.isApproved);
       }, [instructorsResp]);
+
+      const [mentorSearchQuery, setMentorSearchQuery] = React_3.useState("");
+      const [isMentorPopoverOpen, setIsMentorPopoverOpen] = React_3.useState(false);
+
+      const filteredInstructors = React_3.useMemo(() => {
+        if (!mentorSearchQuery.trim()) return instructors;
+        const q = mentorSearchQuery.toLowerCase().trim();
+        return instructors.filter((inst: any) => {
+          const name = (inst.fullName || inst.name || inst.user?.name || "").toLowerCase();
+          const email = (inst.email || inst.user?.email || "").toLowerCase();
+          const dept = (inst.department || inst.user?.department || "").toLowerCase();
+          return name.includes(q) || email.includes(q) || dept.includes(q);
+        });
+      }, [instructors, mentorSearchQuery]);
 
       const [imagePreview, setImagePreview] = React_3.useState<string | null>(
         data.imageUrl || null,
@@ -4869,7 +4883,7 @@ export default function EditInternshipPage() {
           careerOpportunity: values.careerOpportunity || undefined,
           contact: values.contact || undefined,
           organizer: values.organizer || undefined,
-          instructorId: values.instructorId && values.instructorId !== "none" ? values.instructorId : undefined,
+          instructorId: values.instructorId && values.instructorId !== "none" ? values.instructorId : "none",
           ...(imageBase64 ? { imageBase64 } : isImageRemoved ? { imageUrl: null } : {}),
         };
 
@@ -5195,54 +5209,211 @@ export default function EditInternshipPage() {
                 <FormField
                   control={form.control}
                   name="instructorId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold">
-                        Assigned Instructor / Mentor
-                      </FormLabel>
-                      <Select_23
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue_23
-                              placeholder={
-                                isLoadingInstructors
-                                  ? "Loading instructors..."
-                                  : "Select an instructor"
-                              }
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {instructors.length > 0 ? (
-                            instructors.map((inst: InstructorBasicInfo_4) => (
-                              <SelectItem
-                                key={inst.userId || inst.id}
-                                value={inst.userId || inst.id || ""}
+                  render={({ field }) => {
+                    const selectedInstructor = instructors.find(
+                      (inst: any) =>
+                        (inst.userId && inst.userId === field.value) ||
+                        (inst.id && inst.id === field.value),
+                    );
+
+                    return (
+                      <FormItem className="space-y-2.5">
+                        <FormLabel className="text-xs font-semibold">
+                          Assigned Instructor / Mentor
+                        </FormLabel>
+
+                        <Popover_7 open={isMentorPopoverOpen} onOpenChange={setIsMentorPopoverOpen}>
+                          <PopoverTrigger_7 asChild>
+                            <FormControl>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={isMentorPopoverOpen}
+                                className="border-input bg-background hover:bg-muted/40 h-auto min-h-10 w-full justify-between border px-3 py-2 text-left font-normal"
                               >
-                                {inst.fullName ||
-                                  inst.name ||
-                                  inst.user?.name ||
-                                  inst.email}{" "}
-                                ({inst.email || inst.department || "Instructor"})
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="none" disabled>
-                              No instructors found
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select_23>
-                      <FormDescription className="text-[11px]">
-                        Assigning an instructor routes the internship to their
-                        review panel for approval or tracking.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                                {selectedInstructor ? (
+                                  <div className="flex flex-col items-start gap-0.5 truncate text-left">
+                                    <span className="font-semibold text-foreground text-xs">
+                                      {selectedInstructor.fullName ||
+                                        selectedInstructor.name ||
+                                        selectedInstructor.user?.name ||
+                                        "Instructor"}
+                                    </span>
+                                    <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                                      <Mail className="size-3 text-primary shrink-0" />
+                                      {selectedInstructor.email || selectedInstructor.user?.email || "No email"}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-xs flex items-center gap-2">
+                                    <Search className="size-3.5 opacity-60" />
+                                    {isLoadingInstructors
+                                      ? "Loading mentors list..."
+                                      : "Click to search & assign mentor by name or email..."}
+                                  </span>
+                                )}
+                                <ChevronsUpDown className="size-4 shrink-0 opacity-50 ml-2" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger_7>
+
+                          <PopoverContent className="w-[var(--radix-popover-trigger-width,480px)] min-w-[320px] max-w-full p-2" align="start">
+                            {/* Search Filter Input */}
+                            <div className="relative mb-2">
+                              <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+                              <Input
+                                placeholder="Search mentor by name, email or department..."
+                                value={mentorSearchQuery}
+                                onChange={(e) => setMentorSearchQuery(e.target.value)}
+                                className="pl-8 text-xs h-9"
+                                autoFocus
+                              />
+                              {mentorSearchQuery && (
+                                <button
+                                  type="button"
+                                  onClick={() => setMentorSearchQuery("")}
+                                  className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
+                                >
+                                  <X className="size-3.5" />
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Mentors Results List */}
+                            <div className="max-h-64 overflow-y-auto space-y-1 pr-1">
+                              {/* Option: Unassigned / No mentor */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  field.onChange("");
+                                  setIsMentorPopoverOpen(false);
+                                }}
+                                className={cn_24(
+                                  "flex w-full items-center justify-between rounded-lg p-2 text-left text-xs transition-colors hover:bg-muted",
+                                  !field.value && "bg-muted/80 font-semibold",
+                                )}
+                              >
+                                <span className="text-muted-foreground italic flex items-center gap-1.5">
+                                  <User className="size-3.5 text-muted-foreground/60" />
+                                  No Mentor (Unassigned)
+                                </span>
+                                {!field.value && (
+                                  <Check className="size-3.5 text-primary" />
+                                )}
+                              </button>
+
+                              {filteredInstructors.length > 0 ? (
+                                filteredInstructors.map((inst: any) => {
+                                  const instId = inst.userId || inst.id;
+                                  const isSelected = field.value === instId;
+                                  const name =
+                                    inst.fullName ||
+                                    inst.name ||
+                                    inst.user?.name ||
+                                    "Instructor";
+                                  const email =
+                                    inst.email ||
+                                    inst.user?.email ||
+                                    "";
+                                  const dept = inst.department || inst.user?.department;
+
+                                  return (
+                                    <button
+                                      key={instId}
+                                      type="button"
+                                      onClick={() => {
+                                        field.onChange(instId);
+                                        setIsMentorPopoverOpen(false);
+                                      }}
+                                      className={cn_24(
+                                        "flex w-full items-center justify-between rounded-lg p-2.5 text-left text-xs transition-colors hover:bg-muted/80",
+                                        isSelected && "bg-primary/10 border border-primary/20",
+                                      )}
+                                    >
+                                      <div className="flex flex-col gap-0.5 truncate pr-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-bold text-foreground">
+                                            {name}
+                                          </span>
+                                          {dept && (
+                                            <span className="rounded bg-muted px-1.5 py-0.2 text-[9px] font-semibold text-muted-foreground">
+                                              {dept}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {email && (
+                                          <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                                            <Mail className="size-3 text-primary/70 shrink-0" />
+                                            {email}
+                                          </span>
+                                        )}
+                                      </div>
+                                      {isSelected && (
+                                        <Check className="size-4 text-primary shrink-0" />
+                                      )}
+                                    </button>
+                                  );
+                                })
+                              ) : (
+                                <div className="p-4 text-center text-xs text-muted-foreground">
+                                  No mentors found matching &quot;{mentorSearchQuery}&quot;
+                                </div>
+                              )}
+                            </div>
+                          </PopoverContent>
+                        </Popover_7>
+
+                        {/* Selected Mentor Detail Card */}
+                        {selectedInstructor && (
+                          <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/[0.04] p-3 text-xs">
+                            <div className="flex items-center gap-3">
+                              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">
+                                {(selectedInstructor.fullName || selectedInstructor.name || "M").charAt(0).toUpperCase()}
+                              </div>
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-foreground">
+                                    {selectedInstructor.fullName ||
+                                      selectedInstructor.name ||
+                                      selectedInstructor.user?.name}
+                                  </span>
+                                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.2 text-[9px] font-bold uppercase text-emerald-600">
+                                    Assigned Mentor
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                                  <Mail className="size-3 text-primary" />
+                                  <span>{selectedInstructor.email || selectedInstructor.user?.email}</span>
+                                  {selectedInstructor.department && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{selectedInstructor.department}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="xs"
+                              onClick={() => field.onChange("")}
+                              className="text-muted-foreground hover:text-destructive text-[11px]"
+                            >
+                              <X className="mr-1 size-3" /> Remove
+                            </Button>
+                          </div>
+                        )}
+
+                        <FormDescription className="text-[11px]">
+                          Search by mentor name or email to assign them. The mentor will be linked to this internship batch.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 
@@ -5378,7 +5549,7 @@ export default function EditInternshipPage() {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="E.g. Mr. Rajan Kumar (+91 9472351693)"
+                            placeholder="E.g. +91 9472351693"
                             icon={UserCheck}
                             {...field}
                             value={field.value || ""}

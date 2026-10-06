@@ -2667,8 +2667,12 @@ function InternshipCard_2({
       const lastDate = (internship as any).lastDate;
       const organizer =
         (internship as any).organizer || "IIIT Center of Excellence";
-      const contact = internship.contact || "Program Desk (+91 9472351693)";
-      const mentor = internship.mentor?.name || "Senior Instructor";
+      const contact = internship.contact || "+91 9472351693";
+      const mentor =
+        (internship as any).instructor?.name ||
+        (internship as any).instructor?.fullName ||
+        internship.mentor?.name ||
+        null;
       const facilities = (internship as any).facilities || "";
       const careerOpportunity = (internship as any).careerOpportunity || "";
       const projectFocus = internship.projectFocus || "";
@@ -4091,8 +4095,15 @@ export default function InternshipsNewPage() {
       const organizer =
         (internship as any).organizer || internship.companyName || "N/A";
       const contact = internship.contact || "N/A";
-      const mentorName = internship.mentor?.name || "Senior Instructor";
-      const mentorEmail = internship.mentor?.email;
+      const mentorName =
+        (internship as any).instructor?.name ||
+        (internship as any).instructor?.fullName ||
+        internship.mentor?.name ||
+        null;
+      const mentorEmail =
+        (internship as any).instructor?.email ||
+        internship.mentor?.email ||
+        null;
       const facilities = (internship as any).facilities || "";
       const careerOpportunity = (internship as any).careerOpportunity || "";
       const projectFocus = internship.projectFocus || "";
