@@ -181,6 +181,55 @@ export async function GET(
     });
 
     if (!idCard) {
+      // 1. Fallback to StudentRegistration (for registration verification QR codes)
+      const studentReg = await prisma.studentRegistration.findFirst({
+        where: {
+          OR: [{ id }, { studentId: id }, { userId: id }],
+          deletedAt: null,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      });
+
+      if (studentReg) {
+        const addressParts = [
+          studentReg.localAddressLocal,
+          studentReg.localAddressDistrict,
+          studentReg.localAddressState,
+          studentReg.localAddressPinCode ? `- ${studentReg.localAddressPinCode}` : "",
+        ].filter(Boolean);
+        const address = addressParts.join(", ") || "N/A";
+
+        const responsePayload = {
+          cardNo: studentReg.studentId || studentReg.id,
+          issuedAt: studentReg.createdAt,
+          studentId: studentReg.studentId || studentReg.id,
+          studentName: studentReg.fullName || studentReg.user?.name || "Student",
+          studentEmail: studentReg.user?.email || "N/A",
+          studentMobile: studentReg.mobileNo || "N/A",
+          studentAddress: address,
+          photoUrl: studentReg.photoUrl || "",
+          internshipId: studentReg.id,
+          internshipTitle: "Student Onboarding Registration",
+          companyName: "International Institute of Internship [i3]",
+          internshipMode: "Active Registration",
+          internshipLocation: studentReg.localAddressDistrict || "Verified",
+          duration: "Institutional Record",
+          status: "VERIFIED",
+        };
+
+        return successResponse(responsePayload);
+      }
+
+      // 2. Fallback to Instructor ID Card
       const instructorCard = await prisma.instructorIdCard.findFirst({
         where: {
           OR: [{ id }, { cardNo: id }],
@@ -209,31 +258,66 @@ export async function GET(
         },
       });
 
-      if (!instructorCard || !instructorCard.user.instructorRegistration) {
-        return errorResponse(
-          "ID_CARD_NOT_FOUND",
-          "ID Card not found or invalid card number.",
-          { status: HTTP_2.NOT_FOUND },
-        );
+      if (instructorCard && instructorCard.user.instructorRegistration) {
+        const reg = instructorCard.user.instructorRegistration;
+        const address = `${reg.currentAddressLocal}, ${reg.currentAddressDistrict}, ${reg.currentAddressState} - ${reg.currentAddressPinCode}`;
+
+        const responsePayload = {
+          cardNo: instructorCard.cardNo,
+          issuedAt: instructorCard.issuedAt,
+          studentId: reg.instructorId || "N/A",
+          studentName: reg.fullName,
+          studentEmail: instructorCard.user.email,
+          studentMobile: reg.mobileNo || "N/A",
+          studentAddress: address,
+          photoUrl: reg.photoUrl || "",
+          isInstructor: true,
+          status: "VERIFIED",
+        };
+
+        return successResponse(responsePayload);
       }
 
-      const reg = instructorCard.user.instructorRegistration;
-      const address = `${reg.currentAddressLocal}, ${reg.currentAddressDistrict}, ${reg.currentAddressState} - ${reg.currentAddressPinCode}`;
+      // 3. Fallback to Instructor Registration
+      const instructorReg = await prisma.instructorRegistration.findFirst({
+        where: {
+          OR: [{ id }, { instructorId: id }, { userId: id }],
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
 
-      const responsePayload = {
-        cardNo: instructorCard.cardNo,
-        issuedAt: instructorCard.issuedAt,
-        studentId: reg.instructorId || "N/A",
-        studentName: reg.fullName,
-        studentEmail: instructorCard.user.email,
-        studentMobile: reg.mobileNo || "N/A",
-        studentAddress: address,
-        photoUrl: reg.photoUrl || "",
-        isInstructor: true,
-        status: "VERIFIED",
-      };
+      if (instructorReg) {
+        const address = `${instructorReg.currentAddressLocal}, ${instructorReg.currentAddressDistrict}, ${instructorReg.currentAddressState} - ${instructorReg.currentAddressPinCode}`;
 
-      return successResponse(responsePayload);
+        const responsePayload = {
+          cardNo: instructorReg.instructorId || instructorReg.id,
+          issuedAt: instructorReg.createdAt,
+          studentId: instructorReg.instructorId || "N/A",
+          studentName: instructorReg.fullName,
+          studentEmail: instructorReg.user?.email || "N/A",
+          studentMobile: instructorReg.mobileNo || "N/A",
+          studentAddress: address,
+          photoUrl: instructorReg.photoUrl || "",
+          isInstructor: true,
+          status: "VERIFIED",
+        };
+
+        return successResponse(responsePayload);
+      }
+
+      return errorResponse(
+        "ID_CARD_NOT_FOUND",
+        "ID Card not found or invalid card number.",
+        { status: HTTP_2.NOT_FOUND },
+      );
     }
 
     const reg = idCard.student.studentRegistration;

@@ -251,7 +251,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           const appCode =
             application.code || generateApplicationCode(application.id);
 
-          // Top right QR Code for Instant Smartphone Verification
+          // Top right Vector QR Code for Instant Smartphone Verification
           try {
             const host = request.headers.get("host") || "www.iiinternship.in";
             const protocol = host.includes("localhost") ? "http" : "https";
@@ -260,30 +260,42 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             const qr = qrcode(0, "M");
             qr.addData(verifyUrl);
             qr.make();
-            const qrDataUrl = qr.createDataURL(4, 0);
-            const qrMatches = qrDataUrl.match(
-              /^data:image\/[a-zA-Z+]+;base64,(.+)$/,
-            );
-            if (qrMatches && qrMatches[1]) {
-              const qrBuf = Buffer.from(qrMatches[1], "base64");
-              const qrSize = 42;
-              const qrX = doc.page.width - 35 - qrSize;
-              const qrY = headerY - 1;
-              doc.image(qrBuf, qrX, qrY, {
-                width: qrSize,
-                height: qrSize,
-              });
-              doc
-                .fontSize(5)
-                .font("Helvetica-Bold")
-                .fillColor("#059669")
-                .text("SCAN TO VERIFY", qrX - 10, qrY + qrSize + 1, {
-                  width: qrSize + 20,
-                  align: "center",
-                });
+            const moduleCount = qr.getModuleCount();
+            const qrSize = 42;
+            const cellSize = qrSize / moduleCount;
+            const qrX = doc.page.width - 35 - qrSize;
+            const qrY = headerY - 1;
+
+            // White background
+            doc.rect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4).fill("#ffffff");
+
+            // Render QR modules as vector rectangles
+            doc.fillColor("#000000");
+            for (let row = 0; row < moduleCount; row++) {
+              for (let col = 0; col < moduleCount; col++) {
+                if (qr.isDark(row, col)) {
+                  doc
+                    .rect(
+                      qrX + col * cellSize,
+                      qrY + row * cellSize,
+                      cellSize,
+                      cellSize,
+                    )
+                    .fill();
+                }
+              }
             }
+
+            doc
+              .fontSize(5)
+              .font("Helvetica-Bold")
+              .fillColor("#059669")
+              .text("SCAN TO VERIFY", qrX - 10, qrY + qrSize + 2, {
+                width: qrSize + 20,
+                align: "center",
+              });
           } catch (qrErr) {
-            console.error("QR Code rendering failed:", qrErr);
+            console.error("QR Code vector rendering failed:", qrErr);
           }
 
           doc

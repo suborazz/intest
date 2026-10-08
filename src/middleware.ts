@@ -32,6 +32,8 @@ const PUBLIC_API_ROUTES = [
   "/api/v1/immersion-participant/register",
   "/api/v1/visitors",
   "/api/v1/contact",
+  "/api/v1/id-cards",
+  "/api/v1/immersion-id-cards",
 ];
 
 function isProtectedApiRoute(pathname: string, method: string): boolean {
@@ -142,6 +144,13 @@ function isProtectedApiRoute(pathname: string, method: string): boolean {
   if (pathname.startsWith("/api/v1/recruit-user")) {
     return true;
   }
+  if (
+    (pathname.startsWith("/api/v1/id-cards/") ||
+      pathname.startsWith("/api/v1/immersion-id-cards/")) &&
+    method === "GET"
+  ) {
+    return false;
+  }
   if (pathname.includes("/id-card")) {
     return true;
   }
@@ -192,6 +201,8 @@ const EXTERNAL_CALLER_ROUTES = [
   "/api/health",
   "/api/docs",
   "/api/v1/visitors",
+  "/api/v1/id-cards",
+  "/api/v1/immersion-id-cards",
 ];
 
 const SPOOFABLE_IDENTITY_HEADERS = ["x-user-id", "x-user-email", "x-user-role"];
