@@ -1418,7 +1418,7 @@ function DataTablePagination_2({
               <SelectValue placeholder={tablePageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[5, 10, 20, 30, 40, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
                 </SelectItem>
@@ -1807,7 +1807,7 @@ function DataTable<TData, TValue>({
       </TableOverflow>
       {meta &&
         setMeta &&
-        meta.total >= 10 &&
+        meta.total > 0 &&
         table.getRowModel().rows?.length !== 0 && (
           <DataTablePagination_2
             meta={meta}

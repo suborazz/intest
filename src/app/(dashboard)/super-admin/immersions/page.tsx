@@ -9808,7 +9808,22 @@ export default function SuperAdminImmersionsPage() {
       );
     };
 
-    const columns_6 = (): ColumnDef<ImmersionProgramDetail_3>[] => [
+    const columns_6 = (
+      page: number = 1,
+      limit: number = 10,
+    ): ColumnDef<ImmersionProgramDetail_3>[] => [
+      {
+        id: "serialNumber",
+        header: "S.No",
+        cell: ({ row }) => {
+          const sNo = (page - 1) * limit + row.index + 1;
+          return (
+            <span className="text-muted-foreground/80 font-mono text-xs font-bold pl-1">
+              {sNo}
+            </span>
+          );
+        },
+      },
       {
         id: "programId",
         header: "Immersion Program ID",
@@ -10040,7 +10055,7 @@ export default function SuperAdminImmersionsPage() {
 
           <div className="w-full min-w-0">
             <DataTable
-              columns={columns_6()}
+              columns={columns_6(page, limit)}
               data={paginatedList}
               isLoading={isLoading}
               meta={meta}

@@ -1232,7 +1232,15 @@ function DataTablePagination_2({
       );
     }
 
-    return <></>;
+    const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
+    const end = Math.min(meta.page * meta.limit, meta.total);
+
+    return (
+      <p className="text-muted-foreground text-xs font-medium">
+        Showing <span className="font-bold text-foreground">{start}</span>–<span className="font-bold text-foreground">{end}</span> of{" "}
+        <span className="font-bold text-foreground">{meta.total}</span> applications
+      </p>
+    );
   }
   return (
     <div className="my-2 flex flex-col items-center gap-3 px-2 sm:flex-row sm:justify-between">
@@ -1254,7 +1262,7 @@ function DataTablePagination_2({
               <SelectValue placeholder={tablePageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[5, 10, 20, 30, 40, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
                 </SelectItem>
@@ -1643,7 +1651,7 @@ function DataTable<TData, TValue>({
       </TableOverflow>
       {meta &&
         setMeta &&
-        meta.total >= 10 &&
+        meta.total > 0 &&
         table.getRowModel().rows?.length !== 0 && (
           <DataTablePagination_2
             meta={meta}
@@ -3581,142 +3589,158 @@ function formatHumanReadableDate_12(date?: string | null): string {
     }
 
 interface GetApplicationsColumnsProps_2 {
-      onSelectApp: (app: JobApplicationDetail) => void;
-      onDownloadPDF: (userId: string) => void;
-      onUpdateStatusClick: (app: JobApplicationDetail) => void;
-      isDownloading?: boolean;
-    }
+  page?: number;
+  limit?: number;
+  onSelectApp: (app: JobApplicationDetail) => void;
+  onDownloadPDF: (userId: string) => void;
+  onUpdateStatusClick: (app: JobApplicationDetail) => void;
+  isDownloading?: boolean;
+}
 
 function formatHumanReadableDate_19(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 interface ActionCellProps_4 {
-      app: JobApplicationDetail;
-      onSelectApp: (app: JobApplicationDetail) => void;
-      onDownloadPDF: (userId: string) => void;
-      onUpdateStatusClick: (app: JobApplicationDetail) => void;
-      isDownloading?: boolean;
-    }
+  app: JobApplicationDetail;
+  onSelectApp: (app: JobApplicationDetail) => void;
+  onDownloadPDF: (userId: string) => void;
+  onUpdateStatusClick: (app: JobApplicationDetail) => void;
+  isDownloading?: boolean;
+}
 
 function DropdownMenu_12({
-      ...props
-    }: React_3.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-      return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
-    }
+  ...props
+}: React_3.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+}
 
 function DropdownMenuTrigger_12({
-      ...props
-    }: React_3.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
-      return (
-        <DropdownMenuPrimitive.Trigger suppressHydrationWarning
-          data-slot="dropdown-menu-trigger"
-          {...props}
-        />
-      );
-    }
+  ...props
+}: React_3.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+  return (
+    <DropdownMenuPrimitive.Trigger suppressHydrationWarning
+      data-slot="dropdown-menu-trigger"
+      {...props}
+    />
+  );
+}
 
 const EditIcon = (props: React_3.SVGProps<SVGSVGElement>) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        {...props}
-      >
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-      </svg>
-    );
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+  </svg>
+);
 
 const ActionCellComponent_2: React_3.FC<ActionCellProps_4> = ({
-      app,
-      onSelectApp,
-      onDownloadPDF,
-      onUpdateStatusClick,
-      isDownloading,
-    }) => {
-      return (
-        <div
-          className="flex items-center justify-end"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <DropdownMenu_12>
-            <DropdownMenuTrigger_12 asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 cursor-pointer rounded-lg p-0"
-                title="Actions menu"
-              >
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger_12>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => onSelectApp(app)}
-                className="cursor-pointer font-semibold"
-              >
-                <Eye className="text-primary mr-2 size-3.5" />
-                <span>View Details</span>
-              </DropdownMenuItem>
+  app,
+  onSelectApp,
+  onDownloadPDF,
+  onUpdateStatusClick,
+  isDownloading,
+}) => {
+  return (
+    <div
+      className="flex items-center justify-end"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <DropdownMenu_12>
+        <DropdownMenuTrigger_12 asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 cursor-pointer rounded-lg p-0"
+            title="Actions menu"
+          >
+            <MoreHorizontal className="size-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger_12>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            onClick={() => onSelectApp(app)}
+            className="cursor-pointer font-semibold"
+          >
+            <Eye className="text-primary mr-2 size-3.5" />
+            <span>View Details</span>
+          </DropdownMenuItem>
 
-              {app.userId && (
-                <DropdownMenuItem
-                  disabled={isDownloading}
-                  onClick={() => onDownloadPDF(app.userId)}
-                  className="cursor-pointer"
-                >
-                  <Download className="text-muted-foreground mr-2 size-3.5" />
-                  <span>Download Reg. PDF</span>
-                </DropdownMenuItem>
-              )}
+          {app.userId && (
+            <DropdownMenuItem
+              disabled={isDownloading}
+              onClick={() => onDownloadPDF(app.userId)}
+              className="cursor-pointer"
+            >
+              <Download className="text-muted-foreground mr-2 size-3.5" />
+              <span>Download Reg. PDF</span>
+            </DropdownMenuItem>
+          )}
 
-              {app.resumeUrl && (
-                <DropdownMenuItem
-                  onClick={() => window.open(app.resumeUrl, "_blank")}
-                  className="cursor-pointer"
-                >
-                  <FileDown className="text-muted-foreground mr-2 size-3.5" />
-                  <span>Download Resume</span>
-                </DropdownMenuItem>
-              )}
+          {app.resumeUrl && (
+            <DropdownMenuItem
+              onClick={() => window.open(app.resumeUrl, "_blank")}
+              className="cursor-pointer"
+            >
+              <FileDown className="text-muted-foreground mr-2 size-3.5" />
+              <span>Download Resume</span>
+            </DropdownMenuItem>
+          )}
 
-              <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-              <DropdownMenuItem
-                onClick={() => onUpdateStatusClick(app)}
-                className="cursor-pointer font-semibold text-indigo-600 focus:bg-indigo-500/10 focus:text-indigo-600 dark:text-indigo-400"
-              >
-                <EditIcon className="mr-2 size-3.5 text-indigo-500" />
-                <span>Update Status</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu_12>
-        </div>
-      );
-    };
+          <DropdownMenuItem
+            onClick={() => onUpdateStatusClick(app)}
+            className="cursor-pointer font-semibold text-indigo-600 focus:bg-indigo-500/10 focus:text-indigo-600 dark:text-indigo-400"
+          >
+            <EditIcon className="mr-2 size-3.5 text-indigo-500" />
+            <span>Update Status</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu_12>
+    </div>
+  );
+};
 
 const getApplicationsColumns_2 = ({
-      onSelectApp,
-      onDownloadPDF,
-      onUpdateStatusClick,
-      isDownloading,
-    }: GetApplicationsColumnsProps_2): ColumnDef<JobApplicationDetail>[] => [
-      {
-        id: "candidate",
-        header: "Candidate Name",
+  page = 1,
+  limit = 10,
+  onSelectApp,
+  onDownloadPDF,
+  onUpdateStatusClick,
+  isDownloading,
+}: GetApplicationsColumnsProps_2): ColumnDef<JobApplicationDetail>[] => [
+  {
+    id: "serialNumber",
+    header: "S.No",
+    cell: ({ row }) => {
+      const sNo = (page - 1) * limit + row.index + 1;
+      return (
+        <span className="text-muted-foreground/80 font-mono text-xs font-bold pl-1">
+          {sNo}
+        </span>
+      );
+    },
+  },
+  {
+    id: "candidate",
+    header: "Candidate Name",
         cell: ({ row }) => {
           const app = row.original;
           return (
@@ -9602,19 +9626,22 @@ export default function JobApplicationsPage({
       const columns = useMemo(
         () =>
           getApplicationsColumns_2({
+            page,
+            limit,
             onSelectApp: (app) => {
               setSelectedApp(app);
               setDetailOpen(true);
             },
             onDownloadPDF: (userId) => {
-                                                                                                      },
+              downloadPDF(userId);
+            },
             onUpdateStatusClick: (app) => {
               setStatusApp(app);
               setStatusOpen(true);
             },
             isDownloading,
           }),
-        [isDownloading],
+        [page, limit, isDownloading],
       );
 
       return (
@@ -9624,6 +9651,7 @@ export default function JobApplicationsPage({
             data={paginatedList}
             isLoading={isLoading}
             meta={meta}
+            setMeta={setMeta}
             toolbar={
               <div className="flex w-full items-center justify-between gap-2">
                 <DataTableSearch

@@ -12833,7 +12833,22 @@ export default function ImmersionApplicationsPage({
       );
     };
 
-    const columns_16 = (): ColumnDef_2<ImmersionApplicationPublic_3>[] => [
+    const columns_16 = (
+      page: number = 1,
+      limit: number = 10,
+    ): ColumnDef_2<ImmersionApplicationPublic_3>[] => [
+      {
+        id: "serialNumber",
+        header: "S.No",
+        cell: ({ row }) => {
+          const sNo = (page - 1) * limit + row.index + 1;
+          return (
+            <span className="text-muted-foreground/80 font-mono text-xs font-bold pl-1">
+              {sNo}
+            </span>
+          );
+        },
+      },
       {
         id: "candidate",
         header: "Candidate Name",
@@ -13104,7 +13119,7 @@ export default function ImmersionApplicationsPage({
           <div className="w-full min-w-0">
             <DataTable
               isLoading={isLoading}
-              columns={columns_16()}
+              columns={columns_16(page, limit)}
               data={paginatedList}
               meta={meta}
               setMeta={setMeta}

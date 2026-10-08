@@ -1377,29 +1377,38 @@ function DataTablePagination_2({
       );
     }
 
-    return <></>;
+    const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
+    const end = Math.min(meta.page * meta.limit, meta.total);
+
+    return (
+      <p className="text-muted-foreground text-xs font-medium">
+        Showing <span className="font-bold text-foreground">{start}</span>–<span className="font-bold text-foreground">{end}</span> of{" "}
+        <span className="font-bold text-foreground">{meta.total}</span> applications
+      </p>
+    );
   }
+
   return (
-    <div className="my-2 flex flex-col items-center gap-3 px-2 sm:flex-row sm:justify-between">
-      <div className="flex items-center text-sm font-normal tracking-wide">
+    <div className="my-3 flex flex-col items-center gap-3 px-2 sm:flex-row sm:justify-between border-t border-border/50 pt-3">
+      <div className="flex items-center text-xs font-normal tracking-wide">
         {getPaginationText({
           selectionEnabled,
           selectedRows,
           meta,
         })}
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 lg:gap-8">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-6">
         <div className="flex items-center gap-2">
-          <p className="hidden text-sm font-medium sm:block">Rows per page</p>
+          <p className="text-muted-foreground text-xs font-medium">Rows per page</p>
           <Select
             value={`${tablePageSize}`}
             onValueChange={(value) => handleLimitChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[74px] text-xs">
               <SelectValue placeholder={tablePageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[5, 10, 20, 30, 40, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
                 </SelectItem>
@@ -1407,39 +1416,47 @@ function DataTablePagination_2({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        <div className="text-muted-foreground flex items-center justify-center text-xs font-semibold">
           Page {tablePage} of {totalPage}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1.5">
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            size="sm"
+            className="h-8 w-8 p-0"
             onClick={() => handlePageChange(1)}
             disabled={tablePage <= 1}
+            title="First page"
           >
             <ChevronsLeftIcon className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            size="sm"
+            className="h-8 px-2.5 text-xs font-medium gap-1"
             onClick={() => handlePageChange(tablePage - 1)}
             disabled={tablePage <= 1}
           >
-            <ChevronLeftIcon className="h-4 w-4" />
+            <ChevronLeftIcon className="h-3.5 w-3.5" />
+            <span>Prev</span>
           </Button>
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            size="sm"
+            className="h-8 px-2.5 text-xs font-medium gap-1"
             onClick={() => handlePageChange(tablePage + 1)}
             disabled={tablePage >= totalPage}
           >
-            <ChevronRightIcon className="h-4 w-4" />
+            <span>Next</span>
+            <ChevronRightIcon className="h-3.5 w-3.5" />
           </Button>
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            size="sm"
+            className="h-8 w-8 p-0"
             onClick={() => handlePageChange(totalPage)}
             disabled={tablePage >= totalPage}
+            title="Last page"
           >
             <ChevronsRightIcon className="h-4 w-4" />
           </Button>
@@ -1787,12 +1804,11 @@ function DataTable<TData, TValue>({
         </Table>
       </TableOverflow>
       {meta &&
-        setMeta &&
-        meta.total >= 10 &&
+        (meta.total > 0 || (data && data.length > 0)) &&
         table.getRowModel().rows?.length !== 0 && (
           <DataTablePagination_2
             meta={meta}
-            setMeta={setMeta}
+            setMeta={setMeta || (() => {})}
             selectionEnabled={selectionEnabled}
             selectedRows={selectedRows?.length}
           />
@@ -4429,6 +4445,8 @@ function formatHumanReadableDate_12(date?: string | null): string {
 
 interface GetApplicationsColumnsProps {
       internshipId: string;
+      page?: number;
+      limit?: number;
       onSelectApp: (app: InternshipApplicationDetail_2) => void;
       onDownloadPDF: (regId: string) => void;
       onApprove: (applicationId: string) => void;
@@ -11702,6 +11720,8 @@ export default function InternshipApplicationsPage({
 
     const getApplicationsColumns = ({
       internshipId: _internshipId,
+      page = 1,
+      limit = 10,
       onSelectApp,
       onDownloadPDF,
       onApprove,
@@ -11713,6 +11733,57 @@ export default function InternshipApplicationsPage({
       isRejecting,
       isIssuingCertificate,
     }: GetApplicationsColumnsProps): ColumnDef<InternshipApplicationDetail_2>[] => [
+      {
+        id: "select",
+        header: ({ table }) => {
+          const isAllSelected = table.getIsAllPageRowsSelected();
+          const isSomeSelected = table.getIsSomePageRowsSelected();
+          return (
+            <div className="flex items-center justify-center pl-2 pr-1">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                ref={(input) => {
+                  if (input) input.indeterminate = !isAllSelected && isSomeSelected;
+                }}
+                onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
+                className="size-4 cursor-pointer rounded border-border accent-primary focus:ring-primary/20"
+                title="Select all on this page"
+                aria-label="Select all"
+              />
+            </div>
+          );
+        },
+        cell: ({ row }) => (
+          <div
+            className="flex items-center justify-center pl-2 pr-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={row.getIsSelected()}
+              disabled={!row.getCanSelect()}
+              onChange={(e) => row.toggleSelected(!!e.target.checked)}
+              className="size-4 cursor-pointer rounded border-border accent-primary focus:ring-primary/20"
+              aria-label="Select row"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        id: "serialNumber",
+        header: "S.No",
+        cell: ({ row }) => {
+          const sNo = (page - 1) * limit + row.index + 1;
+          return (
+            <span className="text-muted-foreground/80 font-mono text-xs font-bold pl-1">
+              {sNo}
+            </span>
+          );
+        },
+      },
       {
         id: "candidate",
         header: "Candidate Name",
@@ -12544,10 +12615,13 @@ export default function InternshipApplicationsPage({
         });
       }, [allApps, search]);
 
-      const paginatedList = useMemo(
-        () => filteredList.slice((page - 1) * limit, page * limit),
-        [filteredList, page, limit],
-      );
+      const paginatedList = useMemo(() => {
+        const safePage = Math.max(
+          1,
+          Math.min(page, Math.ceil(filteredList.length / limit) || 1),
+        );
+        return filteredList.slice((safePage - 1) * limit, safePage * limit);
+      }, [filteredList, page, limit]);
 
       useEffect(() => {
         setMeta((prev) => ({ ...prev, page, limit, total: filteredList.length }));
@@ -12557,6 +12631,8 @@ export default function InternshipApplicationsPage({
         () =>
           getApplicationsColumns({
             internshipId,
+            page,
+            limit,
             onSelectApp: (app) => {
               setSelectedApp(app);
               setDetailOpen(true);
@@ -12573,6 +12649,8 @@ export default function InternshipApplicationsPage({
           }),
         [
           internshipId,
+          page,
+          limit,
           downloadPDF,
           approveApp,
           rejectApp,
@@ -12598,18 +12676,220 @@ export default function InternshipApplicationsPage({
           },
         });
 
+      const [selectedRows, setSelectedRows] = useState<
+        InternshipApplicationDetail_2[]
+      >([]);
+      const [isBulkApproving, setIsBulkApproving] = useState(false);
+      const [isBulkRejecting, setIsBulkRejecting] = useState(false);
+      const queryClient = useQueryClient();
+
+      const handleBulkApprove = async () => {
+        if (selectedRows.length === 0) return;
+        const pendingOrRejected = selectedRows.filter((item) => {
+          const st = item.applicationStatus || item.status || "UNDER_REVIEW";
+          return (
+            st !== "APPROVED" &&
+            st !== "ACCEPTED" &&
+            st !== "SUPER_ADMIN_APPROVED"
+          );
+        });
+
+        if (pendingOrRejected.length === 0) {
+          toast.info("All selected applications are already approved.");
+          return;
+        }
+
+        setIsBulkApproving(true);
+        const toastId = toast.loading(
+          `Approving ${pendingOrRejected.length} application(s)...`,
+        );
+        try {
+          let successCount = 0;
+          let failCount = 0;
+
+          await Promise.all(
+            pendingOrRejected.map(async (app) => {
+              const appId = app.applicationId || app.id;
+              try {
+                await SuperAdminService.approveInternshipApplication(
+                  internshipId,
+                  appId,
+                );
+                successCount++;
+              } catch (err) {
+                console.error(`Failed to approve application ${appId}:`, err);
+                failCount++;
+              }
+            }),
+          );
+
+          queryClient.invalidateQueries({
+            queryKey: SUPER_ADMIN_QUERY_KEYS.INTERNSHIP_APPLICATIONS(internshipId),
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["internship-applications", internshipId],
+          });
+
+          toast.dismiss(toastId);
+          if (successCount > 0) {
+            toast.success(
+              `Successfully approved ${successCount} application(s)!${failCount > 0 ? ` (${failCount} failed)` : ""}`,
+            );
+          } else {
+            toast.error("Failed to approve selected applications.");
+          }
+          setSelectedRows([]);
+        } catch (err: any) {
+          toast.dismiss(toastId);
+          toast.error(err?.message || "Failed to complete bulk approval.");
+        } finally {
+          setIsBulkApproving(false);
+        }
+      };
+
+      const handleBulkReject = async () => {
+        if (selectedRows.length === 0) return;
+        const eligible = selectedRows.filter((item) => {
+          const st = item.applicationStatus || item.status || "UNDER_REVIEW";
+          return st !== "REJECTED";
+        });
+
+        if (eligible.length === 0) {
+          toast.info("All selected applications are already rejected.");
+          return;
+        }
+
+        setIsBulkRejecting(true);
+        const toastId = toast.loading(
+          `Rejecting ${eligible.length} application(s)...`,
+        );
+        try {
+          let successCount = 0;
+          let failCount = 0;
+
+          await Promise.all(
+            eligible.map(async (app) => {
+              const appId = app.applicationId || app.id;
+              try {
+                await SuperAdminService.rejectInternshipApplication(
+                  internshipId,
+                  appId,
+                );
+                successCount++;
+              } catch (err) {
+                console.error(`Failed to reject application ${appId}:`, err);
+                failCount++;
+              }
+            }),
+          );
+
+          queryClient.invalidateQueries({
+            queryKey: SUPER_ADMIN_QUERY_KEYS.INTERNSHIP_APPLICATIONS(internshipId),
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["internship-applications", internshipId],
+          });
+
+          toast.dismiss(toastId);
+          if (successCount > 0) {
+            toast.success(
+              `Successfully rejected ${successCount} application(s).${failCount > 0 ? ` (${failCount} failed)` : ""}`,
+            );
+          } else {
+            toast.error("Failed to reject selected applications.");
+          }
+          setSelectedRows([]);
+        } catch (err: any) {
+          toast.dismiss(toastId);
+          toast.error(err?.message || "Failed to complete bulk rejection.");
+        } finally {
+          setIsBulkRejecting(false);
+        }
+      };
+
+      const handleSelectAllFiltered = () => {
+        if (selectedRows.length === filteredList.length) {
+          setSelectedRows([]);
+        } else {
+          setSelectedRows([...filteredList]);
+        }
+      };
+
       const handleExportExcel = () => {
         if (allApps.length === 0) return;
         exportExcel(internshipId);
       };
 
       return (
-        <>
+        <div className="space-y-3">
+          {selectedRows.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-500/10 p-3 shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full bg-emerald-600 dark:bg-emerald-500 text-white font-bold px-2.5 py-0.5 text-xs">
+                  {selectedRows.length} Selected
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSelectAllFiltered}
+                  className="h-7 px-2 text-xs text-primary font-semibold hover:bg-primary/10"
+                >
+                  {selectedRows.length === filteredList.length
+                    ? "Deselect All"
+                    : `Select All Filtered (${filteredList.length})`}
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  disabled={isBulkApproving || isBulkRejecting}
+                  onClick={handleBulkApprove}
+                  className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs"
+                >
+                  {isBulkApproving ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2_2 className="size-3.5" />
+                  )}
+                  <span>Approve Selected ({selectedRows.length})</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isBulkApproving || isBulkRejecting}
+                  onClick={handleBulkReject}
+                  className="h-8 gap-1.5 border-red-500/30 text-red-600 hover:bg-red-500/10 dark:text-red-400 text-xs font-semibold"
+                >
+                  {isBulkRejecting ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <XCircle_2 className="size-3.5" />
+                  )}
+                  <span>Reject Selected ({selectedRows.length})</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedRows([])}
+                  className="h-8 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
           <DataTable
             columns={columns}
             data={paginatedList}
             isLoading={isLoading}
             meta={meta}
+            setMeta={setMeta as any}
+            selectedRows={selectedRows}
+            setSelectedRows={setSelectedRows as any}
             toolbar={
               <div className="flex w-full items-center justify-between gap-2">
                 <DataTableSearch
@@ -12656,7 +12936,7 @@ export default function InternshipApplicationsPage({
               isRejecting={isRejecting}
             />
           )}
-        </>
+        </div>
       );
     };
 

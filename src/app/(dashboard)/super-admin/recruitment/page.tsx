@@ -1212,7 +1212,7 @@ function DataTablePagination_2({
               <SelectValue placeholder={tablePageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[5, 10, 20, 30, 40, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
                 </SelectItem>
@@ -1601,7 +1601,7 @@ function DataTable<TData, TValue>({
       </TableOverflow>
       {meta &&
         setMeta &&
-        meta.total >= 10 &&
+        meta.total > 0 &&
         table.getRowModel().rows?.length !== 0 && (
           <DataTablePagination_2
             meta={meta}
@@ -8561,7 +8561,22 @@ export default function SuperAdminRecruitmentPage() {
       );
     };
 
-    const columns_8 = (): ColumnDef<JobOpportunityPublic_2>[] => [
+    const columns_8 = (
+      page: number = 1,
+      limit: number = 10,
+    ): ColumnDef<JobOpportunityPublic_2>[] => [
+      {
+        id: "serialNumber",
+        header: "S.No",
+        cell: ({ row }) => {
+          const sNo = (page - 1) * limit + row.index + 1;
+          return (
+            <span className="text-muted-foreground/80 font-mono text-xs font-bold pl-1">
+              {sNo}
+            </span>
+          );
+        },
+      },
       {
         accessorKey: "advtNo",
         header: "Advt. No. & Date",
@@ -8744,7 +8759,7 @@ export default function SuperAdminRecruitmentPage() {
 
           <div className="w-full min-w-0">
             <DataTable
-              columns={columns_8()}
+              columns={columns_8(page, limit)}
               data={paginatedList}
               isLoading={isLoading}
               meta={meta}

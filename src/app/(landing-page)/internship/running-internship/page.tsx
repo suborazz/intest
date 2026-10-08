@@ -2,7 +2,7 @@
 
 import { LayoutGrid, List } from "lucide-react";
 import React_3 from "react";
-import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, GraduationCap as GraduationCap_2, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Sparkles as Sparkles_2, Terminal, User, Briefcase, Check, Clock, Filter, IndianRupee, Search, Zap as Zap_2 } from "lucide-react";
+import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, Eye, GraduationCap as GraduationCap_2, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Sparkles as Sparkles_2, Terminal, User, Briefcase, Check, Clock, Filter, IndianRupee, Search, Zap as Zap_2 } from "lucide-react";
 import Link from "next/link";
 import * as z from "zod";
 import { toast } from "sonner";
@@ -2322,19 +2322,6 @@ export default function RunningInternshipPage() {
             isList ? "w-full md:flex-row md:items-stretch md:gap-6" : "gap-3"
           }`}
         >
-          {internship.imageUrl && (
-            <div className={`overflow-hidden rounded-xl border border-black/5 bg-zinc-100 dark:border-white/10 dark:bg-zinc-800 ${isList ? "w-full md:w-56 shrink-0" : "w-full mb-1"}`}>
-              <div className={`${isList ? "h-full min-h-[140px]" : "aspect-16/9 sm:aspect-21/9 max-h-48"} w-full overflow-hidden`}>
-                <img
-                  src={internship.imageUrl}
-                  alt={internship.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-          )}
-
           {/* Card Body */}
           <div className={`flex flex-col gap-3 ${isList ? "flex-1" : ""}`}>
             {}
@@ -2370,6 +2357,32 @@ export default function RunningInternshipPage() {
                 </span>
               )}
             </div>
+
+            {/* Landscape Flyer Image (Only shown if uploaded) */}
+            {internship.imageUrl && (
+              <Link
+                href={`/internship/${internship.id}`}
+                className="group/img relative block w-full overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-100/70 shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-md dark:border-zinc-800/80 dark:bg-zinc-900/70"
+              >
+                <div className="relative aspect-16/9 sm:aspect-21/9 w-full overflow-hidden bg-black/5 dark:bg-black/30 flex items-center justify-center">
+                  <img
+                    src={internship.imageUrl}
+                    alt={`${internship.title} Flyer`}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      const container = (e.target as HTMLElement).closest(".group\\/img");
+                      if (container) (container as HTMLElement).style.display = "none";
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover/img:opacity-100">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-black shadow-md backdrop-blur-md">
+                      <Eye className="size-3.5 text-primary" /> View Details & Flyer
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            )}
 
             {}
             <div>
@@ -2737,6 +2750,8 @@ export default function RunningInternshipPage() {
       .map(
         (
           i: InternshipPublic & {
+            imageUrl?: string | null;
+            companyName?: string;
             timePeriod?: string;
             facilities?: string;
             careerOpportunity?: string;
@@ -2774,7 +2789,9 @@ export default function RunningInternshipPage() {
             adId: i.id,
             title: i.title,
             description: i.description,
+            companyName: i.companyName,
             department: i.department || "Engineering",
+            imageUrl: i.imageUrl || (i as any).flyer || (i as any).flyerUrl || (i as any).bannerUrl || null,
             modules: Array.isArray(i.modules)
               ? i.modules
               : i.modules

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import { join } from "path";
 import PDFDocument from "pdfkit";
+import qrcode from "qrcode-generator";
 import { ZodError } from "zod";
 import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
@@ -248,6 +249,44 @@ export async function GET(
 
                 if (hasLogo) {
             doc.image(logoPath, 35, headerY, { width: 45 });
+          }
+
+          const appCode =
+            application.code || generateApplicationCode(application.id);
+
+          // Top right QR Code for Instant Smartphone Verification
+          try {
+            const host = request.headers.get("host") || "www.iiinternship.in";
+            const protocol = host.includes("localhost") ? "http" : "https";
+            const verifyUrl = `${protocol}://${host}/immersion`;
+
+            const qr = qrcode(0, "M");
+            qr.addData(verifyUrl);
+            qr.make();
+            const qrDataUrl = qr.createDataURL(4, 0);
+            const qrMatches = qrDataUrl.match(
+              /^data:image\/[a-zA-Z+]+;base64,(.+)$/,
+            );
+            if (qrMatches && qrMatches[1]) {
+              const qrBuf = Buffer.from(qrMatches[1], "base64");
+              const qrSize = 42;
+              const qrX = doc.page.width - 35 - qrSize;
+              const qrY = headerY - 1;
+              doc.image(qrBuf, qrX, qrY, {
+                width: qrSize,
+                height: qrSize,
+              });
+              doc
+                .fontSize(5)
+                .font("Helvetica-Bold")
+                .fillColor("#059669")
+                .text("SCAN TO VERIFY", qrX - 10, qrY + qrSize + 1, {
+                  width: qrSize + 20,
+                  align: "center",
+                });
+            }
+          } catch (qrErr) {
+            console.error("QR Code rendering failed:", qrErr);
           }
 
           doc

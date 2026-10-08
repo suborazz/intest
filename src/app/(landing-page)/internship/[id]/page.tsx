@@ -4,7 +4,7 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React_2, { useState } from "react";
-import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, GraduationCap as GraduationCap_2, HelpCircle, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Shield, Sparkles as Sparkles_2, Terminal, User, Check, Maximize2, Eye, Download, X } from "lucide-react";
+import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, GraduationCap as GraduationCap_2, HelpCircle, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Shield, Sparkles as Sparkles_2, Terminal, User, Check, Maximize2, Eye, Download, X, ExternalLink } from "lucide-react";
 import * as React from "react";
 import { clsx, ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -3555,6 +3555,79 @@ export default function InternshipDetailPage() {
   const { data: res, isLoading: isListLoading } = StudentDataHook.useInternships();
   const [isOpen, setIsOpen] = useState(false);
   const [isFlyerModalOpen, setIsFlyerModalOpen] = useState(false);
+  const [isDownloadingFlyer, setIsDownloadingFlyer] = useState(false);
+
+  const handleDownloadFlyer = async (imageUrl: string, title: string) => {
+    if (!imageUrl) return;
+    setIsDownloadingFlyer(true);
+    const toastId = toast.loading("Preparing flyer download...");
+
+    const sanitizeFilename = (name: string) =>
+      name.replace(/[^a-zA-Z0-9_-]/g, "_").substring(0, 50);
+
+    const triggerBlobDownload = (blob: Blob) => {
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `${sanitizeFilename(title || "internship")}-flyer.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+      toast.success("Flyer downloaded successfully!", { id: toastId });
+    };
+
+    try {
+      const response = await fetch(imageUrl, { mode: "cors" });
+      if (response.ok) {
+        const blob = await response.blob();
+        triggerBlobDownload(blob);
+        return;
+      }
+      throw new Error(`Fetch failed with status ${response.status}`);
+    } catch {
+      // Fallback via Image object and Canvas
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth || img.width;
+            canvas.height = img.naturalHeight || img.height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  triggerBlobDownload(blob);
+                } else {
+                  window.open(imageUrl, "_blank");
+                  toast.success("Opened flyer in new tab", { id: toastId });
+                }
+              }, "image/jpeg", 0.95);
+            } else {
+              window.open(imageUrl, "_blank");
+              toast.success("Opened flyer in new tab", { id: toastId });
+            }
+          } catch {
+            window.open(imageUrl, "_blank");
+            toast.success("Opened flyer in new tab", { id: toastId });
+          }
+        };
+        img.onerror = () => {
+          window.open(imageUrl, "_blank");
+          toast.success("Opened flyer in new tab", { id: toastId });
+        };
+        img.src = imageUrl;
+      } catch {
+        window.open(imageUrl, "_blank");
+        toast.success("Opened flyer in new tab", { id: toastId });
+      }
+    } finally {
+      setIsDownloadingFlyer(false);
+    }
+  };
 
   const isLoading = isDetailLoading && isListLoading;
 
@@ -3703,37 +3776,51 @@ export default function InternshipDetailPage() {
       {/* High-Resolution Full Flyer Lightbox Modal */}
       {isFlyerModalOpen && internship.imageUrl && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md transition-opacity duration-200"
-          onClick={() => setIsFlyerModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 sm:p-4 backdrop-blur-md transition-opacity duration-200"
         >
           <div
-            className="relative flex max-h-[95vh] max-w-4xl flex-col items-center overflow-hidden rounded-2xl border border-white/20 bg-background/95 p-4 shadow-2xl backdrop-blur-xl"
+            className="relative flex max-h-[96vh] w-full max-w-4xl flex-col items-center overflow-hidden rounded-2xl border border-white/20 bg-background/95 p-3 sm:p-4 shadow-2xl backdrop-blur-xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="mb-3 flex w-full items-center justify-between border-b border-border/60 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-foreground">
+            <div className="mb-3 flex w-full items-center justify-between gap-2 border-b border-border/60 pb-3">
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate text-sm sm:text-base font-bold text-foreground">
                   {internship.title}
                 </h3>
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <Eye className="size-3.5 text-primary" /> Official Program Poster / Flyer
+                <p className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                  <Eye className="size-3.5 text-primary shrink-0" /> Official Program Poster / Flyer
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href={internship.imageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download="internship-flyer.jpg"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  disabled={isDownloadingFlyer}
+                  onClick={() =>
+                    handleDownloadFlyer(
+                      internship.imageUrl!,
+                      internship.title,
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                  title="Download Poster Image"
                 >
-                  <Download className="size-3.5" /> Full Size / Download
-                </a>
+                  {isDownloadingFlyer ? (
+                    <>
+                      <Loader2Icon className="size-3.5 animate-spin" />
+                      <span>Downloading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="size-3.5" />
+                      <span>Download Poster</span>
+                    </>
+                  )}
+                </button>
                 <button
                   type="button"
                   onClick={() => setIsFlyerModalOpen(false)}
-                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-colors"
                   aria-label="Close flyer preview"
                 >
                   <X className="size-5" />
@@ -3742,11 +3829,11 @@ export default function InternshipDetailPage() {
             </div>
 
             {/* Modal Image Body */}
-            <div className="relative flex max-h-[80vh] w-full items-center justify-center overflow-auto rounded-xl bg-black/10 dark:bg-black/40 p-2">
+            <div className="relative flex max-h-[78vh] w-full items-center justify-center overflow-auto rounded-xl bg-black/10 dark:bg-black/40 p-2">
               <img
                 src={internship.imageUrl}
                 alt={`${internship.title} Flyer`}
-                className="max-h-[78vh] w-auto max-w-full rounded-lg object-contain shadow-md"
+                className="max-h-[76vh] w-auto max-w-full rounded-lg object-contain shadow-md"
               />
             </div>
           </div>
