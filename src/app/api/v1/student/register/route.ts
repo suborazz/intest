@@ -392,15 +392,146 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     const data = studentRegistrationSchema.parse(body);
 
-        const existing = await prisma.studentRegistration.findUnique({
+    const existing = await prisma.studentRegistration.findUnique({
       where: { userId },
     });
     if (existing) {
-      return errorResponse(
-        "ALREADY_REGISTERED",
-        "You have already submitted a registration. Use GET /api/v1/student/register/me to view it.",
-        { status: HTTP_2.CONFLICT },
-      );
+      // Auto-update existing registration seamlessly
+      const studentId = existing.studentId;
+      let savedPhotoUrl = existing.photoUrl;
+      let savedPhotoPublicId = existing.photoPublicId;
+      let savedSigUrl = existing.signatureUrl;
+      let savedSigPublicId = existing.signaturePublicId;
+
+      if (data.photoBase64 && data.photoBase64.startsWith("data:image/")) {
+        try {
+          const photoResult = await uploadBase64(
+            data.photoBase64,
+            "iiit/students/photos",
+            `photo-${studentId}`,
+          );
+          savedPhotoUrl = photoResult.url;
+          savedPhotoPublicId = photoResult.publicId;
+          if (existing.photoPublicId) {
+            await deleteAsset(existing.photoPublicId);
+          }
+        } catch (err) {
+          console.error("[Cloudinary Photo Update Failed]", err);
+        }
+      }
+
+      if (
+        data.signatureBase64 &&
+        data.signatureBase64.startsWith("data:image/")
+      ) {
+        try {
+          const sigResult = await uploadBase64(
+            data.signatureBase64,
+            "iiit/students/signatures",
+            `sig-${studentId}`,
+          );
+          savedSigUrl = sigResult.url;
+          savedSigPublicId = sigResult.publicId;
+          if (existing.signaturePublicId) {
+            await deleteAsset(existing.signaturePublicId);
+          }
+        } catch (err) {
+          console.error("[Cloudinary Signature Update Failed]", err);
+        }
+      }
+
+      const permAddr = data.sameAsLocal
+        ? data.localAddress
+        : data.permanentAddress;
+
+      const updatedReg = await prisma.$transaction(async (tx) => {
+        await tx.studentAcademic.deleteMany({
+          where: { registrationId: existing.id },
+        });
+        if (data.academics && data.academics.length > 0) {
+          await tx.studentAcademic.createMany({
+            data: data.academics.map((ac) => ({
+              registrationId: existing.id,
+              qualification: ac.qualification,
+              stream: ac.stream,
+              subject: ac.subject,
+              instituteName: ac.instituteName,
+              universityName: ac.universityName,
+              sessionYear: ac.sessionYear,
+              gradeDivision: ac.gradeDivision,
+              status: mapAcademicStatus(ac.status) as never,
+            })),
+          });
+        }
+
+        await tx.studentSkill.deleteMany({
+          where: { registrationId: existing.id },
+        });
+        if (data.skills && data.skills.length > 0) {
+          await tx.studentSkill.createMany({
+            data: data.skills.map((sk) => ({
+              registrationId: existing.id,
+              skillName: sk.skillName,
+              description: sk.description,
+              certifyingBody: sk.certifyingBody ?? null,
+              certYear: sk.certYear ?? null,
+            })),
+          });
+        }
+
+        const reg = await tx.studentRegistration.update({
+          where: { id: existing.id },
+          data: {
+            fullName: data.fullName,
+            fatherName: data.fatherName,
+            motherName: data.motherName,
+            dob: data.dob,
+            gender: data.gender as "Male" | "Female" | "Transgender",
+            category: data.category,
+
+            localAddressLocal: data.localAddress.local,
+            localAddressBlock: data.localAddress.block ?? null,
+            localAddressDistrict: data.localAddress.district,
+            localAddressState: data.localAddress.state,
+            localAddressCountry: data.localAddress.country,
+            localAddressPinCode: data.localAddress.pinCode,
+
+            sameAsLocal: data.sameAsLocal,
+            permAddressLocal: permAddr.local,
+            permAddressBlock: permAddr.block ?? null,
+            permAddressDistrict: permAddr.district,
+            permAddressState: permAddr.state,
+            permAddressCountry: permAddr.country,
+            permAddressPinCode: permAddr.pinCode,
+
+            mobileNo: data.mobileNo,
+            internshipGoal: mapGoal(data.internshipGoal) as never,
+            aadharNo: data.aadharNo ?? null,
+
+            photoUrl: savedPhotoUrl,
+            photoPublicId: savedPhotoPublicId,
+            photoName: data.photoName || existing.photoName,
+            signatureUrl: savedSigUrl,
+            signaturePublicId: savedSigPublicId,
+            signatureName: data.signatureName || existing.signatureName,
+
+            agreeTerms: data.agreeTerms,
+          },
+          include: { academics: true, skills: true },
+        });
+
+        await tx.user.update({
+          where: { id: userId },
+          data: { name: data.fullName },
+        });
+
+        return reg;
+      });
+
+      return successResponse(updatedReg, {
+        message: `Student registration profile updated successfully. Your Student ID is ${studentId}.`,
+        status: HTTP_2.OK,
+      });
     }
 
         let studentId = "";

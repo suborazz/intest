@@ -1845,6 +1845,13 @@ const StudentRegistrationService: IStudentRegistrationService = {
               msg = "फ़ाइल का साइज़ बहुत बड़ा है (File size too large). कृपया छोटे साइज़ की फ़ोटो या फ़ाइल अपलोड करें।";
             } else if (typeof msg === "string" && msg.toLowerCase().includes("timeout")) {
               msg = "अनुरोध का समय समाप्त हो गया (Request timed out). कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।";
+            } else if (typeof msg === "string" && (msg.includes("ALREADY_REGISTERED") || msg.includes("already submitted") || msg.includes("/student/register/me"))) {
+              msg = "आप पहले से पंजीकृत हैं। आपका प्रोफ़ाइल विवरण सुरक्षित है।";
+              toast.info(msg);
+              setTimeout(() => {
+                window.location.href = "/student/dashboard";
+              }, 1500);
+              return;
             }
             toast.error(msg);
             options?.onError?.(error, variables, context, mutation);
