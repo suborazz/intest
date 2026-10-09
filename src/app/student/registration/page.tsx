@@ -1833,6 +1833,9 @@ const StudentRegistrationService: IStudentRegistrationService = {
             queryClient.invalidateQueries({
               queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
             });
+            queryClient.invalidateQueries({
+              queryKey: ["auth"],
+            });
             toast.success(
               (data as { message?: string })?.message ||
                 "Profile registration completed successfully!",
@@ -1893,6 +1896,9 @@ const StudentRegistrationService: IStudentRegistrationService = {
             });
             queryClient.invalidateQueries({
               queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(variables.id),
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["auth"],
             });
             toast.success(
               (data as { message?: string })?.message ||
@@ -3848,7 +3854,7 @@ export default function RegistrationPage() {
   };
 
   const handleBackToDashboard = () => {
-    router.replace("/student/dashboard");
+    window.location.href = "/student/dashboard";
   };
   if (isRegLoading) {
     return (
