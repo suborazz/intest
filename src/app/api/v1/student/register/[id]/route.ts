@@ -303,7 +303,7 @@ const updateStudentRegistrationSchema = studentRegistrationSchema
 
 async function deleteAsset(
   publicId: string | null | undefined,
-  resourceType: "image" | "raw" | "auto" = "auto",
+  resourceType: "image" | "raw" | "video" = "image",
 ): Promise<void> {
   if (!publicId) return;
   try {
