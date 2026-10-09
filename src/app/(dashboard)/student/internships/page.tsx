@@ -4567,24 +4567,40 @@ export default function InternshipsNewPage() {
                 )}
 
                 {}
-                <div className="bg-muted/30 border-border/30 flex items-center gap-3.5 rounded-xl border p-4">
-                  <div className="bg-primary/10 border-primary/20 text-primary flex size-10 shrink-0 items-center justify-center rounded-full border text-base font-extrabold">
-                    {mentorName.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                      Assigned Mentor / Instructor
-                    </span>
-                    <p className="text-foreground mt-0.5 text-sm font-bold">
-                      {mentorName}
-                    </p>
-                    {mentorEmail && (
-                      <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                        {mentorEmail}
+                {mentorName ? (
+                  <div className="bg-muted/30 border-border/30 flex items-center gap-3.5 rounded-xl border p-4">
+                    <div className="bg-primary/10 border-primary/20 text-primary flex size-10 shrink-0 items-center justify-center rounded-full border text-base font-extrabold">
+                      {mentorName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                        Assigned Mentor / Instructor
+                      </span>
+                      <p className="text-foreground mt-0.5 text-sm font-bold">
+                        {mentorName}
                       </p>
-                    )}
+                      {mentorEmail && (
+                        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                          {mentorEmail}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-muted/30 border-border/30 flex items-center gap-3.5 rounded-xl border p-4">
+                    <div className="bg-muted border-border/50 text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold">
+                      IIIT
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                        Assigned Mentor / Instructor
+                      </span>
+                      <p className="text-muted-foreground mt-0.5 text-sm font-medium">
+                        Will be assigned upon enrollment
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <Separator />
 
