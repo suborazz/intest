@@ -6,6 +6,7 @@ import {
   Download,
   IdCard,
   Loader2,
+  Printer,
 } from "lucide-react";
 import React_3, { use } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -23,7 +24,7 @@ import { Slot } from "radix-ui";
 import { ClassValue, clsx as clsx_2 } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { axiosInstance } from "@/x/acfb3dca";
-import { axiosInstance as axiosInstance_2 } from "@/x/acfb3dca";
+import { printIdCard } from "@/lib/idCardPrint";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -2362,94 +2363,44 @@ export default function IDCardPage({ params }: PageProps) {
     StudentDataHook.useEnrollmentIDCard(enrollmentId);
   const card: EnrollmentIDCard_2 | undefined = data?.data;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!card) {
       toast.error("Failed to find ID card details.");
       return;
     }
+    try {
+      toast.loading("Generating PDF...");
+      const response = await axiosInstance.get(
+        `/id-cards/${enrollmentId}/download`,
+        { responseType: "blob" },
+      );
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `id_card_${card?.cardNo || enrollmentId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.dismiss();
+      toast.success("Download started!");
+    } catch (error) {
+      console.error(error);
+      toast.dismiss();
+      toast.error("Failed to download PDF.");
+    }
+  };
 
-    const printWindow = window.open(
-      "about:blank",
-      "_blank",
-      "width=600,height=450",
-    );
-    if (!printWindow) {
-      toast.error("Failed to open print window. Please allow popups.");
+  const handlePrint = () => {
+    if (!card) {
+      toast.error("Failed to find ID card details.");
       return;
     }
-
-    const dateStr = new Date(card.issuedAt).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-
-        const getInitials = (name: string): string => {
-      if (!name) return "XX";
-      const parts = name.trim().split(/\s+/).filter(Boolean);
-      if (parts.length === 0) return "XX";
-      if (parts.length === 1) {
-        const word = parts[0];
-        if (word.length >= 2) return word.slice(0, 2).toUpperCase();
-        return (word[0] + "X").toUpperCase();
-      }
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    };
-
-    const idCardHtml = renderToStaticMarkup(
-      <PrintableIDCard
-        card={{
-          cardNo: card.cardNo,
-          studentName: card.studentName,
-          studentEmail: card.studentEmail,
-          internshipTitle: card.internshipTitle,
-        }}
-        dateStr={dateStr}
-        initials={getInitials(card.studentName)}
-      />,
+    printIdCard(
+      `id-card-${enrollmentId}`,
+      `Student ID Card - ${card?.cardNo || enrollmentId}`,
     );
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>ID Card - ${card?.cardNo || enrollmentId}</title>
-          <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-          <style>
-            body {
-              font-family: sans-serif;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              background-color: white;
-              margin: 0;
-              padding: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              min-height: 100vh;
-            }
-            @page {
-              size: 120mm 80mm;
-              margin: 0;
-            }
-            .print-container {
-              width: 420px;
-              height: 265px;
-              position: relative;
-              overflow: hidden;
-              border-radius: 24px;
-              border: 1px solid #e2e8f0;
-            }
-          </style>
-        </head>
-        <body onload="window.print();setTimeout(function(){window.close();}, 500)">
-          <div class="print-container">
-            ${idCardHtml}
-          </div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
   };
 
   return (
@@ -2655,13 +2606,22 @@ export default function IDCardPage({ params }: PageProps) {
             <div className="absolute bottom-0 left-0 right-0 z-10 h-3.5 bg-gradient-to-r from-[#10b981] to-[#022c22]" />
           </div>
 
-          <Button
-            variant="default"
-            className="w-full gap-2 font-semibold"
-            onClick={handleDownload}
-          >
-            <Download className="size-4" /> Download ID Card (PDF)
-          </Button>
+          <div className="flex w-full flex-col gap-3 sm:flex-row">
+            <Button
+              variant="outline"
+              className="flex-1 gap-2 font-semibold"
+              onClick={handleDownload}
+            >
+              <Download className="size-4" /> Download ID Card (PDF)
+            </Button>
+            <Button
+              variant="default"
+              className="bg-emerald-600 text-white hover:bg-emerald-700 flex-1 gap-2 font-semibold"
+              onClick={handlePrint}
+            >
+              <Printer className="size-4" /> Print Card
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="py-16 text-center">

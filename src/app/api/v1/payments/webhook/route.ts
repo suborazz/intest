@@ -7,6 +7,7 @@ import { ZodError } from "zod";
 import nodemailer from "nodemailer";
 import { axiosInstance } from "@/x/acfb3dca";
 import { prisma } from "@/x/e3746f45";
+import { issueIdCard } from "@/x/c6f69c52";
 
 interface AppConfig {
   nodeEnv: "development" | "production" | "test";
@@ -285,43 +286,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    async function generateIdCardNo(): Promise<string> {
-      const year = new Date().getFullYear();
-      const prefix = `ID-${year}-`;
 
-      const last = await prisma.idCard.findFirst({
-        where: { cardNo: { startsWith: prefix } },
-        orderBy: { cardNo: "desc" },
-      });
-
-      if (!last) {
-        return `${prefix}0001`;
-      }
-
-      const lastSeq = parseInt(last.cardNo.replace(prefix, ""), 10);
-      const nextSeq = String(lastSeq + 1).padStart(4, "0");
-      return `${prefix}${nextSeq}`;
-    }
-
-    async function issueIdCard(studentId: string, enrollmentId: string) {
-        const existing = await prisma.idCard.findUnique({
-        where: { enrollmentId },
-      });
-
-      if (existing) {
-        return existing;
-      }
-
-      const cardNo = await generateIdCardNo();
-
-      return await prisma.idCard.create({
-        data: {
-          cardNo,
-          studentId,
-          enrollmentId,
-        },
-      });
-    }
 
     const { razorpayKeyId, razorpayKeySecret } = config;
 
@@ -607,17 +572,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           );
         }
 
-                                        await prisma.immersionPayment.update({
-          where: { id: immersionPayment.id },
-          data: {
-            status: "COMPLETED",
-            razorpayPaymentId,
-            razorpaySignature: immersionPayment.razorpaySignature || signature,
-          },
+        await prisma.$transaction(async (tx) => {
+          if (immersionPayment.applicationId) {
+            await tx.immersionApplication.update({
+              where: { id: immersionPayment.applicationId },
+              data: {
+                status: "SUBMITTED",
+                submittedAt: new Date(),
+              },
+            });
+          }
+
+          await tx.immersionPayment.update({
+            where: { id: immersionPayment.id },
+            data: {
+              status: "COMPLETED",
+              razorpayPaymentId,
+              razorpaySignature: immersionPayment.razorpaySignature || signature,
+            },
+          });
         });
 
         console.log(
-          `[RAZORPAY WEBHOOK] Immersion payment for order ${razorpayOrderId} marked as COMPLETED.`,
+          `[RAZORPAY WEBHOOK] Immersion payment for order ${razorpayOrderId} marked as COMPLETED and application marked as SUBMITTED.`,
         );
 
         return successResponse({ received: true });
@@ -634,7 +611,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
 
       await prisma.$transaction(async (tx) => {
-                await tx.payment.update({
+        await tx.payment.update({
           where: { id: payment.id },
           data: {
             status: "COMPLETED",
@@ -643,7 +620,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           },
         });
 
-                const application = await tx.internshipApplication.upsert({
+        const application = await tx.internshipApplication.upsert({
           where: {
             studentId_internshipId: {
               studentId: payment.userId,
@@ -660,42 +637,51 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           },
         });
 
-                let enrollment = await tx.enrollment.findUnique({
-          where: { paymentId: payment.id },
-        });
-
-        if (!enrollment) {
-          enrollment = await tx.enrollment.create({
-            data: {
+        const enrollment = await tx.enrollment.upsert({
+          where: {
+            userId_internshipId: {
               userId: payment.userId,
               internshipId: payment.internshipId,
-              paymentId: payment.id,
             },
-          });
-          console.log(
-            `[RAZORPAY WEBHOOK] Created enrollment for user ${payment.userId} in internship ${payment.internshipId}`,
-          );
-        } else {
-          console.log(
-            `[RAZORPAY WEBHOOK] Enrollment already exists for payment ${payment.id}. Skipping creation.`,
-          );
-        }
+          },
+          update: {
+            paymentId: payment.id,
+          },
+          create: {
+            userId: payment.userId,
+            internshipId: payment.internshipId,
+            paymentId: payment.id,
+          },
+        });
+
+        console.log(
+          `[RAZORPAY WEBHOOK] Ensured enrollment for user ${payment.userId} in internship ${payment.internshipId}`,
+        );
 
         const formattedCode =
           application.code ||
           generateApplicationCode(application.id, application.appliedAt);
 
-                await tx.internshipApplication.update({
+        await tx.internshipApplication.update({
           where: { id: application.id },
           data: { enrollmentId: enrollment.id, code: formattedCode },
         });
       });
 
-            const enrollment = await prisma.enrollment.findUnique({
-        where: { paymentId: payment.id },
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_internshipId: {
+            userId: payment.userId,
+            internshipId: payment.internshipId,
+          },
+        },
       });
       if (enrollment) {
-        await issueIdCard(payment.userId, enrollment.id);
+        try {
+          await issueIdCard(payment.userId, enrollment.id);
+        } catch (idCardErr) {
+          console.error("[ID CARD ERROR] Failed to issue ID card in webhook:", idCardErr);
+        }
       }
 
             sendPaymentConfirmationEmail(

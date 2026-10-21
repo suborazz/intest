@@ -150,6 +150,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const listReviewsQuerySchema = z.object({
       page: z.coerce.number().int().min(1).default(1),
       limit: z.coerce.number().int().min(1).max(100).default(20),
+      status: z.enum(["pending", "approved", "all"]).default("pending"),
+      search: z.string().trim().optional(),
     });
 
   try {
@@ -170,6 +172,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const parsed = listReviewsQuerySchema.safeParse({
       page: searchParams.get("page") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
+      status: searchParams.get("status") ?? undefined,
+      search: searchParams.get("search") ?? undefined,
     });
 
     if (!parsed.success) {
@@ -179,13 +183,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const { page, limit } = parsed.data;
+    const { page, limit, status, search } = parsed.data;
     const skip = (page - 1) * limit;
 
     const where: Prisma.ReviewWhereInput = {
-      isApproved: false,
       deletedAt: null,
     };
+
+    if (status === "pending") {
+      where.isApproved = false;
+    } else if (status === "approved") {
+      where.isApproved = true;
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { comment: { contains: search, mode: "insensitive" } },
+      ];
+    }
 
     const [reviews, total] = await Promise.all([
       prisma.review.findMany({

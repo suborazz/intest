@@ -272,6 +272,28 @@ export async function PATCH(
       },
     });
 
+    if (name !== undefined) {
+      // Synchronize display name with all related profile records
+      await Promise.allSettled([
+        prisma.immersionParticipantProfile.updateMany({
+          where: { userId: targetId },
+          data: { fullName: name },
+        }),
+        prisma.studentRegistration.updateMany({
+          where: { userId: targetId },
+          data: { fullName: name },
+        }),
+        prisma.instructorRegistration.updateMany({
+          where: { userId: targetId },
+          data: { fullName: name },
+        }),
+        prisma.recruitProfile.updateMany({
+          where: { userId: targetId },
+          data: { fullName: name },
+        }),
+      ]);
+    }
+
     return successResponse(
       { user: updatedUser },
       { message: "Profile updated successfully" },

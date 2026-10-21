@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { LucideIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";
 import React_2 from "react";
-import { ReactNode, useLayoutEffect, useContext, Dispatch, SetStateAction, useMemo } from "react";
+import { ReactNode, useLayoutEffect, useContext, Dispatch, SetStateAction, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import { create } from "zustand";
 import { cva, VariantProps } from "class-variance-authority";
@@ -337,13 +337,23 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
+function Input({ className, type, icon: Icon, onFocus, ...props }: InputProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      try {
+        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch {}
+    }, 180);
+    onFocus?.(e);
+  };
+
   const input = (
     <input
       type={type}
       data-slot="input"
+      onFocus={handleFocus}
       className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         Icon && "pl-8",
         className,
       )}
@@ -361,12 +371,22 @@ function Input({ className, type, icon: Icon, ...props }: InputProps) {
   );
 }
 
-function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
+function Textarea({ className, onFocus, ...props }: React.ComponentProps<"textarea">) {
+  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    setTimeout(() => {
+      try {
+        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch {}
+    }, 180);
+    onFocus?.(e);
+  };
+
   return (
     <textarea
       data-slot="textarea"
+      onFocus={handleFocus}
       className={cn(
-        "field-sizing-content border-input bg-input/20 placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 flex min-h-16 w-full resize-none rounded-md border px-2 py-2 text-sm outline-none transition-colors focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "field-sizing-content border-input bg-input/20 placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 flex min-h-16 w-full resize-none rounded-md border px-2 py-2 text-sm outline-none transition-colors focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         className,
       )}
       {...props}

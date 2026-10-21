@@ -406,4 +406,96 @@ export function generateNoticeNumber(): string {
   return `NOT-${randomPart}`;
 }
 
+export function formatJobOpportunityId(
+  id?: string | null,
+  createdAt?: string | Date | null,
+): string {
+  if (!id) return "J2026AA001";
+  const trimmed = id.trim();
+  if (/^J\d{4}[A-Z]{2}\d{3}$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+
+  const date = createdAt ? new Date(createdAt) : new Date();
+  const year = isNaN(date.getFullYear()) ? 2026 : date.getFullYear();
+
+  let hash = 0;
+  for (let i = 0; i < trimmed.length; i++) {
+    hash = (hash * 31 + trimmed.charCodeAt(i)) >>> 0;
+  }
+  const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const c1 = ALPHA[hash % 26]!;
+  const h2 = Math.floor(hash / 26);
+  const c2 = ALPHA[h2 % 26]!;
+  const h3 = Math.floor(h2 / 26);
+  const numeric = String(1 + (h3 % 999)).padStart(3, "0");
+
+  return `J${year}${c1}${c2}${numeric}`;
+}
+
+export function parseClosingDate(dateStr?: string | null): Date | null {
+  if (!dateStr || dateStr.trim() === "" || dateStr === "N/A") return null;
+  const trimmed = dateStr.trim();
+
+  // 1. Try ISO date (YYYY-MM-DD or YYYY/MM/DD)
+  const isoMatch = trimmed.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (isoMatch) {
+    const d = new Date(
+      parseInt(isoMatch[1]!, 10),
+      parseInt(isoMatch[2]!, 10) - 1,
+      parseInt(isoMatch[3]!, 10),
+      23, 59, 59, 999
+    );
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // 2. Try DD-MM-YYYY or DD/MM/YYYY
+  const dmyMatch = trimmed.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (dmyMatch) {
+    const d = new Date(
+      parseInt(dmyMatch[3]!, 10),
+      parseInt(dmyMatch[2]!, 10) - 1,
+      parseInt(dmyMatch[1]!, 10),
+      23, 59, 59, 999
+    );
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // 3. Try standard string like '30-September-2026' or '30 June 2026'
+  const cleanStr = trimmed.replace(/-/g, " ");
+  const parsed = new Date(cleanStr);
+  if (!isNaN(parsed.getTime())) {
+    parsed.setHours(23, 59, 59, 999);
+    return parsed;
+  }
+
+  return null;
+}
+
+export function isJobClosingDateExpired(dateStr?: string | null): boolean {
+  const d = parseClosingDate(dateStr);
+  if (!d) return false;
+  return d.getTime() < Date.now();
+}
+
+export function isDateExpired(dateInput?: string | Date | null): boolean {
+  if (!dateInput) return false;
+  if (dateInput instanceof Date) {
+    const endOfDay = new Date(dateInput.getTime());
+    endOfDay.setHours(23, 59, 59, 999);
+    return endOfDay.getTime() < Date.now();
+  }
+  const parsed = parseClosingDate(dateInput);
+  if (parsed) {
+    return parsed.getTime() < Date.now();
+  }
+  const d = new Date(dateInput);
+  if (!isNaN(d.getTime())) {
+    d.setHours(23, 59, 59, 999);
+    return d.getTime() < Date.now();
+  }
+  return false;
+}
+
 export { pickPrimaryImmersionApplication } from "@/x/b2327327";
+

@@ -2320,9 +2320,21 @@ export default function NotificationsPage() {
                 </div>
               </div>
 
-              <p className="text-muted-foreground whitespace-pre-line text-sm leading-relaxed">
-                {notice.content || notice.description}
-              </p>
+              <div className="text-muted-foreground text-sm leading-relaxed space-y-3">
+                {(() => {
+                  const raw = notice.content || notice.description || "";
+                  const normalized = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+                  const hasDoubleNewline = /\n\s*\n/.test(normalized);
+                  const paragraphs = hasDoubleNewline
+                    ? normalized.split(/\n\s*\n+/)
+                    : normalized.split(/\n+/);
+                  return paragraphs.map((p, i) => (
+                    <p key={i} className="whitespace-pre-line leading-relaxed text-justify">
+                      {p.trim()}
+                    </p>
+                  ));
+                })()}
+              </div>
 
               <div className="border-border/50 text-muted-foreground flex flex-col justify-between gap-3 border-t pt-4 text-xs sm:flex-row sm:items-center">
                 <div className="flex flex-wrap items-center gap-4">

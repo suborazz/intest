@@ -17,6 +17,8 @@ function formatRoleName(role: string): string {
       return "Instructor / Mentor";
     case "IMMERSION_USER":
       return "Immersion Participant";
+    case "RECRUIT_USER":
+      return "Job Applicant";
     case "SUPER_ADMIN":
       return "Super Admin";
     default:
@@ -565,6 +567,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           },
           instructorRegistration: {
             select: { id: true, mobileNo: true, deletedAt: true },
+          },
+          instructorProfile: {
+            select: { id: true },
           },
           immersionParticipantProfile: {
             select: { id: true, mobileNumber: true },

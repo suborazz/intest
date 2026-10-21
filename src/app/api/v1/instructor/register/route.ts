@@ -258,6 +258,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       selfIntroduction: z
         .string()
         .min(5, "Self introduction must be at least 5 characters"),
+      accountHolderName: z
+        .string()
+        .min(2, "Account holder name is required")
+        .trim(),
+      accountNo: z
+        .preprocess(
+          (val) => (typeof val === "string" ? val.replace(/[\s-]/g, "") : val),
+          z
+            .string()
+            .regex(/^\d{6,18}$/, "Account number must be 6 to 18 digits"),
+        ),
+      ifscCode: z
+        .preprocess(
+          (val) => (typeof val === "string" ? val.trim().toUpperCase() : val),
+          z
+            .string()
+            .regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code format"),
+        ),
+      bankName: z.string().min(2, "Bank name is required").trim(),
+      bankBranchAddress: z
+        .string()
+        .min(3, "Bank branch address is required")
+        .trim(),
       photoBase64: z.string().min(1, "Photo is required"),
       photoName: z.string().min(1, "Photo filename is required"),
       identityProofBase64: z.string().optional().nullable().or(z.literal("")).default(""),
@@ -515,6 +538,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           mentorshipMode: data.mentorshipMode,
           availability: data.availability || "",
           selfIntroduction: data.selfIntroduction,
+
+          accountHolderName: data.accountHolderName,
+          accountNo: data.accountNo,
+          ifscCode: data.ifscCode,
+          bankName: data.bankName,
+          bankBranchAddress: data.bankBranchAddress,
 
           photoUrl: savedPhotoUrl,
           photoPublicId: savedPhotoPublicId,

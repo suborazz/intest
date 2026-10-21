@@ -3,7 +3,7 @@
 import { ArrowLeft, Briefcase, Building2, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import React_5, { Suspense, use } from "react";
-import { AlertTriangle, Award, Calendar, Check as Check_2, Code, CreditCard, Download, ExternalLink, Eye, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, Printer, School, Send, ShieldCheck, Star, Trash2, User, X, AlertCircle as AlertCircle_2, Award as Award_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Globe, Mail, Search, XCircle as XCircle_2 } from "lucide-react";
+import { AlertTriangle, Award, Calendar, Check as Check_2, Code, CreditCard, Download, ExternalLink, Eye, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Pencil, Phone as Phone_2, Plus, Printer, School, Send, ShieldCheck, Star, Trash2, User, X, AlertCircle as AlertCircle_2, Award as Award_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Globe, Mail, Search, XCircle as XCircle_2, QrCode } from "lucide-react";
 import * as React_4 from "react";
 import React_3 from "react";
 import React_2 from "react";
@@ -677,13 +677,22 @@ function ResponsiveDialog({
             "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
             className,
           )}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
           <div className="shrink-0 p-4 pb-2">
             <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
+              {React.isValidElement(title) ? (
+                <DialogTitle asChild>{title}</DialogTitle>
+              ) : (
+                <DialogTitle>{title}</DialogTitle>
               )}
+              {description &&
+                (React.isValidElement(description) ? (
+                  <DialogDescription asChild>{description}</DialogDescription>
+                ) : (
+                  <DialogDescription>{description}</DialogDescription>
+                ))}
             </DialogHeader>
           </div>
           <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
@@ -695,11 +704,24 @@ function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
+    <Drawer dismissible={false} open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerContent
+        className={cn("max-h-[90vh]", className)}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
+          {React.isValidElement(title) ? (
+            <DrawerTitle asChild>{title}</DrawerTitle>
+          ) : (
+            <DrawerTitle>{title}</DrawerTitle>
+          )}
+          {description &&
+            (React.isValidElement(description) ? (
+              <DrawerDescription asChild>{description}</DrawerDescription>
+            ) : (
+              <DrawerDescription>{description}</DrawerDescription>
+            ))}
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
@@ -3957,6 +3979,10 @@ interface InternshipApplicationDetail_2 extends RegistrationDetail_2 {
         grade?: string | null;
         credits?: string | null;
       } | null;
+      isGraded?: boolean;
+      grade?: string | null;
+      hasSubmission?: boolean;
+      submissionCount?: number;
     }
 
 interface ImmersionProgram {
@@ -4448,7 +4474,8 @@ interface GetApplicationsColumnsProps {
       page?: number;
       limit?: number;
       onSelectApp: (app: InternshipApplicationDetail_2) => void;
-      onDownloadPDF: (regId: string) => void;
+      onDownloadPDF: (regId: string, candidateName?: string) => void;
+      onDownloadApplication?: (applicationId: string, candidateName?: string) => void;
       onApprove: (applicationId: string) => void;
       onReject: (applicationId: string) => void;
       onIssueCertificate: (enrollmentId: string) => void;
@@ -4457,7 +4484,9 @@ interface GetApplicationsColumnsProps {
         studentName: string,
         currentGrade?: string | null,
       ) => void;
+      onViewSubmissions?: (enrollmentId: string, studentName: string) => void;
       isDownloading?: boolean;
+      isDownloadingApp?: boolean;
       isApproving?: boolean;
       isRejecting?: boolean;
       isIssuingCertificate?: boolean;
@@ -4477,7 +4506,8 @@ function formatHumanReadableDate_18(date?: string | null): string {
 interface ActionCellProps_3 {
       app: InternshipApplicationDetail_2;
       onSelectApp: (app: InternshipApplicationDetail_2) => void;
-      onDownloadPDF: (regId: string) => void;
+      onDownloadPDF: (regId: string, candidateName?: string) => void;
+      onDownloadApplication?: (applicationId: string, candidateName?: string) => void;
       onApprove: (applicationId: string) => void;
       onReject: (applicationId: string) => void;
       onIssueCertificate: (enrollmentId: string) => void;
@@ -4486,7 +4516,9 @@ interface ActionCellProps_3 {
         studentName: string,
         currentGrade?: string | null,
       ) => void;
+      onViewSubmissions?: (enrollmentId: string, studentName: string) => void;
       isDownloading?: boolean;
+      isDownloadingApp?: boolean;
       isApproving?: boolean;
       isRejecting?: boolean;
       isIssuingCertificate?: boolean;
@@ -4545,6 +4577,7 @@ interface MyCertificate_6 {
       issuedAt: string;
       signatureUrl?: string | null;
       studentId?: string | null;
+      photoUrl?: string | null;
       grade?: string | null;
       credits?: string | null;
       internship: {
@@ -4820,11 +4853,11 @@ export default function InternshipApplicationsPage({
         options?: TMutationOptions<
           Blob,
           Error,
-          { internshipId: string; applicationId: string }
+          { internshipId: string; applicationId: string; studentName?: string }
         >,
       ) => TMutationReturnType<
         Blob,
-        { internshipId: string; applicationId: string }
+        { internshipId: string; applicationId: string; studentName?: string }
       >;
 
         useMyPayments: (
@@ -5773,7 +5806,14 @@ export default function InternshipApplicationsPage({
 
         useDownloadApplicationPDF(options) {
         return useMutation({
-          mutationFn: async ({ internshipId, applicationId }) =>
+          mutationFn: async ({
+            internshipId,
+            applicationId,
+          }: {
+            internshipId: string;
+            applicationId: string;
+            studentName?: string;
+          }) =>
             await StudentService.downloadApplicationPDF(
               internshipId,
               applicationId,
@@ -11015,6 +11055,32 @@ export default function InternshipApplicationsPage({
             </div>
           </div>
 
+          {/* Top-Left Verification Barcode / QR Code (below Certificate No) */}
+          <div className="absolute left-8 top-11 z-10 flex flex-col items-center rounded border border-slate-300/80 bg-white p-1 shadow-sm">
+            <QrCode className="h-10 w-10 text-slate-900" />
+            <span className="mt-0.5 text-[6.5px] font-bold tracking-wider text-emerald-700">
+              SCAN TO VERIFY
+            </span>
+          </div>
+
+          {/* Right-Hand Student Photo (Red marked area) */}
+          <div className="absolute right-8 top-[170px] z-10 flex h-[100px] w-[78px] flex-col items-center justify-center overflow-hidden rounded-[2px] border-[1.5px] border-amber-800 bg-white p-[2px] shadow-sm">
+            {certificate.photoUrl ? (
+              <img
+                src={certificate.photoUrl}
+                alt={studentName}
+                className="h-full w-full rounded-[1px] object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full flex-col items-center justify-center rounded-[1px] bg-slate-100 text-center">
+                <User className="h-7 w-7 text-slate-400" />
+                <span className="mt-1 text-[6.5px] font-bold uppercase tracking-wider text-slate-500">
+                  Photo
+                </span>
+              </div>
+            )}
+          </div>
+
           {}
           <div className="z-10 space-y-0.5 text-center">
             <div className="mb-2 flex justify-center">
@@ -11037,7 +11103,7 @@ export default function InternshipApplicationsPage({
               Regd. Under Indian Trust Act 1882, Government of India
             </p>
             <p className="text-[9.5px] font-bold text-emerald-700">
-              BCC Greens, Deva Road, Lucknow, Uttar Pradesh, India
+              Regd. Office: Thekma, District- Azamgarh, Uttar Pradesh (India)
             </p>
           </div>
 
@@ -11169,7 +11235,7 @@ export default function InternshipApplicationsPage({
                 </div>
                 <div className="whitespace-normal">
                   <span className="font-semibold text-slate-800">Place:</span>{" "}
-                  Lucknow, Uttar Pradesh, India
+                  Thekma, Azamgarh, Uttar Pradesh, India
                 </div>
               </div>
             </div>
@@ -11500,11 +11566,14 @@ export default function InternshipApplicationsPage({
       app,
       onSelectApp,
       onDownloadPDF,
+      onDownloadApplication,
       onApprove,
       onReject,
       onIssueCertificate,
       onAssignGrade,
+      onViewSubmissions,
       isDownloading,
+      isDownloadingApp,
       isApproving,
       isRejecting,
       isIssuingCertificate,
@@ -11515,6 +11584,12 @@ export default function InternshipApplicationsPage({
       const regId = regData?.id || app.registrationId || app.studentRegistrationId;
       const appId = app.applicationId || app.id;
       const isPaid = app.paymentStatus === "PAID";
+      const candName =
+        app.registration?.fullName ||
+        app.studentName ||
+        app.student?.fullName ||
+        app.name ||
+        "";
 
       const appStatus = app.applicationStatus || app.status || "UNDER_REVIEW";
       const isApproved =
@@ -11522,6 +11597,7 @@ export default function InternshipApplicationsPage({
         appStatus === "APPROVED" ||
         appStatus === "SUPER_ADMIN_APPROVED";
       const isRejected = appStatus === "REJECTED";
+      const isGraded = Boolean(app.isGraded) || Boolean(app.grade);
 
       const { mutate: downloadCert, isPending: isDownloadingCert } =
         StudentDataHook.useDownloadCertificate({
@@ -11544,7 +11620,7 @@ export default function InternshipApplicationsPage({
           },
         });
 
-        const mockCertificate = {
+      const mockCertificate = {
         id: app.certificate?.id || "",
         certificateNo: app.certificate?.certificateNo || "",
         studentId: app.registration?.studentId || app.studentId || "",
@@ -11577,7 +11653,7 @@ export default function InternshipApplicationsPage({
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger_10>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem
                 onClick={() => onSelectApp(app)}
                 className="cursor-pointer font-semibold"
@@ -11586,47 +11662,115 @@ export default function InternshipApplicationsPage({
                 <span>View Details</span>
               </DropdownMenuItem>
 
-              {regId && (
+              {onDownloadApplication && (
                 <DropdownMenuItem
-                  disabled={isDownloading}
-                  onClick={() => onDownloadPDF(regId)}
-                  className="cursor-pointer"
+                  disabled={isDownloadingApp}
+                  onClick={() => onDownloadApplication(appId, candName)}
+                  className="cursor-pointer font-semibold text-emerald-600 focus:bg-emerald-500/10 focus:text-emerald-600 dark:text-emerald-400"
                 >
-                  <Download className="text-muted-foreground mr-2 size-3.5" />
-                  <span>Download PDF</span>
+                  <Download className="mr-2 size-3.5 text-emerald-500" />
+                  <span>Download Application</span>
                 </DropdownMenuItem>
               )}
 
-              {!isPaid && !isApproved && !isRejected && (
-                <>
-                  <DropdownMenuSeparator />
-                  {!isApproved && (
-                    <DropdownMenuItem
-                      disabled={isApproving}
-                      onClick={() => onApprove(appId)}
-                      className="cursor-pointer font-semibold text-emerald-600 dark:text-emerald-400"
-                    >
-                      <Check_2 className="mr-2 size-3.5 text-emerald-500" />
-                      <span>Approve Application</span>
-                    </DropdownMenuItem>
-                  )}
+              {regId && (
+                <DropdownMenuItem
+                  disabled={isDownloading}
+                  onClick={() => onDownloadPDF(regId, candName)}
+                  className="cursor-pointer"
+                >
+                  <Download className="text-muted-foreground mr-2 size-3.5" />
+                  <span>Download Registration PDF</span>
+                </DropdownMenuItem>
+              )}
 
-                  {!isRejected && (
-                    <DropdownMenuItem
-                      disabled={isRejecting}
-                      onClick={() => onReject(appId)}
-                      variant="destructive"
-                      className="cursor-pointer font-semibold"
-                    >
-                      <X className="mr-2 size-3.5" />
-                      <span>Reject Application</span>
-                    </DropdownMenuItem>
-                  )}
-                </>
+              <DropdownMenuSeparator />
+              {!isApproved && (
+                <DropdownMenuItem
+                  disabled={isApproving}
+                  onClick={() => onApprove(appId)}
+                  className="cursor-pointer font-semibold text-emerald-600 dark:text-emerald-400"
+                >
+                  <Check_2 className="mr-2 size-3.5 text-emerald-500" />
+                  <span>{isRejected ? "Approve Application" : "Approve Application"}</span>
+                </DropdownMenuItem>
+              )}
+
+              {!isRejected && (
+                <DropdownMenuItem
+                  disabled={isRejecting}
+                  onClick={() => onReject(appId)}
+                  variant="destructive"
+                  className="cursor-pointer font-semibold"
+                >
+                  <X className="mr-2 size-3.5" />
+                  <span>{isApproved ? "Reject Application" : "Reject Application"}</span>
+                </DropdownMenuItem>
               )}
 
               {isApproved && (
                 <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      try {
+                        toast.loading("Downloading Offer Letter...");
+                        const targetInternshipId =
+                          app.internshipId || _internshipId;
+                        const res = await axiosInstance.get(
+                          `/api/v1/internships/${targetInternshipId}/applications/${appId}/offer-letter/download`,
+                          { responseType: "blob" },
+                        );
+                        const blob = new Blob([res.data], {
+                          type: "application/pdf",
+                        });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        const safeName = (candName || "Candidate")
+                          .replace(/[^a-zA-Z0-9_\-]/g, "_")
+                          .trim();
+                        a.download = `${safeName}_Internship_Offer_Letter.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        toast.dismiss();
+                        toast.success("Offer Letter downloaded successfully!");
+                      } catch (err: any) {
+                        toast.dismiss();
+                        const errMsg =
+                          err?.response?.data?.error?.message ||
+                          "Failed to download offer letter.";
+                        toast.error(errMsg);
+                      }
+                    }}
+                    className="cursor-pointer font-semibold text-emerald-600 focus:bg-emerald-500/10 focus:text-emerald-600 dark:text-emerald-400"
+                  >
+                    <Download className="mr-2 size-3.5 text-emerald-500" />
+                    <span>Download Offer Letter</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const enrollmentId =
+                        app.enrollmentId ||
+                        app.enrollment?.id ||
+                        app.applicationId ||
+                        app.id;
+                      const name =
+                        app.registration?.fullName ||
+                        app.studentName ||
+                        app.student?.fullName ||
+                        app.name ||
+                        "Candidate";
+                      onViewSubmissions?.(enrollmentId, name);
+                    }}
+                    className="cursor-pointer font-semibold"
+                  >
+                    <FileText className="text-primary mr-2 size-3.5" />
+                    <span>View Submissions</span>
+                  </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
                   {app.certificate ? (
                     <>
@@ -11660,6 +11804,35 @@ export default function InternshipApplicationsPage({
                         <span>Assign Grade</span>
                       </DropdownMenuItem>
                     </>
+                  ) : !isGraded ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const enrollmentId =
+                          app.enrollmentId ||
+                          app.enrollment?.id ||
+                          app.applicationId ||
+                          app.id;
+                        const candName =
+                          app.registration?.fullName ||
+                          app.studentName ||
+                          app.student?.fullName ||
+                          app.name ||
+                          "Candidate";
+                        toast.warning(
+                          `Grade required: Please evaluate & grade ${candName}'s project submission before issuing a certificate.`,
+                        );
+                        onViewSubmissions?.(enrollmentId, candName);
+                      }}
+                      className="cursor-pointer font-semibold text-amber-600 focus:bg-amber-500/10 focus:text-amber-600 dark:text-amber-400"
+                    >
+                      <Award className="mr-2 size-3.5 opacity-60" />
+                      <div className="flex flex-col text-left">
+                        <span>Issue Certificate</span>
+                        <span className="text-[10px] font-normal text-amber-500">
+                          (Grade Required First)
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem
                       disabled={isIssuingCertificate}
@@ -11724,11 +11897,14 @@ export default function InternshipApplicationsPage({
       limit = 10,
       onSelectApp,
       onDownloadPDF,
+      onDownloadApplication,
       onApprove,
       onReject,
       onIssueCertificate,
       onAssignGrade,
+      onViewSubmissions,
       isDownloading,
+      isDownloadingApp,
       isApproving,
       isRejecting,
       isIssuingCertificate,
@@ -11961,11 +12137,14 @@ export default function InternshipApplicationsPage({
             app={row.original}
             onSelectApp={onSelectApp}
             onDownloadPDF={onDownloadPDF}
+            onDownloadApplication={onDownloadApplication}
             onApprove={onApprove}
             onReject={onReject}
             onIssueCertificate={onIssueCertificate}
             onAssignGrade={onAssignGrade}
+            onViewSubmissions={onViewSubmissions}
             isDownloading={isDownloading}
+            isDownloadingApp={isDownloadingApp}
             isApproving={isApproving}
             isRejecting={isRejecting}
             isIssuingCertificate={isIssuingCertificate}
@@ -12032,22 +12211,71 @@ export default function InternshipApplicationsPage({
                   />
                 )}
               </div>
-              {onDownloadApplication && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isDownloadingApplication}
-                  onClick={onDownloadApplication}
-                  className="shrink-0 gap-1.5 text-xs font-semibold"
-                >
-                  {isDownloadingApplication ? (
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  ) : (
-                    <Download className="size-3.5" />
-                  )}
-                  Download Application
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {isApproved && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        toast.loading("Downloading Offer Letter...");
+                        const targetInternshipId =
+                          application.internshipId || internship?.id;
+                        const res = await axiosInstance.get(
+                          `/api/v1/internships/${targetInternshipId}/applications/${appId}/offer-letter/download`,
+                          { responseType: "blob" },
+                        );
+                        const blob = new Blob([res.data], {
+                          type: "application/pdf",
+                        });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        const safeName = (
+                          reg.fullName ||
+                          application.studentName ||
+                          "Candidate"
+                        )
+                          .replace(/[^a-zA-Z0-9_\-]/g, "_")
+                          .trim();
+                        a.download = `${safeName}_Internship_Offer_Letter.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        toast.dismiss();
+                        toast.success("Offer Letter downloaded successfully!");
+                      } catch (err: any) {
+                        toast.dismiss();
+                        const errMsg =
+                          err?.response?.data?.error?.message ||
+                          "Failed to download offer letter.";
+                        toast.error(errMsg);
+                      }
+                    }}
+                    className="shrink-0 gap-1.5 text-xs font-semibold text-emerald-600 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                  >
+                    <Download className="size-3.5 text-emerald-600" />
+                    Offer Letter
+                  </Button>
+                )}
+                {onDownloadApplication && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isDownloadingApplication}
+                    onClick={onDownloadApplication}
+                    className="shrink-0 gap-1.5 text-xs font-semibold"
+                  >
+                    {isDownloadingApplication ? (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <Download className="size-3.5" />
+                    )}
+                    Download Application
+                  </Button>
+                )}
+              </div>
             </div>
           }
           description={
@@ -12064,6 +12292,11 @@ export default function InternshipApplicationsPage({
                 >
                   {appStatus.replace(/_/g, " ")}
                 </Badge>
+                {isRejected && (
+                  <span className="text-[11px] font-medium text-red-600 dark:text-red-400">
+                    • Reject वाले स्टूडेंट को ऑफर लेटर जारी नहीं किया जाएगा
+                  </span>
+                )}
                 <Badge
                   variant="outline"
                   className={
@@ -12450,68 +12683,423 @@ export default function InternshipApplicationsPage({
                   </div>
                 </div>
 
-                {}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
-                  {regId && onDownloadPDF && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={isDownloading}
-                      onClick={() => onDownloadPDF(regId)}
-                      className="gap-1.5 text-xs font-semibold"
-                    >
-                      <Download className="size-3.5" />
-                      Download Registration PDF
-                    </Button>
-                  )}
-
-                  {!isPaid && !isApproved && !isRejected && (
-                    <div className="ml-auto flex items-center gap-2">
-                      {onApprove && appId && !isApproved && (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          disabled={isApproving}
-                          onClick={() => {
-                            onApprove(appId);
-                            onClose();
-                          }}
-                          className="gap-1 bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
-                        >
-                          <Check_2 className="size-3.5" />
-                          Approve Application
-                        </Button>
-                      )}
-                      {onReject && appId && !isRejected && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={isRejecting}
-                          onClick={() => {
-                            onReject(appId);
-                            onClose();
-                          }}
-                          className="gap-1 text-xs font-bold"
-                        >
-                          <X className="size-3.5" />
-                          Reject
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
               </TabsContent>
             </Tabs>
 
-            <div className="flex justify-end pt-2">
-              <Button variant="outline" size="sm" onClick={onClose}>
-                Close
-              </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+              <div>
+                {regId && onDownloadPDF && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isDownloading}
+                    onClick={() => onDownloadPDF(regId)}
+                    className="gap-1.5 text-xs font-semibold"
+                  >
+                    <Download className="size-3.5" />
+                    Download Registration PDF
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {onApprove && appId && !isApproved && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    disabled={isApproving || isRejecting}
+                    onClick={() => {
+                      onApprove(appId);
+                      onClose();
+                    }}
+                    className="gap-1.5 bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
+                  >
+                    {isApproving ? (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <Check_2 className="size-3.5" />
+                    )}
+                    Approve Application
+                  </Button>
+                )}
+
+                {onReject && appId && !isRejected && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isRejecting || isApproving}
+                    onClick={() => {
+                      onReject(appId);
+                      onClose();
+                    }}
+                    className="gap-1.5 text-xs font-bold"
+                  >
+                    {isRejecting ? (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <X className="size-3.5" />
+                    )}
+                    Reject Application
+                  </Button>
+                )}
+
+                <Button variant="outline" size="sm" onClick={onClose}>
+                  Close
+                </Button>
+              </div>
             </div>
           </div>
         </ResponsiveDialog>
       );
     };
+
+    function GradingForm({
+      submissionId,
+      enrollmentId,
+      initialGrade = "",
+      initialFeedback = "",
+      onCancel,
+      onSuccess,
+    }: {
+      submissionId: string;
+      enrollmentId: string;
+      initialGrade?: string;
+      initialFeedback?: string;
+      onCancel?: () => void;
+      onSuccess?: () => void;
+    }) {
+      const queryClient = useQueryClient();
+      const [grade, setGrade] = React_3.useState(initialGrade);
+      const [feedback, setFeedback] = React_3.useState(initialFeedback);
+      const [isPending, setIsPending] = React_3.useState(false);
+
+      const handleSubmit = async (e: React_3.FormEvent) => {
+        e.preventDefault();
+        if (!grade || grade === "NO_GRADE") {
+          toast.error("Grade is mandatory. Please select a grade (e.g. A+, A, B) to evaluate this project.");
+          return;
+        }
+
+        setIsPending(true);
+        try {
+          await axiosInstance.post(
+            ENDPOINTS.INSTRUCTOR.SUBMISSIONS_GRADE(submissionId),
+            {
+              grade,
+              feedback,
+            },
+          );
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(enrollmentId),
+          });
+          toast.success("Submission graded successfully!");
+          onSuccess?.();
+        } catch (err: any) {
+          toast.error(
+            err?.response?.data?.message ||
+              err?.message ||
+              "Failed to grade submission.",
+          );
+        } finally {
+          setIsPending(false);
+        }
+      };
+
+      const hasValidGrade = Boolean(grade && grade !== "NO_GRADE");
+
+      return (
+        <form
+          onSubmit={handleSubmit}
+          className="border-border/50 bg-muted/10 space-y-2 rounded-lg border p-1.5"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+              {initialGrade || initialFeedback
+                ? "Edit Evaluation"
+                : "Grade Submission"}
+            </span>
+            <span className="text-[9px] font-semibold text-rose-500">
+              * Grade Mandatory
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Select value={grade} onValueChange={(val) => setGrade(val)}>
+              <SelectTrigger
+                size="sm"
+                className={cn(
+                  "border-border/80 bg-background h-7 w-28 px-2 py-0 text-[10px] font-semibold",
+                  !hasValidGrade && "border-rose-400 focus:ring-rose-400/20",
+                )}
+              >
+                <SelectValue placeholder="Select Grade *" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A+">A+ (Outstanding)</SelectItem>
+                <SelectItem value="A">A (Excellent)</SelectItem>
+                <SelectItem value="B+">B+ (Very Good)</SelectItem>
+                <SelectItem value="B">B (Good)</SelectItem>
+                <SelectItem value="C">C (Pass)</SelectItem>
+                <SelectItem value="F">F (Fail)</SelectItem>
+              </SelectContent>
+            </Select>
+            <input
+              type="text"
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Evaluation notes / feedback (optional)..."
+              className="border-border/80 bg-background focus:ring-primary/20 focus:border-primary h-7 flex-1 rounded-md border px-2 text-[10px] font-medium focus:outline-none"
+            />
+            <Button
+              type="submit"
+              disabled={isPending || !hasValidGrade}
+              size="sm"
+              className="h-7 rounded-md px-2 text-[10px] font-semibold"
+            >
+              {isPending ? "Saving..." : "Save Grade"}
+            </Button>
+            {onCancel && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onCancel}
+                className="hover:bg-muted h-7 rounded-md px-2 text-[10px] font-semibold"
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
+        </form>
+      );
+    }
+
+    interface AdminSubmissionDetailDialogProps {
+      enrollmentId: string;
+      studentName: string;
+      open: boolean;
+      onClose: () => void;
+    }
+
+    function AdminSubmissionDetailDialog({
+      enrollmentId,
+      studentName,
+      open,
+      onClose,
+    }: AdminSubmissionDetailDialogProps) {
+      const [editingSubmissionId, setEditingSubmissionId] = React_3.useState<
+        string | null
+      >(null);
+
+      const {
+        data: response,
+        isLoading,
+        isError,
+      } = StudentDataHook.useEnrollmentSubmissions(enrollmentId, {
+        enabled: open && !!enrollmentId,
+      });
+
+      const submissions = response?.data || [];
+      const queryClient = useQueryClient();
+
+      React_3.useEffect(() => {
+        if (!open) {
+          setEditingSubmissionId(null);
+        }
+      }, [open]);
+
+      const handleDeleteEvaluation = async (submissionId: string) => {
+        try {
+          await axiosInstance.post(
+            ENDPOINTS.INSTRUCTOR.SUBMISSIONS_GRADE(submissionId),
+            { grade: "", feedback: "" },
+          );
+          setEditingSubmissionId(null);
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(enrollmentId),
+          });
+          toast.success("Evaluation removed successfully.");
+        } catch (err: any) {
+          toast.error(
+            err?.response?.data?.message ||
+              err?.message ||
+              "Failed to delete evaluation.",
+          );
+        }
+      };
+
+      return (
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+          <DialogContent className="bg-card max-w-lg rounded-2xl p-4">
+            <DialogHeader>
+              <DialogTitle className="text-foreground text-base font-bold">
+                Project Submissions
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs">
+                All project submissions made by{" "}
+                <span className="text-foreground font-semibold">{studentName}</span>
+                .
+              </DialogDescription>
+            </DialogHeader>
+
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center space-y-3 py-12">
+                <Loader2 className="text-primary size-8 animate-spin" />
+                <p className="text-muted-foreground text-xs font-medium">
+                  Loading submission details...
+                </p>
+              </div>
+            ) : isError ? (
+              <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
+                Failed to load submission details. Please try again.
+              </div>
+            ) : submissions.length === 0 ? (
+              <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
+                No projects have been submitted yet by this student.
+              </div>
+            ) : (
+              <div className="max-h-[65vh] space-y-3 overflow-y-auto pr-1 pt-2">
+                {submissions.map((submission, idx) => (
+                  <div
+                    key={submission.id}
+                    className="border-border/60 space-y-2 rounded-xl border p-2"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                          Submission {submissions.length - idx}
+                        </span>
+                        <span className="text-foreground text-sm font-semibold">
+                          {submission.projectTitle}
+                        </span>
+                      </div>
+                      {submission.status === "GRADED" && (
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-500/20 bg-emerald-500/5 text-[10px] font-bold text-emerald-600"
+                          >
+                            GRADED
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-border/50 bg-muted/10 flex items-start gap-2 rounded-lg border p-1.5">
+                      <FileText className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                          Project Link
+                        </span>
+                        <a
+                          href={submission.projectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary flex items-center gap-1 truncate text-xs font-semibold hover:underline"
+                        >
+                          {submission.projectUrl}
+                          <ExternalLink className="size-3 shrink-0" />
+                        </a>
+                      </div>
+                    </div>
+
+                    {submission.comments && (
+                      <div className="border-border/50 bg-muted/10 flex items-start gap-2 rounded-lg border p-1.5">
+                        <MessageSquare className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                            Student Comments
+                          </span>
+                          <p className="text-foreground text-xs font-medium leading-relaxed">
+                            {submission.comments}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {submission.status === "GRADED" &&
+                    editingSubmissionId !== submission.id ? (
+                      <div className="border-primary/20 bg-primary/5 flex items-start justify-between gap-2 rounded-lg border p-1.5">
+                        <div className="flex min-w-0 items-start gap-2">
+                          <Award className="text-primary mt-0.5 size-4 shrink-0" />
+                          <div className="min-w-0 space-y-1">
+                            <div className="flex items-center gap-4">
+                              <div>
+                                <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                                  Grade
+                                </span>
+                                <span className="text-foreground text-sm font-bold">
+                                  {submission.grade || "N/A"}
+                                </span>
+                              </div>
+                              {submission.gradedBy?.name && (
+                                <div>
+                                  <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                                    Graded By
+                                  </span>
+                                  <span className="text-foreground text-xs font-semibold">
+                                    {submission.gradedBy.name}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            {submission.feedback && (
+                              <div>
+                                <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                                  Feedback
+                                </span>
+                                <p className="text-foreground text-xs font-medium leading-relaxed">
+                                  {submission.feedback}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="mt-0.5 flex shrink-0 gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hover:bg-primary/10 text-muted-foreground hover:text-foreground h-6 w-6 cursor-pointer"
+                            title="Edit grade"
+                            onClick={() => setEditingSubmissionId(submission.id)}
+                          >
+                            <Pencil className="size-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hover:bg-destructive/10 text-destructive hover:text-destructive h-6 w-6 cursor-pointer"
+                            title="Delete grade"
+                            onClick={() => handleDeleteEvaluation(submission.id)}
+                          >
+                            <Trash2 className="size-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <GradingForm
+                        submissionId={submission.id}
+                        enrollmentId={enrollmentId}
+                        initialGrade={submission.grade || ""}
+                        initialFeedback={submission.feedback || ""}
+                        onCancel={
+                          submission.status === "GRADED"
+                            ? () => setEditingSubmissionId(null)
+                            : undefined
+                        }
+                        onSuccess={() => setEditingSubmissionId(null)}
+                      />
+                    )}
+
+                    <p className="text-muted-foreground text-[10px] font-medium">
+                      Submitted on {formatHumanReadableDate_18(submission.createdAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      );
+    }
 
     const InternshipApplicationsListingTable: React_3.FC<
       InternshipApplicationsListingTableProps
@@ -12526,6 +13114,10 @@ export default function InternshipApplicationsPage({
       const [selectedApp, setSelectedApp] =
         useState<InternshipApplicationDetail_2 | null>(null);
       const [detailOpen, setDetailOpen] = useState(false);
+      const [submissionsOpen, setSubmissionsOpen] = useState(false);
+      const [submissionEnrollmentId, setSubmissionEnrollmentId] = useState("");
+      const [submissionStudentName, setSubmissionStudentName] = useState("");
+      const [downloadTargetName, setDownloadTargetName] = useState("");
 
       const { data: response, isLoading } =
         SuperAdminDataHooks.useInternshipApplications(internshipId, {
@@ -12544,7 +13136,13 @@ export default function InternshipApplicationsPage({
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `student_registration_${variables}.pdf`;
+            const targetName = (downloadTargetName || "").trim();
+            const safeName = targetName
+              .replace(/[/\\?%*:|"<>]/g, "")
+              .replace(/\s+/g, "_");
+            a.download = safeName
+              ? `${safeName}_Application.pdf`
+              : `student_registration_${variables}.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -12561,7 +13159,17 @@ export default function InternshipApplicationsPage({
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `application-${variables.applicationId}.pdf`;
+            const targetName = (
+              variables.studentName ||
+              downloadTargetName ||
+              ""
+            ).trim();
+            const safeName = targetName
+              .replace(/[/\\?%*:|"<>]/g, "")
+              .replace(/\s+/g, "_");
+            a.download = safeName
+              ? `${safeName}_Application.pdf`
+              : `application-${variables.applicationId}.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -12637,12 +13245,29 @@ export default function InternshipApplicationsPage({
               setSelectedApp(app);
               setDetailOpen(true);
             },
-            onDownloadPDF: (regId) => downloadPDF(regId),
+            onDownloadPDF: (regId, candidateName) => {
+              setDownloadTargetName(candidateName || "");
+              downloadPDF(regId);
+            },
+            onDownloadApplication: (appId, candidateName) => {
+              setDownloadTargetName(candidateName || "");
+              downloadAppPDF({
+                internshipId,
+                applicationId: appId,
+                studentName: candidateName,
+              });
+            },
             onApprove: (applicationId) =>
               approveApp({ internshipId, applicationId }),
             onReject: (applicationId) => rejectApp({ internshipId, applicationId }),
             onIssueCertificate: (enrollmentId) => issueCertificate(enrollmentId),
+            onViewSubmissions: (enrollmentId, name) => {
+              setSubmissionEnrollmentId(enrollmentId);
+              setSubmissionStudentName(name);
+              setSubmissionsOpen(true);
+            },
             isDownloading,
+            isDownloadingApp,
             isApproving,
             isRejecting,
             isIssuingCertificate,
@@ -12652,10 +13277,12 @@ export default function InternshipApplicationsPage({
           page,
           limit,
           downloadPDF,
+          downloadAppPDF,
           approveApp,
           rejectApp,
           issueCertificate,
           isDownloading,
+          isDownloadingApp,
           isApproving,
           isRejecting,
           isIssuingCertificate,
@@ -12701,27 +13328,42 @@ export default function InternshipApplicationsPage({
 
         setIsBulkApproving(true);
         const toastId = toast.loading(
-          `Approving ${pendingOrRejected.length} application(s)...`,
+          `Approving 0/${pendingOrRejected.length} application(s)...`,
         );
         try {
           let successCount = 0;
           let failCount = 0;
 
-          await Promise.all(
-            pendingOrRejected.map(async (app) => {
-              const appId = app.applicationId || app.id;
-              try {
-                await SuperAdminService.approveInternshipApplication(
-                  internshipId,
-                  appId,
-                );
-                successCount++;
-              } catch (err) {
-                console.error(`Failed to approve application ${appId}:`, err);
-                failCount++;
-              }
-            }),
-          );
+          // Process in controlled batches of 2 to avoid DB pooler starvation & card collisions
+          const batchSize = 2;
+          for (let i = 0; i < pendingOrRejected.length; i += batchSize) {
+            const batch = pendingOrRejected.slice(i, i + batchSize);
+            await Promise.all(
+              batch.map(async (app) => {
+                const appId = app.applicationId || app.id;
+                try {
+                  await SuperAdminService.approveInternshipApplication(
+                    internshipId,
+                    appId,
+                  );
+                  successCount++;
+                } catch (err) {
+                  console.error(`Failed to approve application ${appId}:`, err);
+                  failCount++;
+                }
+              }),
+            );
+
+            const processed = Math.min(i + batchSize, pendingOrRejected.length);
+            toast.loading(
+              `Approving ${processed}/${pendingOrRejected.length} application(s)...`,
+              { id: toastId },
+            );
+
+            if (i + batchSize < pendingOrRejected.length) {
+              await new Promise((resolve) => setTimeout(resolve, 80));
+            }
+          }
 
           queryClient.invalidateQueries({
             queryKey: SUPER_ADMIN_QUERY_KEYS.INTERNSHIP_APPLICATIONS(internshipId),
@@ -12730,18 +13372,17 @@ export default function InternshipApplicationsPage({
             queryKey: ["internship-applications", internshipId],
           });
 
-          toast.dismiss(toastId);
           if (successCount > 0) {
             toast.success(
               `Successfully approved ${successCount} application(s)!${failCount > 0 ? ` (${failCount} failed)` : ""}`,
+              { id: toastId },
             );
           } else {
-            toast.error("Failed to approve selected applications.");
+            toast.error("Failed to approve selected applications.", { id: toastId });
           }
           setSelectedRows([]);
         } catch (err: any) {
-          toast.dismiss(toastId);
-          toast.error(err?.message || "Failed to complete bulk approval.");
+          toast.error(err?.message || "Failed to complete bulk approval.", { id: toastId });
         } finally {
           setIsBulkApproving(false);
         }
@@ -12761,27 +13402,41 @@ export default function InternshipApplicationsPage({
 
         setIsBulkRejecting(true);
         const toastId = toast.loading(
-          `Rejecting ${eligible.length} application(s)...`,
+          `Rejecting 0/${eligible.length} application(s)...`,
         );
         try {
           let successCount = 0;
           let failCount = 0;
 
-          await Promise.all(
-            eligible.map(async (app) => {
-              const appId = app.applicationId || app.id;
-              try {
-                await SuperAdminService.rejectInternshipApplication(
-                  internshipId,
-                  appId,
-                );
-                successCount++;
-              } catch (err) {
-                console.error(`Failed to reject application ${appId}:`, err);
-                failCount++;
-              }
-            }),
-          );
+          const batchSize = 2;
+          for (let i = 0; i < eligible.length; i += batchSize) {
+            const batch = eligible.slice(i, i + batchSize);
+            await Promise.all(
+              batch.map(async (app) => {
+                const appId = app.applicationId || app.id;
+                try {
+                  await SuperAdminService.rejectInternshipApplication(
+                    internshipId,
+                    appId,
+                  );
+                  successCount++;
+                } catch (err) {
+                  console.error(`Failed to reject application ${appId}:`, err);
+                  failCount++;
+                }
+              }),
+            );
+
+            const processed = Math.min(i + batchSize, eligible.length);
+            toast.loading(
+              `Rejecting ${processed}/${eligible.length} application(s)...`,
+              { id: toastId },
+            );
+
+            if (i + batchSize < eligible.length) {
+              await new Promise((resolve) => setTimeout(resolve, 80));
+            }
+          }
 
           queryClient.invalidateQueries({
             queryKey: SUPER_ADMIN_QUERY_KEYS.INTERNSHIP_APPLICATIONS(internshipId),
@@ -12790,18 +13445,17 @@ export default function InternshipApplicationsPage({
             queryKey: ["internship-applications", internshipId],
           });
 
-          toast.dismiss(toastId);
           if (successCount > 0) {
             toast.success(
               `Successfully rejected ${successCount} application(s).${failCount > 0 ? ` (${failCount} failed)` : ""}`,
+              { id: toastId },
             );
           } else {
-            toast.error("Failed to reject selected applications.");
+            toast.error("Failed to reject selected applications.", { id: toastId });
           }
           setSelectedRows([]);
         } catch (err: any) {
-          toast.dismiss(toastId);
-          toast.error(err?.message || "Failed to complete bulk rejection.");
+          toast.error(err?.message || "Failed to complete bulk rejection.", { id: toastId });
         } finally {
           setIsBulkRejecting(false);
         }
@@ -12919,10 +13573,30 @@ export default function InternshipApplicationsPage({
                 setSelectedApp(null);
               }}
               application={selectedApp}
-              onDownloadPDF={(regId) => downloadPDF(regId)}
+              onDownloadPDF={(regId) => {
+                const candName =
+                  selectedApp.registration?.fullName ||
+                  selectedApp.studentName ||
+                  selectedApp.student?.fullName ||
+                  selectedApp.name ||
+                  "";
+                setDownloadTargetName(candName);
+                downloadPDF(regId);
+              }}
               onDownloadApplication={() => {
                 const appId = selectedApp.applicationId || selectedApp.id;
-                downloadAppPDF({ internshipId, applicationId: appId });
+                const candName =
+                  selectedApp.registration?.fullName ||
+                  selectedApp.studentName ||
+                  selectedApp.student?.fullName ||
+                  selectedApp.name ||
+                  "";
+                setDownloadTargetName(candName);
+                downloadAppPDF({
+                  internshipId,
+                  applicationId: appId,
+                  studentName: candName,
+                });
               }}
               isDownloadingApplication={isDownloadingApp}
               onApprove={(applicationId) =>
@@ -12936,6 +13610,17 @@ export default function InternshipApplicationsPage({
               isRejecting={isRejecting}
             />
           )}
+
+          <AdminSubmissionDetailDialog
+            open={submissionsOpen}
+            onClose={() => {
+              setSubmissionsOpen(false);
+              setSubmissionEnrollmentId("");
+              setSubmissionStudentName("");
+            }}
+            enrollmentId={submissionEnrollmentId}
+            studentName={submissionStudentName}
+          />
         </div>
       );
     };

@@ -194,8 +194,18 @@ export async function PATCH(
     }
 
     const { id } = await params;
+    const existing = await prisma.immersion.findUnique({
+      where: { id },
+    });
+    if (!existing) {
+      return errorResponse("NOT_FOUND", "Immersion program not found.", {
+        status: HTTP_2.NOT_FOUND,
+      });
+    }
+
     const body = await request.json();
-    const parsed = createImmersionSchema.safeParse(body);
+    const updateImmersionSchema = createImmersionSchema.partial();
+    const parsed = updateImmersionSchema.safeParse(body);
 
     if (!parsed.success) {
       return errorResponse(
@@ -208,28 +218,17 @@ export async function PATCH(
       );
     }
 
-    const {
-      title,
-      description,
-      startDate,
-      endDate,
-      location,
-      period,
-      facilities,
-      benefits,
-      fees,
-      categoryId,
-      instructorId,
-    } = parsed.data;
-
-        const existing = await prisma.immersion.findUnique({
-      where: { id },
-    });
-    if (!existing) {
-      return errorResponse("NOT_FOUND", "Immersion program not found.", {
-        status: HTTP_2.NOT_FOUND,
-      });
-    }
+    const title = parsed.data.title ?? existing.title;
+    const description = parsed.data.description ?? existing.description;
+    const startDate = parsed.data.startDate ?? existing.startDate;
+    const endDate = parsed.data.endDate ?? existing.endDate;
+    const location = parsed.data.location ?? existing.location;
+    const period = parsed.data.period ?? existing.period;
+    const facilities = parsed.data.facilities ?? existing.facilities;
+    const benefits = parsed.data.benefits ?? existing.benefits;
+    const fees = parsed.data.fees ?? existing.fees;
+    const categoryId = parsed.data.categoryId !== undefined ? parsed.data.categoryId : existing.categoryId;
+    const instructorId = parsed.data.instructorId !== undefined ? parsed.data.instructorId : existing.instructorId;
 
         if (categoryId) {
       const categoryExists = await prisma.immersionCategory.findUnique({

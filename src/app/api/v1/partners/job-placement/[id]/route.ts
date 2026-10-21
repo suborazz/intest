@@ -167,6 +167,7 @@ const createJobPlacementCompanySchema = z.object({
     .trim(),
   skillsRequired: z.array(z.string()).min(1, "At least one skill is required"),
   staffStrength: z.string().min(1, "Staff strength is required").trim(),
+  salaryRange: z.string().optional().nullable(),
   website: z.string().url("Invalid website URL").trim(),
   logo: z.string().optional().nullable(),
   logoPublicId: z.string().optional().nullable(),
@@ -269,6 +270,7 @@ export async function PATCH(
       minQualification?: string;
       skillsRequired?: string[];
       staffStrength?: string;
+      salaryRange?: string;
       website?: string;
     } = {};
     let logoFile: File | null = null;
@@ -303,6 +305,9 @@ export async function PATCH(
       const staffStrength = formData.get("staffStrength");
       if (staffStrength !== null) body.staffStrength = staffStrength as string;
 
+      const salaryRange = formData.get("salaryRange");
+      if (salaryRange !== null) body.salaryRange = (salaryRange as string) || undefined;
+
       const website = formData.get("website");
       if (website !== null) body.website = website as string;
 
@@ -333,22 +338,9 @@ export async function PATCH(
       });
     }
 
-    const updateData: {
-      name?: string;
-      address?: string;
-      postOpportunity?: string;
-      jobNature?: string;
-      fieldOfEmployment?: string;
-      minQualification?: string;
-      skillsRequired?: string[];
-      staffStrength?: string;
-      website?: string;
-      logo?: string;
-      logoPublicId?: string;
-      photo?: string;
-      photoPublicId?: string;
-    } = {
+    const updateData: Record<string, any> = {
       ...result.data,
+      salaryRange: result.data.salaryRange ?? undefined,
       logo: result.data.logo ?? undefined,
       logoPublicId: result.data.logoPublicId ?? undefined,
       photo: result.data.photo ?? undefined,
@@ -389,7 +381,7 @@ export async function PATCH(
 
     const updated = await prisma.jobPlacementCompany.update({
       where: { id },
-      data: updateData,
+      data: updateData as any,
     });
 
     return successResponse(updated, {

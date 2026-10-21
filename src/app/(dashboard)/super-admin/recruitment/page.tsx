@@ -1,7 +1,7 @@
 "use client";
 
 import React_5, { Suspense } from "react";
-import { AlertTriangle, Award, Calendar, CreditCard, Download, Edit, ExternalLink, Eye, FileText, FolderOpen, Globe as Globe_2, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, School, Send, ShieldCheck, Trash2, User, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
+import { AlertTriangle, Award, Calendar, CreditCard, Download, Edit, ExternalLink, Eye, FileSpreadsheet, FileText, FolderOpen, Globe as Globe_2, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, RotateCcw, School, Send, ShieldCheck, Trash2, User, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
 import Link from "next/link";
 import * as React_4 from "react";
 import React_3 from "react";
@@ -30,6 +30,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
 import { AuthContext } from "@/x/8789d6dc";
 import { axiosInstance } from "@/x/acfb3dca";
 import { LayoutContext } from "@/x/72be5b4f";
+import { formatJobOpportunityId, isJobClosingDateExpired } from "@/x/a85a9c0c";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -8490,11 +8491,134 @@ export default function SuperAdminRecruitmentPage() {
         enableHiding: false,
       },
     ];
+    interface ReopenJobDialogProps {
+      isOpen: boolean;
+      onClose: () => void;
+      job: JobOpportunityPublic_2;
+    }
+
+    const ReopenJobDialog: React_3.FC<ReopenJobDialogProps> = ({
+      isOpen,
+      onClose,
+      job,
+    }) => {
+      const [newClosingDate, setNewClosingDate] = useState("");
+      const { mutate: updateJob, isPending } =
+        SuperAdminDataHooks.useUpdateJobOpportunity();
+
+      const handleReopen = (e: React_3.FormEvent) => {
+        e.preventDefault();
+        if (!newClosingDate) {
+          toast.error("Please specify a new extended closing date.");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("closingDate", newClosingDate);
+        formData.append("isActive", "true");
+
+        updateJob(
+          { id: job.id, formData },
+          {
+            onSuccess: () => {
+              toast.success("Job posting reopened successfully with extended closing date!");
+              onClose();
+            },
+          },
+        );
+      };
+
+      return (
+        <ResponsiveDialog
+          isOpen={isOpen}
+          setIsOpen={(open) => !open && onClose()}
+          title="Reopen Job Opportunity"
+          description="Extend the closing deadline date to reactivate this job posting for candidate applications."
+        >
+          <form onSubmit={handleReopen} className="space-y-4 pt-1">
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3 text-xs space-y-1 dark:border-indigo-900/50 dark:bg-indigo-950/30">
+              <div className="font-bold text-foreground">{job.postOpportunity}</div>
+              <div className="text-muted-foreground">Company: {job.companyName}</div>
+              <div className="text-muted-foreground">
+                Previous Closing Date:{" "}
+                <span className="font-semibold text-rose-600 dark:text-rose-400">
+                  {job.closingDate || "N/A"}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="reopenClosingDate" className="text-xs font-semibold">
+                New Extended Closing Date *
+              </Label>
+              <Input
+                id="reopenClosingDate"
+                type="date"
+                min={new Date().toISOString().split("T")[0]}
+                value={newClosingDate}
+                onChange={(e) => setNewClosingDate(e.target.value)}
+                required
+                className="w-full cursor-pointer"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Once saved, this posting will automatically be restored to Active status and candidates can apply online until this date.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t pt-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isPending}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold cursor-pointer"
+              >
+                {isPending ? "Reopening..." : "Reopen Posting"}
+              </Button>
+            </div>
+          </form>
+        </ResponsiveDialog>
+      );
+    };
+
     const ActionsCell: React_3.FC<ActionsCellProps> = ({ job }) => {
       const [deleteOpen, setDeleteOpen] = useState(false);
+      const [reopenOpen, setReopenOpen] = useState(false);
 
       const { mutate: deleteJob, isPending: isDeleting } =
         SuperAdminDataHooks.useDeleteJobOpportunity();
+
+      const { mutate: exportApplications, isPending: isExporting } =
+        SuperAdminDataHooks.useExportJobApplications({
+          onSuccess: (blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            const safePost = (job?.postOpportunity || "vacancy")
+              .replace(/[^a-z0-9]+/gi, "-")
+              .toLowerCase();
+            const safeAdvt = (job?.advtNo || "notice")
+              .replace(/[^a-z0-9]+/gi, "-")
+              .toLowerCase();
+            const dateStr = new Date().toISOString().split("T")[0];
+            a.download = `applications-${safePost}-${safeAdvt}-${dateStr}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            toast.success("Applications Excel downloaded successfully!");
+          },
+          onError: (err: any) => {
+            toast.error(err?.message || "Failed to download applications Excel.");
+          },
+        });
 
       const handleDeleteConfirm = () => {
         deleteJob(job.id, {
@@ -8519,7 +8643,7 @@ export default function SuperAdminRecruitmentPage() {
                 <MoreHorizontal className="size-4" />
               </Button>
             </DropdownMenuTrigger_13>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem asChild className="cursor-pointer font-semibold">
                 <Link href={`/super-admin/recruitment/${job.id}/applications`}>
                   <Eye className="mr-2 size-3.5 text-blue-500" />
@@ -8527,7 +8651,24 @@ export default function SuperAdminRecruitmentPage() {
                 </Link>
               </DropdownMenuItem>
 
+              <DropdownMenuItem
+                onClick={() => exportApplications(job.id)}
+                disabled={isExporting}
+                className="cursor-pointer font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"
+              >
+                <FileSpreadsheet className="mr-2 size-3.5 text-emerald-600" />
+                <span>{isExporting ? "Exporting..." : "Download Excel"}</span>
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => setReopenOpen(true)}
+                className="cursor-pointer font-semibold text-emerald-600 focus:bg-emerald-50 focus:text-emerald-700 dark:text-emerald-400 dark:focus:bg-emerald-950/40"
+              >
+                <RotateCcw className="mr-2 size-3.5 text-emerald-600" />
+                <span>Reopen / Extend Date</span>
+              </DropdownMenuItem>
 
               <DropdownMenuItem asChild className="cursor-pointer font-semibold">
                 <Link href={`/super-admin/recruitment/edit/${job.id}`}>
@@ -8547,6 +8688,14 @@ export default function SuperAdminRecruitmentPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu_13>
+
+          {reopenOpen && (
+            <ReopenJobDialog
+              isOpen={reopenOpen}
+              onClose={() => setReopenOpen(false)}
+              job={job}
+            />
+          )}
 
           {deleteOpen && (
             <DeleteJobDialog_2
@@ -8578,6 +8727,21 @@ export default function SuperAdminRecruitmentPage() {
         },
       },
       {
+        id: "jobId",
+        header: "Job ID",
+        cell: ({ row }) => {
+          const code = formatJobOpportunityId(
+            row.original.id,
+            row.original.createdAt,
+          );
+          return (
+            <span className="inline-flex shrink-0 items-center rounded-md border border-indigo-200/70 bg-indigo-50/80 px-2 py-0.5 font-mono text-[11px] font-bold tracking-tight text-indigo-700 transition-colors dark:border-indigo-800/50 dark:bg-indigo-950/40 dark:text-indigo-300">
+              {code}
+            </span>
+          );
+        },
+      },
+      {
         accessorKey: "advtNo",
         header: "Advt. No. & Date",
         cell: ({ row }) => {
@@ -8595,13 +8759,30 @@ export default function SuperAdminRecruitmentPage() {
         accessorKey: "postOpportunity",
         header: "Name of the Post",
         cell: ({ row }) => (
-          <div className="flex max-w-[220px] flex-col gap-0.5">
+          <div className="flex max-w-[240px] flex-col gap-1">
             <span className="text-foreground truncate text-xs font-bold leading-snug">
               {row.original.postOpportunity}
             </span>
-            <span className="text-muted-foreground text-[10px] font-medium leading-none">
-              Nature: {row.original.jobNature}
-            </span>
+            <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+              <span className="text-muted-foreground font-medium">
+                {row.original.jobNature}
+              </span>
+              {row.original.totalStaffStrength && (
+                <span className="inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  {row.original.totalStaffStrength} Seats
+                </span>
+              )}
+            </div>
+            {(row.original as any).salary && (
+              <span className="inline-flex w-fit items-center gap-1 rounded-sm border border-emerald-200/70 bg-emerald-50/80 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
+                💰 {(row.original as any).salary}
+              </span>
+            )}
+            {row.original.jdDescription && (
+              <p className="text-muted-foreground line-clamp-2 text-[10px] italic leading-tight">
+                {row.original.jdDescription}
+              </p>
+            )}
           </div>
         ),
       },
@@ -8622,11 +8803,27 @@ export default function SuperAdminRecruitmentPage() {
       {
         accessorKey: "closingDate",
         header: "Closing Date",
-        cell: ({ row }) => (
-          <span className="text-foreground/80 text-xs font-semibold">
-            {row.original.closingDate || "N/A"}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const isExpired = isJobClosingDateExpired(row.original.closingDate);
+          return (
+            <div className="flex flex-col gap-0.5">
+              <span
+                className={`text-xs font-semibold ${
+                  isExpired
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-foreground/80"
+                }`}
+              >
+                {row.original.closingDate || "N/A"}
+              </span>
+              {isExpired && (
+                <span className="text-[10px] font-bold text-rose-500">
+                  (Deadline passed)
+                </span>
+              )}
+            </div>
+          );
+        },
       },
       {
         id: "files",
@@ -8667,15 +8864,19 @@ export default function SuperAdminRecruitmentPage() {
         header: "Status",
         cell: ({ row }) => {
           const active = row.original.isActive;
+          const isExpired = isJobClosingDateExpired(row.original.closingDate);
+          const isLive = active && !isExpired;
           return (
             <Badge
               className={
-                active
+                isLive
                   ? "rounded-full border-emerald-500/20 bg-emerald-500/10 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400"
-                  : "rounded-full border-zinc-500/20 bg-zinc-500/10 text-[10px] font-semibold text-zinc-600 dark:text-zinc-400"
+                  : isExpired
+                    ? "rounded-full border-amber-500/20 bg-amber-500/10 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
+                    : "rounded-full border-zinc-500/20 bg-zinc-500/10 text-[10px] font-semibold text-zinc-600 dark:text-zinc-400"
               }
             >
-              {active ? "Active" : "Archived"}
+              {isLive ? "Active" : isExpired ? "Archived (Expired)" : "Archived"}
             </Badge>
           );
         },

@@ -332,29 +332,25 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       ...(nocUrl !== undefined ? { nocUrl } : {}),
     };
 
-    const profile = await prisma.$transaction(async (tx) => {
-      const p = await tx.immersionParticipantProfile.upsert({
-        where: { userId },
-        create: { userId, ...data },
-        update: data,
-        include: {
-          user: {
-            select: {
-              registrationNo: true,
-            },
+    const profile = await prisma.immersionParticipantProfile.upsert({
+      where: { userId },
+      create: { userId, ...data },
+      update: data,
+      include: {
+        user: {
+          select: {
+            registrationNo: true,
           },
         },
-      });
-
-      if (data.fullName) {
-        await tx.user.update({
-          where: { id: userId },
-          data: { name: data.fullName },
-        });
-      }
-
-      return p;
+      },
     });
+
+    if (data.fullName) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { name: data.fullName },
+      });
+    }
 
     return successResponse(profile, {
       message: "Profile updated successfully.",

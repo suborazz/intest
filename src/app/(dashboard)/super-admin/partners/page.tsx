@@ -371,66 +371,27 @@ function ResponsiveDialog({
   setIsOpen?: (open: boolean) => void;
   className?: string;
 }) {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-
-  if (isDesktop) {
-    return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent
-          className={cn(
-            "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
-            className,
-          )}
-        >
-          <div className="shrink-0 p-4 pb-2">
-            <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
-              )}
-            </DialogHeader>
-          </div>
-          <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
-            {children}
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
-        <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
-        </DrawerHeader>
-        <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent
+        className={cn(
+          "flex max-h-[90vh] w-[95vw] flex-col gap-0 overflow-hidden p-0 sm:w-full sm:max-w-[550px]",
+          className,
+        )}
+      >
+        <div className="shrink-0 p-4 pb-2">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
+          </DialogHeader>
+        </div>
+        <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
         </div>
-        <div className="absolute right-4 top-4">
-          <DrawerClose asChild>
-            <button className="bg-muted/50 hover:bg-muted rounded-full p-2 transition-colors">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-              <span className="sr-only">Close</span>
-            </button>
-          </DrawerClose>
-        </div>
-      </DrawerContent>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -3364,6 +3325,7 @@ interface JobPlacementPartner extends BasePartner {
       minQualification?: string;
       skillsRequired: string[];
       staffStrength?: string;
+      salaryRange?: string;
     }
 
 interface TrainingSupportPartner extends BasePartner {
@@ -6004,6 +5966,9 @@ export default function SuperAdminPartnersPage() {
       const [staffStrength, setStaffStrength] = useState(
         partner?.staffStrength || "",
       );
+      const [salaryRange, setSalaryRange] = useState(
+        partner?.salaryRange || "",
+      );
 
         const [naacAccreditation, setNaacAccreditation] = useState(
         partner?.naacAccreditation || "",
@@ -6034,6 +5999,7 @@ export default function SuperAdminPartnersPage() {
           formData.append("fieldOfEmployment", fieldOfEmployment);
           formData.append("minQualification", minQualification);
           formData.append("staffStrength", staffStrength);
+          if (salaryRange) formData.append("salaryRange", salaryRange);
 
           const parsedSkills = skillsRequired
             .split(",")
@@ -6148,14 +6114,24 @@ export default function SuperAdminPartnersPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="staffStrength">Staff Strength</Label>
+                    <Label htmlFor="salaryRange">Salary Range</Label>
                     <Input
-                      id="staffStrength"
-                      value={staffStrength}
-                      onChange={(e) => setStaffStrength(e.target.value)}
-                      placeholder="e.g. 500+"
+                      id="salaryRange"
+                      value={salaryRange}
+                      onChange={(e) => setSalaryRange(e.target.value)}
+                      placeholder="e.g. ₹20,000 - ₹35,000 / month"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="staffStrength">Staff Strength</Label>
+                  <Input
+                    id="staffStrength"
+                    value={staffStrength}
+                    onChange={(e) => setStaffStrength(e.target.value)}
+                    placeholder="e.g. 500+"
+                  />
                 </div>
               </>
             )}
@@ -6365,6 +6341,15 @@ export default function SuperAdminPartnersPage() {
               cell: ({ row }) => (
                 <span className="text-foreground/80 text-xs font-semibold">
                   {row.getValue("jobNature") || "N/A"}
+                </span>
+              ),
+            },
+            {
+              accessorKey: "salaryRange",
+              header: "Salary Range",
+              cell: ({ row }) => (
+                <span className="text-foreground/80 text-xs font-semibold">
+                  {row.original.salaryRange || "N/A"}
                 </span>
               ),
             },

@@ -224,7 +224,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }),
             prisma.notice.findMany({
         where: {
-          OR: [{ targetRole: "IMMERSION_USER" }, { receiverId: userId }],
+          OR: [
+            { targetRole: "IMMERSION_USER" },
+            { receiverId: userId },
+            { targetRole: null, receiverId: null },
+          ],
         },
         orderBy: { createdAt: "desc" },
         take: 10,

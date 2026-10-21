@@ -3,6 +3,7 @@ import fs from "fs";
 import { join } from "path";
 import PDFDocument from "pdfkit";
 import { ZodError } from "zod";
+import qrcode from "qrcode-generator";
 import { prisma } from "@/x/e3746f45";
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,77 @@ export async function GET(
       return `IN2026${initials}${numericSuffix}`;
     }
 
+    function getPdfCompatibleImageUrl(url: string): string {
+      if (!url) return url;
+      if (url.includes("res.cloudinary.com")) {
+        let cleanUrl = url.replace(/\/f_auto,?/, "/f_jpg").replace(/f_auto/, "f_jpg");
+        try {
+          const parsed = new URL(cleanUrl);
+          const pathname = parsed.pathname;
+          const lastDot = pathname.lastIndexOf(".");
+          if (lastDot !== -1) {
+            const ext = pathname.slice(lastDot + 1).toLowerCase();
+            if (ext !== "jpg" && ext !== "jpeg" && ext !== "png") {
+              parsed.pathname = pathname.substring(0, lastDot) + ".jpg";
+              cleanUrl = parsed.toString();
+            }
+          } else {
+            parsed.pathname = pathname + ".jpg";
+            cleanUrl = parsed.toString();
+          }
+        } catch (_e) {}
+        return cleanUrl;
+      }
+      return url;
+    }
+
+    async function fetchImageBuffer(url: string): Promise<Buffer | null> {
+      try {
+        if (!url) return null;
+        if (url.startsWith("data:image/")) {
+          const matches = url.match(/^data:image\/([a-zA-Z+]+);base64,(.+)$/);
+          if (matches && matches.length === 3) {
+            return Buffer.from(matches[2], "base64");
+          }
+          return null;
+        }
+
+        let pathname = "";
+        if (url.startsWith("/")) {
+          pathname = url;
+        } else if (!url.startsWith("http://") && !url.startsWith("https://")) {
+          pathname = "/" + url;
+        } else {
+          try {
+            const parsed = new URL(url);
+            pathname = parsed.pathname;
+          } catch (_e) {}
+        }
+
+        if (pathname) {
+          const localPath = join(process.cwd(), "public", pathname);
+          if (fs.existsSync(localPath)) {
+            return fs.readFileSync(localPath);
+          }
+        }
+
+        const optimizedUrl = getPdfCompatibleImageUrl(url);
+        if (!optimizedUrl.startsWith("http://") && !optimizedUrl.startsWith("https://")) {
+          return null;
+        }
+
+        const response = await fetch(optimizedUrl, {
+          signal: AbortSignal.timeout(5000),
+        });
+        if (!response.ok) return null;
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+      } catch (error) {
+        console.error("[Certificate PDF] Failed to fetch image:", error);
+        return null;
+      }
+    }
+
     async function generateCertificatePDF(cert: {
       certificateNo: string;
       issuedAt: string;
@@ -102,6 +174,8 @@ export async function GET(
       grade?: string;
       credits?: string;
       mode?: string;
+      photoBuffer?: Buffer | null;
+      host?: string;
     }): Promise<Buffer> {
       return new Promise((resolve, reject) => {
         try {
@@ -194,6 +268,45 @@ export async function GET(
             .fillColor(amber800)
             .text(cert.certificateNo);
 
+          // Top-Left Verification Barcode / QR Code (below Certificate No)
+          try {
+            const host = cert.host || "www.iiinternship.in";
+            const protocol = host.includes("localhost") ? "http" : "https";
+            const verifyUrl = `${protocol}://${host}/verify?cert=${encodeURIComponent(cert.certificateNo)}`;
+
+            const qr = qrcode(0, "M");
+            qr.addData(verifyUrl);
+            qr.make();
+            const moduleCount = qr.getModuleCount();
+            const qrSize = 64;
+            const cellSize = qrSize / moduleCount;
+            const qrX = 65;
+            const qrY = 70;
+
+            doc.rect(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6).fill("#ffffff");
+            doc.rect(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6).lineWidth(0.75).stroke("#cbd5e1");
+
+            doc.fillColor("#0f172a");
+            for (let r = 0; r < moduleCount; r++) {
+              for (let c = 0; c < moduleCount; c++) {
+                if (qr.isDark(r, c)) {
+                  doc.rect(qrX + c * cellSize, qrY + r * cellSize, cellSize, cellSize).fill();
+                }
+              }
+            }
+
+            doc
+              .font("Helvetica-Bold")
+              .fontSize(6.5)
+              .fillColor("#047857")
+              .text("SCAN TO VERIFY", qrX - 3, qrY + qrSize + 5, {
+                width: qrSize + 6,
+                align: "center",
+              });
+          } catch (qrErr) {
+            console.error("[Certificate PDF] Error rendering QR code:", qrErr);
+          }
+
           doc
             .font("Courier-Bold")
             .fontSize(9)
@@ -256,7 +369,7 @@ export async function GET(
             .font("Helvetica-Bold")
             .fontSize(8.5)
             .fillColor("#047857")
-            .text("BCC Greens, Deva Road, Lucknow, Uttar Pradesh, India", 60, 154, {
+            .text("Regd. Office: Thekma, District- Azamgarh, Uttar Pradesh (India)", 60, 154, {
               align: "center",
               width: PAGE_W - 120,
             });
@@ -269,6 +382,57 @@ export async function GET(
               align: "center",
               width: PAGE_W - 120,
             });
+
+          // Right-Hand Student Photo (Red marked area)
+          const photoW = 82;
+          const photoH = 104;
+          const photoX = PAGE_W - 65 - photoW;
+          const photoY = 180;
+
+          // Double elegant frame borders
+          doc.rect(photoX - 2, photoY - 2, photoW + 4, photoH + 4).lineWidth(1.5).stroke(amber800);
+          doc.rect(photoX, photoY, photoW, photoH).lineWidth(0.5).stroke("#cbd5e1");
+
+          let photoRendered = false;
+          if (cert.photoBuffer) {
+            try {
+              doc.save();
+              doc.rect(photoX, photoY, photoW, photoH).clip();
+              doc.image(cert.photoBuffer, photoX, photoY, {
+                fit: [photoW, photoH],
+                align: "center",
+                valign: "center",
+              });
+              photoRendered = true;
+              doc.restore();
+            } catch (photoErr) {
+              console.error("[Certificate PDF] Error rendering photoBuffer:", photoErr);
+            }
+          }
+
+          if (!photoRendered) {
+            doc.save();
+            doc.rect(photoX, photoY, photoW, photoH).fill("#f8fafc");
+            doc.rect(photoX, photoY, photoW, photoH).lineWidth(0.5).stroke("#cbd5e1");
+            const avatarCenterX = photoX + photoW / 2;
+            const avatarCenterY = photoY + photoH / 2 - 8;
+            doc.circle(avatarCenterX, avatarCenterY - 10, 14).lineWidth(1).stroke("#94a3b8");
+            doc
+              .path(
+                `M ${avatarCenterX - 20} ${avatarCenterY + 24} C ${avatarCenterX - 20} ${avatarCenterY + 8}, ${avatarCenterX + 20} ${avatarCenterY + 8}, ${avatarCenterX + 20} ${avatarCenterY + 24} Z`,
+              )
+              .lineWidth(1)
+              .stroke("#94a3b8");
+            doc
+              .font("Helvetica-Bold")
+              .fontSize(6.5)
+              .fillColor("#64748b")
+              .text("STUDENT PHOTO", photoX, photoY + photoH - 16, {
+                width: photoW,
+                align: "center",
+              });
+            doc.restore();
+          }
 
                 doc
             .font("PlayfairItalic")
@@ -424,7 +588,7 @@ export async function GET(
               align: "left",
             })
             .font("Helvetica")
-            .text("Lucknow, Uttar Pradesh, India");
+            .text("Thekma, Azamgarh, Uttar Pradesh, India");
 
                 const centerBadgeX = PAGE_W / 2;
           const centerBadgeY = 475;
@@ -684,6 +848,35 @@ export async function GET(
       });
     }
 
+    const participantUserId = certificate.application?.user.id;
+    let studentPhotoUrl: string | undefined = undefined;
+
+    if (participantUserId) {
+      const immProfile = await prisma.immersionParticipantProfile.findUnique({
+        where: { userId: participantUserId },
+        select: { passportPhotoUrl: true },
+      });
+      studentPhotoUrl = immProfile?.passportPhotoUrl || undefined;
+
+      if (!studentPhotoUrl) {
+        const studentReg = await prisma.studentRegistration.findUnique({
+          where: { userId: participantUserId },
+          select: { photoUrl: true },
+        });
+        studentPhotoUrl = studentReg?.photoUrl || undefined;
+      }
+    }
+
+    let photoBuffer: Buffer | null = null;
+    if (studentPhotoUrl) {
+      photoBuffer = await fetchImageBuffer(studentPhotoUrl);
+    }
+
+    const host =
+      request.headers.get("x-forwarded-host") ||
+      request.headers.get("host") ||
+      "www.iiinternship.in";
+
     const pdfPayload = {
       certificateNo: certificate.certificateNo,
       issuedAt: certificate.issuedAt.toISOString(),
@@ -698,6 +891,8 @@ export async function GET(
       isImmersion: true,
       grade: certificate.grade || undefined,
       credits: certificate.credits || undefined,
+      photoBuffer: photoBuffer || undefined,
+      host,
     };
 
     const fileBuffer = await generateCertificatePDF(pdfPayload);

@@ -28,6 +28,7 @@ import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useF
 import { Drawer as DrawerPrimitive } from "vaul";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
+import { formatJobOpportunityId } from "@/x/a85a9c0c";
 
 interface GetJobOpportunitiesParams {
   page?: number;
@@ -3806,6 +3807,7 @@ interface JobOpportunityPublic_4 {
   advtNo?: string;
   advtDate?: string;
   closingDate?: string;
+  salary?: string | null;
   jdDocUrl?: string;
   jdDescription?: string | null;
   createdAt: string;
@@ -3831,7 +3833,8 @@ const createJobOpportunitySchema_2 = z_2.object({
   advtNo: z_2.string().optional(),
   advtDate: z_2.string().optional(),
   closingDate: z_2.string().optional(),
-        jdDescription: z_2.string().nullish().or(z_2.literal("")),
+  salary: z_2.string().optional().or(z_2.literal("")),
+  jdDescription: z_2.string().nullish().or(z_2.literal("")),
 });
 
 type TEditJob = z_2.infer<typeof createJobOpportunitySchema_2>;
@@ -4088,6 +4091,7 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
       advtNo: data.advtNo || "",
       advtDate: data.advtDate || "",
       closingDate: data.closingDate || "",
+      salary: data.salary || "",
       jdDescription: data.jdDescription || "",
     },
   });
@@ -4143,9 +4147,9 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
             </FormLabel>
             <FormControl>
               <Input
-                value={data.id}
+                value={formatJobOpportunityId(data.id, data.createdAt)}
                 disabled
-                className="bg-muted text-muted-foreground h-9 text-xs"
+                className="bg-muted text-foreground font-mono font-bold tracking-wide h-9 text-xs"
               />
             </FormControl>
           </FormItem>
@@ -4296,7 +4300,7 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <FormField
               control={form.control}
               name="totalStaffStrength"
@@ -4308,6 +4312,26 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
                   <FormControl>
                     <Input
                       placeholder="e.g. 12"
+                      className="h-9 text-xs"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="salary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold">
+                    Salary / Remuneration (Optional)
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. ₹25,000 - ₹35,000 / Month"
                       className="h-9 text-xs"
                       {...field}
                     />
@@ -4349,8 +4373,8 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g. ADV/2026/01"
-                      className="h-9 text-xs"
+                      placeholder="e.g. i3/2026/01"
+                      className="bg-emerald-50/50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300 h-9 font-mono text-xs font-bold"
                       {...field}
                     />
                   </FormControl>
@@ -4413,7 +4437,7 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
                   </div>
                 )}
                 <div className="flex items-center gap-3">
-                  <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-sm">
+                  <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-xs">
                     <Upload className="size-3.5" />
                     Change Image
                     <input
@@ -4454,7 +4478,7 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
                   </div>
                 )}
                 <div className="flex items-center gap-3">
-                  <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-sm">
+                  <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-xs">
                     <FileText className="size-3.5" />
                     Change PDF
                     <input
@@ -4486,13 +4510,15 @@ const EditForm_7: React_3.FC<IEditFormProps> = ({ data }) => {
                   Job Description
                 </FormLabel>
                 <p className="text-muted-foreground -mt-1 text-[11px]">
-                  Write the JD here as an alternative to — or alongside — the
-                  PDF above.
+                  Write the job summary, key responsibilities, or eligibility details here.
                 </p>
                 <FormControl>
-                  <RichTextEditor_2
+                  <textarea
+                    rows={4}
+                    placeholder="Enter normal job description, responsibilities, and criteria here..."
+                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[90px] w-full rounded-md border px-3 py-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
                     value={field.value ?? ""}
-                    onChange={field.onChange}
                   />
                 </FormControl>
                 <FormMessage />

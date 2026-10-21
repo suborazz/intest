@@ -289,14 +289,19 @@ export const sidebarData: SidebarData_2 = {
             icon: "Briefcase",
           },
           {
+            title: "My Applications",
+            url: "/recruit/applications",
+            icon: "FileText",
+          },
+          {
             title: "My Profile",
             url: "/recruit/profile",
             icon: "User",
           },
           {
-            title: "Change Password",
+            title: "Settings",
             url: "/recruit/settings",
-            icon: "Lock",
+            icon: "Settings",
           },
         ],
       },
@@ -355,6 +360,11 @@ export const sidebarData: SidebarData_2 = {
             icon: "Star",
           },
           { title: "Notice Board", url: "/super-admin/notices", icon: "Bell" },
+          {
+            title: "Institution Officials",
+            url: "/super-admin/officials",
+            icon: "Users",
+          },
         ],
       },
       {

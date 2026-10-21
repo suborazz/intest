@@ -3915,6 +3915,7 @@ interface UserPublic {
       updatedAt: string;
       studentRegistration?: { id: string; deletedAt: string | null } | null;
       instructorRegistration?: { id: string; deletedAt: string | null } | null;
+      instructorProfile?: { id: string } | null;
       immersionParticipantProfile?: { id: string } | null;
       recruitProfile?: { id: string } | null;
     }
@@ -4024,7 +4025,7 @@ const ROLE_FILTERS: TAlertFilter_13[] = [
       { label: "Student", value: "STUDENT", count: null },
       { label: "Instructor", value: "INSTRUCTOR", count: null },
       { label: "Immersion User", value: "IMMERSION_USER", count: null },
-      { label: "Job Applicant User", value: "RECRUIT_USER", count: null },
+      { label: "Job Applicant", value: "RECRUIT_USER", count: null },
       { label: "Super Admin", value: "SUPER_ADMIN", count: null },
     ];
 
@@ -4534,19 +4535,38 @@ const ROLE_BADGE: Record<string, string> = {
       INSTRUCTOR: "bg-amber-500/10 text-amber-600",
       IMMERSION_USER: "bg-indigo-500/10 text-indigo-600",
       RECRUIT_USER: "bg-emerald-500/10 text-emerald-600",
+      "RECRUIT USER": "bg-emerald-500/10 text-emerald-600",
     };
 
-const RoleChip_2 = ({ role }: { role: string }) => (
-      <Badge
-        variant="ghost"
-        className={cn_21(
-          "pointer-events-none gap-1 rounded-full border-0 px-2.5 py-0.5 text-[10px] font-semibold shadow-none",
-          ROLE_BADGE[role] ?? "bg-muted text-muted-foreground",
-        )}
-      >
-        {role.replace("_", " ")}
-      </Badge>
-    );
+const ROLE_LABEL_MAP: Record<string, string> = {
+      SUPER_ADMIN: "Super Admin",
+      STUDENT: "Student",
+      INSTRUCTOR: "Instructor",
+      IMMERSION_USER: "Immersion User",
+      RECRUIT_USER: "Job Applicant",
+      "RECRUIT USER": "Job Applicant",
+    };
+
+const RoleChip_2 = ({ role }: { role: string }) => {
+      const normalized = role ? role.toUpperCase().replace(/\s+/g, "_") : "";
+      const label =
+        ROLE_LABEL_MAP[role] ??
+        ROLE_LABEL_MAP[normalized] ??
+        (role === "RECRUIT_USER" || role === "RECRUIT USER"
+          ? "Job Applicant"
+          : role.replace("_", " "));
+      return (
+        <Badge
+          variant="ghost"
+          className={cn_21(
+            "pointer-events-none gap-1 rounded-full border-0 px-2.5 py-0.5 text-[10px] font-semibold shadow-none",
+            ROLE_BADGE[role] ?? ROLE_BADGE[normalized] ?? "bg-muted text-muted-foreground",
+          )}
+        >
+          {label}
+        </Badge>
+      );
+    };
 
 const RoleChip_3 = RoleChip_2;
 
@@ -4651,6 +4671,151 @@ function DeleteConfirmationDialog_8({
         </AlertDialog_7>
       );
     }
+
+interface BulkReminderConfirmationDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (scope: "all" | "filtered") => void;
+  isSending: boolean;
+  activeRoleFilter?: string;
+  totalIncompleteInView?: number;
+}
+
+function BulkReminderConfirmationDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  isSending,
+  activeRoleFilter,
+  totalIncompleteInView = 0,
+}: BulkReminderConfirmationDialogProps) {
+  const [selectedScope, setSelectedScope] = React.useState<"all" | "filtered">(
+    activeRoleFilter ? "filtered" : "all",
+  );
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setSelectedScope(activeRoleFilter ? "filtered" : "all");
+    }
+  }, [isOpen, activeRoleFilter]);
+
+  const roleLabel = activeRoleFilter
+    ? (ROLE_LABEL_MAP[activeRoleFilter] ?? activeRoleFilter.replace(/_/g, " "))
+    : "";
+
+  return (
+    <AlertDialog_7
+      open={isOpen}
+      onOpenChange={(open) => !open && !isSending && onClose()}
+    >
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader className="flex flex-col items-center text-center">
+          <AlertDialogMedia className="bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 mx-auto">
+            <Mail_2 className="size-5" />
+          </AlertDialogMedia>
+          <AlertDialogTitle className="w-full text-center sm:col-start-auto sm:text-center text-lg font-bold">
+            Send Profile Reminder Emails
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-center text-xs text-muted-foreground mt-1">
+            Dispatch official profile completion reminder emails to registered users who have incomplete profiles.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <div className="my-3 space-y-3 text-left">
+          {activeRoleFilter && (
+            <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-foreground">
+                  Target Recipient Scope:
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  Filtered view: {totalIncompleteInView} incomplete on page
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  disabled={isSending}
+                  onClick={() => setSelectedScope("filtered")}
+                  className={cn(
+                    "flex flex-col items-start p-2.5 rounded-md border text-left transition-all cursor-pointer",
+                    selectedScope === "filtered"
+                      ? "border-amber-500/60 bg-amber-500/10 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500/30 font-semibold"
+                      : "border-border bg-background hover:bg-muted/60 text-muted-foreground",
+                  )}
+                >
+                  <span className="text-xs font-bold">
+                    {roleLabel} Only
+                  </span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">
+                    Currently filtered role
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isSending}
+                  onClick={() => setSelectedScope("all")}
+                  className={cn(
+                    "flex flex-col items-start p-2.5 rounded-md border text-left transition-all cursor-pointer",
+                    selectedScope === "all"
+                      ? "border-amber-500/60 bg-amber-500/10 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500/30 font-semibold"
+                      : "border-border bg-background hover:bg-muted/60 text-muted-foreground",
+                  )}
+                >
+                  <span className="text-xs font-bold">All Incomplete</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">
+                    Platform-wide (all roles)
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10 p-3 text-xs space-y-1.5 text-amber-900 dark:text-amber-200">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-300">
+              <ShieldCheck className="size-4 shrink-0" />
+              <span>Safe Delivery & Connection Protection</span>
+            </div>
+            <ul className="list-disc pl-4 space-y-1 text-[11px] text-muted-foreground leading-relaxed">
+              <li>Includes both active & inactive user accounts awaiting profile completion.</li>
+              <li>Dispatched in managed, throttled batches to protect SMTP socket limits and avoid timeouts.</li>
+              <li>Transient socket drops or serverless throttling are safely handled.</li>
+            </ul>
+          </div>
+        </div>
+
+        <AlertDialogFooter className="flex w-full flex-row gap-2 sm:justify-stretch pt-1">
+          <AlertDialogCancel
+            variant="outline"
+            onClick={onClose}
+            disabled={isSending}
+            className="flex-1 cursor-pointer font-semibold"
+          >
+            Cancel
+          </AlertDialogCancel>
+          <Button
+            type="button"
+            onClick={() => onConfirm(selectedScope)}
+            disabled={isSending}
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 font-semibold bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-700"
+          >
+            {isSending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Mail_2 className="size-4" />
+                Send Reminders
+              </>
+            )}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog_7>
+  );
+}
 
 
 export default function SuperAdminUsersPage() {
@@ -6644,8 +6809,9 @@ export default function SuperAdminUsersPage() {
           !!user.studentRegistration && !user.studentRegistration.deletedAt;
       } else if (user.role === "INSTRUCTOR") {
         hasProfile =
-          !!user.instructorRegistration &&
-          !user.instructorRegistration.deletedAt;
+          (!!user.instructorRegistration &&
+            !user.instructorRegistration.deletedAt) ||
+          !!user.instructorProfile;
       } else if (user.role === "IMMERSION_USER") {
         hasProfile = !!user.immersionParticipantProfile;
       } else if (user.role === "RECRUIT_USER") {
@@ -6794,8 +6960,9 @@ export default function SuperAdminUsersPage() {
             profileLabel = hasProfile ? "Completed" : "Not Created";
           } else if (user.role === "INSTRUCTOR") {
             hasProfile =
-              !!user.instructorRegistration &&
-              !user.instructorRegistration.deletedAt;
+              (!!user.instructorRegistration &&
+                !user.instructorRegistration.deletedAt) ||
+              !!user.instructorProfile;
             profileLabel = hasProfile ? "Completed" : "Not Created";
           } else if (user.role === "IMMERSION_USER") {
             hasProfile = !!user.immersionParticipantProfile;
@@ -6902,24 +7069,65 @@ export default function SuperAdminUsersPage() {
       const usersList = usersResponse?.data || [];
       const [isExporting, setIsExporting] = useState(false);
       const [isSendingBulk, setIsSendingBulk] = useState(false);
+      const [isReminderDialogOpen, setIsReminderDialogOpen] = useState(false);
 
-      const handleSendBulkReminder = async () => {
-        const confirmed = window.confirm(
-          "क्या आप उन सभी यूज़र्स को प्रोफाइल रिमाइंडर ईमेल भेजना चाहते हैं जिन्होंने अपना प्रोफाइल पूरा नहीं किया है?\n\nAre you sure you want to send reminder emails to all users who have not completed their profile?",
-        );
-        if (!confirmed) return;
+      const incompleteInCurrentView = useMemo(() => {
+        return usersList.filter((u) => {
+          if (u.role === "STUDENT") {
+            return !u.studentRegistration || !!u.studentRegistration.deletedAt;
+          }
+          if (u.role === "INSTRUCTOR") {
+            const hasReg =
+              !!u.instructorRegistration && !u.instructorRegistration.deletedAt;
+            const hasProf = !!u.instructorProfile;
+            return !hasReg && !hasProf;
+          }
+          if (u.role === "IMMERSION_USER") {
+            return !u.immersionParticipantProfile;
+          }
+          if (u.role === "RECRUIT_USER") {
+            return !u.recruitProfile;
+          }
+          return false;
+        }).length;
+      }, [usersList]);
 
+      const handleSendBulkReminder = async (scope: "all" | "filtered" = "all") => {
         try {
           setIsSendingBulk(true);
+          const targetRole = scope === "filtered" ? role : undefined;
           const response = await axiosInstance.post("/users/send-reminder", {
             sendToAllIncomplete: true,
+            includeInactive: true,
+            ...(targetRole ? { role: targetRole } : {}),
           });
           const message =
             response.data?.message ||
             "रिमाइंडर ईमेल सफलतापूर्वक भेज दिए गए।";
-          toast.success(message);
+          const failedCount = response.data?.failedCount || 0;
+          if (failedCount > 0) {
+            toast.warning(message, { duration: 7000 });
+            if (response.data?.failedEmails?.length > 0) {
+              console.warn(
+                "[Bulk Reminder Partial Failures]:",
+                response.data.failedEmails,
+              );
+            }
+          } else {
+            toast.success(message);
+          }
+          setIsReminderDialogOpen(false);
         } catch (err: unknown) {
-          const apiErr = err as { response?: { data?: { error?: { message?: string }; message?: string } }; message?: string };
+          const apiErr = err as {
+            response?: {
+              data?: {
+                error?: { message?: string };
+                message?: string;
+                failedCount?: number;
+              };
+            };
+            message?: string;
+          };
           const errMsg =
             apiErr?.response?.data?.error?.message ||
             apiErr?.response?.data?.message ||
@@ -6977,7 +7185,7 @@ export default function SuperAdminUsersPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={handleSendBulkReminder}
+                  onClick={() => setIsReminderDialogOpen(true)}
                   disabled={isSendingBulk}
                   className="w-full shrink-0 border-amber-500/30 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 sm:w-auto"
                 >
@@ -7022,7 +7230,7 @@ export default function SuperAdminUsersPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleSendBulkReminder}
+                    onClick={() => setIsReminderDialogOpen(true)}
                     disabled={isSendingBulk}
                     className="border-amber-600/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-300 font-semibold gap-1.5 shrink-0 shadow-sm"
                     title="Send profile reminder email to all users with incomplete profiles"
@@ -7057,6 +7265,15 @@ export default function SuperAdminUsersPage() {
                   </Button>
                 </div>
               }
+            />
+
+            <BulkReminderConfirmationDialog
+              isOpen={isReminderDialogOpen}
+              onClose={() => setIsReminderDialogOpen(false)}
+              onConfirm={handleSendBulkReminder}
+              isSending={isSendingBulk}
+              activeRoleFilter={role}
+              totalIncompleteInView={incompleteInCurrentView}
             />
           </div>
         </div>

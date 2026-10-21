@@ -21,6 +21,7 @@ import { Slot } from "radix-ui";
 import { ClassValue, clsx as clsx_2 } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { axiosInstance } from "@/x/acfb3dca";
+import { printIdCard } from "@/lib/idCardPrint";
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -2028,6 +2029,7 @@ export default function InstructorIDCardPage() {
 
       return (
         <div
+          id="instructor-id-card-element"
           className="relative flex h-[310px] w-[440px] select-none flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white font-sans text-zinc-900 shadow-md"
           style={{ boxSizing: "border-box" }}
         >
@@ -2193,71 +2195,7 @@ export default function InstructorIDCardPage() {
       return;
     }
 
-    const printWindow = window.open(
-      "about:blank",
-      "_blank",
-      "width=650,height=500",
-    );
-    if (!printWindow) {
-      toast.error("Failed to open print window. Please allow popups.");
-      return;
-    }
-
-    const dateStr = new Date(card.issuedAt).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-
-    const idCardHtml = renderToStaticMarkup(
-      <PrintableInstructorIDCard
-        card={card}
-        dateStr={dateStr}
-        initials={getInitials(card.instructorName)}
-      />,
-    );
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Instructor ID Card - ${card.cardNo}</title>
-          <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-          <style>
-            body {
-              font-family: sans-serif;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              background-color: white;
-              margin: 0;
-              padding: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              min-height: 100vh;
-            }
-            @page {
-              size: 130mm 95mm;
-              margin: 0;
-            }
-            .print-container {
-              width: 440px;
-              height: 310px;
-              position: relative;
-              overflow: hidden;
-              border-radius: 24px;
-              border: 1px solid #e2e8f0;
-            }
-          </style>
-        </head>
-        <body onload="window.print();setTimeout(function(){window.close();}, 500)">
-          <div class="print-container">
-            ${idCardHtml}
-          </div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
+    printIdCard("instructor-id-card-element", `Instructor ID Card - ${card.cardNo}`);
   };
 
   return (

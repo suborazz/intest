@@ -4386,14 +4386,32 @@ export default function SuperAdminMediaDeskPage() {
 
       const handleSubmit = (e: React_3.FormEvent) => {
         e.preventDefault();
-            if (!title || !publication || !date || !description) return;
-        if (!isEditing && !imageFile) return;
+        if (!title.trim()) {
+          toast.error("Please enter a title / headline");
+          return;
+        }
+        if (!publication.trim()) {
+          toast.error("Please enter a publication name");
+          return;
+        }
+        if (!date) {
+          toast.error("Please select a date");
+          return;
+        }
+        if (!description.trim()) {
+          toast.error("Please enter a short description");
+          return;
+        }
+        if (!isEditing && !imageFile) {
+          toast.error("Please select a clipping image to upload");
+          return;
+        }
 
         const formData = new FormData();
-        formData.append("title", title);
-        formData.append("publication", publication);
+        formData.append("title", title.trim());
+        formData.append("publication", publication.trim());
         formData.append("date", date);
-        formData.append("description", description);
+        formData.append("description", description.trim());
         if (imageFile) formData.append("image", imageFile);
 
         const onSuccess = () => {
@@ -4524,7 +4542,7 @@ export default function SuperAdminMediaDeskPage() {
                 : "Upload a scan/newspaper clip print."
             }
           >
-            <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4 pt-2">
               <div className="space-y-2">
                 <Label className="text-foreground text-xs font-semibold">
                   Select Clipping Image
@@ -4554,7 +4572,6 @@ export default function SuperAdminMediaDeskPage() {
                         accept="image/*"
                         onChange={handleFileChange}
                         className="hidden"
-                        required={!isEditing}
                       />
                     </label>
                   </div>
@@ -4989,6 +5006,331 @@ export default function SuperAdminMediaDeskPage() {
       );
     }
 
+    function PhotosTab_2() {
+      const {
+        data: response,
+        isLoading,
+        isError,
+      } = SuperAdminDataHooks.useMediaPhotos();
+      const list = response?.data || [];
+      const { mutate: createPhoto, isPending: isCreating } =
+        SuperAdminDataHooks.useCreateMediaPhoto();
+      const { mutate: updatePhoto, isPending: isUpdating } =
+        SuperAdminDataHooks.useUpdateMediaPhoto();
+      const { mutate: deletePhoto } = SuperAdminDataHooks.useDeleteMediaPhoto();
+
+      const [isOpen, setIsOpen] = useState(false);
+      const [editingId, setEditingId] = useState<string | null>(null);
+      const [title, setTitle] = useState("");
+      const [date, setDate] = useState("");
+      const [description, setDescription] = useState("");
+      const [photoFile, setPhotoFile] = useState<File | null>(null);
+      const [preview, setPreview] = useState<string | null>(null);
+
+      const isEditing = editingId !== null;
+      const isSaving = isCreating || isUpdating;
+
+      const resetForm = () => {
+        setEditingId(null);
+        setTitle("");
+        setDate("");
+        setDescription("");
+        setPhotoFile(null);
+        setPreview(null);
+      };
+
+      const openCreate = () => {
+        resetForm();
+        setIsOpen(true);
+      };
+
+      const openEdit = (photo: MediaPhotoPublic) => {
+        setEditingId(photo.id);
+        setTitle(photo.title || "");
+        setDate(photo.date ? new Date(photo.date).toISOString().split("T")[0] : "");
+        setDescription(photo.description || "");
+        setPhotoFile(null);
+        setPreview(photo.url || null);
+        setIsOpen(true);
+      };
+
+      const handleFileChange = (e: React_3.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          setPhotoFile(file);
+          setPreview(URL.createObjectURL(file));
+        }
+      };
+
+      const handleSubmit = (e: React_3.FormEvent) => {
+        e.preventDefault();
+        if (!title.trim()) {
+          toast.error("Please enter a title / headline");
+          return;
+        }
+        if (!date) {
+          toast.error("Please select a date");
+          return;
+        }
+        if (!description.trim()) {
+          toast.error("Please enter a short description");
+          return;
+        }
+        if (!isEditing && !photoFile) {
+          toast.error("Please select a photo image to upload");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("title", title.trim());
+        formData.append("date", date);
+        formData.append("description", description.trim());
+        if (photoFile) formData.append("photo", photoFile);
+
+        const onSuccess = () => {
+          setIsOpen(false);
+          resetForm();
+        };
+
+        if (isEditing && editingId) {
+          updatePhoto({ id: editingId, formData }, { onSuccess });
+        } else {
+          createPhoto(formData, { onSuccess });
+        }
+      };
+
+      const handleDelete = (id: string) => {
+        if (confirm("Are you sure you want to delete this photo?")) {
+          deletePhoto(id);
+        }
+      };
+
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-foreground text-sm font-bold">
+                Photos Directory
+              </h3>
+              <p className="text-muted-foreground text-xs">
+                Manage and upload promotional or event gallery photos.
+              </p>
+            </div>
+            <Button
+              onClick={openCreate}
+              className="h-9 cursor-pointer gap-1.5 px-4 text-xs font-semibold"
+            >
+              <Plus className="size-4" />
+              Add Photo
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-48 rounded-2xl" />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="bg-card border-border/50 flex flex-col items-center justify-center space-y-2 rounded-2xl border p-8 text-center">
+              <ShieldAlert className="size-10 text-red-500" />
+              <h4 className="text-foreground text-sm font-bold">
+                Failed to Load Photos
+              </h4>
+            </div>
+          ) : list.length === 0 ? (
+            <div className="bg-muted/10 flex flex-col items-center justify-center space-y-2 rounded-2xl border border-dashed p-12 text-center">
+              <ImageIcon_2 className="text-muted-foreground size-10 animate-pulse" />
+              <h4 className="text-foreground text-xs font-bold">
+                No Photos Uploaded
+              </h4>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {list.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="bg-card border-border/50 group relative overflow-hidden rounded-2xl border shadow-sm transition-all hover:shadow-md"
+                >
+                  <div className="bg-muted relative h-44 w-full overflow-hidden">
+                    <img
+                      src={photo.url}
+                      alt={photo.title}
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute right-2.5 top-2.5 flex gap-1.5">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => openEdit(photo)}
+                        className="h-8 w-8 cursor-pointer rounded-lg shadow-sm transition-transform hover:scale-105"
+                        title="Edit"
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        onClick={() => handleDelete(photo.id)}
+                        className="h-8 w-8 cursor-pointer rounded-lg bg-red-600 text-white shadow-sm transition-transform hover:scale-105 hover:bg-red-700"
+                        title="Delete"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2 p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-foreground truncate text-xs font-bold">
+                        {photo.title}
+                      </h4>
+                      <span className="text-muted-foreground flex shrink-0 items-center gap-1 text-[9px] font-bold">
+                        <Calendar className="size-3" />
+                        {new Date(photo.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground line-clamp-2 text-[10px] font-medium leading-relaxed">
+                      {photo.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <ResponsiveDialog
+            isOpen={isOpen}
+            setIsOpen={(open) => {
+              setIsOpen(open);
+              if (!open) resetForm();
+            }}
+            title={isEditing ? "Edit Photo Item" : "Upload Photo Item"}
+            description={
+              isEditing
+                ? "Update the photo details. Leave the image unchanged to keep the current one."
+                : "Upload a photo clipping with metadata for the public gallery."
+            }
+          >
+            <form onSubmit={handleSubmit} noValidate className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label className="text-foreground text-xs font-semibold">
+                  Select Photo File
+                </Label>
+                <div className="bg-muted/5 flex items-center gap-4 rounded-xl border border-dashed p-4">
+                  <div className="bg-muted relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon_2 className="text-muted-foreground size-6" />
+                    )}
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="photo-file"
+                      className="bg-background text-foreground hover:bg-muted/10 animate-in inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold shadow-sm"
+                    >
+                      <Upload className="size-3.5" />
+                      {isEditing ? "Change Image" : "Upload Image"}
+                      <input
+                        id="photo-file"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="photo-title"
+                  className="text-foreground text-xs font-semibold"
+                >
+                  Title / Headline
+                </Label>
+                <Input
+                  id="photo-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Summer Camp 2026 Event"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="photo-date"
+                  className="text-foreground text-xs font-semibold"
+                >
+                  Date Taken
+                </Label>
+                <Input
+                  id="photo-date"
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="photo-desc"
+                  className="text-foreground text-xs font-semibold"
+                >
+                  Short Description
+                </Label>
+                <Textarea
+                  id="photo-desc"
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Brief summary of the picture details..."
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsOpen(false);
+                    resetForm();
+                  }}
+                  className="cursor-pointer font-semibold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSaving}
+                  className="cursor-pointer font-semibold"
+                >
+                  {isSaving ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="size-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      {isEditing ? "Saving..." : "Uploading..."}
+                    </span>
+                  ) : isEditing ? (
+                    "Save Changes"
+                  ) : (
+                    "Upload Item"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </ResponsiveDialog>
+        </div>
+      );
+    }
+
     function SuperAdminMediaDesk_2() {
       const searchParams = useSearchParams();
       const activeTab = searchParams?.get("tab") || "photos";
@@ -5004,226 +5346,7 @@ export default function SuperAdminMediaDeskPage() {
           </PageHeaderLayout>
 
           <div className="mt-3 px-4">
-            {activeTab === "photos" && (<div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h3 className="text-foreground text-sm font-bold">
-                                  Photos Directory
-                                </h3>
-                                <p className="text-muted-foreground text-xs">
-                                  Manage and upload promotional or event gallery photos.
-                                </p>
-                              </div>
-                              <Button
-                                onClick={openCreate}
-                                className="h-9 cursor-pointer gap-1.5 px-4 text-xs font-semibold"
-                              >
-                                <Plus className="size-4" />
-                                Add Photo
-                              </Button>
-                            </div>
-
-                            {isLoading ? (
-                              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                                {[1, 2, 3].map((i) => (
-                                  <Skeleton key={i} className="h-48 rounded-2xl" />
-                                ))}
-                              </div>
-                            ) : isError ? (
-                              <div className="bg-card border-border/50 flex flex-col items-center justify-center space-y-2 rounded-2xl border p-8 text-center">
-                                <ShieldAlert className="size-10 text-red-500" />
-                                <h4 className="text-foreground text-sm font-bold">
-                                  Failed to Load Photos
-                                </h4>
-                              </div>
-                            ) : list.length === 0 ? (
-                              <div className="bg-muted/10 flex flex-col items-center justify-center space-y-2 rounded-2xl border border-dashed p-12 text-center">
-                                <ImageIcon_2 className="text-muted-foreground size-10 animate-pulse" />
-                                <h4 className="text-foreground text-xs font-bold">
-                                  No Photos Uploaded
-                                </h4>
-                              </div>
-                            ) : (
-                              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                                {list.map((photo) => (
-                                  <div
-                                    key={photo.id}
-                                    className="bg-card border-border/50 group relative overflow-hidden rounded-2xl border shadow-sm transition-all hover:shadow-md"
-                                  >
-                                    <div className="bg-muted relative h-44 w-full overflow-hidden">
-                                      <img
-                                        src={photo.url}
-                                        alt={photo.title}
-                                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                      />
-                                      <div className="absolute right-2.5 top-2.5 flex gap-1.5">
-                                        <Button
-                                          size="icon"
-                                          variant="secondary"
-                                          onClick={() => openEdit(photo)}
-                                          className="h-8 w-8 cursor-pointer rounded-lg shadow-sm transition-transform hover:scale-105"
-                                          title="Edit"
-                                        >
-                                          <Pencil className="size-4" />
-                                        </Button>
-                                        <Button
-                                          size="icon"
-                                          variant="destructive"
-                                          onClick={() => handleDelete(photo.id)}
-                                          className="h-8 w-8 cursor-pointer rounded-lg bg-red-600 text-white shadow-sm transition-transform hover:scale-105 hover:bg-red-700"
-                                          title="Delete"
-                                        >
-                                          <Trash2 className="size-4" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                    <div className="space-y-2 p-4">
-                                      <div className="flex items-center justify-between gap-2">
-                                        <h4 className="text-foreground truncate text-xs font-bold">
-                                          {photo.title}
-                                        </h4>
-                                        <span className="text-muted-foreground flex shrink-0 items-center gap-1 text-[9px] font-bold">
-                                          <Calendar className="size-3" />
-                                          {new Date(photo.date).toLocaleDateString()}
-                                        </span>
-                                      </div>
-                                      <p className="text-muted-foreground line-clamp-2 text-[10px] font-medium leading-relaxed">
-                                        {photo.description}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            {}
-                            <ResponsiveDialog
-                              isOpen={isOpen}
-                              setIsOpen={(open) => {
-                                setIsOpen(open);
-                                if (!open) resetForm();
-                              }}
-                              title={isEditing ? "Edit Photo Item" : "Upload Photo Item"}
-                              description={
-                                isEditing
-                                  ? "Update the photo details. Leave the image unchanged to keep the current one."
-                                  : "Upload a photo clipping with metadata for the public gallery."
-                              }
-                            >
-                              <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-                                <div className="space-y-2">
-                                  <Label className="text-foreground text-xs font-semibold">
-                                    Select Photo File
-                                  </Label>
-                                  <div className="bg-muted/5 flex items-center gap-4 rounded-xl border border-dashed p-4">
-                                    <div className="bg-muted relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
-                                      {preview ? (
-                                        <img
-                                          src={preview}
-                                          alt="Preview"
-                                          className="size-full object-cover"
-                                        />
-                                      ) : (
-                                        <ImageIcon_2 className="text-muted-foreground size-6" />
-                                      )}
-                                    </div>
-                                    <div>
-                                      <label
-                                        htmlFor="photo-file"
-                                        className="bg-background text-foreground hover:bg-muted/10 animate-in inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold shadow-sm"
-                                      >
-                                        <Upload className="size-3.5" />
-                                        {isEditing ? "Change Image" : "Upload Image"}
-                                        <input
-                                          id="photo-file"
-                                          type="file"
-                                          accept="image/*"
-                                          onChange={handleFileChange}
-                                          className="hidden"
-                                          required={!isEditing}
-                                        />
-                                      </label>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="space-y-1.5">
-                                  <Label
-                                    htmlFor="photo-title"
-                                    className="text-foreground text-xs font-semibold"
-                                  >
-                                    Title / Headline
-                                  </Label>
-                                  <Input
-                                    id="photo-title"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Summer Camp 2026 Event"
-                                    required
-                                  />
-                                </div>
-
-                                <div className="space-y-1.5">
-                                  <Label
-                                    htmlFor="photo-date"
-                                    className="text-foreground text-xs font-semibold"
-                                  >
-                                    Date Taken
-                                  </Label>
-                                  <Input
-                                    id="photo-date"
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    required
-                                  />
-                                </div>
-
-                                <div className="space-y-1.5">
-                                  <Label
-                                    htmlFor="photo-desc"
-                                    className="text-foreground text-xs font-semibold"
-                                  >
-                                    Short Description
-                                  </Label>
-                                  <Textarea
-                                    id="photo-desc"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="Brief summary of the picture details..."
-                                    required
-                                  />
-                                </div>
-
-                                <div className="flex justify-end gap-2 pt-2">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setIsOpen(false);
-                                      resetForm();
-                                    }}
-                                    className="cursor-pointer font-semibold"
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    type="submit"
-                                    disabled={isSaving}
-                                    className="cursor-pointer font-semibold"
-                                  >
-                                    {isSaving
-                                      ? isEditing
-                                        ? "Saving..."
-                                        : "Uploading..."
-                                      : isEditing
-                                        ? "Save Changes"
-                                        : "Upload Item"}
-                                  </Button>
-                                </div>
-                              </form>
-                            </ResponsiveDialog>
-                          </div>)}
+            {activeTab === "photos" && <PhotosTab_2 />}
             {activeTab === "videos" && <VideosTab_2 />}
             {activeTab === "newspapers" && <NewspapersTab_2 />}
             {activeTab === "online-links" && <OnlineLinksTab_2 />}
@@ -5231,89 +5354,13 @@ export default function SuperAdminMediaDeskPage() {
         </>
       );
     }
-    const {
-            data: response,
-            isLoading,
-            isError,
-          } = SuperAdminDataHooks.useMediaPhotos();
-    const list = response?.data || [];
-    const { mutate: createPhoto, isPending: isCreating } =
-            SuperAdminDataHooks.useCreateMediaPhoto();
-    const { mutate: updatePhoto, isPending: isUpdating } =
-            SuperAdminDataHooks.useUpdateMediaPhoto();
-    const { mutate: deletePhoto } = SuperAdminDataHooks.useDeleteMediaPhoto();
-    const [isOpen, setIsOpen] = useState(false);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [title, setTitle] = useState("");
-    const [date, setDate] = useState("");
-    const [description, setDescription] = useState("");
-    const [photoFile, setPhotoFile] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string | null>(null);
-    const isEditing = editingId !== null;
-    const isSaving = isCreating || isUpdating;
-    const resetForm = () => {
-            setEditingId(null);
-            setTitle("");
-            setDate("");
-            setDescription("");
-            setPhotoFile(null);
-            setPreview(null);
-          };
-    const openCreate = () => {
-            resetForm();
-            setIsOpen(true);
-          };
-    const openEdit = (photo: MediaPhotoPublic) => {
-            setEditingId(photo.id);
-            setTitle(photo.title || "");
-            setDate(photo.date ? new Date(photo.date).toISOString().split("T")[0] : "");
-            setDescription(photo.description || "");
-            setPhotoFile(null);
-            setPreview(photo.url || null);
-            setIsOpen(true);
-          };
-    const handleFileChange = (e: React_3.ChangeEvent<HTMLInputElement>) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              setPhotoFile(file);
-              setPreview(URL.createObjectURL(file));
-            }
-          };
-    const handleSubmit = (e: React_3.FormEvent) => {
-            e.preventDefault();
-                    if (!title || !date || !description) return;
-            if (!isEditing && !photoFile) return;
 
-            const formData = new FormData();
-            formData.append("title", title);
-            formData.append("date", date);
-            formData.append("description", description);
-            if (photoFile) formData.append("photo", photoFile);
-
-            const onSuccess = () => {
-              setIsOpen(false);
-              resetForm();
-            };
-
-            if (isEditing && editingId) {
-              updatePhoto({ id: editingId, formData }, { onSuccess });
-            } else {
-              createPhoto(formData, { onSuccess });
-            }
-          };
-    const handleDelete = (id: string) => {
-            if (confirm("Are you sure you want to delete this photo?")) {
-              deletePhoto(id);
-            }
-          };
-
-
-  return (
-    <main className="">
-      <h1 className="sr-only">Media Desk Management</h1>
-      <Suspense fallback={null}>
-        <SuperAdminMediaDesk_2 />
-      </Suspense>
-    </main>
-  );
-}
+    return (
+      <main className="">
+        <h1 className="sr-only">Media Desk Management</h1>
+        <Suspense fallback={null}>
+          <SuperAdminMediaDesk_2 />
+        </Suspense>
+      </main>
+    );
+  }

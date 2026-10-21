@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, ArrowUpRight, Briefcase, Building, ExternalLink, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LogIn, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
+import { ChevronDown, Download, Home, LucideIcon, Menu, Activity, ArrowRight, ArrowUpRight, Award, Briefcase, Building, ExternalLink, Globe, GraduationCap, Image as ImageIcon, Landmark, Laptop, LogIn, LucideIcon as LucideIcon_2, Mail, MapPin, Newspaper, Phone, Presentation, ShieldCheck, Sparkles, Target, Users, Video } from "lucide-react";
 import Link from "next/link";
 import Link_2 from "next/link";
 import * as React from "react";
@@ -18,6 +18,7 @@ import { NavigationMenu as NavigationMenuPrimitive, Slot } from "radix-ui";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { clsx as clsx_2 } from "clsx";
+import { TopInstructorsModal } from "@/components/TopInstructorsModal";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx_2(inputs));
@@ -588,6 +589,7 @@ export default function LandingLayout({
   ListItem.displayName = "ListItem";
   const [open, setOpen] = React.useState(false);
   const [expandedMenu, setExpandedMenu] = React.useState<string | null>(null);
+  const [topInstructorsOpen, setTopInstructorsOpen] = React.useState(false);
   const pathname = usePathname();
   const handleLinkClick = () => setOpen(false);
 
@@ -778,6 +780,24 @@ export default function LandingLayout({
                       </span>
                     </div>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setTopInstructorsOpen(true)}
+                    className="flex w-full items-start gap-3 rounded-xl p-2.5 transition-colors hover:bg-amber-50/90 group/item text-left cursor-pointer"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-600/30 bg-amber-50 text-amber-700 transition-transform group-hover/item:scale-105 mt-0.5 shadow-2xs">
+                      <Award className="size-4.5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-900 group-hover/item:text-amber-800 transition-colors">
+                        List of Our Top Instructors
+                      </span>
+                      <span className="text-[11px] text-slate-500 leading-tight">
+                        Verified instructors &amp; mentorship areas
+                      </span>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -949,6 +969,18 @@ export default function LandingLayout({
                       <Presentation className="size-4 text-[#064E3B]" />
                       <span>Instructor Registration</span>
                     </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setTopInstructorsOpen(true);
+                      handleLinkClick();
+                    }}
+                    className="w-full border-amber-600/30 bg-amber-50 hover:bg-amber-100/80 text-amber-900 text-[12.5px] font-bold flex items-center justify-center gap-1.5 h-8.5 rounded-lg transition-all shadow-2xs cursor-pointer active:scale-[0.99]"
+                  >
+                    <Award className="size-4 text-amber-600" />
+                    <span>List of Our Top Instructors</span>
                   </Button>
                   <Button
                     asChild
@@ -1384,6 +1416,10 @@ export default function LandingLayout({
           </div>
         </div>
       </footer>
+      <TopInstructorsModal
+        isOpen={topInstructorsOpen}
+        onClose={() => setTopInstructorsOpen(false)}
+      />
     </>
   );
 }

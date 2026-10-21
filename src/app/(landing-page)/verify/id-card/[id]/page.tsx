@@ -97,7 +97,10 @@ function formatInternshipCode(
   if (!code) return "IN2026XX10001";
 
   const trimmed = code.trim();
-  if (/^IN\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
+  if (/^(IN|IM|RC|ST)\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  if (/^[A-Z0-9]{8,15}$/i.test(trimmed) && !trimmed.startsWith("cm")) {
     return trimmed.toUpperCase();
   }
 
@@ -168,13 +171,13 @@ export default function IDCardVerificationPage() {
         const json = await res.json();
 
         if (!res.ok || !json.success) {
-          setError(json.message || "Invalid Student ID or Card not found.");
+          setError(json.message || "Record not found or invalid ID.");
         } else {
           setData(json.data);
         }
       } catch (err: any) {
         setError(
-          "Failed to query verification service. Please try again later.",
+          "Unable to verify details right now. Please try again.",
         );
       } finally {
         setLoading(false);
@@ -215,7 +218,7 @@ export default function IDCardVerificationPage() {
           <div className="flex flex-col items-center justify-center space-y-3 py-16">
             <Loader2 className="size-8 animate-spin text-emerald-600" />
             <p className="text-muted-foreground text-xs font-medium">
-              Querying secure registration database...
+              Verifying details, please wait...
             </p>
           </div>
         ) : error || !data ? (
@@ -224,44 +227,74 @@ export default function IDCardVerificationPage() {
               <AlertTriangle className="size-7 text-red-600" />
             </div>
             <h2 className="font-heading text-lg font-bold text-zinc-900">
-              Verification Failed
+              Record Not Found
             </h2>
             <p className="mt-2 w-full max-w-sm rounded-2xl border border-red-100/50 bg-red-50/50 px-4 py-2.5 text-sm font-medium text-red-600">
-              {error || "Invalid Student ID"}
+              {error || "Invalid ID or Card Number"}
             </p>
             <p className="text-muted-foreground mt-3 max-w-sm text-xs leading-relaxed">
-              We could not find any active student registration matching this
-              ID/Card number. Please check the URL parameters or scanned link
-              for typos.
+              No active record found for this ID or card number. Please check the ID or scan again.
             </p>
             <Button
               className="mt-6 rounded-2xl bg-zinc-900 px-6 text-xs text-white hover:bg-zinc-800"
               onClick={() => router.push("/")}
             >
-              Go to Home Page
+              Return to Home
             </Button>
           </div>
         ) : (
           <div className="space-y-6 p-6 sm:p-8">
             {}
             <div className="flex flex-col items-center justify-center pb-2 text-center">
-              <div className="mb-3 flex size-12 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50">
+              <div className="mb-3 flex size-12 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 shadow-sm">
                 <ShieldCheck className="size-6 text-emerald-600" />
               </div>
               <h2 className="text-base font-extrabold uppercase tracking-wide text-emerald-950">
                 {data.isInstructor
                   ? "Verified Instructor Record"
-                  : "Verified Student Record"}
+                  : data.isImmersion
+                    ? "Verified Immersion Record"
+                    : data.isRecruitment
+                      ? "Verified Recruitment Record"
+                      : "Verified Student Record"}
               </h2>
               <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
                 <span className="size-1.5 rounded-full bg-emerald-600" />
-                {data.isInstructor ? "Active Association" : "Active Enrollment"}
+                {data.isInstructor
+                  ? "Active Association"
+                  : data.isImmersion
+                    ? "Official Immersion Application"
+                    : data.isRecruitment
+                      ? "Active Job Application"
+                      : "Active Enrollment"}
               </span>
             </div>
 
-            {}
+            {/* Candidate Photo (if available) */}
+            {data.photoUrl ? (
+              <div className="flex items-center justify-center border-t border-zinc-100 pt-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-2 pr-5">
+                  <img
+                    src={data.photoUrl}
+                    alt={data.studentName}
+                    className="size-14 rounded-xl object-cover border border-emerald-200 shadow-xs"
+                  />
+                  <div>
+                    <p className="font-bold text-xs text-zinc-950">{data.studentName}</p>
+                    <p className="font-mono text-[11px] font-medium text-emerald-700">{data.studentId}</p>
+                    <p className="text-[10px] text-zinc-500">
+                      {data.isImmersion
+                        ? "Immersion Candidate"
+                        : data.isRecruitment
+                          ? "Job Applicant"
+                          : "Registered Participant"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="space-y-4">
-              {}
               <div className="border-t border-zinc-100 pt-4">
                 <h3 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-950">
                   <User className="size-4 text-emerald-600" />
@@ -272,15 +305,25 @@ export default function IDCardVerificationPage() {
                 <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2">
                   <div className="space-y-0.5">
                     <span className="text-muted-foreground text-[10px] font-semibold">
-                      {data.isInstructor ? "Instructor ID" : "Student ID"}
+                      {data.isInstructor
+                        ? "Instructor ID"
+                        : data.isImmersion
+                          ? "Application ID"
+                          : data.isRecruitment
+                            ? "Applicant ID"
+                            : "Student ID"}
                     </span>
-                    <p className="font-semibold text-zinc-900">
+                    <p className="font-semibold text-zinc-900 font-mono">
                       {data.studentId}
                     </p>
                   </div>
                   <div className="space-y-0.5">
                     <span className="text-muted-foreground text-[10px] font-semibold">
-                      {data.isInstructor ? "Instructor Name" : "Student Name"}
+                      {data.isInstructor
+                        ? "Instructor Name"
+                        : data.isImmersion || data.isRecruitment
+                          ? "Candidate Name"
+                          : "Student Name"}
                     </span>
                     <p className="font-semibold text-zinc-900">
                       {data.studentName}
@@ -309,7 +352,7 @@ export default function IDCardVerificationPage() {
                     <span className="text-muted-foreground text-[10px] font-semibold">
                       {data.isInstructor
                         ? "Instructor Address"
-                        : "Student Address"}
+                        : "Candidate Address"}
                     </span>
                     <p className="font-medium leading-relaxed text-zinc-800">
                       {data.studentAddress}
@@ -318,17 +361,24 @@ export default function IDCardVerificationPage() {
                 </div>
               </div>
 
-              {}
               {!data.isInstructor ? (
                 <div className="border-t border-zinc-100 pt-4">
                   <h3 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-950">
                     <GraduationCap className="size-4 text-emerald-600" />
-                    Internship Details
+                    {data.isImmersion
+                      ? "Immersion Program Details"
+                      : data.isRecruitment
+                        ? "Job Application Details"
+                        : "Internship Details"}
                   </h3>
                   <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2">
                     <div className="space-y-0.5">
                       <span className="text-muted-foreground text-[10px] font-semibold">
-                        Internship Track
+                        {data.isImmersion
+                          ? "Immersion Track"
+                          : data.isRecruitment
+                            ? "Position / Role"
+                            : "Internship Track"}
                       </span>
                       <p className="font-semibold text-zinc-900">
                         {data.internshipTitle}
@@ -336,10 +386,17 @@ export default function IDCardVerificationPage() {
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-muted-foreground text-[10px] font-semibold">
-                        Internship ID
+                        {data.isImmersion
+                          ? "Program ID"
+                          : data.isRecruitment
+                            ? "Opportunity ID"
+                            : "Internship ID"}
                       </span>
                       <div className="pt-0.5">
-                        <InternshipIdChip code={data.internshipId} />
+                        <InternshipIdChip
+                          code={data.internshipId}
+                          companyName={data.companyName}
+                        />
                       </div>
                     </div>
                     <div className="space-y-0.5">
@@ -350,9 +407,21 @@ export default function IDCardVerificationPage() {
                         {data.internshipLocation} / {data.internshipMode}
                       </p>
                     </div>
+                    {data.duration ? (
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground text-[10px] font-semibold">
+                          Duration
+                        </span>
+                        <p className="font-semibold text-zinc-900">
+                          {data.duration}
+                        </p>
+                      </div>
+                    ) : null}
                     <div className="space-y-0.5">
                       <span className="text-muted-foreground text-[10px] font-semibold">
-                        Issued Date
+                        {data.isImmersion || data.isRecruitment
+                          ? "Submitted Date"
+                          : "Issued Date"}
                       </span>
                       <p className="font-semibold text-zinc-900">
                         {new Date(data.issuedAt).toLocaleDateString("en-IN", {

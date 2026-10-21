@@ -501,6 +501,9 @@ function ResponsiveDialog({
             "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
             className,
           )}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
         >
           <div className="shrink-0 p-4 pb-2">
             <DialogHeader>
@@ -519,8 +522,13 @@ function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
+    <Drawer dismissible={false} open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerContent
+        className={cn("max-h-[90vh]", className)}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DrawerHeader className="relative pr-10 text-left">
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
@@ -3803,7 +3811,8 @@ const createJobOpportunitySchema = z_2.object({
   advtNo: z_2.string().optional(),
   advtDate: z_2.string().optional(),
   closingDate: z_2.string().optional(),
-        jdDescription: z_2.string().nullish().or(z_2.literal("")),
+  salary: z_2.string().optional().or(z_2.literal("")),
+  jdDescription: z_2.string().nullish().or(z_2.literal("")),
 });
 
 type TCreateJob = z_2.infer<typeof createJobOpportunitySchema>;
@@ -4043,6 +4052,7 @@ const AddForm_10: React_3.FC = () => {
   const [showDialog, setShowDialog] = useState(true);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [jdFile, setJdFile] = useState<File | null>(null);
+  const [isFetchingAdvt, setIsFetchingAdvt] = useState(false);
   const router = useRouter();
 
   const form = useForm<TCreateJob>({
@@ -4060,9 +4070,58 @@ const AddForm_10: React_3.FC = () => {
       advtNo: "",
       advtDate: "",
       closingDate: "",
+      salary: "",
       jdDescription: "",
     },
   });
+
+  // Automatically fetch next advertisement number on mount
+  useEffect(() => {
+    let active = true;
+    const fetchNextAdvtNo = async (year?: number) => {
+      try {
+        setIsFetchingAdvt(true);
+        const url = year
+          ? `/api/v1/job-opportunities/next-advt-no?year=${year}`
+          : `/api/v1/job-opportunities/next-advt-no`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (active && data?.success && data?.data?.advtNo) {
+          const currentVal = form.getValues("advtNo");
+          if (!currentVal || /^i3\/\d{4}\/\d+$/i.test(currentVal)) {
+            form.setValue("advtNo", data.data.advtNo);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch next advt no", err);
+      } finally {
+        if (active) setIsFetchingAdvt(false);
+      }
+    };
+
+    fetchNextAdvtNo();
+    return () => {
+      active = false;
+    };
+  }, [form]);
+
+  // If user picks an Advt Date with a different year, adjust auto-advtNo
+  const advtDateWatch = form.watch("advtDate");
+  useEffect(() => {
+    if (!advtDateWatch) return;
+    const d = new Date(advtDateWatch);
+    const yr = d.getFullYear();
+    if (!isNaN(yr) && yr > 2000) {
+      fetch(`/api/v1/job-opportunities/next-advt-no?year=${yr}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.success && data?.data?.advtNo) {
+            form.setValue("advtNo", data.data.advtNo);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [advtDateWatch, form]);
 
   const { mutate: createJob, isPending } =
     SuperAdminDataHooks.useCreateJobOpportunity({
@@ -4252,7 +4311,7 @@ const AddForm_10: React_3.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <FormField
               control={form.control}
               name="totalStaffStrength"
@@ -4264,6 +4323,26 @@ const AddForm_10: React_3.FC = () => {
                   <FormControl>
                     <Input
                       placeholder="e.g. 12"
+                      className="h-9 text-xs"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="salary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold">
+                    Salary / Remuneration (Optional)
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. ₹25,000 - ₹35,000 / Month"
                       className="h-9 text-xs"
                       {...field}
                     />
@@ -4300,13 +4379,20 @@ const AddForm_10: React_3.FC = () => {
               name="advtNo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-semibold">
-                    Advt. No.
-                  </FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-xs font-semibold">
+                      Advt. No. (Auto Generated)
+                    </FormLabel>
+                    {isFetchingAdvt && (
+                      <span className="text-muted-foreground animate-pulse text-[10px]">
+                        Generating...
+                      </span>
+                    )}
+                  </div>
                   <FormControl>
                     <Input
-                      placeholder="e.g. ADV/2026/01"
-                      className="h-9 text-xs"
+                      placeholder="e.g. i3/2026/01"
+                      className="bg-emerald-50/50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300 h-9 font-mono text-xs font-bold"
                       {...field}
                     />
                   </FormControl>
@@ -4355,7 +4441,7 @@ const AddForm_10: React_3.FC = () => {
                 Company Logo
               </span>
               <div className="flex items-center gap-3">
-                <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-sm">
+                <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-xs">
                   <Upload className="size-3.5" />
                   Select Image
                   <input
@@ -4381,7 +4467,7 @@ const AddForm_10: React_3.FC = () => {
                 JD Document (PDF)
               </span>
               <div className="flex items-center gap-3">
-                <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-sm">
+                <label className="bg-background text-foreground hover:bg-muted/10 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold shadow-xs">
                   <FileText className="size-3.5" />
                   Select PDF
                   <input
@@ -4412,13 +4498,15 @@ const AddForm_10: React_3.FC = () => {
                   Job Description
                 </FormLabel>
                 <p className="text-muted-foreground -mt-1 text-[11px]">
-                  Write the JD here as an alternative to — or alongside — the
-                  PDF above.
+                  Write the job summary, key responsibilities, or eligibility details here.
                 </p>
                 <FormControl>
-                  <RichTextEditor_2
+                  <textarea
+                    rows={4}
+                    placeholder="Enter normal job description, responsibilities, and criteria here..."
+                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[90px] w-full rounded-md border px-3 py-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
                     value={field.value ?? ""}
-                    onChange={field.onChange}
                   />
                 </FormControl>
                 <FormMessage />

@@ -128,15 +128,30 @@ const HTTP_2 = {
   INTERNAL_SERVER_ERROR: 500,
 } as const;
 
-const createSubmissionSchema = z.object({
-  enrollmentId: z.string().min(1, "Enrollment ID is required"),
-  projectTitle: z.string().min(3, "Project title is required").trim(),
-  projectUrl: z
-    .string()
-    .url("Invalid URL format for project submission")
-    .trim(),
-  comments: z.string().optional(),
-});
+import { cloudinary } from "@/x/cloudinary";
+
+const createSubmissionSchema = z
+  .object({
+    enrollmentId: z.string().min(1, "Enrollment ID is required"),
+    projectTitle: z.string().min(3, "Project title is required").trim(),
+    projectUrl: z
+      .string()
+      .trim()
+      .optional()
+      .refine((val) => !val || /^https?:\/\/.+/i.test(val), {
+        message: "Invalid URL format for project submission",
+      }),
+    documentBase64: z
+      .string()
+      .max(16_000_000, "Document file must be under 10 MB")
+      .optional(),
+    documentName: z.string().optional(),
+    comments: z.string().optional(),
+  })
+  .refine((data) => Boolean(data.projectUrl || data.documentBase64), {
+    message: "Please provide either a Project Link or upload a Project Document.",
+    path: ["projectUrl"],
+  });
 
 export const dynamic = "force-dynamic";
 
@@ -213,9 +228,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const { enrollmentId, projectTitle, projectUrl, comments } = result.data;
+    const {
+      enrollmentId,
+      projectTitle,
+      projectUrl,
+      documentBase64,
+      documentName,
+      comments,
+    } = result.data;
 
-        const enrollment = await prisma.enrollment.findUnique({
+    const enrollment = await prisma.enrollment.findUnique({
       where: { id: enrollmentId },
     });
 
@@ -232,12 +254,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    let finalProjectUrl = projectUrl?.trim() || "";
+    let finalComments = comments?.trim() || "";
+
+    if (documentBase64) {
+      try {
+        const fileExt = documentName && documentName.includes(".")
+          ? documentName.slice(documentName.lastIndexOf("."))
+          : "";
+        const uploadRes = await cloudinary.uploader.upload(documentBase64, {
+          folder: "project-submissions",
+          resource_type: "auto",
+          public_id: `doc-${enrollmentId}-${Date.now()}${fileExt}`,
+          overwrite: false,
+        });
+
+        if (!finalProjectUrl) {
+          finalProjectUrl = uploadRes.secure_url;
+        } else {
+          const docNote = `[Uploaded Document: ${documentName || "Project Document"}](${uploadRes.secure_url})`;
+          finalComments = finalComments ? `${finalComments}\n\n${docNote}` : docNote;
+        }
+      } catch (uploadError) {
+        console.error("[Upload Error] Failed to upload project document:", uploadError);
+        return errorResponse(
+          "INTERNAL_SERVER_ERROR",
+          "Failed to upload project document to cloud storage.",
+          { status: HTTP_2.INTERNAL_SERVER_ERROR },
+        );
+      }
+    }
+
     const submission = await prisma.projectSubmission.create({
       data: {
         enrollmentId,
         projectTitle,
-        projectUrl,
-        comments: comments || null,
+        projectUrl: finalProjectUrl,
+        comments: finalComments || null,
       },
     });
 

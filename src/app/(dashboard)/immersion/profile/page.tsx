@@ -2,7 +2,7 @@
 
 import { Metadata } from "next";
 import React_2 from "react";
-import { ArrowRight as ArrowRight_2, Briefcase as Briefcase_2, Calendar, Check as Check_2, Compass, Copy, Download, Edit, Edit2, GraduationCap as GraduationCap_2, HeartHandshake, Mail as Mail_2, MapPin as MapPin_2, Phone as Phone_2, Printer, RefreshCw, ShieldCheck, User, UserCircle, Users as Users_2, Building } from "lucide-react";
+import { ArrowRight as ArrowRight_2, Briefcase as Briefcase_2, Calendar, Check as Check_2, Compass, Copy, Download, Edit, Edit2, GraduationCap as GraduationCap_2, HeartHandshake, Mail as Mail_2, MapPin as MapPin_2, Phone as Phone_2, Printer, RefreshCw, ShieldCheck, User, UserCircle, Users as Users_2, Building, Loader2 } from "lucide-react";
 import Link from "next/link";
 import React_3 from "react";
 import { useState } from "react";
@@ -1629,29 +1629,32 @@ function EmersionProfilePersonal({
       ];
 
       return (
-        <div className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 print:border-0 print:p-0">
-          <h3 className="text-foreground border-border/40 mb-4 border-b pb-2 text-base font-bold print:pb-1">
+        <div className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 shadow-xs print:border-0 print:p-0">
+          <h3 className="text-foreground border-border/40 mb-4 flex items-center gap-2 border-b pb-2.5 text-base font-bold print:pb-1">
+            <div className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 print:bg-transparent print:p-0">
+              <User className="size-4" />
+            </div>
             Personal Information
           </h3>
 
-          <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 sm:grid-cols-2 print:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-2 print:gap-2">
             {details.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  className="hover:bg-muted/20 group flex items-start gap-2.5 rounded-xl p-2 transition-colors duration-200 print:p-0 print:hover:bg-transparent"
+                  className="bg-muted/20 dark:bg-muted/10 border-border/20 hover:border-emerald-500/30 flex items-start gap-3 rounded-xl border p-3 transition-colors duration-200 print:p-1.5 print:border-0 print:bg-transparent"
                 >
                   <div
                     className={`shrink-0 rounded-lg p-2 ${item.color} print:hidden`}
                   >
-                    <Icon className="size-3.5" />
+                    <Icon className="size-4" />
                   </div>
-                  <div className="space-y-0.5">
-                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase tracking-normal">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase tracking-wider">
                       {item.label}
                     </span>
-                    <span className="text-foreground block text-sm font-medium leading-tight print:text-xs">
+                    <span className="text-foreground block text-sm font-semibold leading-snug truncate print:text-xs">
                       {item.value || "—"}
                     </span>
                   </div>
@@ -1977,29 +1980,32 @@ function AvailabilitySection({ app }: { app: EmersionApplicationData }) {
       ];
 
       return (
-        <div className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 print:border-0 print:p-0">
-          <h3 className="text-foreground border-border/40 mb-4 border-b pb-2 text-base font-bold print:pb-1">
+        <div className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 shadow-xs print:border-0 print:p-0">
+          <h3 className="text-foreground border-border/40 mb-4 flex items-center gap-2 border-b pb-2.5 text-base font-bold print:pb-1">
+            <div className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 print:bg-transparent print:p-0">
+              <Briefcase_2 className="size-4" />
+            </div>
             Availability &amp; Work Details
           </h3>
 
-          <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 sm:grid-cols-2 print:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 print:grid-cols-3 print:gap-2">
             {details.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  className="hover:bg-muted/20 group flex items-start gap-2.5 rounded-xl p-2 transition-colors duration-200 print:p-0 print:hover:bg-transparent"
+                  className="bg-muted/20 dark:bg-muted/10 border-border/20 hover:border-emerald-500/30 flex items-start gap-3 rounded-xl border p-3 transition-colors duration-200 print:p-1.5 print:border-0 print:bg-transparent"
                 >
                   <div
                     className={`shrink-0 rounded-lg p-2 ${item.color} print:hidden`}
                   >
-                    <Icon className="size-3.5" />
+                    <Icon className="size-4" />
                   </div>
-                  <div className="space-y-0.5">
-                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase tracking-normal">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase tracking-wider">
                       {item.label}
                     </span>
-                    <span className="text-foreground block text-sm font-medium leading-tight print:text-xs">
+                    <span className="text-foreground block text-sm font-semibold leading-snug print:text-xs">
                       {item.value || "—"}
                     </span>
                   </div>
@@ -2034,29 +2040,32 @@ function EmergencyContactSection({ app }: { app: EmersionApplicationData }) {
       ];
 
       return (
-        <div className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 print:border-0 print:p-0">
-          <h3 className="text-foreground border-border/40 mb-4 border-b pb-2 text-base font-bold print:pb-1">
+        <div className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 shadow-xs print:border-0 print:p-0">
+          <h3 className="text-foreground border-border/40 mb-4 flex items-center gap-2 border-b pb-2.5 text-base font-bold print:pb-1">
+            <div className="rounded-lg bg-rose-500/10 p-1.5 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 print:bg-transparent print:p-0">
+              <Phone_2 className="size-4" />
+            </div>
             Emergency Contact
           </h3>
 
-          <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 sm:grid-cols-2 print:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 print:grid-cols-3 print:gap-2">
             {details.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  className="hover:bg-muted/20 group flex items-start gap-2.5 rounded-xl p-2 transition-colors duration-200 print:p-0 print:hover:bg-transparent"
+                  className="bg-muted/20 dark:bg-muted/10 border-border/20 hover:border-rose-500/30 flex items-start gap-3 rounded-xl border p-3 transition-colors duration-200 print:p-1.5 print:border-0 print:bg-transparent"
                 >
                   <div
                     className={`shrink-0 rounded-lg p-2 ${item.color} print:hidden`}
                   >
-                    <Icon className="size-3.5" />
+                    <Icon className="size-4" />
                   </div>
-                  <div className="space-y-0.5">
-                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase tracking-normal">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-muted-foreground block text-[10px] font-semibold uppercase tracking-wider">
                       {item.label}
                     </span>
-                    <span className="text-foreground block text-sm font-medium leading-tight print:text-xs">
+                    <span className="text-foreground block text-sm font-semibold leading-snug print:text-xs">
                       {item.value || "—"}
                     </span>
                   </div>
@@ -2853,6 +2862,35 @@ export default function EmersionProfilePage() {
         }
       };
 
+      const [isDownloading, setIsDownloading] = useState(false);
+
+      const handleDownloadPdf = async () => {
+        setIsDownloading(true);
+        toast.info("Generating official Immersion Application Form...");
+        try {
+          const res = await axiosInstance.get(
+            ENDPOINTS.EMERSION.APPLICATION_DOWNLOAD,
+            { responseType: "blob" }
+          );
+          const blob = new Blob([res.data], { type: "application/pdf" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Immersion_Application_${emersionId || "Form"}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          toast.success("Immersion Application PDF downloaded successfully!");
+        } catch (err) {
+          console.error("PDF download failed, opening print view:", err);
+          toast.error("Direct PDF download failed. Opening printable view...");
+          handlePrint();
+        } finally {
+          setIsDownloading(false);
+        }
+      };
+
       const handlePrint = () => {
         window.print();
       };
@@ -2863,93 +2901,108 @@ export default function EmersionProfilePage() {
             month: "long",
             day: "numeric",
           })
-        : "";
+        : null;
 
       return (
-        <div className="bg-card border-border/60 relative overflow-hidden rounded-2xl border shadow-lg backdrop-blur-md print:rounded-none print:border-0 print:shadow-none">
-          {}
-          <div className="relative h-28 w-full overflow-hidden bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 sm:h-36 print:hidden">
+        <div className="bg-card border-border/60 relative overflow-hidden rounded-2xl border shadow-md backdrop-blur-md print:rounded-none print:border-0 print:shadow-none">
+          {/* Subtle Top Gradient Banner */}
+          <div className="relative h-20 w-full overflow-hidden bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 print:hidden">
             <div className="absolute inset-0 bg-black/5" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent)]" />
-            <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.12),transparent)]" />
+            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
           </div>
 
-          {}
-          <div className="relative flex flex-col items-start justify-between gap-4 px-5 pb-5 pt-3 sm:flex-row sm:items-end sm:px-6 sm:pb-6 print:px-0 print:pb-2 print:pt-4">
-            <div className="z-10 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:items-end">
-              {}
-              <div className="border-card bg-muted z-10 -mt-12 flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 sm:-mt-16 sm:size-28 print:mt-0 print:size-20 print:border-2">
-                {profile.photoUrl && !imgError ? (
-                  <img
-                    src={profile.photoUrl}
-                    alt={profile.fullName}
-                    onError={() => setImgError(true)}
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-emerald-500/10 text-xl font-bold uppercase tracking-wide text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                    {getInitials_2(profile.fullName)}
-                  </div>
-                )}
-              </div>
-
-              {}
-              <div className="space-y-1 text-center sm:text-left print:text-left">
-                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
-                  <h2 className="text-foreground text-xl font-bold leading-none tracking-tight sm:text-2xl">
+          {/* Profile Header Content: Left Information & Actions, Right Photo */}
+          <div className="relative flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-6 p-5 sm:p-6 print:p-0 print:pt-2">
+            {/* Left Side: Candidate Information and Actions */}
+            <div className="flex flex-1 flex-col items-center sm:items-start text-center sm:text-left space-y-3 w-full">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h2 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
                     {profile.fullName}
                   </h2>
-                  <div className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-emerald-500/15 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 print:border-emerald-500">
-                    <ShieldCheck className="size-3" />
-                    Verified
+                  <div className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 print:border-emerald-600">
+                    <ShieldCheck className="size-3.5" />
+                    Verified Participant
                   </div>
                 </div>
 
-                <div className="text-muted-foreground flex items-center justify-center gap-1.5 text-xs sm:justify-start">
-                  <span>Immersion ID:</span>
-                  <code className="text-primary bg-primary/5 border-primary/10 select-all rounded border px-1.5 py-0.5 font-mono font-semibold tracking-wider print:border-0 print:bg-transparent">
+                <div className="text-muted-foreground flex items-center justify-center sm:justify-start gap-2 text-xs">
+                  <span className="font-semibold text-foreground">Immersion ID:</span>
+                  <code className="text-primary bg-primary/10 border-primary/20 select-all rounded-md border px-2 py-0.5 font-mono text-xs font-bold tracking-wider print:border-0 print:bg-transparent">
                     {emersionId}
                   </code>
                   <button
                     type="button"
                     onClick={copyId}
-                    className="hover:bg-muted text-muted-foreground hover:text-foreground rounded p-0.5 transition-colors print:hidden"
+                    className="hover:bg-muted text-muted-foreground hover:text-foreground rounded p-1 transition-colors print:hidden"
                     title="Copy Immersion ID"
                   >
                     {copied ? (
                       <Check_2 className="size-3.5 text-emerald-500" />
                     ) : (
-                      <Copy className="size-3" />
+                      <Copy className="size-3.5" />
                     )}
                   </button>
                 </div>
+
                 {formattedDate && (
-                  <p className="text-muted-foreground text-[10px] font-semibold">
-                    Registered on:{" "}
-                    <span className="text-foreground">{formattedDate}</span>
+                  <p className="text-muted-foreground text-xs font-medium">
+                    Registered on: <span className="text-foreground font-semibold">{formattedDate}</span>
                   </p>
                 )}
               </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pt-2 print:hidden">
+                <Button
+                  variant="outline"
+                  onClick={handleDownloadPdf}
+                  disabled={isDownloading}
+                  className="border-border/80 hover:border-foreground/20 hover:bg-muted h-9 gap-1.5 rounded-lg px-4 text-xs font-semibold shadow-xs transition-all active:scale-[0.98]"
+                >
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin text-emerald-600" />
+                      <span>Generating PDF...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Printer className="text-muted-foreground size-3.5" />
+                      <span>Download PDF</span>
+                    </>
+                  )}
+                </Button>
+                <Button
+                  id="btn-edit-emersion-profile"
+                  onClick={onEdit}
+                  className="bg-primary hover:bg-primary/95 text-primary-foreground h-9 gap-1.5 rounded-lg px-4 text-xs font-semibold shadow-xs transition-all active:scale-[0.98]"
+                >
+                  <Edit2 className="size-3.5" />
+                  Edit Profile
+                </Button>
+              </div>
             </div>
 
-            {}
-            <div className="z-10 flex w-full shrink-0 items-center justify-center gap-2 sm:w-auto print:hidden">
-              <Button
-                variant="outline"
-                onClick={handlePrint}
-                className="border-border/80 hover:border-foreground/20 hover:bg-muted h-9 flex-1 gap-1.5 rounded-lg px-4 text-xs font-medium transition-all active:scale-[0.98] sm:flex-initial"
-              >
-                <Printer className="text-muted-foreground size-3.5" />
-                Download PDF
-              </Button>
-              <Button
-                id="btn-edit-emersion-profile"
-                onClick={onEdit}
-                className="bg-primary hover:bg-primary/95 text-primary-foreground h-9 flex-1 gap-1.5 rounded-lg px-4 text-xs font-medium transition-all active:scale-[0.98] sm:flex-initial"
-              >
-                <Edit2 className="size-3" />
-                Edit Profile
-              </Button>
+            {/* Right Side: Candidate Passport Photo (दाहिनी तरफ) */}
+            <div className="flex flex-col items-center justify-center gap-1.5 shrink-0 sm:-mt-12 z-10 print:mt-0">
+              <div className="border-card bg-muted flex h-32 w-28 sm:h-36 sm:w-32 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-4 shadow-lg print:size-28 print:border-2">
+                {(profile.photoUrl || (profile as any).passportPhotoUrl) && !imgError ? (
+                  <img
+                    src={profile.photoUrl || (profile as any).passportPhotoUrl}
+                    alt={profile.fullName}
+                    onError={() => setImgError(true)}
+                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-emerald-500/10 text-2xl font-bold uppercase tracking-wide text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+                    {getInitials_2(profile.fullName)}
+                  </div>
+                )}
+              </div>
+              <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider print:text-[9px]">
+                Immersion Photo ID
+              </span>
             </div>
           </div>
         </div>
@@ -3050,9 +3103,62 @@ export default function EmersionProfilePage() {
         router.push("/immersion/registration?edit=true");
       };
 
+      const rawId = profile.emersionId ?? profile.userId;
+      const numPart = (rawId || "").replace(/\D/g, "");
+      const seq = parseInt(numPart.slice(-5), 10) || 0;
+
+      const emersionId =
+        profile.emersionId && profile.emersionId.startsWith("IMM-")
+          ? profile.emersionId
+          : user?.registrationNo || generateImmersionParticipantId_3(seq);
+
       return (
         <div className="animate-in fade-in mx-auto max-w-7xl space-y-5 px-4 py-5 duration-300 md:px-6">
-          {}
+          {/* Official Institution Header with Logo, Name & Barcode (Visible on Screen & Print) */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b-2 border-emerald-600 bg-white/70 dark:bg-zinc-900/50 p-4 sm:p-5 rounded-2xl border border-emerald-500/20 shadow-xs backdrop-blur-md print:rounded-none print:border-0 print:border-b-2 print:border-emerald-600 print:bg-white print:p-0 print:pb-3">
+            <div className="flex items-center gap-3.5">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm border border-emerald-500/20 print:size-12 print:border-0 print:shadow-none">
+                <img
+                  src="/logo.png"
+                  alt="iiInternship Logo"
+                  className="h-10 w-auto object-contain"
+                />
+              </div>
+              <div>
+                <h1 className="text-emerald-800 dark:text-emerald-300 text-base sm:text-lg font-extrabold uppercase tracking-tight print:text-emerald-800">
+                  International Institute of Internship [i3]
+                </h1>
+                <p className="text-muted-foreground text-[11px] font-medium leading-tight print:text-gray-600">
+                  Official Verified Immersion Participant Form &bull; A Unit of DPKHRC Trust &bull; www.iiinternship.in
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 print:bg-transparent print:p-0 print:text-emerald-800">
+                    Immersion Registration Profile
+                  </span>
+                  <span className="text-muted-foreground text-[10px]">
+                    &bull; Generated on {new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Barcode on the Right */}
+            <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-1 border-t sm:border-t-0 border-border/40 pt-2 sm:pt-0 print:border-0 print:pt-0">
+              <div className="flex flex-col items-center sm:items-end gap-1">
+                <div className="bg-white p-1 rounded-lg border border-emerald-500/30 shadow-xs print:border-0 print:p-0">
+                  <img
+                    src={`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(emersionId)}&scale=2&rotate=N`}
+                    alt="Immersion ID Barcode"
+                    className="h-9 w-40 object-contain"
+                  />
+                </div>
+                <span className="text-muted-foreground font-mono text-[9px] font-bold tracking-widest uppercase">
+                  {emersionId}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <EmersionProfileHeader profile={profile} onEdit={handleEditSubmission} />
 
           {}

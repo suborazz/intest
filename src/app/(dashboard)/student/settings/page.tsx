@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { Eye, EyeOff, Loader2, Lock, Save, ShieldCheck, User } from "lucide-react";
 import React_3 from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z_3 from "zod";
@@ -968,10 +968,24 @@ export default function SettingsPage() {
             queryClient.invalidateQueries({
               queryKey: USERS_QUERY_KEYS.DETAIL(variables.id),
             });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "User profile updated successfully!",
-            );
+            queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.PROFILE });
+            queryClient.invalidateQueries({
+              queryKey: ["student", "profile"],
+            });
+
+            if (typeof window !== "undefined" && data?.data?.user) {
+              try {
+                const stored = localStorage.getItem(AUTH_KEYS.USER_DATA);
+                if (stored) {
+                  const parsed = JSON.parse(stored);
+                  localStorage.setItem(
+                    AUTH_KEYS.USER_DATA,
+                    JSON.stringify({ ...parsed, ...data.data.user }),
+                  );
+                }
+              } catch {}
+            }
+
             options?.onSuccess?.(data, variables, context, mutation);
           },
           onError: (error, variables, context, mutation) => {
@@ -1047,21 +1061,35 @@ export default function SettingsPage() {
       const {
         register,
         handleSubmit,
+        reset,
         formState: { errors, isDirty },
       } = useForm<TStudentProfileUpdate>({
         resolver: zodResolver(ZStudentProfileUpdate_2),
         defaultValues: { name: user?.name ?? "" },
       });
 
+      // Synchronize form field whenever user auth profile loads or updates
+      useEffect(() => {
+        if (user?.name !== undefined && user?.name !== null) {
+          reset({ name: user.name });
+        }
+      }, [user?.name, reset]);
+
       const onSubmit = (values: TStudentProfileUpdate) => {
-        if (!user?.id) return;
+        if (!user?.id) {
+          toast.error("User ID not found. Please log in again.");
+          return;
+        }
+        const trimmedName = values.name.trim();
         updateUser(
           {
             id: user.id,
-            payload: { name: values.name },
+            payload: { name: trimmedName },
           },
           {
-            onSuccess: () => {
+            onSuccess: (data) => {
+              const updatedName = data?.data?.user?.name || trimmedName;
+              reset({ name: updatedName });
               toast.success("Profile details updated successfully!");
             },
           },

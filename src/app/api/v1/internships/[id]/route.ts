@@ -1,9 +1,3 @@
-import { Prisma } from "@prisma/client";
-import type {
-  InternshipCategory,
-  InternshipMode,
-  InternshipType,
-} from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { cloudinary } from "@/x/cloudinary";
@@ -160,6 +154,7 @@ const createInternshipSchema = z.object({
   imageUrl: z.string().optional().nullable(),
   imagePublicId: z.string().optional().nullable(),
   imageBase64: z.string().optional().nullable(),
+  isActive: z.boolean().optional(),
 });
 
 const updateInternshipSchema = createInternshipSchema.partial();
@@ -216,7 +211,7 @@ export async function GET(
     const requesterId = _request.headers.get("X-User-Id");
     const requesterRole = _request.headers.get("X-User-Role");
 
-    const where: Prisma.InternshipWhereInput = {
+    const where: any = {
       id: targetId,
       deletedAt: null,
     };
@@ -418,7 +413,7 @@ export async function PATCH(
       }
     }
 
-        const updateData: Prisma.InternshipUpdateInput = {
+        const updateData: any = {
       ...(data.title !== undefined ? { title: data.title } : {}),
       ...(data.description !== undefined
         ? { description: data.description }
@@ -427,10 +422,10 @@ export async function PATCH(
         ? { companyName: data.companyName }
         : {}),
       ...(data.location !== undefined ? { location: data.location } : {}),
-      ...(data.mode !== undefined ? { mode: data.mode as InternshipMode } : {}),
-      ...(data.type !== undefined ? { type: data.type as InternshipType } : {}),
+      ...(data.mode !== undefined ? { mode: data.mode } : {}),
+      ...(data.type !== undefined ? { type: data.type } : {}),
       ...(data.category !== undefined
-        ? { category: data.category as InternshipCategory }
+        ? { category: data.category }
         : {}),
       ...(data.department !== undefined ? { department: data.department } : {}),
       ...(data.modules !== undefined ? { modules: data.modules } : {}),
@@ -457,6 +452,7 @@ export async function PATCH(
         : {}),
       ...(data.duration !== undefined ? { duration: data.duration } : {}),
       ...(data.startDate !== undefined ? { startDate: data.startDate } : {}),
+      ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
       ...(data.onboardingDetails !== undefined
         ? { onboardingDetails: data.onboardingDetails }
         : {}),

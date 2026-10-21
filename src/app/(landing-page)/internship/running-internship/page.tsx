@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutGrid, List } from "lucide-react";
+import { Archive, ChevronDown, LayoutGrid, List } from "lucide-react";
 import React_3 from "react";
 import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, Eye, GraduationCap as GraduationCap_2, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Sparkles as Sparkles_2, Terminal, User, Briefcase, Check, Clock, Filter, IndianRupee, Search, Zap as Zap_2 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import { Accordion as AccordionPrimitive } from "radix-ui";
 import { ClassValue, clsx as clsx_2 } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { axiosInstance } from "@/x/acfb3dca";
+import { isDateExpired } from "@/x/a85a9c0c";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx_2(inputs));
@@ -1409,6 +1410,7 @@ interface RunningInternship {
       contact: string;
       organizer: string;
       imageUrl?: string | null;
+      isExpired?: boolean;
     }
 
 interface RunningInternshipCardProps {
@@ -2356,6 +2358,11 @@ export default function RunningInternshipPage() {
                   {internship.department}
                 </span>
               )}
+              {internship.isExpired && (
+                <span className="inline-block rounded-full border border-rose-300 bg-rose-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-400">
+                  Archived (Closed)
+                </span>
+              )}
             </div>
 
             {/* Landscape Flyer Image (Only shown if uploaded) */}
@@ -2703,15 +2710,21 @@ export default function RunningInternshipPage() {
               >
                 View Detail
               </Link>
-              <Link
-                href="/sign-up?role=STUDENT"
-                className="bg-linear-to-r from-primary hover:from-primary/90 text-primary-foreground flex flex-1 cursor-pointer items-center justify-between whitespace-nowrap rounded-lg border-0 to-emerald-500 py-1.5 pl-4 pr-1.5 text-xs font-semibold transition-all duration-300 hover:to-emerald-500/90 sm:text-sm"
-              >
-                <span className="flex-1 pr-2 text-center">Apply Now</span>
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20 transition-colors group-hover/btn:bg-white/30">
-                  <Send className="h-3 w-3 text-white" />
+              {internship.isExpired ? (
+                <div className="flex flex-1 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 py-1.5 px-3 text-center text-xs font-semibold text-amber-700 dark:text-amber-400">
+                  <span>Applications Closed (Archived)</span>
                 </div>
-              </Link>
+              ) : (
+                <Link
+                  href="/sign-up?role=STUDENT"
+                  className="bg-linear-to-r from-primary hover:from-primary/90 text-primary-foreground flex flex-1 cursor-pointer items-center justify-between whitespace-nowrap rounded-lg border-0 to-emerald-500 py-1.5 pl-4 pr-1.5 text-xs font-semibold transition-all duration-300 hover:to-emerald-500/90 sm:text-sm"
+                >
+                  <span className="flex-1 pr-2 text-center">Apply Now</span>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20 transition-colors group-hover/btn:bg-white/30">
+                    <Send className="h-3 w-3 text-white" />
+                  </div>
+                </Link>
+              )}
               <button
                 onClick={() => {
                   const url = `${window.location.origin}/internship/${internship.id}`;
@@ -2815,10 +2828,21 @@ export default function RunningInternshipPage() {
             mentor: i.instructor?.name || (i as any).instructor?.fullName || i.mentor?.name || null,
             contact: i.contact || "+91 9472351693",
             organizer: i.organizer || "IIIT Center of Excellence",
+            isExpired: isDateExpired(i.lastDate) || (i as any).isActive === false,
           };
         },
       );
   }, [res]);
+
+  const activeRunningInternships = React_3.useMemo(
+    () => runningInternships.filter((item) => !item.isExpired),
+    [runningInternships],
+  );
+
+  const archivedRunningInternships = React_3.useMemo(
+    () => runningInternships.filter((item) => item.isExpired),
+    [runningInternships],
+  );
 
   return (
     <main className="bg-background relative flex min-h-screen flex-col overflow-hidden">
@@ -3007,7 +3031,7 @@ export default function RunningInternshipPage() {
               <div className="border-border/40 mb-6 flex flex-col justify-between gap-4 border-b pb-4 sm:flex-row sm:items-center">
                 <div>
                   <h2 className="text-foreground text-2xl font-bold">
-                    Showing {runningInternships.length} Running Internships
+                    Showing {activeRunningInternships.length} Running Internships
                   </h2>
                   <p className="text-muted-foreground mt-1 text-sm font-medium">
                     Explore ongoing, live practice internships and join
@@ -3044,7 +3068,7 @@ export default function RunningInternshipPage() {
                 <div className="flex items-center justify-center py-16">
                   <div className="border-primary size-8 animate-spin rounded-full border-4 border-t-transparent" />
                 </div>
-              ) : runningInternships.length === 0 ? (
+              ) : activeRunningInternships.length === 0 ? (
                 <div className="text-muted-foreground py-12 text-center font-semibold">
                   No active running internships available.
                 </div>
@@ -3056,7 +3080,7 @@ export default function RunningInternshipPage() {
                       : "flex flex-col items-stretch gap-5"
                   }
                 >
-                  {runningInternships.map((internship) => (
+                  {activeRunningInternships.map((internship) => (
                     <RunningInternshipCard
                       key={internship.id}
                       viewMode={viewMode}
@@ -3068,6 +3092,51 @@ export default function RunningInternshipPage() {
                       }
                     />
                   ))}
+                </div>
+              )}
+
+              {/* Archived Internships Section */}
+              {archivedRunningInternships.length > 0 && (
+                <div className="mt-14 space-y-5 rounded-3xl border border-amber-500/20 bg-linear-to-b from-amber-500/5 to-transparent p-6 sm:p-8 backdrop-blur-xl">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-amber-500/15 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <Archive className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-foreground text-xl font-bold">
+                          Archived Internships ({archivedRunningInternships.length})
+                        </h3>
+                        <p className="text-muted-foreground text-xs font-medium">
+                          These internship deadlines have passed. Open for informational review only (applications closed).
+                        </p>
+                      </div>
+                    </div>
+                    <span className="self-start rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+                      Closed & Archived
+                    </span>
+                  </div>
+
+                  <div
+                    className={
+                      viewMode === "grid"
+                        ? "grid grid-cols-1 items-start gap-5 md:grid-cols-2 opacity-90"
+                        : "flex flex-col items-stretch gap-5 opacity-90"
+                    }
+                  >
+                    {archivedRunningInternships.map((internship) => (
+                      <RunningInternshipCard
+                        key={internship.id}
+                        viewMode={viewMode}
+                        internship={
+                          {
+                            ...internship,
+                            type: "Running",
+                          } as unknown as RunningInternship
+                        }
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

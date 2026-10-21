@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { prisma } from "@/x/e3746f45";
+import { generateApplicationCode } from "@/x/a85a9c0c";
 export const dynamic = "force-dynamic";
 
 interface RouteContext {
@@ -313,9 +314,242 @@ export async function GET(
         return successResponse(responsePayload);
       }
 
+      // 4. Fallback to Immersion Application
+      let immersionApp = await prisma.immersionApplication.findFirst({
+        where: {
+          OR: [{ id }, { code: id }],
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              registrationNo: true,
+            },
+          },
+          immersion: {
+            select: {
+              id: true,
+              title: true,
+              location: true,
+            },
+          },
+        },
+      });
+
+      if (!immersionApp) {
+        // Fallback check: in case application.code wasn't yet persisted in DB
+        const recentImmersionApps = await prisma.immersionApplication.findMany({
+          select: {
+            id: true,
+            code: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 500,
+        });
+
+        const matched = recentImmersionApps.find(
+          (app) =>
+            generateApplicationCode(app.id, app.createdAt) === id ||
+            app.id === id,
+        );
+
+        if (matched) {
+          immersionApp = await prisma.immersionApplication.findUnique({
+            where: { id: matched.id },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  registrationNo: true,
+                },
+              },
+              immersion: {
+                select: {
+                  id: true,
+                  title: true,
+                  location: true,
+                },
+              },
+            },
+          });
+
+          // Persist the code to DB so future lookups are instant
+          if (immersionApp && !immersionApp.code) {
+            await prisma.immersionApplication
+              .update({
+                where: { id: immersionApp.id },
+                data: { code: id },
+              })
+              .catch(() => {});
+          }
+        }
+      }
+
+      if (immersionApp) {
+        const profile = await prisma.immersionParticipantProfile.findUnique({
+          where: { userId: immersionApp.userId },
+        });
+
+        const addressParts = profile
+          ? [
+              profile.permLocalArea,
+              profile.permDistrict,
+              profile.permState,
+              profile.permCountry,
+              profile.permPinCode ? `- ${profile.permPinCode}` : "",
+            ].filter(Boolean)
+          : [];
+        const address = addressParts.join(", ") || "N/A";
+
+        const appCode = immersionApp.code || id;
+
+        const durationStr = immersionApp.preferredDuration
+          ? `${immersionApp.preferredDuration.replace(/^DAYS_/, "")} Days`
+          : "Institutional Record";
+
+        const modeStr = immersionApp.presenceType
+          ? immersionApp.presenceType.replace(/_/g, " ")
+          : "Immersion Program";
+
+        const responsePayload = {
+          cardNo: appCode,
+          issuedAt: immersionApp.createdAt,
+          studentId: appCode,
+          studentName:
+            profile?.fullName ||
+            immersionApp.user.name ||
+            "Immersion Participant",
+          studentEmail: profile?.emailAddress || immersionApp.user.email,
+          studentMobile: profile?.mobileNumber || "N/A",
+          studentAddress: address,
+          photoUrl:
+            (profile as any)?.photoUrl || profile?.passportPhotoUrl || "",
+          internshipId: immersionApp.immersion?.id || immersionApp.id,
+          internshipTitle:
+            immersionApp.immersion?.title || "Immersion Program",
+          companyName: "International Institute of Internship [i3]",
+          internshipMode: modeStr,
+          internshipLocation:
+            immersionApp.preferredLocation ||
+            immersionApp.immersion?.location ||
+            profile?.permDistrict ||
+            "Verified",
+          duration: durationStr,
+          isImmersion: true,
+          status: "VERIFIED",
+        };
+
+        return successResponse(responsePayload);
+      }
+
+      // 5. Fallback to Job Application (Recruitment)
+      const jobApp = await prisma.jobApplication.findFirst({
+        where: {
+          OR: [{ id }],
+        },
+        include: {
+          jobOpportunity: true,
+        },
+      });
+
+      if (jobApp) {
+        const responsePayload = {
+          cardNo: jobApp.id,
+          issuedAt: jobApp.createdAt,
+          studentId: jobApp.id,
+          studentName: jobApp.name,
+          studentEmail: jobApp.email,
+          studentMobile: jobApp.mobile,
+          studentAddress: jobApp.address,
+          photoUrl: "",
+          internshipId: jobApp.jobOpportunity.id,
+          internshipTitle: jobApp.jobOpportunity.postOpportunity,
+          companyName: jobApp.jobOpportunity.companyName,
+          internshipMode: jobApp.jobOpportunity.jobNature,
+          internshipLocation: jobApp.jobOpportunity.address,
+          duration: "Recruitment Track",
+          isRecruitment: true,
+          status: "VERIFIED",
+        };
+
+        return successResponse(responsePayload);
+      }
+
+      // 6. Fallback to Recruit Registration Profile
+      const recruitProfile = await prisma.recruitProfile.findFirst({
+        where: {
+          OR: [{ id }, { userId: id }],
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      if (recruitProfile) {
+        const latestJobApp = await prisma.jobApplication.findFirst({
+          where: { userId: recruitProfile.userId },
+          orderBy: { createdAt: "desc" },
+          include: { jobOpportunity: true },
+        });
+
+        const addressParts = [
+          recruitProfile.currAddressLocal,
+          recruitProfile.currAddressDistrict,
+          recruitProfile.currAddressState,
+          recruitProfile.currAddressCountry,
+          recruitProfile.currAddressPinCode ? `- ${recruitProfile.currAddressPinCode}` : "",
+        ].filter(Boolean);
+        const address = addressParts.join(", ") || "N/A";
+
+        const responsePayload = {
+          cardNo: recruitProfile.id,
+          issuedAt: recruitProfile.createdAt,
+          studentId: recruitProfile.id,
+          studentName:
+            recruitProfile.fullName ||
+            recruitProfile.user?.name ||
+            "Job Applicant",
+          studentEmail:
+            recruitProfile.email || recruitProfile.user?.email || "N/A",
+          studentMobile: recruitProfile.mobileNo || "N/A",
+          studentAddress: address,
+          photoUrl: recruitProfile.photoUrl || "",
+          internshipId: latestJobApp?.jobOpportunity?.id || recruitProfile.id,
+          internshipTitle:
+            latestJobApp?.jobOpportunity?.postOpportunity ||
+            "Recruit Profile Registration",
+          companyName:
+            latestJobApp?.jobOpportunity?.companyName ||
+            "International Institute of Internship [i3]",
+          internshipMode:
+            latestJobApp?.jobOpportunity?.jobNature ||
+            "Job Applicant Registration",
+          internshipLocation:
+            latestJobApp?.jobOpportunity?.address ||
+            recruitProfile.currAddressDistrict ||
+            "Verified",
+          duration: "Recruitment Track",
+          isRecruitment: true,
+          status: "VERIFIED",
+        };
+
+        return successResponse(responsePayload);
+      }
+
       return errorResponse(
         "ID_CARD_NOT_FOUND",
-        "ID Card not found or invalid card number.",
+        "No record found for this ID or card number.",
         { status: HTTP_2.NOT_FOUND },
       );
     }

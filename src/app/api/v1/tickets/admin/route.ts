@@ -150,7 +150,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const listTicketsQuerySchema = z.object({
       page: z.coerce.number().int().min(1).default(1),
       limit: z.coerce.number().int().min(1).max(100).default(20),
-      status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional(),
+      status: z
+        .preprocess((val) => {
+          if (typeof val === "string") {
+            const normalized = val.trim().toUpperCase().replace(/[\s-]+/g, "_");
+            if (normalized === "PENDING") return "IN_PROGRESS";
+            return normalized;
+          }
+          return val;
+        }, z.enum(["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"]).optional())
+        .transform((val) => (val === "PENDING" ? ("IN_PROGRESS" as const) : val)),
       search: z.string().optional(),
     });
 
@@ -219,6 +228,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         where,
         include: {
           user: { select: { id: true, name: true, email: true } },
+          replies: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              message: true,
+              authorId: true,
+              authorName: true,
+              authorRole: true,
+              createdAt: true,
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
         skip,

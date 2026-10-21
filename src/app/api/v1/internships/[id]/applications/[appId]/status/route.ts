@@ -68,17 +68,23 @@ export async function PATCH(
     }
 
     function handleError(error: unknown): NextResponse<ApiErrorResponse> {
-      console.error("[API Error]", error);
+      console.error("[API Error in status route]", error);
 
       if (error instanceof ZodError) {
         return validationErrorResponse(error);
       }
 
       if (error instanceof Error) {
-            const message =
-          process.env["NODE_ENV"] === "production"
-            ? "An internal server error occurred"
-            : error.message;
+        let message = error.message;
+
+        const prismaError = error as { code?: string; meta?: any };
+        if (prismaError.code === "P2002") {
+          message = "A unique constraint conflict occurred.";
+        } else if (prismaError.code === "P2003") {
+          message = "A referenced record was not found.";
+        } else if (prismaError.code === "P2025") {
+          message = "Application record was not found.";
+        }
 
         return errorResponse("INTERNAL_SERVER_ERROR", message, {
           status: HTTP.INTERNAL_SERVER_ERROR,
@@ -205,20 +211,50 @@ export async function PATCH(
     const newStatus = parsed.data.status;
     const reviewNote = parsed.data.reviewNote ?? null;
 
+    let validReviewerId: string | null = null;
+    if (requesterId) {
+      const reviewer = await prisma.user.findUnique({
+        where: { id: requesterId },
+        select: { id: true },
+      });
+      if (reviewer) {
+        validReviewerId = reviewer.id;
+      }
+    }
+
     const updatedApp = await prisma.$transaction(async (tx) => {
       let enrollmentId = application.enrollmentId;
 
-            if (newStatus === "APPROVED" && !application.enrollmentId) {
-        const enrollment = await tx.enrollment.create({
-          data: {
+      if (newStatus === "APPROVED") {
+        const enrollment = await tx.enrollment.upsert({
+          where: {
+            userId_internshipId: {
+              userId: application.studentId,
+              internshipId: application.internshipId,
+            },
+          },
+          update: {},
+          create: {
             userId: application.studentId,
             internshipId: application.internshipId,
           },
         });
         enrollmentId = enrollment.id;
+
+        const conflictingApp = await tx.internshipApplication.findUnique({
+          where: { enrollmentId: enrollment.id },
+          select: { id: true },
+        });
+
+        if (conflictingApp && conflictingApp.id !== appId) {
+          await tx.internshipApplication.update({
+            where: { id: conflictingApp.id },
+            data: { enrollmentId: null },
+          });
+        }
       }
 
-            if (newStatus !== "APPROVED" && application.enrollmentId) {
+      if (newStatus !== "APPROVED" && application.enrollmentId) {
         await tx.enrollment
           .delete({
             where: { id: application.enrollmentId },
@@ -227,28 +263,172 @@ export async function PATCH(
         enrollmentId = null;
       }
 
-            return await tx.internshipApplication.update({
+      return await tx.internshipApplication.update({
         where: { id: appId },
         data: {
           status: newStatus,
           reviewedAt: new Date(),
-          reviewedById: requesterId,
+          reviewedById: validReviewerId,
           reviewNote,
           enrollmentId,
         },
         include: {
-          student: { select: { id: true, name: true, email: true } },
+          student: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              registrationNo: true,
+              studentRegistration: {
+                select: {
+                  studentId: true,
+                  fullName: true,
+                  academics: {
+                    select: {
+                      qualification: true,
+                      stream: true,
+                      subject: true,
+                      instituteName: true,
+                      universityName: true,
+                      sessionYear: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           internship: {
-            select: { id: true, title: true, companyName: true, type: true },
+            select: {
+              id: true,
+              code: true,
+              title: true,
+              companyName: true,
+              type: true,
+              mode: true,
+              duration: true,
+              startDate: true,
+              stipendAmount: true,
+              organizer: true,
+              instructor: { select: { name: true } },
+            },
           },
           reviewedBy: { select: { id: true, name: true } },
         },
       });
     });
 
-        if (newStatus === "APPROVED" && updatedApp.enrollmentId) {
-      const { issueIdCard } = await import("@/x/c6f69c52");
-      await issueIdCard(application.studentId, updatedApp.enrollmentId);
+    if (newStatus === "APPROVED" && updatedApp.enrollmentId) {
+      try {
+        const { issueIdCard } = await import("@/x/c6f69c52");
+        await issueIdCard(application.studentId, updatedApp.enrollmentId);
+      } catch (cardErr) {
+        console.warn("[Status Route] ID Card issuance warning:", cardErr);
+      }
+
+      // Generate official Offer Letter PDF and send email notification asynchronously
+      if (updatedApp.student?.email) {
+        (async () => {
+          try {
+            const { sendInternshipApplicationStatusUpdateEmail } = await import(
+              "@/x/b7e0f2d7"
+            );
+            const {
+              generateInternshipOfferLetterPDF,
+              pickHighestAcademicRecord,
+              formatQualificationStream,
+            } = await import("@/lib/offerLetterGenerator");
+
+            const student = updatedApp.student;
+            const reg = student.studentRegistration;
+            const highestAcademic = pickHighestAcademicRecord(reg?.academics);
+            const internship = updatedApp.internship;
+
+            const studentName = (
+              reg?.fullName ||
+              student.name ||
+              "Student"
+            ).trim();
+
+            const registrationNo =
+              reg?.studentId || student.registrationNo || "NA";
+
+            const collegeName =
+              highestAcademic?.instituteName || "Recognised College / Institution";
+            const universityName =
+              highestAcademic?.universityName || "Recognised University";
+            const qualificationStream =
+              formatQualificationStream(highestAcademic);
+            const sessionYear =
+              highestAcademic?.sessionYear || "Current Academic Session";
+
+            let stipendText: string | null = null;
+            if (
+              (internship?.type === "STIPEND" ||
+                (internship?.stipendAmount && internship.stipendAmount > 0)) &&
+              internship?.stipendAmount
+            ) {
+              stipendText = `Rs. ${internship.stipendAmount.toLocaleString("en-IN")} / Month`;
+            }
+
+            const safeStudentFilename = studentName
+              .replace(/[^a-zA-Z0-9_\-]/g, "_")
+              .replace(/_+/g, "_")
+              .trim();
+
+            let pdfAttachment: { buffer: Buffer; filename: string } | undefined;
+
+            try {
+              const offerPdfBuffer = await generateInternshipOfferLetterPDF({
+                letterRefNo:
+                  updatedApp.code || `APP-${updatedApp.id.slice(-6).toUpperCase()}`,
+                applicationId:
+                  updatedApp.code || `APP-${updatedApp.id.slice(-6).toUpperCase()}`,
+                offerDate: new Date(),
+                studentName,
+                registrationNo,
+                collegeName,
+                universityName,
+                qualificationStream,
+                sessionYear,
+                internshipId: internship?.code || "i3-INT-2026",
+                internshipTitle: internship?.title || "Internship Program",
+                duration: internship?.duration || "120 Hours",
+                mode: internship?.mode || "Online",
+                startDate: internship?.startDate || null,
+                endDate: null,
+                coordinator:
+                  internship?.instructor?.name ||
+                  internship?.organizer ||
+                  "Dr. Avishek Kumar",
+                stipend: stipendText,
+                verificationUrl: `https://www.iiinternship.in/student/dashboard`,
+              });
+
+              if (offerPdfBuffer && Buffer.isBuffer(offerPdfBuffer)) {
+                pdfAttachment = {
+                  buffer: offerPdfBuffer,
+                  filename: `${safeStudentFilename}_Internship_Offer_Letter.pdf`,
+                };
+              }
+            } catch (pdfErr) {
+              console.error("[Offer Letter Generation Failed]", pdfErr);
+            }
+
+            await sendInternshipApplicationStatusUpdateEmail(
+              student.email,
+              studentName,
+              internship?.title || "Internship Program",
+              "APPROVED",
+              pdfAttachment,
+            );
+          } catch (err) {
+            console.error(
+              "[EMAIL ERROR] Failed to send internship application approval email from status route:",
+              err,
+            );
+          }
+        })();
+      }
     }
 
     return successResponse(updatedApp, {

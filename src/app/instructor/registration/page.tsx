@@ -6,7 +6,7 @@ import React_4, { useEffect, useState } from "react";
 import { type FieldPath, type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z as z_2 } from "zod";
-import { AlertCircle, ArrowLeft, ArrowRight as ArrowRight_2, Briefcase as Briefcase_2, CalendarIcon, CheckCircle, Code, Download, Edit, Edit2, FileBadge, GraduationCap as GraduationCap_2, List, MapPin as MapPin_2, Pencil, Phone as Phone_2, Plus, Printer, Save, School, ShieldCheck, Trash2, Upload, Users as Users_2, Check, Clock, CalendarDays, Sun, Moon, Sunrise, Sunset } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight as ArrowRight_2, Award, Briefcase as Briefcase_2, CalendarIcon, CheckCircle, Code, Download, Edit, Edit2, FileBadge, GraduationCap as GraduationCap_2, Landmark, List, MapPin as MapPin_2, Pencil, Phone as Phone_2, Plus, Printer, Save, School, ShieldCheck, Trash2, Upload, Users as Users_2, Check, Clock, CalendarDays, Sun, Moon, Sunrise, Sunset, Loader2 } from "lucide-react";
 import React_3 from "react";
 import React_2 from "react";
 import { clsx, ClassValue } from "clsx";
@@ -32,6 +32,7 @@ import { AuthContext } from "@/x/8789d6dc";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
 import { processUploadedFile } from "@/lib/fileCompressor";
+import { TopInstructorsModal } from "@/components/TopInstructorsModal";
 const Form = FormProvider;
 
 const buttonVariants = cva(
@@ -275,13 +276,22 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
+function Input({ className, type, icon: Icon, onFocus, ...props }: InputProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // When virtual keyboard opens on mobile, give it a moment to expand then center the input
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 180);
+    onFocus?.(e);
+  };
+
   const input = (
     <input
       type={type}
       data-slot="input"
+      onFocus={handleFocus}
       className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         Icon && "pl-8",
         className,
       )}
@@ -997,6 +1007,11 @@ interface InstructorRegistrationResponse {
       mentorshipMode: string[];
       availability: string;
       selfIntroduction: string;
+      accountHolderName: string;
+      accountNo: string;
+      ifscCode: string;
+      bankName: string;
+      bankBranchAddress: string;
       photoUrl: string;
       photoName: string;
       identityProofUrl: string | null;
@@ -1048,6 +1063,11 @@ interface InstructorRegistrationPayload {
       mentorshipMode: string[];
       availability: string;
       selfIntroduction: string;
+      accountHolderName: string;
+      accountNo: string;
+      ifscCode: string;
+      bankName: string;
+      bankBranchAddress: string;
       photoBase64: string;
       photoName: string;
       identityProofBase64?: string;
@@ -1062,19 +1082,7 @@ interface InstructorRegistrationPayload {
 type UpdateInstructorRegistrationResponse =
       ApiSuccess<InstructorRegistrationResponse>;
 
-type InstructorRegistrationUpdatePayload = Partial<
-      Omit<
-        InstructorRegistrationPayload,
-        | "photoBase64"
-        | "photoName"
-        | "identityProofBase64"
-        | "identityProofName"
-        | "educationCertBase64"
-        | "educationCertName"
-        | "experienceCertBase64"
-        | "experienceCertName"
-      >
-    >;
+type InstructorRegistrationUpdatePayload = Partial<InstructorRegistrationPayload>;
 
 interface ListMyInternshipsParams {
       source?: "i3" | "self";
@@ -1989,6 +1997,25 @@ const ZInstructorRegistration = z.object({
         message: "Self-introduction must be at least 150 words (characters).",
       }),
 
+        accountHolderName: z
+        .string()
+        .min(2, { message: "Account Holder Name is required." }),
+      accountNo: z
+        .string()
+        .regex(/^\d{6,18}$/, { message: "Account No. must be 6 to 18 digits." }),
+      reEnterAccountNo: z
+        .string()
+        .min(1, { message: "Please re-enter the Account No." }),
+      ifscCode: z
+        .string()
+        .regex(/^[A-Za-z]{4}0[A-Za-z0-9]{6}$/, {
+          message: "Invalid IFSC Code (e.g. ABCD0123456).",
+        }),
+      bankName: z.string().min(2, { message: "Bank Name is required." }),
+      bankBranchAddress: z
+        .string()
+        .min(3, { message: "Bank Branch Address is required." }),
+
         photoBase64: z
         .string()
         .min(1, { message: "Passport size photo is required." }),
@@ -2003,6 +2030,18 @@ const ZInstructorRegistration = z.object({
         agreeTerms: z.literal(true, {
         message: "You must agree to the declaration.",
       }),
+    }).superRefine((val, ctx) => {
+      if (
+        val.accountNo &&
+        val.reEnterAccountNo &&
+        val.accountNo !== val.reEnterAccountNo
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["reEnterAccountNo"],
+          message: "Account numbers do not match.",
+        });
+      }
     });
 
 type TInstructorRegistration = z.infer<typeof ZInstructorRegistration>;
@@ -2080,6 +2119,12 @@ const mapResponseToForm = (data: InstructorRegistrationResponse) => {
         availabilityTimeSlots: (data.availability || "").split(", ").slice(1).join(", ") || "",
         availability: data.availability || "",
         selfIntroduction: data.selfIntroduction || "",
+        accountHolderName: data.accountHolderName || "",
+        accountNo: data.accountNo || "",
+        reEnterAccountNo: data.accountNo || "",
+        ifscCode: data.ifscCode || "",
+        bankName: data.bankName || "",
+        bankBranchAddress: data.bankBranchAddress || "",
         photoBase64: data.photoUrl || "",
         photoName: data.photoName || "",
         identityProofBase64: data.identityProofUrl || "",
@@ -2256,6 +2301,11 @@ function SelectValue_7({
     }
 
 interface StepProfessionalProps_2 {
+      onNext: () => void;
+      onPrev: () => void;
+    }
+
+interface StepBankProps_2 {
       onNext: () => void;
       onPrev: () => void;
     }
@@ -2890,12 +2940,173 @@ const StepProfessional_2: React_3.FC<StepProfessionalProps_2> = ({
       );
     };
 
+const StepBank_2: React_3.FC<StepBankProps_2> = ({ onNext, onPrev }) => {
+      const {
+        control,
+        formState: { errors },
+      } = useFormContext<TInstructorRegistration>();
+
+      return (
+        <div className="animate-in fade-in space-y-6 duration-200">
+          <div className="border-border border-b pb-3">
+            <h2 className="text-foreground flex items-center gap-2 text-xl font-bold">
+              <Landmark className="text-primary size-5" /> D. Bank Account Details
+            </h2>
+            <p className="text-muted-foreground text-xs">
+              Provide your bank account details for stipend and payment processing.
+            </p>
+          </div>
+
+          <div className="space-y-4 rounded-xl border border-zinc-200/60 bg-zinc-50/50 p-4 dark:border-zinc-800/50 dark:bg-zinc-900/30">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={control}
+                name="accountHolderName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Account Holder Name <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter account holder name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name="ifscCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      IFSC Code <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. ABCD0123456"
+                        maxLength={11}
+                        className="uppercase"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name="accountNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Account No. <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        inputMode="numeric"
+                        placeholder="Enter bank account number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name="reEnterAccountNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Re-Enter Account No. <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        inputMode="numeric"
+                        placeholder="Re-enter bank account number"
+                        {...field}
+                      />
+                    </FormControl>
+                    {errors.reEnterAccountNo ? (
+                      <p className="text-destructive mt-1 text-xs font-medium">
+                        {errors.reEnterAccountNo.message}
+                      </p>
+                    ) : null}
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name="bankName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Bank Name <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter bank name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name="bankBranchAddress"
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>
+                      Bank Branch Address{" "}
+                      <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter bank branch address"
+                        className="bg-background min-h-[80px] resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="border-border flex items-center gap-3 border-t pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrev}
+              className="h-10 flex-1 gap-2 px-4 sm:flex-initial"
+            >
+              <ArrowLeft className="size-4" /> Back
+            </Button>
+            <Button
+              type="button"
+              onClick={onNext}
+              className="bg-primary hover:bg-primary/95 h-10 flex-1 gap-2 px-6 text-white shadow-md sm:flex-initial"
+            >
+              Save & Next <ArrowRight_2 className="size-4" />
+            </Button>
+          </div>
+        </div>
+      );
+    };
+
 const handlePrint = () => window.print();
 
 const stepsInfo = [
     { title: "Personal Info", desc: "Identity & Contacts" },
     { title: "Education", desc: "Qualifications" },
     { title: "Professional", desc: "Experience & Mentorship" },
+    { title: "Bank Details", desc: "Account Information" },
     { title: "Documents", desc: "Uploads & Declaration" },
   ];
 
@@ -3310,6 +3521,12 @@ const InstructorService: IInstructorService = {
           onSuccess: (data, variables, context, mutation) => {
             queryClient.invalidateQueries({
               queryKey: INSTRUCTOR_QUERY_KEYS.REGISTRATION_ME(),
+            });
+            queryClient.invalidateQueries({
+              queryKey: INSTRUCTOR_QUERY_KEYS.PROFILE(),
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["instructor"],
             });
             toast.success(
               (data as { message?: string })?.message ||
@@ -3776,6 +3993,34 @@ const InstructorService: IInstructorService = {
       handleBackToDashboard,
     }) => {
       const { user } = useAuth();
+      const [isDownloading, setIsDownloading] = useState(false);
+
+      const handleDownloadPdf = async () => {
+        setIsDownloading(true);
+        toast.info("Generating official Instructor Registration Form...");
+        try {
+          const downloadTarget = (data as any).id || data.instructorId;
+          const res = await axiosInstance.get(`/instructor/register/${downloadTarget}/download`, {
+            responseType: "blob",
+          });
+          const blob = new Blob([res.data], { type: "application/pdf" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Instructor_Registration_${data.instructorId || "Form"}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          toast.success("Instructor Registration Form PDF downloaded successfully!");
+        } catch (err) {
+          console.error("PDF download failed, opening print view:", err);
+          toast.error("Direct PDF download failed. Opening printable view...");
+          handlePrint();
+        } finally {
+          setIsDownloading(false);
+        }
+      };
 
       return (
         <div className="bg-card border-border/80 animate-in fade-in overflow-hidden rounded-2xl border shadow-lg duration-300 print:border-0 print:bg-transparent print:shadow-none">
@@ -3798,10 +4043,21 @@ const InstructorService: IInstructorService = {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handlePrint}
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
                 className="gap-1.5 border-white/20 bg-white/10 text-white hover:bg-white/20"
               >
-                <Printer className="size-4" /> Download PDF
+                {isDownloading ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Generating PDF...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="size-4" />
+                    <span>Download PDF</span>
+                  </>
+                )}
               </Button>
               <Button
                 variant="outline"
@@ -4073,6 +4329,42 @@ const InstructorService: IInstructorService = {
                     {data.mentorshipAreas}
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {}
+            <div className="space-y-3 rounded-xl border border-zinc-200/60 bg-zinc-50/50 p-5 shadow-inner dark:border-zinc-800/50 dark:bg-zinc-900/30">
+              <h4 className="text-foreground flex items-center gap-2 text-sm font-bold">
+                <div className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-600 dark:text-emerald-400">
+                  <Landmark className="size-4" />
+                </div>
+                Bank Account Details
+              </h4>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-2 text-xs sm:grid-cols-2">
+                <p>
+                  <span className="text-foreground font-medium">
+                    Account Holder Name:
+                  </span>{" "}
+                  {data.accountHolderName || "N/A"}
+                </p>
+                <p>
+                  <span className="text-foreground font-medium">Account No.:</span>{" "}
+                  <span className="font-mono">{data.accountNo || "N/A"}</span>
+                </p>
+                <p>
+                  <span className="text-foreground font-medium">IFSC Code:</span>{" "}
+                  <span className="font-mono uppercase">{data.ifscCode || "N/A"}</span>
+                </p>
+                <p>
+                  <span className="text-foreground font-medium">Bank Name:</span>{" "}
+                  {data.bankName || "N/A"}
+                </p>
+                <p className="sm:col-span-2">
+                  <span className="text-foreground font-medium">
+                    Bank Branch Address:
+                  </span>{" "}
+                  {data.bankBranchAddress || "N/A"}
+                </p>
               </div>
             </div>
 
@@ -5117,6 +5409,27 @@ export default function InstructorRegistrationPage() {
   const userId = user?.id ?? "";
   const [currentStep, setCurrentStep] = useState(1);
   const [isFinalSubmitted, setIsFinalSubmitted] = useState(false);
+  const [topInstructorsOpen, setTopInstructorsOpen] = useState(false);
+
+  // Auto-scroll focused inputs into view on mobile keyboard appearance
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.getAttribute("role") === "combobox")
+      ) {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 220);
+      }
+    };
+    window.addEventListener("focusin", handleFocusIn);
+    return () => window.removeEventListener("focusin", handleFocusIn);
+  }, []);
 
   const { data: regMeResponse, isLoading: isRegLoading } =
     InstructorDataHooks.useInstructorRegistrationMe({
@@ -5184,6 +5497,12 @@ export default function InstructorRegistrationPage() {
       availabilityTimeSlots: "",
       availability: "",
       selfIntroduction: "",
+      accountHolderName: "",
+      accountNo: "",
+      reEnterAccountNo: "",
+      ifscCode: "",
+      bankName: "",
+      bankBranchAddress: "",
       photoBase64: "",
       photoName: "",
       identityProofBase64: "",
@@ -5424,6 +5743,15 @@ export default function InstructorRegistrationPage() {
         "availability",
         "selfIntroduction",
       ];
+    } else if (currentStep === 4) {
+      fieldsToValidate = [
+        "accountHolderName",
+        "accountNo",
+        "reEnterAccountNo",
+        "ifscCode",
+        "bankName",
+        "bankBranchAddress",
+      ];
     }
 
     const isValid = await form.trigger(fieldsToValidate);
@@ -5474,7 +5802,20 @@ export default function InstructorRegistrationPage() {
         mentorshipMode: values.mentorshipMode,
         availability: values.availability,
         selfIntroduction: values.selfIntroduction,
+        accountHolderName: values.accountHolderName,
+        accountNo: values.accountNo,
+        ifscCode: values.ifscCode.toUpperCase(),
+        bankName: values.bankName,
+        bankBranchAddress: values.bankBranchAddress,
         agreeTerms: values.agreeTerms,
+        photoBase64: values.photoBase64?.startsWith("data:") ? values.photoBase64 : undefined,
+        photoName: values.photoName || undefined,
+        identityProofBase64: values.identityProofBase64?.startsWith("data:") ? values.identityProofBase64 : undefined,
+        identityProofName: values.identityProofName || undefined,
+        educationCertBase64: values.educationCertBase64?.startsWith("data:") ? values.educationCertBase64 : undefined,
+        educationCertName: values.educationCertName || undefined,
+        experienceCertBase64: values.experienceCertBase64?.startsWith("data:") ? values.experienceCertBase64 : undefined,
+        experienceCertName: values.experienceCertName || undefined,
       };
 
       updateRegistration(
@@ -5540,13 +5881,23 @@ export default function InstructorRegistrationPage() {
         />
       ) : (
         <div className="space-y-6">
-          <div className="space-y-1">
-            <h1 className="text-foreground text-2xl font-bold tracking-tight md:text-3xl">
-              Instructor Registration
-            </h1>
-            <p className="text-muted-foreground text-xs md:text-sm">
-              Please complete your instructor profile registration details.
-            </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
+            <div className="space-y-1">
+              <h1 className="text-foreground text-2xl font-bold tracking-tight md:text-3xl">
+                Instructor Registration
+              </h1>
+              <p className="text-muted-foreground text-xs md:text-sm">
+                Please complete your instructor profile registration details.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setTopInstructorsOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-emerald-600/30 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900 dark:border-emerald-700/50 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50 shadow-xs cursor-pointer font-bold text-xs transition-all w-fit self-start sm:self-auto"
+            >
+              <Award className="size-4 text-emerald-600 dark:text-emerald-400" />
+              <span>List of Our Top Instructors</span>
+            </button>
           </div>
 
           <StepIndicator_2 currentStep={currentStep} stepsInfo={stepsInfo} />
@@ -5579,6 +5930,12 @@ export default function InstructorRegistrationPage() {
                     />
                   )}
                   {currentStep === 4 && (
+                    <StepBank_2
+                      onNext={handleNextStep}
+                      onPrev={handlePrevStep}
+                    />
+                  )}
+                  {currentStep === 5 && (
                     <StepDocuments_2
                       photoPreview={photoPreview}
                       identityProofName={identityProofName}
@@ -5594,6 +5951,11 @@ export default function InstructorRegistrationPage() {
             </div>
           </div>
       )}
+
+      <TopInstructorsModal
+        isOpen={topInstructorsOpen}
+        onClose={() => setTopInstructorsOpen(false)}
+      />
     </div>
   );
 }

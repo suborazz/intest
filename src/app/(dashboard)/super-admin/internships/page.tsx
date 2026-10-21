@@ -1,7 +1,7 @@
 "use client";
 
 import React_5, { Suspense } from "react";
-import { Activity as Activity_2, AlertTriangle, Award, Calendar, Check as Check_2, CheckCircle2, Clock as Clock_2, CreditCard, Download, Edit, ExternalLink, Eye, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, Laptop as Laptop_2, Layers, Loader2, LucideIcon, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, School, Send, ShieldCheck, Sparkles as Sparkles_2, Trash2, Trash2Icon, User, Users as Users_2, XCircle, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
+import { RotateCcw, Activity as Activity_2, AlertTriangle, Award, Calendar, Check as Check_2, CheckCircle2, Clock as Clock_2, CreditCard, Download, Edit, ExternalLink, Eye, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, Laptop as Laptop_2, Layers, Loader2, LucideIcon, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, School, Send, ShieldCheck, Sparkles as Sparkles_2, Trash2, Trash2Icon, User, Users as Users_2, XCircle, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
 import Link from "next/link";
 import * as React_4 from "react";
 import React_3 from "react";
@@ -30,6 +30,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
 import { AuthContext } from "@/x/8789d6dc";
 import { axiosInstance } from "@/x/acfb3dca";
 import { LayoutContext } from "@/x/72be5b4f";
+import { isDateExpired } from "@/x/a85a9c0c";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -11192,6 +11193,95 @@ export default function SuperAdminInternshipsModerationPage() {
       },
     ];
 
+    function ReopenInternshipDialog({
+      isOpen,
+      onClose,
+      internship,
+    }: {
+      isOpen: boolean;
+      onClose: () => void;
+      internship: InternshipPublic;
+    }) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 7);
+      const defaultDateStr = tomorrow.toISOString().split("T")[0];
+
+      const [newDate, setNewDate] = React_3.useState(defaultDateStr);
+      const { mutate: updateInternship, isPending } =
+        SuperAdminDataHooks.useUpdateInternship();
+
+      const handleConfirm = () => {
+        if (!newDate) {
+          toast.error("Please pick a valid new closing date.");
+          return;
+        }
+        updateInternship(
+          {
+            id: internship.id,
+            payload: {
+              lastDate: newDate,
+              isActive: true,
+            },
+          },
+          {
+            onSuccess: () => {
+              toast.success("Internship reopened successfully with extended closing date!");
+              onClose();
+            },
+          },
+        );
+      };
+
+      return (
+        <Dialog_11 open={isOpen} onOpenChange={(open) => !open && onClose()}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base font-bold text-foreground">
+                <RotateCcw className="size-4 text-emerald-600" />
+                Reopen Internship & Extend Date
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Set a new closing date to reopen &ldquo;{internship.title}&rdquo;. It will immediately return to active status and applications will reopen.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">
+                  New Closing / Last Date *
+                </label>
+                <input
+                  type="date"
+                  value={newDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setNewDate(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Select a future date when applications should close.
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" size="sm" onClick={onClose} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleConfirm}
+                disabled={isPending || !newDate}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {isPending ? "Reopening..." : "Reopen & Extend Date"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog_11>
+      );
+    }
+
     function ApprovedActions({
       internship,
       onViewDetails,
@@ -11200,13 +11290,12 @@ export default function SuperAdminInternshipsModerationPage() {
       onViewDetails: (item: InternshipPublic) => void;
     }) {
       const [deleteOpen, setDeleteOpen] = React_3.useState(false);
+      const [reopenOpen, setReopenOpen] = React_3.useState(false);
 
       const isOnCampusOrVirtual =
         internship.category === "ON_CAMPUS" || internship.category === "VIRTUAL";
 
-      const editHref = isOnCampusOrVirtual
-        ? `/super-admin/internships/oncampus-virtual/edit/${internship.id}`
-        : `/super-admin/internships/running-internship/edit/${internship.id}`;
+      const editHref = `/super-admin/internships/running-internship/edit/${internship.id}`;
 
       const leadsHref = `/super-admin/internships/oncampus-virtual/${internship.id}/leads`;
       const appsHref = `/super-admin/internships/${internship.id}/applications`;
@@ -11270,6 +11359,14 @@ export default function SuperAdminInternshipsModerationPage() {
                 </Link>
               </DropdownMenuItem>
 
+              <DropdownMenuItem
+                onClick={() => setReopenOpen(true)}
+                className="cursor-pointer font-semibold text-emerald-600 focus:bg-emerald-500/10 focus:text-emerald-600 dark:text-emerald-400"
+              >
+                <RotateCcw className="mr-2 size-3.5" />
+                <span>Reopen / Extend Date</span>
+              </DropdownMenuItem>
+
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -11282,6 +11379,12 @@ export default function SuperAdminInternshipsModerationPage() {
               </>
             </DropdownMenuContent>
           </DropdownMenu_3>
+
+          <ReopenInternshipDialog
+            isOpen={reopenOpen}
+            onClose={() => setReopenOpen(false)}
+            internship={internship}
+          />
 
           <DeleteInternshipDialog_2
             isOpen={deleteOpen}
@@ -11307,9 +11410,7 @@ export default function SuperAdminInternshipsModerationPage() {
       const isOnCampusOrVirtual =
         internship.category === "ON_CAMPUS" || internship.category === "VIRTUAL";
 
-      const editHref = isOnCampusOrVirtual
-        ? `/super-admin/internships/oncampus-virtual/edit/${internship.id}`
-        : `/super-admin/internships/running-internship/edit/${internship.id}`;
+      const editHref = `/super-admin/internships/running-internship/edit/${internship.id}`;
 
       const leadsHref = `/super-admin/internships/oncampus-virtual/${internship.id}/leads`;
       const appsHref = `/super-admin/internships/${internship.id}/applications`;
@@ -11780,8 +11881,13 @@ export default function SuperAdminInternshipsModerationPage() {
 
               const isInstructorCreated = createdBy === "INSTRUCTOR";
 
+              const rawLastDate = (item as any).lastDate;
+              const isExpired = isDateExpired(rawLastDate) || (item as any).isActive === false;
+
               let overallStatus = "PENDING";
-              if (item.isApproved || !isInstructorCreated) {
+              if (isExpired) {
+                overallStatus = "ARCHIVED (EXPIRED)";
+              } else if (item.isApproved || !isInstructorCreated) {
                 overallStatus = "APPROVED";
               } else if (item.isApproved === false && (item as unknown as { rejectedAt?: string }).rejectedAt) {
                 overallStatus = "REJECTED";
@@ -11793,11 +11899,13 @@ export default function SuperAdminInternshipsModerationPage() {
                 <div className="flex items-center">
                   <Badge
                     className={
-                      overallStatus === "APPROVED"
-                        ? "border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-600"
-                        : overallStatus === "REJECTED"
-                          ? "border-rose-500/20 bg-rose-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-rose-600"
-                          : "border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-600"
+                      overallStatus === "ARCHIVED (EXPIRED)"
+                        ? "border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-700 dark:text-amber-400"
+                        : overallStatus === "APPROVED"
+                          ? "border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-600"
+                          : overallStatus === "REJECTED"
+                            ? "border-rose-500/20 bg-rose-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-rose-600"
+                            : "border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-600"
                     }
                   >
                     {overallStatus}
@@ -11859,9 +11967,10 @@ export default function SuperAdminInternshipsModerationPage() {
                   />
                   <Link
                     href={
-                      activeType === "on-campus" ||
-                      activeType === "virtual-internship"
-                        ? `/super-admin/internships/oncampus-virtual/new?type=${activeType}`
+                      activeType === "on-campus"
+                        ? "/super-admin/internships/running-internship/new?category=ON_CAMPUS"
+                        : activeType === "virtual-internship"
+                        ? "/super-admin/internships/running-internship/new?category=VIRTUAL"
                         : "/super-admin/internships/running-internship/new"
                     }
                   >

@@ -169,7 +169,7 @@ export async function POST(
 
     const { id: enrollmentId } = await params;
 
-    const enrollment = await prisma.enrollment.findFirst({
+    let enrollment = await prisma.enrollment.findFirst({
       where: { id: enrollmentId },
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -187,12 +187,47 @@ export async function POST(
     });
 
     if (!enrollment) {
+      // Check if enrollmentId is an internshipInterest ID
+      const interest = await prisma.internshipInterest.findUnique({
+        where: { id: enrollmentId },
+      });
+      if (interest) {
+        const user = await prisma.user.findFirst({
+          where: { email: { equals: interest.email, mode: "insensitive" } },
+        });
+        if (user) {
+          enrollment = await prisma.enrollment.findUnique({
+            where: {
+              userId_internshipId: {
+                userId: user.id,
+                internshipId: interest.internshipId,
+              },
+            },
+            include: {
+              user: { select: { id: true, name: true, email: true } },
+              internship: {
+                select: {
+                  id: true,
+                  title: true,
+                  companyName: true,
+                  instructorId: true,
+                  credits: true,
+                },
+              },
+              certificate: true,
+            },
+          });
+        }
+      }
+    }
+
+    if (!enrollment) {
       return errorResponse("ENROLLMENT_NOT_FOUND", "Enrollment not found.", {
         status: HTTP_2.NOT_FOUND,
       });
     }
 
-        if (
+    if (
       requesterRole === "INSTRUCTOR" &&
       enrollment.internship.instructorId !== requesterId
     ) {
@@ -205,13 +240,6 @@ export async function POST(
       );
     }
 
-    if (!enrollment.completedAt) {
-      await prisma.enrollment.update({
-        where: { id: enrollment.id },
-        data: { completedAt: new Date() },
-      });
-    }
-
     if (enrollment.certificate) {
       return errorResponse(
         "CERTIFICATE_ALREADY_ISSUED",
@@ -222,14 +250,58 @@ export async function POST(
       );
     }
 
+    // Enforce that student has submitted project work and has received an evaluated grade
+    const submissions = await prisma.projectSubmission.findMany({
+      where: { enrollmentId: enrollment.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (submissions.length === 0) {
+      return errorResponse(
+        "SUBMISSION_REQUIRED",
+        "Cannot issue certificate: The student has not submitted any project work yet. Project submission and evaluation are required before issuing a certificate.",
+        {
+          status: HTTP_2.BAD_REQUEST,
+        },
+      );
+    }
+
+    const gradedSubmission = submissions.find(
+      (s) =>
+        s.status === "GRADED" &&
+        typeof s.grade === "string" &&
+        s.grade.trim() !== "",
+    );
+
+    if (!gradedSubmission) {
+      return errorResponse(
+        "GRADE_REQUIRED",
+        "Cannot issue certificate: The student's project submission must be evaluated and graded first.",
+        {
+          status: HTTP_2.BAD_REQUEST,
+        },
+      );
+    }
+
+    if (!enrollment.completedAt) {
+      await prisma.enrollment.update({
+        where: { id: enrollment.id },
+        data: { completedAt: new Date() },
+      });
+    }
+
     const body = await request.json().catch(() => ({}));
     const signatureUrl =
       typeof body?.signatureUrl === "string" ? body.signatureUrl : null;
-    const grade =
+    const bodyGrade =
       typeof body?.grade === "string" && body.grade.trim()
         ? body.grade.trim()
         : null;
-        const credits =
+
+    // Use student's evaluated submission grade or explicitly validated grade
+    const finalGrade = bodyGrade || gradedSubmission.grade;
+
+    const credits =
       typeof body?.credits === "string" && body.credits.trim()
         ? body.credits.trim()
         : enrollment.internship.credits || null;
@@ -244,7 +316,7 @@ export async function POST(
         enrollmentId: enrollment.id,
         issuedById: requesterId,
         signatureUrl: signatureUrl || undefined,
-        grade: grade || undefined,
+        grade: finalGrade || undefined,
         credits: credits || undefined,
       },
       include: {

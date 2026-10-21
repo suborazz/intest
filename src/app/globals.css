@@ -280,3 +280,16 @@
     margin: 8mm 12mm;
   }
 }
+
+/* Global Mobile Input & Keyboard Clearance */
+@media (max-width: 768px) {
+  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select,
+  [data-slot="input"],
+  [role="combobox"] {
+    scroll-margin-top: 90px;
+    scroll-margin-bottom: 140px;
+  }
+}
+

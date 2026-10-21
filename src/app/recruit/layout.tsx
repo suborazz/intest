@@ -15,8 +15,8 @@ export default async function RecruitLayout({
   return (
     <AuthProvider initialRole={userRole}>
       <div className="bg-background text-foreground flex min-h-screen w-full flex-col font-sans md:flex-row print:block print:min-h-0 print:bg-white print:p-0">
-        {}
-        <div className="relative flex h-[280px] w-full shrink-0 flex-col justify-between overflow-hidden bg-zinc-950 p-6 md:h-auto md:w-1/2 md:p-12 print:hidden">
+        {/* Left Side: Modern Visual Banner */}
+        <div className="relative flex h-[130px] sm:h-[200px] w-full shrink-0 flex-col justify-between overflow-hidden bg-zinc-950 p-4 sm:p-6 md:h-auto md:w-1/2 md:p-12 print:hidden">
           <div className="absolute inset-0 z-0">
             <Image
               src="/images/auth-banner.webp"
@@ -29,21 +29,21 @@ export default async function RecruitLayout({
             <div className="absolute inset-0 bg-black/15" />
           </div>
 
-          {}
+          {/* Top Logo */}
           <div className="relative z-10 flex items-center gap-2">
-            <div className="flex items-center justify-center rounded-lg bg-white px-4 py-3 shadow-md">
+            <div className="flex items-center justify-center rounded-lg bg-white px-3 py-2 sm:px-4 sm:py-3 shadow-md">
               <Image
                 src="/logo.png"
                 alt="iiInternship Logo"
                 width={180}
                 height={48}
-                className="h-12 w-auto object-contain"
+                className="h-8 sm:h-12 w-auto object-contain"
                 priority
               />
             </div>
           </div>
 
-          {}
+          {/* Informational Glass Card (Desktop only) */}
           <div className="relative z-10 hidden rounded-2xl border border-white/15 bg-white/10 p-6 text-white shadow-2xl backdrop-blur-xl transition-all hover:border-white/25 md:block">
             <p className="text-sm font-medium leading-relaxed text-white/90">
               Complete your Recruiter registration details to setup your company
@@ -58,12 +58,12 @@ export default async function RecruitLayout({
           </div>
         </div>
 
-        {}
+        {/* Right Side: Form Container */}
         <div className="relative z-10 -mt-6 flex w-full min-w-0 flex-col overflow-y-auto overflow-x-hidden rounded-t-[30px] bg-zinc-50 shadow-2xl transition-colors duration-500 md:mt-0 md:max-h-screen md:w-1/2 md:rounded-none dark:bg-zinc-950 print:-mt-0 print:max-h-none print:w-full print:bg-white print:shadow-none print:dark:bg-white">
-          {}
+          {/* Subtle Ambient Glow */}
           <div className="bg-primary/5 dark:bg-primary/10 pointer-events-none absolute right-[-10%] top-[-20%] h-[50%] w-[50%] rounded-full blur-[130px]" />
 
-          <div className="z-10 flex w-full flex-1 flex-col justify-center px-4 pb-6 pt-12 sm:p-6 md:p-10 print:p-0">
+          <div className="z-10 flex w-full flex-1 flex-col justify-center px-4 pb-64 sm:pb-24 pt-6 sm:pt-10 md:p-10 print:p-0">
             {children}
           </div>
         </div>

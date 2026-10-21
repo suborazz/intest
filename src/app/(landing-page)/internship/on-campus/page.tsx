@@ -1,7 +1,7 @@
 "use client";
 
 import React_3 from "react";
-import { Briefcase as Briefcase_2, CheckCircle2, Clock as Clock_2, Key, Layers, LayoutGrid, List, Send, Share2, Terminal, Briefcase, Check, Clock, Filter, GraduationCap, IndianRupee, Search } from "lucide-react";
+import { Archive, Briefcase as Briefcase_2, CheckCircle2, Clock as Clock_2, Key, Layers, LayoutGrid, List, Send, Share2, Terminal, Briefcase, Check, Clock, Filter, GraduationCap, IndianRupee, Search } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import React_2 from "react";
@@ -29,6 +29,7 @@ import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useF
 import { Drawer as DrawerPrimitive } from "vaul";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
+import { isDateExpired } from "@/x/a85a9c0c";
 type InternshipType = "PAID" | "STIPEND" | "FREE";
 const Form = FormProvider;
 
@@ -2990,6 +2991,8 @@ export default function OnCampusInternshipPage() {
       modules?: string[];
       project?: string;
       tools?: string[];
+      lastDate?: string | null;
+      isExpired?: boolean;
     }
 
     interface InternshipListProps {
@@ -3205,6 +3208,11 @@ export default function OnCampusInternshipPage() {
                       {internship.department}
                     </span>
                   )}
+                  {internship.isExpired && (
+                    <span className="border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-400 inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                      Archived (Closed)
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -3302,15 +3310,21 @@ export default function OnCampusInternshipPage() {
             >
               View Detail
             </Link>
-            <button
-              onClick={() => setIsOpen(true)}
-              className="bg-linear-to-r from-primary hover:from-primary/90 text-primary-foreground group/btn flex-2 flex cursor-pointer items-center justify-between whitespace-nowrap rounded-lg border-0 to-emerald-500 py-1.5 pl-4 pr-1.5 text-xs font-semibold transition-all duration-300 hover:to-emerald-500/90 sm:text-sm"
-            >
-              <span className="flex-1 pr-2 text-center">Interest Send</span>
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20 transition-colors group-hover/btn:bg-white/30">
-                <Send className="h-3 w-3 text-white" />
+            {internship.isExpired ? (
+              <div className="flex-2 flex items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 py-1.5 px-3 text-center text-xs font-semibold text-amber-700 dark:text-amber-400">
+                <span>Applications Closed (Archived)</span>
               </div>
-            </button>
+            ) : (
+              <button
+                onClick={() => setIsOpen(true)}
+                className="bg-linear-to-r from-primary hover:from-primary/90 text-primary-foreground group/btn flex-2 flex cursor-pointer items-center justify-between whitespace-nowrap rounded-lg border-0 to-emerald-500 py-1.5 pl-4 pr-1.5 text-xs font-semibold transition-all duration-300 hover:to-emerald-500/90 sm:text-sm"
+              >
+                <span className="flex-1 pr-2 text-center">Interest Send</span>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20 transition-colors group-hover/btn:bg-white/30">
+                  <Send className="h-3 w-3 text-white" />
+                </div>
+              </button>
+            )}
             <button
               onClick={() => {
                 const url = `${window.location.origin}/internship/${internship.id}`;
@@ -3346,6 +3360,8 @@ export default function OnCampusInternshipPage() {
     };
     const InternshipList_2 = ({ internships }: InternshipListProps) => {
       const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+      const activeInternships = internships.filter((item) => !item.isExpired);
+      const archivedInternships = internships.filter((item) => item.isExpired);
 
       return (
         <section className="relative z-10 mx-auto w-full max-w-[1300px] px-4 py-12 sm:px-6 md:py-20 lg:px-8">
@@ -3363,7 +3379,7 @@ export default function OnCampusInternshipPage() {
               <div className="border-border/40 mb-6 flex flex-col justify-between gap-4 border-b pb-4 sm:flex-row sm:items-center">
                 <div>
                   <h2 className="text-foreground text-2xl font-bold">
-                    Showing {internships.length} Internships
+                    Showing {activeInternships.length} Internships
                   </h2>
                   <p className="text-muted-foreground mt-1 text-sm font-medium">
                     Explore the latest opportunities that match your profile.
@@ -3403,7 +3419,7 @@ export default function OnCampusInternshipPage() {
               </div>
 
               {}
-              {internships.length > 0 ? (
+              {activeInternships.length > 0 ? (
                 <div
                   className={`grid gap-5 ${
                     viewMode === "grid"
@@ -3411,7 +3427,7 @@ export default function OnCampusInternshipPage() {
                       : "grid-cols-1"
                   }`}
                 >
-                  {internships.map((internship) => (
+                  {activeInternships.map((internship) => (
                     <InternshipCard
                       key={internship.id}
                       internship={internship}
@@ -3422,8 +3438,48 @@ export default function OnCampusInternshipPage() {
               ) : (
                 <NoDataFound_2
                   title="No Internships Found"
-                  description="No internships match your selected criteria. Try adjusting your filters to find suitable opportunities."
+                  description="No active internships match your selected criteria. Try adjusting your filters to find suitable opportunities."
                 />
+              )}
+
+              {/* Archived Internships Section */}
+              {archivedInternships.length > 0 && (
+                <div className="mt-14 space-y-5 rounded-3xl border border-amber-500/20 bg-linear-to-b from-amber-500/5 to-transparent p-6 sm:p-8 backdrop-blur-xl">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-amber-500/15 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <Archive className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-foreground text-xl font-bold">
+                          Archived Internships ({archivedInternships.length})
+                        </h3>
+                        <p className="text-muted-foreground text-xs font-medium">
+                          These on-campus internship application deadlines have closed. Information is displayed for reference only.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="self-start rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+                      Closed & Archived
+                    </span>
+                  </div>
+
+                  <div
+                    className={`grid gap-5 opacity-90 ${
+                      viewMode === "grid"
+                        ? "grid-cols-1 md:grid-cols-2"
+                        : "grid-cols-1"
+                    }`}
+                  >
+                    {archivedInternships.map((internship) => (
+                      <InternshipCard
+                        key={internship.id}
+                        internship={internship}
+                        viewMode={viewMode}
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -3449,6 +3505,8 @@ export default function OnCampusInternshipPage() {
           : [],
       tools: Array.isArray(i.tools) ? i.tools : i.tools ? [i.tools] : [],
       project: i.projectFocus || "",
+      lastDate: i.lastDate ? String(i.lastDate) : null,
+      isExpired: isDateExpired(i.lastDate) || (i as any).isActive === false,
     }));
 
   return (

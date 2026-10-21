@@ -1,9 +1,37 @@
 "use client";
 
 import React_2, { use } from "react";
-import { Bold, Code, Edit, Italic, Link as LinkIcon, List, ListOrdered, Minus, Quote, Redo2, RemoveFormatting, Undo2 } from "lucide-react";
+import {
+  Bold,
+  Code,
+  Edit,
+  Italic,
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  Minus,
+  Quote,
+  Redo2,
+  RemoveFormatting,
+  Undo2,
+  Underline as UnderlineIcon,
+  Strikethrough as StrikethroughIcon,
+  Baseline,
+  Highlighter,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Outdent,
+  Indent,
+  Unlink,
+  Table as TableIcon,
+  Sparkles as Sparkles_2,
+  Subscript as SubscriptIcon,
+  Superscript as SuperscriptIcon,
+} from "lucide-react";
 import React_3 from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clsx, ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
@@ -3969,10 +3997,16 @@ function RichTextEditor_2({
   const editorRef = useRef<HTMLDivElement>(null);
   const [showHtml, setShowHtml] = useState(false);
   const [html, setHtml] = useState(value);
-  const didInit = useRef(false);
+  const [currentColor, setCurrentColor] = useState("#09090b");
+  const [showTextColorPicker, setShowTextColorPicker] = useState(false);
+  const [currentBgColor, setCurrentBgColor] = useState("transparent");
+  const [showBgColorPicker, setShowBgColorPicker] = useState(false);
 
-    useEffect(() => {
-    if (editorRef.current && value !== editorRef.current.innerHTML) {
+  useEffect(() => {
+    if (
+      editorRef.current &&
+      value !== editorRef.current.innerHTML
+    ) {
       editorRef.current.innerHTML = value || "";
       setHtml(value || "");
     }
@@ -3989,186 +4023,656 @@ function RichTextEditor_2({
 
   const exec = (command: string, arg?: string) => {
     editorRef.current?.focus();
-            document.execCommand(command, false, arg);
+    document.execCommand(command, false, arg);
     syncFromEditor();
   };
 
-  const formatBlock = (tag: string) => exec("formatBlock", tag);
+  const formatBlock = (tag: string) => {
+    const formattedTag = tag.startsWith("<") ? tag : `<${tag}>`;
+    exec("formatBlock", formattedTag);
+  };
 
   const addLink = () => {
-    const url = window.prompt("Enter URL");
+    const url = window.prompt("Enter URL (e.g. https://example.com)");
     if (url) exec("createLink", url);
   };
 
-  const tools: ToolButton[] = [
-    {
-      type: "btn",
-      label: "Bold (Ctrl+B)",
-      icon: <Bold className="size-4" />,
-      run: () => exec("bold"),
-    },
-    {
-      type: "btn",
-      label: "Italic (Ctrl+I)",
-      icon: <Italic className="size-4" />,
-      run: () => exec("italic"),
-    },
-    { type: "sep" },
-    {
-      type: "btn",
-      label: "Heading 2",
-      text: "H₂",
-      run: () => formatBlock("h2"),
-    },
-    {
-      type: "btn",
-      label: "Heading 3",
-      text: "H₃",
-      run: () => formatBlock("h3"),
-    },
-    {
-      type: "btn",
-      label: "Paragraph",
-      text: "P",
-      run: () => formatBlock("p"),
-    },
-    { type: "sep" },
-    {
-      type: "btn",
-      label: "Bullet list",
-      icon: <List className="size-4" />,
-      run: () => exec("insertUnorderedList"),
-    },
-    {
-      type: "btn",
-      label: "Numbered list",
-      icon: <ListOrdered className="size-4" />,
-      run: () => exec("insertOrderedList"),
-    },
-    {
-      type: "btn",
-      label: "Quote",
-      icon: <Quote className="size-4" />,
-      run: () => formatBlock("blockquote"),
-    },
-    {
-      type: "btn",
-      label: "Code block",
-      icon: <Code className="size-4" />,
-      run: () => formatBlock("pre"),
-    },
-    {
-      type: "btn",
-      label: "Divider",
-      icon: <Minus className="size-4" />,
-      run: () => exec("insertHorizontalRule"),
-    },
-    { type: "sep" },
-    {
-      type: "btn",
-      label: "Insert link",
-      icon: <LinkIcon className="size-4" />,
-      run: addLink,
-    },
-    {
-      type: "btn",
-      label: "Clear formatting",
-      icon: <RemoveFormatting className="size-4" />,
-      run: () => exec("removeFormat"),
-    },
-    { type: "sep" },
-    {
-      type: "btn",
-      label: "Undo",
-      icon: <Undo2 className="size-4" />,
-      run: () => exec("undo"),
-    },
-    {
-      type: "btn",
-      label: "Redo",
-      icon: <Redo2 className="size-4" />,
-      run: () => exec("redo"),
-    },
-  ];
+  const removeLink = () => exec("unlink");
+
+  const applyTextColor = (color: string) => {
+    editorRef.current?.focus();
+    if (color === "inherit") {
+      document.execCommand("removeFormat", false);
+    } else {
+      document.execCommand("foreColor", false, color);
+    }
+    syncFromEditor();
+    setShowTextColorPicker(false);
+  };
+
+  const applyHighlightColor = (color: string) => {
+    editorRef.current?.focus();
+    if (color === "transparent") {
+      document.execCommand("removeFormat", false);
+    } else {
+      if (!document.execCommand("hiliteColor", false, color)) {
+        document.execCommand("backColor", false, color);
+      }
+    }
+    syncFromEditor();
+    setShowBgColorPicker(false);
+  };
+
+  const insertTable = () => {
+    editorRef.current?.focus();
+    const tableHtml = `
+      <table style="width: 100%; border-collapse: collapse; margin: 12px 0; border: 1px solid rgba(150,150,150,0.3); font-size: 13px;">
+        <thead>
+          <tr style="background-color: rgba(150,150,150,0.1);">
+            <th style="border: 1px solid rgba(150,150,150,0.3); padding: 8px 12px; text-align: left; font-weight: bold;">Section / Key Point</th>
+            <th style="border: 1px solid rgba(150,150,150,0.3); padding: 8px 12px; text-align: left; font-weight: bold;">Description / Details</th>
+            <th style="border: 1px solid rgba(150,150,150,0.3); padding: 8px 12px; text-align: left; font-weight: bold;">Key Takeaway</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border: 1px solid rgba(150,150,150,0.3); padding: 8px 12px;">Overview</td>
+            <td style="border: 1px solid rgba(150,150,150,0.3); padding: 8px 12px;">Detailed explanation or insights...</td>
+            <td style="border: 1px solid rgba(150,150,150,0.3); padding: 8px 12px;">Core summary</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><br></p>
+    `;
+    document.execCommand("insertHTML", false, tableHtml);
+    syncFromEditor();
+  };
+
+  const insertCallout = () => {
+    editorRef.current?.focus();
+    const calloutHtml = `
+      <div style="border-left: 4px solid #0d9488; background-color: rgba(13, 148, 136, 0.08); padding: 12px 16px; border-radius: 8px; margin: 12px 0;">
+        <strong style="color: #0d9488;">📌 Key Takeaway:</strong> Write your highlight or important note here...
+      </div>
+      <p><br></p>
+    `;
+    document.execCommand("insertHTML", false, calloutHtml);
+    syncFromEditor();
+  };
 
   const toggleHtml = () => {
     if (showHtml) {
-            if (editorRef.current) editorRef.current.innerHTML = html;
+      if (editorRef.current) {
+        editorRef.current.innerHTML = html;
+      }
+      emit(html);
     } else {
-            if (editorRef.current) setHtml(editorRef.current.innerHTML);
+      const currentContent = editorRef.current?.innerHTML || "";
+      setHtml(currentContent);
     }
     setShowHtml((s) => !s);
   };
 
+  const textColors = [
+    { name: "Default", color: "inherit", bg: "#71717a" },
+    { name: "Black", color: "#09090b", bg: "#09090b" },
+    { name: "Teal (Brand)", color: "#0d9488", bg: "#0d9488" },
+    { name: "Emerald", color: "#059669", bg: "#059669" },
+    { name: "Blue", color: "#2563eb", bg: "#2563eb" },
+    { name: "Indigo", color: "#4f46e5", bg: "#4f46e5" },
+    { name: "Purple", color: "#7c3aed", bg: "#7c3aed" },
+    { name: "Rose", color: "#e11d48", bg: "#e11d48" },
+    { name: "Red", color: "#dc2626", bg: "#dc2626" },
+    { name: "Amber", color: "#d97706", bg: "#d97706" },
+    { name: "Slate Gray", color: "#475569", bg: "#475569" },
+  ];
+
+  const highlightColors = [
+    { name: "None", color: "transparent", bg: "transparent" },
+    { name: "Yellow", color: "#fef08a", bg: "#fef08a" },
+    { name: "Emerald", color: "#a7f3d0", bg: "#a7f3d0" },
+    { name: "Cyan", color: "#bae6fd", bg: "#bae6fd" },
+    { name: "Pink", color: "#fbcfe8", bg: "#fbcfe8" },
+    { name: "Purple", color: "#e9d5ff", bg: "#e9d5ff" },
+    { name: "Amber", color: "#fed7aa", bg: "#fed7aa" },
+  ];
+
+  const stats = useMemo(() => {
+    if (!html) return { words: 0, chars: 0 };
+    const cleanText = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    const chars = cleanText.length;
+    const words = cleanText ? cleanText.split(/\s+/).length : 0;
+    return { words, chars };
+  }, [html]);
+
   return (
-    <div className="bg-background overflow-hidden rounded-xl border">
-      {}
-      <div className="border-border/60 flex flex-wrap items-center gap-0.5 border-b px-2 py-1.5">
-        {tools.map((tool, i) =>
-          tool.type === "sep" ? (
-            <span
-              key={`sep-${i}`}
-              className="bg-border/70 mx-1 h-5 w-px"
-              aria-hidden
-            />
-          ) : (
+    <div className="bg-background relative overflow-hidden rounded-xl border border-zinc-200/80 shadow-xs dark:border-zinc-800/80">
+      {/* Main Toolbar */}
+      <div className="border-border/60 bg-muted/20 flex flex-wrap items-center gap-1 border-b p-1.5">
+        {/* Block / Headings */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Normal Paragraph"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => formatBlock("p")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center justify-center rounded px-2 text-xs font-bold transition-colors disabled:opacity-40"
+          >
+            P
+          </button>
+          <button
+            type="button"
+            title="Heading 1"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => formatBlock("h1")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center justify-center rounded px-1.5 text-xs font-bold transition-colors disabled:opacity-40"
+          >
+            H₁
+          </button>
+          <button
+            type="button"
+            title="Heading 2"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => formatBlock("h2")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center justify-center rounded px-1.5 text-xs font-bold transition-colors disabled:opacity-40"
+          >
+            H₂
+          </button>
+          <button
+            type="button"
+            title="Heading 3"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => formatBlock("h3")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center justify-center rounded px-1.5 text-xs font-bold transition-colors disabled:opacity-40"
+          >
+            H₃
+          </button>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Typography Styles */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Bold (Ctrl+B)"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("bold")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Bold className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Italic (Ctrl+I)"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("italic")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Italic className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Underline (Ctrl+U)"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("underline")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <UnderlineIcon className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Strikethrough"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("strikeThrough")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <StrikethroughIcon className="size-3.5" />
+          </button>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Colors Section (Text Color & Background Highlight) */}
+        <div className="relative flex items-center gap-1">
+          {/* Text Color Picker */}
+          <div className="relative">
             <button
-              key={tool.label}
               type="button"
-              title={tool.label}
-              aria-label={tool.label}
+              title="Text Color"
               disabled={showHtml}
               onMouseDown={(e) => e.preventDefault()}
-              onClick={tool.run}
-              className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-8 min-w-8 items-center justify-center rounded-md px-1.5 text-xs font-semibold transition-colors disabled:opacity-40"
+              onClick={() => {
+                setShowTextColorPicker((s) => !s);
+                setShowBgColorPicker(false);
+              }}
+              className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center gap-1 rounded px-1.5 transition-colors disabled:opacity-40"
             >
-              {tool.icon ?? tool.text}
+              <Baseline className="size-3.5 text-primary" />
+              <span
+                className="h-2 w-2 rounded-full border border-black/20"
+                style={{ backgroundColor: currentColor }}
+              />
             </button>
-          ),
-        )}
 
-        <button
-          type="button"
-          onClick={toggleHtml}
-          className={cn_14(
-            "ml-auto flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-semibold transition-colors",
-            showHtml
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-          )}
-        >
-          <Code className="size-3.5" /> HTML
-        </button>
+            {showTextColorPicker && (
+              <div
+                className="bg-popover text-popover-foreground border-border/80 absolute left-0 top-9 z-50 w-56 rounded-xl border p-2.5 shadow-xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                <div className="text-muted-foreground mb-1.5 flex items-center justify-between text-[11px] font-semibold">
+                  <span>Text Color</span>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyTextColor("inherit")}
+                    className="hover:text-foreground text-[10px] text-zinc-500 underline"
+                  >
+                    Reset
+                  </button>
+                </div>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {textColors.map((c) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      title={c.name}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setCurrentColor(c.color);
+                        applyTextColor(c.color);
+                      }}
+                      className="flex h-6 w-6 items-center justify-center rounded-md border border-zinc-300 transition-transform hover:scale-110 dark:border-zinc-700"
+                      style={{ backgroundColor: c.bg }}
+                    />
+                  ))}
+                </div>
+                <div className="border-border/60 mt-2 flex items-center gap-2 border-t pt-2 text-xs">
+                  <span className="text-muted-foreground text-[10px]">Custom:</span>
+                  <input
+                    type="color"
+                    value={currentColor.startsWith("#") ? currentColor : "#000000"}
+                    onChange={(e) => {
+                      setCurrentColor(e.target.value);
+                      applyTextColor(e.target.value);
+                    }}
+                    className="h-6 w-8 cursor-pointer rounded border border-transparent bg-transparent"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Background Highlight Color Picker */}
+          <div className="relative">
+            <button
+              type="button"
+              title="Highlight Color"
+              disabled={showHtml}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setShowBgColorPicker((s) => !s);
+                setShowTextColorPicker(false);
+              }}
+              className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center gap-1 rounded px-1.5 transition-colors disabled:opacity-40"
+            >
+              <Highlighter className="size-3.5 text-amber-500" />
+              <span
+                className="h-2 w-2 rounded-full border border-black/20"
+                style={{ backgroundColor: currentBgColor }}
+              />
+            </button>
+
+            {showBgColorPicker && (
+              <div
+                className="bg-popover text-popover-foreground border-border/80 absolute left-0 top-9 z-50 w-52 rounded-xl border p-2.5 shadow-xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                <div className="text-muted-foreground mb-1.5 flex items-center justify-between text-[11px] font-semibold">
+                  <span>Highlight Color</span>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyHighlightColor("transparent")}
+                    className="hover:text-foreground text-[10px] text-zinc-500 underline"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {highlightColors.map((c) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      title={c.name}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setCurrentBgColor(c.color);
+                        applyHighlightColor(c.color);
+                      }}
+                      className="flex h-6 w-full items-center justify-center rounded-md border border-zinc-300 transition-transform hover:scale-105 dark:border-zinc-700"
+                      style={{
+                        backgroundColor: c.bg === "transparent" ? "#ffffff" : c.bg,
+                      }}
+                    >
+                      {c.color === "transparent" && (
+                        <span className="text-[10px] text-red-500 font-bold">✕</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Alignment Section */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Align Left"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("justifyLeft")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <AlignLeft className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Align Center"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("justifyCenter")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <AlignCenter className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Align Right"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("justifyRight")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <AlignRight className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Justify"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("justifyFull")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <AlignJustify className="size-3.5" />
+          </button>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Lists & Indents */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Bullet List"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("insertUnorderedList")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <List className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Numbered List"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("insertOrderedList")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <ListOrdered className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Decrease Indent"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("outdent")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Outdent className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Increase Indent"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("indent")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Indent className="size-3.5" />
+          </button>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Insert Elements (Link, Table, Callout, Divider, Quote) */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Insert Link"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={addLink}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <LinkIcon className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Remove Link"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={removeLink}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Unlink className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Insert Data Table"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={insertTable}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center gap-1 rounded px-1.5 text-xs font-semibold transition-colors disabled:opacity-40"
+          >
+            <TableIcon className="size-3.5 text-blue-500" />
+            <span className="text-[10px]">Table</span>
+          </button>
+          <button
+            type="button"
+            title="Insert Callout Note Box"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={insertCallout}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 items-center gap-1 rounded px-1.5 text-xs font-semibold transition-colors disabled:opacity-40"
+          >
+            <Sparkles_2 className="size-3.5 text-amber-500" />
+            <span className="text-[10px]">Note</span>
+          </button>
+          <button
+            type="button"
+            title="Quote"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => formatBlock("blockquote")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Quote className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Code Block"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => formatBlock("pre")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Code className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Horizontal Divider"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("insertHorizontalRule")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Minus className="size-3.5" />
+          </button>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Subscript, Superscript & Clear Format */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Subscript"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("subscript")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <SubscriptIcon className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Superscript"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("superscript")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <SuperscriptIcon className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Clear Formatting"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("removeFormat")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <RemoveFormatting className="size-3.5" />
+          </button>
+        </div>
+
+        <span className="bg-border/70 mx-0.5 h-4 w-px" aria-hidden />
+
+        {/* Undo / Redo & HTML view */}
+        <div className="ml-auto flex items-center gap-0.5">
+          <button
+            type="button"
+            title="Undo (Ctrl+Z)"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("undo")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Undo2 className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            title="Redo (Ctrl+Y)"
+            disabled={showHtml}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => exec("redo")}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-7.5 w-7.5 items-center justify-center rounded transition-colors disabled:opacity-40"
+          >
+            <Redo2 className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={toggleHtml}
+            className={cn_14(
+              "flex h-7.5 items-center gap-1.5 rounded-md px-2 text-xs font-semibold transition-colors",
+              showHtml
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
+            <Code className="size-3.5" /> HTML
+          </button>
+        </div>
       </div>
 
-      {}
-      {showHtml ? (
-        <textarea
-          value={html}
-          onChange={(e) => emit(e.target.value)}
-          spellCheck={false}
-          className="min-h-80 w-full resize-y bg-transparent p-4 font-mono text-xs leading-relaxed outline-none"
-          placeholder="<p>Write raw HTML here…</p>"
-        />
-      ) : (
-        <div
-          ref={editorRef}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={syncFromEditor}
-          data-placeholder="Write your article…"
-          className={cn_14(
-            "prose prose-sm dark:prose-invert text-foreground dark:text-foreground [&_*]:text-foreground max-w-none",
-            "min-h-80 w-full p-4 text-sm leading-relaxed outline-none",
-            "empty:before:text-muted-foreground/70 empty:before:content-[attr(data-placeholder)]",
-          )}
-        />
-      )}
+      {/* Editor Body */}
+      <textarea
+        value={html}
+        onChange={(e) => {
+          const next = e.target.value;
+          setHtml(next);
+          if (editorRef.current) {
+            editorRef.current.innerHTML = next;
+          }
+          onChange?.(next);
+        }}
+        spellCheck={false}
+        className={cn_14(
+          "min-h-[300px] w-full resize-y bg-transparent p-4 font-mono text-xs leading-relaxed outline-none",
+          !showHtml && "hidden",
+        )}
+        placeholder="<p>Write raw HTML here…</p>"
+      />
+      <div
+        ref={editorRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={syncFromEditor}
+        data-placeholder="Write program details, objectives, schedule, takeaways..."
+        className={cn_14(
+          "prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground",
+          "min-h-[300px] w-full p-4 text-sm leading-relaxed outline-none focus:ring-0",
+          "empty:before:text-muted-foreground/70 empty:before:content-[attr(data-placeholder)]",
+          "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:my-3",
+          "[&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2",
+          "[&_h3]:text-lg [&_h3]:font-semibold [&_h3]:my-2",
+          "[&_p]:my-1.5 [&_p]:leading-relaxed",
+          "[&_table]:w-full [&_table]:border-collapse [&_table]:my-3",
+          "[&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted/40 [&_th]:font-semibold",
+          "[&_td]:border [&_td]:border-border [&_td]:p-2",
+          "[&_blockquote]:border-l-4 [&_blockquote]:border-primary/50 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-2",
+          showHtml && "hidden",
+        )}
+      />
 
-      {}
-      <div className="border-border/60 text-muted-foreground border-t px-4 py-2 text-[11px]">
-        Tip: Use toolbar or keyboard shortcuts — Ctrl+B Bold, Ctrl+I Italic.
-        Switch to HTML view for raw editing.
+      {/* Live Stats & Shortcuts Footer */}
+      <div className="border-border/60 bg-muted/10 text-muted-foreground flex flex-wrap items-center justify-between border-t px-3 py-1.5 text-[11px]">
+        <div className="flex items-center gap-3">
+          <span>
+            <strong>{stats.words}</strong> words
+          </span>
+          <span>•</span>
+          <span>
+            <strong>{stats.chars}</strong> characters
+          </span>
+        </div>
+        <div className="text-[10px] opacity-75">
+          Tip: Select text to apply colors, bold, alignment, or insert callouts and tables.
+        </div>
       </div>
     </div>
   );

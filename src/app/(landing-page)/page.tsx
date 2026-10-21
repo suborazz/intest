@@ -1156,7 +1156,7 @@ export default function HomePage() {
 
                     {/* 3. Clipped Photo Element embedded seamlessly inside the curve */}
                     <image
-                      href="/images/Main-image.webp"
+                      href="/images/interns-celebrating.jpg"
                       x="0"
                       y="0"
                       width="760"

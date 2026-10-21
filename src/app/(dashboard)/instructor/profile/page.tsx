@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Award, ShieldAlert } from "lucide-react";
+import { ArrowRight, Award, ShieldAlert, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React_4 from "react";
 import { Check as Check_2, Copy, Download, Edit, Edit2, Printer, ShieldCheck, BookOpen as BookOpen_2, Briefcase, Building, Calendar as Calendar_3, Clock, Compass as Compass_2, GraduationCap, HeartHandshake as HeartHandshake_2, Mail, MapPin, Milestone, Phone, ShieldCheck as ShieldCheck_2, User as User_2, Users } from "lucide-react";
@@ -812,6 +812,7 @@ function Badge({
     }
 
 interface ProfileHeaderProps {
+      id?: string;
       fullName: string;
       instructorId: string;
       photoUrl: string | null;
@@ -2680,6 +2681,7 @@ export default function InstructorProfileDashboardPage() {
       );
     };
     const ProfileHeader: React_3.FC<ProfileHeaderProps> = ({
+      id,
       fullName,
       instructorId,
       photoUrl,
@@ -2690,6 +2692,34 @@ export default function InstructorProfileDashboardPage() {
     }) => {
       const [copied, setCopied] = useState(false);
       const [imgError, setImgError] = useState(false);
+      const [isDownloading, setIsDownloading] = useState(false);
+
+      const handleDownloadPdf = async () => {
+        setIsDownloading(true);
+        toast.info("Generating official Instructor Registration Form...");
+        try {
+          const downloadTarget = id || instructorId;
+          const res = await axiosInstance.get(`/instructor/register/${downloadTarget}/download`, {
+            responseType: "blob",
+          });
+          const blob = new Blob([res.data], { type: "application/pdf" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Instructor_Registration_${instructorId || "Form"}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          toast.success("Instructor Registration Form PDF downloaded successfully!");
+        } catch (err) {
+          console.error("PDF download failed, opening print view:", err);
+          toast.error("Direct PDF download failed. Opening printable view...");
+          handlePrint();
+        } finally {
+          setIsDownloading(false);
+        }
+      };
 
       const copyToClipboard = () => {
         if (typeof navigator !== "undefined") {
@@ -2786,11 +2816,21 @@ export default function InstructorProfileDashboardPage() {
             <div className="z-10 flex w-full shrink-0 items-center justify-center gap-2 sm:w-auto print:hidden">
               <Button
                 variant="outline"
-                onClick={handlePrint}
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
                 className="border-border/80 hover:border-foreground/20 hover:bg-muted active:scale-98 h-9 flex-1 gap-1.5 rounded-lg px-4 text-xs font-medium transition-all sm:flex-initial"
               >
-                <Printer className="text-muted-foreground size-3.5" />
-                Download PDF
+                {isDownloading ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin text-emerald-600" />
+                    <span>Generating PDF...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="text-muted-foreground size-3.5" />
+                    <span>Download PDF</span>
+                  </>
+                )}
               </Button>
               <Button
                 onClick={handleEditSubmission}
@@ -2925,8 +2965,35 @@ export default function InstructorProfileDashboardPage() {
         </div>
       )}
 
-      {}
+      {/* Official Print Letterhead (Hidden on screen, elegant in print) */}
+      <div className="mb-6 mt-2 hidden items-center justify-between border-b-2 border-emerald-600 pb-3 print:flex">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="iiInternship Logo"
+            className="h-10 w-auto object-contain"
+          />
+          <div>
+            <h1 className="text-emerald-800 text-sm font-bold uppercase tracking-tight">
+              International Institute of Internship [i3]
+            </h1>
+            <p className="text-gray-500 text-[9px] font-medium">
+              Official Verified Instructor Onboarding Form &bull; www.iiinternship.in
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-emerald-700 font-mono text-xs font-bold">
+            {s.instructorId}
+          </div>
+          <p className="text-gray-400 text-[8px]">
+            Generated on {new Date().toLocaleDateString("en-IN")}
+          </p>
+        </div>
+      </div>
+
       <ProfileHeader
+        id={s.id}
         fullName={s.fullName}
         instructorId={s.instructorId}
         photoUrl={s.photoUrl}

@@ -11,8 +11,8 @@ import { z } from "zod";
 import { prisma } from "@/x/e3746f45";
 
 interface CloudinaryUploadResult {
-    url: string;
-    publicId: string;
+  url: string;
+  publicId: string;
 }
 
 async function uploadBase64(
@@ -96,7 +96,7 @@ function handleError(error: unknown): NextResponse<ApiErrorResponse> {
   }
 
   if (error instanceof Error) {
-        const message =
+    const message =
       process.env["NODE_ENV"] === "production"
         ? "An internal server error occurred"
         : error.message;
@@ -278,7 +278,7 @@ const updateRecruitRegistrationSchema = recruitRegistrationSchema
   })
   .partial()
   .extend({
-            academics: z
+    academics: z
       .array(
         recruitAcademicDetailSchema.extend({
           certificateBase64: z.string().optional().or(z.literal("")),
@@ -306,7 +306,7 @@ async function deleteAsset(
       resource_type: resourceType,
     });
   } catch (err) {
-        console.error(`[Cloudinary] Failed to delete asset "${publicId}":`, err);
+    console.error(`[Cloudinary] Failed to delete asset "${publicId}":`, err);
   }
 }
 
@@ -385,7 +385,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-        let targetUserId = requesterId;
+    let targetUserId = requesterId;
     if (requesterRole === "SUPER_ADMIN") {
       const { searchParams } = request.nextUrl;
       const paramUserId = searchParams.get("userId");
@@ -430,7 +430,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userId || userRole !== "RECRUIT_USER") {
       return errorResponse(
         "UNAUTHORIZED",
-        "Recruit User credentials required.",
+        "Job Applicant User credentials required.",
         {
           status: HTTP_2.UNAUTHORIZED,
         },
@@ -453,7 +453,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const body = await request.json();
     const data = recruitRegistrationSchema.parse(body);
 
-        let photoUrl = "";
+    let photoUrl = "";
     let photoPublicId = "";
     let sigUrl = "";
     let sigPublicId = "";
@@ -501,7 +501,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const academicsData: Prisma.RecruitAcademicDetailCreateWithoutProfileInput[] =
+    const academicsData: Prisma.RecruitAcademicDetailCreateWithoutProfileInput[] =
       [];
     for (let i = 0; i < data.academics.length; i++) {
       const ac = data.academics[i];
@@ -540,7 +540,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-        const experiencesData: Prisma.RecruitWorkExperienceCreateWithoutProfileInput[] =
+    const experiencesData: Prisma.RecruitWorkExperienceCreateWithoutProfileInput[] =
       [];
     for (let i = 0; i < data.experiences.length; i++) {
       const exp = data.experiences[i];
@@ -578,7 +578,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-        const profile = await prisma.$transaction(
+    const profile = await prisma.$transaction(
       async (tx) => {
         return tx.recruitProfile.create({
           data: {
@@ -664,7 +664,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     if (!userId || userRole !== "RECRUIT_USER") {
       return errorResponse(
         "UNAUTHORIZED",
-        "Recruit User credentials required.",
+        "Job Applicant User credentials required.",
         { status: HTTP_2.UNAUTHORIZED },
       );
     }
@@ -704,7 +704,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       maritalStatus: data.maritalStatus,
       nationality: data.nationality,
       gotra: data.gotra || undefined,
-                  religion: data.religion ? mapReligion(data.religion) : undefined,
+      religion: data.religion ? mapReligion(data.religion) : undefined,
       category: data.category,
       bloodGroup: data.bloodGroup ? mapBloodGroup(data.bloodGroup) : undefined,
       hobby: data.hobby || undefined,
@@ -722,7 +722,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-            let academicsData:
+    let academicsData:
       Prisma.RecruitAcademicDetailCreateWithoutProfileInput[] | null = null;
     if (data.academics) {
       academicsData = [];

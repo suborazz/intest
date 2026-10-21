@@ -1,7 +1,7 @@
 "use client";
 
 import React_4, { Suspense } from "react";
-import { Bell, CalendarDays, Info, Mail as Mail_2, Send, Target as Target_2, Trash2, User, Target } from "lucide-react";
+import { Bell, CalendarDays, Check, Download, Edit, ExternalLink, Filter, Info, Loader2, Mail as Mail_2, Paperclip, Search, Send, Tag, Target as Target_2, Trash2, User, Target, X } from "lucide-react";
 import React_3 from "react";
 import { useState } from "react";
 import { Select as SelectPrimitive } from "radix-ui";
@@ -527,10 +527,15 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
 interface NoticePayload {
   title: string;
   content: string;
-  targetRole?: "STUDENT" | "INSTRUCTOR";
+  description?: string;
+  category?: string;
+  targetRole?: "STUDENT" | "INSTRUCTOR" | "IMMERSION_USER" | "RECRUIT_USER";
   receiverId?: string;
   internshipIds?: string[];
   immersionIds?: string[];
+  pdfUrl?: string | null;
+  linkUrl?: string | null;
+  file?: File | null;
 }
 
 function Tabs({
@@ -1170,37 +1175,57 @@ const createNoticeSchema = z.object({
         "Guidelines",
       ]),
       description: z.string().min(5, "Description is required").trim(),
-      targetRole: z.enum(["STUDENT", "INSTRUCTOR"]).optional().nullable(),
+      targetRole: z
+        .enum(["STUDENT", "INSTRUCTOR", "IMMERSION_USER", "RECRUIT_USER"])
+        .optional()
+        .nullable(),
       receiverId: z.string().optional().nullable(),
       pdfUrl: z.string().optional().nullable(),
       pdfPublicId: z.string().optional().nullable(),
     });
 
-const NoticeSchema = createNoticeSchema
-      .pick({
-        title: true,
-        targetRole: true,
-        receiverId: true,
-      })
-      .extend({
-        content: createNoticeSchema.shape.description,
-        targetRole: z.enum(["STUDENT", "INSTRUCTOR"]).optional(),
-        receiverId: z.string().optional(),
-            internshipIds: z.array(z.string()).optional(),
-        immersionIds: z.array(z.string()).optional(),
-      });
+const NoticeSchema = z.object({
+      title: z.string().min(3, "Title is required").trim(),
+      content: z.string().min(5, "Content is required").trim(),
+      category: z.enum([
+        "Important",
+        "General",
+        "Result",
+        "Schedule",
+        "Guidelines",
+      ]),
+      targetRole: z
+        .enum(["STUDENT", "INSTRUCTOR", "IMMERSION_USER", "RECRUIT_USER"])
+        .optional(),
+      receiverId: z.string().optional(),
+      linkUrl: z.string().optional(),
+      internshipIds: z.array(z.string()).optional(),
+      immersionIds: z.array(z.string()).optional(),
+    });
+
+type NoticeFormValues = z.infer<typeof NoticeSchema>;
 
 type TargetType = "role" | "internship" | "immersion";
 
 interface NoticeItem {
       id: string;
+      noticeNumber?: string;
       title: string;
       category?: string;
       targetRole?: string;
       receiverId?: string;
+      receiver?: {
+        id: string;
+        name?: string | null;
+        email?: string;
+        registrationNo?: string | null;
+      } | null;
       createdAt: string;
       description?: string;
       content?: string;
+      pdfUrl?: string | null;
+      pdfPublicId?: string | null;
+      linkUrl?: string | null;
     }
 
 function Select_13({
@@ -1407,7 +1432,11 @@ export default function SuperAdminNoticesPage() {
       deleteTicket: (id: string) => Promise<GenericApiResponse>;
 
         getNotices: (params?: any) => Promise<GenericApiResponse<any[]>>;
-      createNotice: (payload: NoticePayload) => Promise<GenericApiResponse>;
+      createNotice: (payload: any) => Promise<GenericApiResponse>;
+      updateNotice: (
+        id: string,
+        payload: any,
+      ) => Promise<GenericApiResponse>;
       deleteNotice: (id: string) => Promise<GenericApiResponse>;
 
         completeEnrollment: (id: string) => Promise<GenericApiResponse<any>>;
@@ -2012,10 +2041,22 @@ export default function SuperAdminNoticesPage() {
         return response.data;
       },
 
-      async createNotice(payload) {
+      async createNotice(payload: any) {
+        const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
         const response = await axiosInstance.post<GenericApiResponse>(
           ENDPOINTS.NOTICES.BASE,
           payload,
+          isFormData ? { headers: { "Content-Type": undefined } } : undefined,
+        );
+        return response.data;
+      },
+
+      async updateNotice(id: string, payload: any) {
+        const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
+        const response = await axiosInstance.patch<GenericApiResponse>(
+          ENDPOINTS.NOTICES.BY_ID(id),
+          payload,
+          isFormData ? { headers: { "Content-Type": undefined } } : undefined,
         );
         return response.data;
       },
@@ -3570,7 +3611,7 @@ export default function SuperAdminNoticesPage() {
       },
 
       useCreateNotice(
-        options?: TMutationOptions<GenericApiResponse, Error, NoticePayload>,
+        options?: TMutationOptions<GenericApiResponse, Error, any>,
       ) {
         const queryClient = useQueryClient();
         return useMutation({
@@ -3604,6 +3645,30 @@ export default function SuperAdminNoticesPage() {
           },
           onError: (err, variables, context) => {
             toast.error(err.message || "Failed to delete notice.");
+            options?.onError?.(err, variables, context, undefined as any);
+          },
+        });
+      },
+
+      useUpdateNotice(
+        options?: TMutationOptions<
+          GenericApiResponse,
+          Error,
+          { id: string; payload: any }
+        >,
+      ) {
+        const queryClient = useQueryClient();
+        return useMutation({
+          mutationFn: async ({ id, payload }) =>
+            await SuperAdminService.updateNotice(id, payload),
+          ...options,
+          onSuccess: (data, variables, context) => {
+            queryClient.invalidateQueries({ queryKey: ["notices"] });
+            toast.success(data.message || "Notice updated successfully!");
+            options?.onSuccess?.(data, variables, context, undefined as any);
+          },
+          onError: (err, variables, context) => {
+            toast.error(err.message || "Failed to update notice.");
             options?.onError?.(err, variables, context, undefined as any);
           },
         });
@@ -3843,10 +3908,214 @@ export default function SuperAdminNoticesPage() {
     interface NoticePayload {
       title: string;
       content: string;
-      targetRole?: "STUDENT" | "INSTRUCTOR";
+      description?: string;
+      category?: string;
+      targetRole?: "STUDENT" | "INSTRUCTOR" | "IMMERSION_USER" | "RECRUIT_USER";
       receiverId?: string;
       internshipIds?: string[];
       immersionIds?: string[];
+      pdfUrl?: string | null;
+      linkUrl?: string | null;
+      file?: File | null;
+    }
+
+    interface EditNoticeModalProps {
+      notice: NoticeItem | null;
+      isOpen: boolean;
+      onClose: () => void;
+      onSave: (id: string, payload: Partial<NoticePayload>) => Promise<void>;
+      isUpdating: boolean;
+    }
+
+    function EditNoticeModal({
+      notice,
+      isOpen,
+      onClose,
+      onSave,
+      isUpdating,
+    }: EditNoticeModalProps) {
+      const [title, setTitle] = React_3.useState("");
+      const [category, setCategory] = React_3.useState("General");
+      const [content, setContent] = React_3.useState("");
+      const [targetRole, setTargetRole] = React_3.useState<string>("ALL");
+      const [receiverId, setReceiverId] = React_3.useState("");
+
+      React_3.useEffect(() => {
+        if (notice) {
+          setTitle(notice.title || "");
+          setCategory(notice.category || "General");
+          setContent(notice.description || notice.content || "");
+          setTargetRole(notice.targetRole || "ALL");
+          setReceiverId(notice.receiver?.email || notice.receiverId || "");
+        }
+      }, [notice, isOpen]);
+
+      if (!isOpen || !notice) return null;
+
+      const handleSubmit = async (e: React_3.FormEvent) => {
+        e.preventDefault();
+        if (!title.trim()) {
+          toast.error("Notice title is required.");
+          return;
+        }
+        if (!content.trim()) {
+          toast.error("Notice content is required.");
+          return;
+        }
+
+        await onSave(notice.id, {
+          title: title.trim(),
+          category,
+          content: content.trim(),
+          targetRole: targetRole === "ALL" ? undefined : (targetRole as any),
+          receiverId: receiverId.trim() ? receiverId.trim() : undefined,
+        });
+      };
+
+      return (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0 duration-150"
+          onClick={onClose}
+        >
+          <div
+            className="bg-card border-border w-full max-w-lg rounded-2xl border p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between border-b border-border/60 pb-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-foreground text-sm font-bold flex items-center gap-1.5">
+                    <Edit className="size-4 text-primary" /> Edit Notice / Update Announcement
+                  </h3>
+                  {notice.noticeNumber && (
+                    <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border border-emerald-600/30 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                      {notice.noticeNumber}
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-[10px]">
+                  Update headline, category type, notice content, or target audience.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isUpdating}
+                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted/60 transition-colors cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-foreground text-[10px] font-semibold">
+                  Notice Title / Headline *
+                </label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Schedule Maintenance Update"
+                  className="h-9 text-xs"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                  <Tag className="size-3 text-primary" /> Notice Category / Filter Type *
+                </label>
+                <Select_13 value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="h-9 cursor-pointer text-xs">
+                    <SelectValue_13 placeholder="Select Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Important">Important (महत्वपूर्ण)</SelectItem>
+                    <SelectItem value="General">General (सामान्य)</SelectItem>
+                    <SelectItem value="Result">Result (परिणाम)</SelectItem>
+                    <SelectItem value="Schedule">Schedule (समय सारिणी)</SelectItem>
+                    <SelectItem value="Guidelines">Guidelines (दिशा-निर्देश)</SelectItem>
+                  </SelectContent>
+                </Select_13>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-foreground text-[10px] font-semibold">
+                  Notice Content / Message Body *
+                </label>
+                <Textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Write the updated notice announcement here..."
+                  className="min-h-[120px] resize-y text-xs leading-relaxed"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                  <Target_2 className="size-3" /> Target Audience
+                </label>
+                <Select_13 value={targetRole} onValueChange={setTargetRole}>
+                  <SelectTrigger className="h-9 cursor-pointer text-xs">
+                    <SelectValue_13 placeholder="Target Audience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">Everyone (Platform-wide)</SelectItem>
+                    <SelectItem value="STUDENT">Students Only</SelectItem>
+                    <SelectItem value="INSTRUCTOR">Instructors Only</SelectItem>
+                    <SelectItem value="RECRUIT_USER">Only Job Applicants User</SelectItem>
+                    <SelectItem value="IMMERSION_USER">Only Immersion User</SelectItem>
+                  </SelectContent>
+                </Select_13>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                  <Mail_2 className="size-3" /> Target Specific User (Optional)
+                </label>
+                <Input
+                  value={receiverId}
+                  onChange={(e) => setReceiverId(e.target.value)}
+                  placeholder="e.g. user@gmail.com, Reg No, or leave blank"
+                  className="h-9 text-xs"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 border-t border-border/60 pt-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={onClose}
+                  disabled={isUpdating}
+                  className="text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isUpdating}
+                  className="bg-primary hover:bg-primary/95 text-primary-foreground gap-1.5 text-xs font-semibold cursor-pointer"
+                >
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="size-3.5" />
+                      Update Notice
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
     }
 
     function NoticesPanel_2() {
@@ -3862,8 +4131,51 @@ export default function SuperAdminNoticesPage() {
         SuperAdminDataHooks.useCreateNotice();
 
       const { mutate: deleteNotice } = SuperAdminDataHooks.useDeleteNotice();
+      const { mutate: updateNotice, isPending: isUpdatingNotice } =
+        SuperAdminDataHooks.useUpdateNotice();
+
+      const [editingNotice, setEditingNotice] =
+        React_3.useState<NoticeItem | null>(null);
+      const [expandedNoticeIds, setExpandedNoticeIds] = React_3.useState<
+        Record<string, boolean>
+      >({});
+
+      const toggleExpand = (id: string) => {
+        setExpandedNoticeIds((prev) => ({ ...prev, [id]: !prev[id] }));
+      };
+
+      const handleSaveEdit = async (
+        id: string,
+        payload: Partial<NoticePayload>,
+      ) => {
+        return new Promise<void>((resolve) => {
+          updateNotice(
+            { id, payload },
+            {
+              onSuccess: () => {
+                setEditingNotice(null);
+                resolve();
+              },
+              onError: () => {
+                resolve();
+              },
+            },
+          );
+        });
+      };
 
       const [targetType, setTargetType] = React_3.useState<TargetType>("role");
+      const [filterCategory, setFilterCategory] = React_3.useState<string>("All");
+      const [searchQuery, setSearchQuery] = React_3.useState<string>("");
+
+      const categoryList = [
+        "All",
+        "Important",
+        "General",
+        "Result",
+        "Schedule",
+        "Guidelines",
+      ] as const;
 
       const { data: internshipsResponse, isLoading: isInternshipsLoading } =
         SuperAdminDataHooks.useAdminInternships({
@@ -3877,13 +4189,37 @@ export default function SuperAdminNoticesPage() {
       const internships = internshipsResponse?.data || [];
       const immersions = immersionsResponse?.data || [];
 
-      const form = useForm<z_2.infer<typeof NoticeSchema>>({
+      const filteredNotices = useMemo(() => {
+        return notices.filter((notice: NoticeItem) => {
+          const matchesCategory =
+            filterCategory === "All" ||
+            (notice.category || "General").toLowerCase() ===
+              filterCategory.toLowerCase();
+
+          const query = searchQuery.trim().toLowerCase();
+          const matchesSearch =
+            !query ||
+            notice.title?.toLowerCase().includes(query) ||
+            notice.noticeNumber?.toLowerCase().includes(query) ||
+            (notice.description || notice.content || "").toLowerCase().includes(query);
+
+          return matchesCategory && matchesSearch;
+        });
+      }, [notices, filterCategory, searchQuery]);
+
+      const [selectedFile, setSelectedFile] = useState<File | null>(null);
+      const [existingFileUrl, setExistingFileUrl] = useState<string | null>(null);
+      const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+      const form = useForm<NoticeFormValues>({
         resolver: zodResolver(NoticeSchema),
         defaultValues: {
           title: "",
           content: "",
+          category: "General",
           targetRole: undefined,
           receiverId: "",
+          linkUrl: "",
           internshipIds: [],
           immersionIds: [],
         },
@@ -3897,7 +4233,7 @@ export default function SuperAdminNoticesPage() {
         form.setValue("internshipIds", []);
         form.setValue("immersionIds", []);
         if (type !== "role") {
-                      form.setValue("targetRole", undefined);
+          form.setValue("targetRole", undefined);
           form.setValue("receiverId", "");
         }
       };
@@ -3915,165 +4251,287 @@ export default function SuperAdminNoticesPage() {
         );
       };
 
-      const onSubmit = (values: z_2.infer<typeof NoticeSchema>) => {
-        const payload: NoticePayload = {
-          title: values.title,
-          content: values.content,
-        };
+      const handleStartEdit = (notice: NoticeItem) => {
+        setEditingNotice(notice);
+        setExistingFileUrl(notice.pdfUrl || null);
+        setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        form.reset({
+          title: notice.title || "",
+          content: notice.description || notice.content || "",
+          category: (notice.category as any) || "General",
+          targetRole: (notice.targetRole as any) || undefined,
+          receiverId: notice.receiver?.email || notice.receiverId || "",
+          linkUrl: notice.linkUrl || "",
+          internshipIds: [],
+          immersionIds: [],
+        });
+        setTargetType("role");
+        const el = document.getElementById("notice-composer-section");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
 
-        if (targetType === "internship") {
-          if (!values.internshipIds?.length) {
-            toast.error("Select at least one internship to target.");
-            return;
+      const handleCancelEdit = () => {
+        setEditingNotice(null);
+        setExistingFileUrl(null);
+        setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        form.reset({
+          title: "",
+          content: "",
+          category: "General",
+          targetRole: undefined,
+          receiverId: "",
+          linkUrl: "",
+          internshipIds: [],
+          immersionIds: [],
+        });
+        setTargetType("role");
+      };
+
+      const onSubmit = (values: NoticeFormValues) => {
+        let normalizedLink: string | null = null;
+        if (values.linkUrl && values.linkUrl.trim()) {
+          let l = values.linkUrl.trim();
+          if (!/^https?:\/\//i.test(l)) {
+            l = `https://${l}`;
           }
-          payload.internshipIds = values.internshipIds;
-        } else if (targetType === "immersion") {
-          if (!values.immersionIds?.length) {
-            toast.error("Select at least one immersion program to target.");
-            return;
-          }
-          payload.immersionIds = values.immersionIds;
-        } else {
-          if (values.targetRole) {
-            payload.targetRole = values.targetRole;
-          }
-          if (values.receiverId) {
-            payload.receiverId = values.receiverId;
-          }
+          normalizedLink = l;
         }
 
-        createNotice(payload, {
-          onSuccess: () => {
-            form.reset();
-            handleTargetTypeChange("role");
-          },
-        });
+        if (selectedFile) {
+          const formData = new FormData();
+          formData.append("title", values.title.trim());
+          formData.append("content", values.content.trim());
+          formData.append("description", values.content.trim());
+          formData.append("category", values.category || "General");
+          if (normalizedLink) formData.append("linkUrl", normalizedLink);
+          formData.append("file", selectedFile);
+
+          if (targetType === "internship") {
+            if (!values.internshipIds?.length) {
+              toast.error("Select at least one internship to target.");
+              return;
+            }
+            formData.append("internshipIds", JSON.stringify(values.internshipIds));
+          } else if (targetType === "immersion") {
+            if (!values.immersionIds?.length) {
+              toast.error("Select at least one immersion program to target.");
+              return;
+            }
+            formData.append("immersionIds", JSON.stringify(values.immersionIds));
+          } else {
+            if (values.targetRole) formData.append("targetRole", values.targetRole);
+            if (values.receiverId?.trim()) formData.append("receiverId", values.receiverId.trim());
+          }
+
+          if (editingNotice) {
+            updateNotice(
+              { id: editingNotice.id, payload: formData },
+              {
+                onSuccess: () => {
+                  handleCancelEdit();
+                },
+              },
+            );
+          } else {
+            createNotice(formData, {
+              onSuccess: () => {
+                handleCancelEdit();
+              },
+            });
+          }
+        } else {
+          const payload: NoticePayload = {
+            title: values.title.trim(),
+            content: values.content.trim(),
+            description: values.content.trim(),
+            category: values.category || "General",
+            linkUrl: normalizedLink,
+            pdfUrl: existingFileUrl,
+          };
+
+          if (targetType === "internship") {
+            if (!values.internshipIds?.length) {
+              toast.error("Select at least one internship to target.");
+              return;
+            }
+            payload.internshipIds = values.internshipIds;
+          } else if (targetType === "immersion") {
+            if (!values.immersionIds?.length) {
+              toast.error("Select at least one immersion program to target.");
+              return;
+            }
+            payload.immersionIds = values.immersionIds;
+          } else {
+            if (values.targetRole) {
+              payload.targetRole = values.targetRole;
+            }
+            if (values.receiverId?.trim()) {
+              payload.receiverId = values.receiverId.trim();
+            }
+          }
+
+          if (editingNotice) {
+            updateNotice(
+              { id: editingNotice.id, payload },
+              {
+                onSuccess: () => {
+                  handleCancelEdit();
+                },
+              },
+            );
+          } else {
+            createNotice(payload, {
+              onSuccess: () => {
+                handleCancelEdit();
+              },
+            });
+          }
+        }
       };
 
       const handleDelete = (id: string) => {
         if (confirm("Are you sure you want to delete this notice?")) {
           deleteNotice(id);
+          if (editingNotice?.id === id) {
+            handleCancelEdit();
+          }
+        }
+      };
+
+      const getCategoryBadgeClass = (category?: string) => {
+        switch (category) {
+          case "Important":
+            return "bg-rose-500/10 text-rose-600 border border-rose-500/30 dark:bg-rose-500/20 dark:text-rose-400";
+          case "Result":
+            return "bg-purple-500/10 text-purple-600 border border-purple-500/30 dark:bg-purple-500/20 dark:text-purple-400";
+          case "Schedule":
+            return "bg-sky-500/10 text-sky-600 border border-sky-500/30 dark:bg-sky-500/20 dark:text-sky-400";
+          case "Guidelines":
+            return "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400";
+          case "General":
+          default:
+            return "bg-primary/10 text-primary border border-primary/30";
         }
       };
 
       return (
-        <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
-          {}
-          <div className="space-y-4 lg:col-span-2">
-            <div className=" space-y-4 px-3 pt-2">
-              <h3 className="text-foreground border-border/60 border-b pb-3 text-sm font-bold">
-                Active Announcements
-              </h3>
+        <div className="space-y-6">
+          {/* 1. TOP SECTION: COMPOSE / EDIT NOTICE ANNOUNCEMENT */}
+          <div
+            id="notice-composer-section"
+            className={cn(
+              "bg-card rounded-2xl border p-4 sm:p-5 shadow-xs transition-all",
+              editingNotice
+                ? "border-primary/80 ring-2 ring-primary/20 bg-primary/2 dark:bg-primary/5"
+                : "border-border/60",
+            )}
+          >
+            <div className="border-border/60 border-b pb-3 flex items-start justify-between gap-2">
+              <div>
+                <h3 className="text-foreground flex items-center gap-2 text-sm sm:text-base font-bold">
+                  {editingNotice ? (
+                    <>
+                      <Edit className="text-primary size-4.5" />
+                      <span>Edit Notice Announcement</span>
+                      {editingNotice.noticeNumber && (
+                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-600/30 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                          {editingNotice.noticeNumber}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="text-primary size-4.5" />
+                      <span>Compose Announcement</span>
+                    </>
+                  )}
+                </h3>
+                <p className="text-muted-foreground text-[11px] font-medium mt-0.5">
+                  {editingNotice
+                    ? "Modify notice details below and click 'Update Notice' to save changes."
+                    : "Draft and broadcast notice board feeds to students or instructors."}
+                </p>
+              </div>
 
-              {isNoticesLoading ? (
-                <div className="flex flex-col items-center justify-center space-y-2 py-12">
-                  <div className="border-primary border-3 size-7 animate-spin rounded-full border-t-transparent" />
-                  <p className="text-muted-foreground animate-pulse text-xs font-semibold">
-                    Loading active notices...
-                  </p>
-                </div>
-              ) : isNoticesError ? (
-                <div className="rounded-xl border border-dashed border-red-500/20 bg-red-500/5 p-8 text-center">
-                  <Info className="mx-auto mb-2 size-8 text-red-500" />
-                  <p className="text-foreground text-xs font-bold">Sync Error</p>
-                  <p className="text-muted-foreground text-[10px]">
-                    Could not fetch notices. Please refresh.
-                  </p>
-                </div>
-              ) : notices.length === 0 ? (
-                <div className="bg-muted/10 space-y-2 rounded-xl border border-dashed p-10 text-center">
-                  <Info className="text-muted-foreground mx-auto size-8" />
-                  <p className="text-foreground text-xs font-bold">
-                    Notice Board is Empty
-                  </p>
-                  <p className="text-muted-foreground text-[10px]">
-                    No broadcasts published yet. Use the composer form to post one.
-                  </p>
-                </div>
-              ) : (
-                <div className="max-h-[65vh] space-y-4 overflow-y-auto pr-1">
-                  {notices.map((notice: NoticeItem) => (
-                    <div
-                      key={notice.id}
-                      className="border-border/60 bg-card hover:border-primary/40 group flex flex-col justify-between gap-3 rounded-xl border p-4 transition-all hover:shadow-sm"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <span className="text-foreground group-hover:text-primary text-xs font-extrabold transition-colors">
-                            {notice.title}
-                          </span>
-                          <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-[9px] font-semibold">
-                            <span className="bg-primary/10 text-primary rounded px-2 py-0.5">
-                              {notice.category || "General"}
-                            </span>
-                            {notice.targetRole && (
-                              <span className="rounded bg-amber-500/10 px-2 py-0.5 text-amber-500">
-                                Target: {notice.targetRole}
-                              </span>
-                            )}
-                            {notice.receiverId && (
-                              <span className="rounded bg-blue-500/10 px-2 py-0.5 text-blue-500">
-                                Direct message
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <CalendarDays className="size-3" />
-                              {new Date(notice.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(notice.id)}
-                          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-7 w-7 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                      <p className="text-muted-foreground whitespace-pre-line text-xs leading-relaxed">
-                        {notice.description || notice.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {}
-          <div className="bg-card border-border/50 h-fit space-y-6 rounded-2xl border p-4 shadow-sm">
-            <div className="border-border/60 border-b pb-3">
-              <h3 className="text-foreground flex items-center gap-2 text-sm font-bold">
-                <Bell className="text-primary size-4" />
-                Compose Announcement
-              </h3>
-              <p className="text-muted-foreground text-[10px] font-medium">
-                Draft and send notice board feeds to students or instructors.
-              </p>
+              <div className="flex items-center gap-2">
+                {editingNotice ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                    className="text-xs font-semibold h-7 text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    <X className="size-3.5 mr-1" /> Cancel Edit
+                  </Button>
+                ) : (
+                  <span
+                    className="shrink-0 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-600/30"
+                    title="Yearly auto-incremented notice numbering (Resets to 01 each year)"
+                  >
+                    Auto: NTC/{String(new Date().getFullYear()).slice(-2)}01
+                  </span>
+                )}
+              </div>
             </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground text-[10px] font-semibold">
-                        Notice Title / Headline
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Schedule Maintenance Update"
-                          className="h-9 text-xs"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground text-[10px] font-semibold">
+                          Notice Title / Headline *
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Schedule Maintenance Update"
+                            className="h-9 text-xs"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                          <Tag className="size-3 text-primary" /> Notice Category / Filter Type (प्रकार) *
+                        </FormLabel>
+                        <Select_13
+                          onValueChange={field.onChange}
+                          value={field.value || "General"}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-9 cursor-pointer text-xs">
+                              <SelectValue_13 placeholder="Select Notice Type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Important">Important (महत्वपूर्ण)</SelectItem>
+                            <SelectItem value="General">General (सामान्य)</SelectItem>
+                            <SelectItem value="Result">Result (परिणाम)</SelectItem>
+                            <SelectItem value="Schedule">Schedule (समय सारिणी)</SelectItem>
+                            <SelectItem value="Guidelines">Guidelines (दिशा-निर्देश)</SelectItem>
+                          </SelectContent>
+                        </Select_13>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -4081,12 +4539,12 @@ export default function SuperAdminNoticesPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-foreground text-[10px] font-semibold">
-                        Notice Content / Message Body
+                        Notice Content / Message Body *
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Write the details of the announcement here..."
-                          className="min-h-[120px] resize-y text-xs leading-relaxed"
+                          className="min-h-[110px] resize-y text-xs leading-relaxed"
                           {...field}
                         />
                       </FormControl>
@@ -4095,7 +4553,6 @@ export default function SuperAdminNoticesPage() {
                   )}
                 />
 
-                {}
                 <div className="space-y-1.5">
                   <label className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
                     <Target_2 className="size-3" /> Target Announcement Type
@@ -4107,7 +4564,7 @@ export default function SuperAdminNoticesPage() {
                     }
                     className="w-full"
                   >
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-3 max-w-md">
                       <TabsTrigger value="role" className="cursor-pointer text-xs">
                         Platform Wide
                       </TabsTrigger>
@@ -4286,7 +4743,7 @@ export default function SuperAdminNoticesPage() {
                 )}
 
                 <div
-                  className={`grid grid-cols-1 gap-4 ${
+                  className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${
                     targetType === "role" ? "" : "hidden"
                   }`}
                 >
@@ -4315,6 +4772,12 @@ export default function SuperAdminNoticesPage() {
                             <SelectItem value="INSTRUCTOR">
                               Instructors Only
                             </SelectItem>
+                            <SelectItem value="RECRUIT_USER">
+                              Only Job Applicants User
+                            </SelectItem>
+                            <SelectItem value="IMMERSION_USER">
+                              Only Immersion User
+                            </SelectItem>
                           </SelectContent>
                         </Select_13>
                         <FormMessage />
@@ -4328,11 +4791,11 @@ export default function SuperAdminNoticesPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
-                          <Mail_2 className="size-3" /> Target User ID (Optional)
+                          <Mail_2 className="size-3" /> Target User (Email / Reg No / User ID) (Optional)
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="uuid-identifier-string"
+                            placeholder="e.g. user@gmail.com, Reg No, or User ID"
                             className="h-9 text-xs"
                             {...field}
                           />
@@ -4343,33 +4806,496 @@ export default function SuperAdminNoticesPage() {
                   />
                 </div>
 
+                {/* Optional File Attachment & External Link Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-dashed border-border/80 bg-muted/15 p-3.5">
+                  {/* File Attachment Upload */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                        <Paperclip className="size-3 text-primary" /> Optional File Upload (PDF, Document, Image)
+                      </label>
+                      {selectedFile && (
+                        <span className="text-emerald-600 text-[10px] font-bold">
+                          {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </span>
+                      )}
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        if (file && file.size > 5 * 1024 * 1024) {
+                          toast.error("File size cannot exceed 5MB");
+                          e.target.value = "";
+                          return;
+                        }
+                        setSelectedFile(file);
+                      }}
+                      className="hidden"
+                      id="notice-file-input"
+                    />
+
+                    {!selectedFile && !existingFileUrl ? (
+                      <label
+                        htmlFor="notice-file-input"
+                        className="flex h-16 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border/80 bg-card/60 px-3 transition-colors hover:border-primary/60 hover:bg-muted/30"
+                      >
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium">
+                          <Paperclip className="size-3.5 text-primary" />
+                          <span>Click to attach document / PDF</span>
+                        </div>
+                        <span className="text-muted-foreground/70 text-[9px]">Max size: 5MB (PDF, DOC, Images)</span>
+                      </label>
+                    ) : (
+                      <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-500/30 bg-emerald-50/60 p-2 text-xs dark:bg-emerald-950/20">
+                        <div className="flex items-center gap-1.5 overflow-hidden">
+                          <Paperclip className="size-3.5 shrink-0 text-emerald-600" />
+                          <span className="truncate font-semibold text-foreground text-[11px]">
+                            {selectedFile ? selectedFile.name : "Attached Document (Current)"}
+                          </span>
+                          {existingFileUrl && !selectedFile && (
+                            <a
+                              href={existingFileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              download
+                              className="text-primary hover:underline text-[10px] font-bold shrink-0 ml-1 inline-flex items-center gap-0.5"
+                            >
+                              <Download className="size-2.5" /> View
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <label
+                            htmlFor="notice-file-input"
+                            className="text-primary hover:bg-primary/10 cursor-pointer rounded px-1.5 py-0.5 text-[10px] font-bold"
+                          >
+                            Change
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedFile(null);
+                              setExistingFileUrl(null);
+                              if (fileInputRef.current) fileInputRef.current.value = "";
+                            }}
+                            className="text-destructive hover:bg-destructive/10 cursor-pointer rounded p-1"
+                            title="Remove attachment"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* External Link Field */}
+                  <FormField
+                    control={form.control}
+                    name="linkUrl"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="text-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                          <ExternalLink className="size-3 text-blue-600" /> Optional External Link / Website URL
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              placeholder="e.g. https://meet.google.com/xyz or application link"
+                              className="h-9 text-xs pr-8"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                            {field.value && (
+                              <a
+                                href={field.value.startsWith("http") ? field.value : `https://${field.value}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Test link in new tab"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                              >
+                                <ExternalLink className="size-3.5" />
+                              </a>
+                            )}
+                          </div>
+                        </FormControl>
+                        <p className="text-muted-foreground text-[9px] leading-tight">
+                          Opens in a new tab when clicked on frontend notice board.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <div className="text-muted-foreground bg-muted/20 border-border/50 rounded-xl border p-3 text-[10px] leading-relaxed">
                   {targetType === "role"
-                    ? 'Note: If Target Audience is "Everyone" and Specific User ID is blank, this announcement will be broadcast globally.'
+                    ? 'Note: If Target Audience is "Everyone" and Target User is blank, this announcement will be broadcast globally. Enter an email or registration number to send a targeted message.'
                     : "Note: This announcement is delivered only to participants enrolled in the selected program(s)."}
                 </div>
 
                 <div className="border-border/50 flex justify-end gap-3 border-t pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => form.reset()}
-                    className="h-9 cursor-pointer px-4 text-xs font-semibold"
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isCreating}
-                    className="bg-primary hover:bg-primary/95 text-primary-foreground h-9 cursor-pointer gap-1.5 px-4 text-xs font-semibold"
-                  >
-                    <Send className="size-3" />
-                    {isCreating ? "Broadcasting..." : "Broadcast"}
-                  </Button>
+                  {editingNotice ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelEdit}
+                        disabled={isUpdatingNotice}
+                        className="h-9 cursor-pointer px-4 text-xs font-semibold"
+                      >
+                        Cancel Edit
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={isUpdatingNotice}
+                        className="bg-primary hover:bg-primary/95 text-primary-foreground h-9 cursor-pointer gap-1.5 px-4 text-xs font-semibold"
+                      >
+                        {isUpdatingNotice ? (
+                          <>
+                            <Loader2 className="size-3.5 animate-spin" />
+                            Updating Notice...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="size-3.5" />
+                            Update Notice
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => form.reset()}
+                        className="h-9 cursor-pointer px-4 text-xs font-semibold"
+                      >
+                        Clear
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={isCreating}
+                        className="bg-primary hover:bg-primary/95 text-primary-foreground h-9 cursor-pointer gap-1.5 px-4 text-xs font-semibold"
+                      >
+                        <Send className="size-3" />
+                        {isCreating ? "Broadcasting..." : "Broadcast"}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </form>
             </Form>
           </div>
+
+          {/* 2. BOTTOM SECTION: ALL NOTICES SEQUENTIALLY LISTED BELOW ("नीचे सूचीबद्ध") */}
+          <div
+            id="all-notices-directory"
+            className="bg-card border-border/60 rounded-2xl border p-4 sm:p-5 shadow-xs space-y-4"
+          >
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between border-border/60 border-b pb-3">
+              <div>
+                <h3 className="text-foreground text-sm sm:text-base font-bold flex items-center gap-1.5">
+                  <Bell className="size-4 text-primary" /> All Published Notices Directory (सभी नोटिस - क्रम अनुसार सूचीबद्ध)
+                </h3>
+                <p className="text-muted-foreground text-[11px]">
+                  Showing {filteredNotices.length} of {notices.length} published notices • किसी भी नोटिस को कभी भी एडिट या अपडेट करें
+                </p>
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search notices by title or content..."
+                  className="h-8 pl-8 text-xs bg-background"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="text-muted-foreground hover:text-foreground absolute right-2.5 top-1/2 -translate-y-1/2 text-xs"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Notice Type Filter Tabs */}
+            <div className="flex flex-wrap items-center gap-1.5 pb-1">
+              <span className="text-muted-foreground text-[10px] font-semibold flex items-center gap-1 mr-1">
+                <Filter className="size-3" /> Filter by Type:
+              </span>
+              {categoryList.map((cat) => {
+                const count =
+                  cat === "All"
+                    ? notices.length
+                    : notices.filter(
+                        (n: NoticeItem) =>
+                          (n.category || "General").toLowerCase() ===
+                          cat.toLowerCase(),
+                      ).length;
+                const isActive = filterCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setFilterCategory(cat)}
+                    className={cn(
+                      "cursor-pointer text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5",
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                        : "bg-muted/40 hover:bg-muted text-muted-foreground border-border/80",
+                    )}
+                  >
+                    <span>{cat}</span>
+                    <span
+                      className={cn(
+                        "text-[9px] px-1 py-0.2 rounded-full",
+                        isActive
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-muted-foreground/15 text-muted-foreground",
+                      )}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {isNoticesLoading ? (
+              <div className="flex flex-col items-center justify-center space-y-2 py-12">
+                <div className="border-primary border-3 size-7 animate-spin rounded-full border-t-transparent" />
+                <p className="text-muted-foreground animate-pulse text-xs font-semibold">
+                  Loading active notices...
+                </p>
+              </div>
+            ) : isNoticesError ? (
+              <div className="rounded-xl border border-dashed border-red-500/20 bg-red-500/5 p-8 text-center">
+                <Info className="mx-auto mb-2 size-8 text-red-500" />
+                <p className="text-foreground text-xs font-bold">Sync Error</p>
+                <p className="text-muted-foreground text-[10px]">
+                  Could not fetch notices. Please refresh.
+                </p>
+              </div>
+            ) : notices.length === 0 ? (
+              <div className="bg-muted/10 space-y-2 rounded-xl border border-dashed p-10 text-center">
+                <Info className="text-muted-foreground mx-auto size-8" />
+                <p className="text-foreground text-xs font-bold">
+                  Notice Board is Empty
+                </p>
+                <p className="text-muted-foreground text-[10px]">
+                  No broadcasts published yet. Use the composer form above to post one.
+                </p>
+              </div>
+            ) : filteredNotices.length === 0 ? (
+              <div className="bg-muted/10 space-y-2 rounded-xl border border-dashed p-8 text-center">
+                <Info className="text-muted-foreground mx-auto size-7" />
+                <p className="text-foreground text-xs font-bold">
+                  No matching notices found
+                </p>
+                <p className="text-muted-foreground text-[10px]">
+                  No notices found matching category &quot;{filterCategory}&quot;
+                  {searchQuery ? ` and search &quot;${searchQuery}&quot;` : ""}.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFilterCategory("All");
+                    setSearchQuery("");
+                  }}
+                  className="mt-2 text-xs"
+                >
+                  Clear Filter
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredNotices.map((notice: NoticeItem, idx: number) => {
+                  const isExpanded = !!expandedNoticeIds[notice.id];
+                  const text = notice.description || notice.content || "";
+                  const isLongText = text.length > 200 || text.includes("\n");
+                  const isCurrentlyEditing = editingNotice?.id === notice.id;
+
+                  return (
+                    <div
+                      key={notice.id}
+                      className={cn(
+                        "border-border/70 bg-card group flex flex-col justify-between gap-2.5 rounded-xl border p-4 transition-all shadow-2xs hover:shadow-xs",
+                        isCurrentlyEditing
+                          ? "border-primary/80 ring-2 ring-primary/20 bg-primary/5"
+                          : "hover:border-primary/50",
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground border border-border">
+                              #{idx + 1}
+                            </span>
+                            <span className="text-foreground group-hover:text-primary text-xs sm:text-sm font-bold transition-colors">
+                              {notice.title}
+                            </span>
+                            {notice.noticeNumber && (
+                              <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border border-emerald-600/30 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700/50">
+                                {notice.noticeNumber}
+                              </span>
+                            )}
+                            {isCurrentlyEditing && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground animate-pulse">
+                                Currently Editing
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-[9px] font-semibold">
+                            <span
+                              className={cn(
+                                "rounded px-2 py-0.5 font-bold",
+                                getCategoryBadgeClass(notice.category),
+                              )}
+                            >
+                              {notice.category || "General"}
+                            </span>
+                            {notice.targetRole && (
+                              <span className="rounded bg-amber-500/10 px-2 py-0.5 text-amber-500 font-semibold">
+                                Target:{" "}
+                                {notice.targetRole === "STUDENT"
+                                  ? "Students"
+                                  : notice.targetRole === "INSTRUCTOR"
+                                  ? "Instructors"
+                                  : notice.targetRole === "RECRUIT_USER"
+                                  ? "Job Applicants"
+                                  : notice.targetRole === "IMMERSION_USER"
+                                  ? "Immersion Users"
+                                  : notice.targetRole}
+                              </span>
+                            )}
+                            {notice.receiver ? (
+                              <span
+                                className="rounded bg-blue-500/10 px-2 py-0.5 text-blue-500"
+                                title={`Target: ${notice.receiver.email}`}
+                              >
+                                Direct to: {notice.receiver.name || notice.receiver.email}
+                              </span>
+                            ) : notice.receiverId ? (
+                              <span className="rounded bg-blue-500/10 px-2 py-0.5 text-blue-500">
+                                Direct message
+                              </span>
+                            ) : null}
+                            <span className="flex items-center gap-1">
+                              <CalendarDays className="size-3" />
+                              {new Date(notice.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons: Edit and Delete */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Button
+                            variant={isCurrentlyEditing ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handleStartEdit(notice)}
+                            className={cn(
+                              "h-7 px-2.5 text-[11px] font-semibold gap-1 cursor-pointer shadow-2xs",
+                              isCurrentlyEditing
+                                ? "bg-primary text-primary-foreground"
+                                : "text-primary hover:bg-primary/10 border-primary/30",
+                            )}
+                            title="Edit this notice in the composer above"
+                          >
+                            <Edit className="size-3" />
+                            <span>{isCurrentlyEditing ? "Editing" : "Edit"}</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(notice.id)}
+                            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-7 w-7 rounded-lg transition-colors cursor-pointer"
+                            title="Delete this notice"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 pt-1 border-t border-border/40">
+                        {isExpanded ? (
+                          <div className="space-y-2 text-muted-foreground text-xs leading-relaxed">
+                            {(() => {
+                              const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+                              const hasDoubleNewline = /\n\s*\n/.test(normalized);
+                              const paragraphs = hasDoubleNewline
+                                ? normalized.split(/\n\s*\n+/)
+                                : normalized.split(/\n+/);
+                              return paragraphs.map((p, i) => (
+                                <p key={i} className="whitespace-pre-line leading-relaxed text-justify">
+                                  {p.trim()}
+                                </p>
+                              ));
+                            })()}
+                          </div>
+                        ) : (
+                          <p className="text-muted-foreground whitespace-pre-line text-xs leading-relaxed transition-all line-clamp-3">
+                            {text}
+                          </p>
+                        )}
+                        {isLongText && (
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(notice.id)}
+                            className="text-primary hover:underline text-[11px] font-semibold cursor-pointer pt-0.5 inline-block"
+                          >
+                            {isExpanded ? "Show Less" : "Read Full Notice..."}
+                          </button>
+                        )}
+                        {(notice.pdfUrl || notice.linkUrl) && (
+                          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border/30">
+                            {notice.pdfUrl && (
+                              <a
+                                href={notice.pdfUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                download
+                                className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors dark:bg-emerald-950/40 dark:text-emerald-300"
+                              >
+                                <Download className="size-3 text-emerald-600" /> Download File
+                              </a>
+                            )}
+                            {notice.linkUrl && (
+                              <a
+                                href={notice.linkUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-md border border-blue-500/30 bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-800 hover:bg-blue-100 transition-colors dark:bg-blue-950/40 dark:text-blue-300"
+                              >
+                                <ExternalLink className="size-3 text-blue-600" /> Open Link ↗
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <EditNoticeModal
+            notice={editingNotice}
+            isOpen={false}
+            onClose={() => setEditingNotice(null)}
+            onSave={handleSaveEdit}
+            isUpdating={isUpdatingNotice}
+          />
         </div>
       );
     }

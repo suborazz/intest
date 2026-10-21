@@ -1,4 +1,4 @@
-import { Prisma, UserRole } from "@prisma/client";
+import type { UserRole } from "@/x/c0183428";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { ZodError } from "zod";
@@ -180,13 +180,108 @@ const HTTP_2 = {
   INTERNAL_SERVER_ERROR: 500,
 } as const;
 
-function generateNoticeNumber(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let randomPart = "";
-  for (let i = 0; i < 6; i++) {
-    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+/**
+ * Official notice-number format: NTC/{YY}{NN}
+ *   - YY = last two digits of the calendar year (e.g. 26 for 2026, 27 for 2027)
+ *   - NN = yearly sequence, zero-padded to at least 2 digits, resetting back to 01
+ *          whenever the year changes.
+ * Example: NTC/2601, NTC/2602 ... then next year NTC/2701, NTC/2702 ...
+ */
+const NOTICE_NUMBER_REGEX = /^NTC\/(\d{2})(\d{2,})$/i;
+
+/** Returns the last-two-digit year token (e.g. 2026 -> "26"). */
+function yearToYY(year: number): string {
+  return String(Math.abs(year) % 100).padStart(2, "0");
+}
+
+/** Highest sequence currently used for a given 2-digit year token. */
+async function getMaxSequenceForYY(yy: string): Promise<number> {
+  const notices = await prisma.notice.findMany({
+    where: { noticeNumber: { startsWith: `NTC/${yy}` } },
+    select: { noticeNumber: true },
+  });
+  let max = 0;
+  for (const n of notices) {
+    const m = (n.noticeNumber || "").trim().match(NOTICE_NUMBER_REGEX);
+    if (m && m[1] === yy) {
+      const seq = parseInt(m[2], 10);
+      if (!isNaN(seq) && seq > max) max = seq;
+    }
   }
-  return `NOT-${randomPart}`;
+  return max;
+}
+
+/**
+ * Automatically syncs any legacy / old-format notice numbers (e.g. NOT-XXXXXX or
+ * NTC/01/2026) into the official NTC/{YY}{NN} format. Sequenced chronologically
+ * per year, resetting back to 01 when the year changes.
+ */
+async function syncLegacyNoticeNumbers() {
+  try {
+    const all = await prisma.notice.findMany({
+      orderBy: { createdAt: "asc" },
+      select: { id: true, createdAt: true, date: true, noticeNumber: true },
+    });
+
+    if (!all || all.length === 0) return;
+
+    // Track the highest sequence already present for each 2-digit year token so
+    // that re-numbered notices never collide with existing official numbers.
+    const maxSeqByYY: Record<string, number> = {};
+    for (const n of all) {
+      const m = (n.noticeNumber || "").trim().match(NOTICE_NUMBER_REGEX);
+      if (m) {
+        const yy = m[1];
+        const seq = parseInt(m[2], 10);
+        if (!(yy in maxSeqByYY) || seq > maxSeqByYY[yy]) maxSeqByYY[yy] = seq;
+      }
+    }
+
+    // Group notices that are NOT already in the official format by calendar year.
+    const byYear: Record<number, typeof all> = {};
+    for (const n of all) {
+      if (NOTICE_NUMBER_REGEX.test((n.noticeNumber || "").trim())) continue;
+      const d = n.date ? new Date(n.date) : new Date(n.createdAt);
+      const year = isNaN(d.getFullYear())
+        ? new Date(n.createdAt).getFullYear()
+        : d.getFullYear();
+      if (!byYear[year]) byYear[year] = [];
+      byYear[year].push(n);
+    }
+
+    for (const yearStr of Object.keys(byYear)) {
+      const year = parseInt(yearStr, 10);
+      const yy = yearToYY(year);
+      let currentMax = maxSeqByYY[yy] || 0;
+      for (const n of byYear[year]) {
+        currentMax++;
+        const formattedSeq = String(currentMax).padStart(2, "0");
+        const newNum = `NTC/${yy}${formattedSeq}`;
+        await prisma.notice.update({
+          where: { id: n.id },
+          data: { noticeNumber: newNum },
+        });
+      }
+      maxSeqByYY[yy] = currentMax;
+    }
+  } catch (err) {
+    console.error("[Notice Number Sync Error]:", err);
+  }
+}
+
+/**
+ * Generates the next sequential notice number for the specified date/year.
+ * Format: NTC/{YY}{NN} (e.g. NTC/2601, NTC/2602... then NTC/2701 next year)
+ * Resets automatically to 01 at the start of each new year.
+ */
+async function generateSequentialNoticeNumber(targetDate?: string | Date): Promise<string> {
+  const d = targetDate ? new Date(targetDate) : new Date();
+  const year = isNaN(d.getFullYear()) ? new Date().getFullYear() : d.getFullYear();
+  const yy = yearToYY(year);
+
+  const maxSequence = await getMaxSequenceForYY(yy);
+  const nextSequence = String(maxSequence + 1).padStart(2, "0");
+  return `NTC/${yy}${nextSequence}`;
 }
 
 const createNoticeSchema = z.object({
@@ -201,10 +296,14 @@ const createNoticeSchema = z.object({
     "Guidelines",
   ]),
   description: z.string().min(5, "Description is required").trim(),
-  targetRole: z.enum(["STUDENT", "INSTRUCTOR"]).optional().nullable(),
+  targetRole: z
+    .enum(["STUDENT", "INSTRUCTOR", "IMMERSION_USER", "RECRUIT_USER"])
+    .optional()
+    .nullable(),
   receiverId: z.string().optional().nullable(),
   pdfUrl: z.string().optional().nullable(),
   pdfPublicId: z.string().optional().nullable(),
+  linkUrl: z.string().optional().nullable(),
 });
 
 const paginationSchema = z.object({
@@ -230,19 +329,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
+    await syncLegacyNoticeNumbers();
+
     const { page, limit } = parsed.data;
     const skip = (page - 1) * limit;
 
     const userId = request.headers.get("X-User-Id");
     const userRole = request.headers.get("X-User-Role") as UserRole;
 
-                                let where: Prisma.NoticeWhereInput = {
+    let where: any = {
       targetRole: null,
       receiverId: null,
     };
 
     if (userId && userRole) {
-      if (userRole === "INSTRUCTOR") {
+      if (userRole === "SUPER_ADMIN") {
+        where = {};
+      } else if (userRole === "INSTRUCTOR") {
         where = {
           OR: [
             { targetRole: userRole },
@@ -297,6 +400,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         where,
         include: {
           sender: { select: { id: true, name: true, email: true, role: true } },
+          receiver: { select: { id: true, name: true, email: true, registrationNo: true } },
         },
         orderBy: { createdAt: "desc" },
         skip,
@@ -341,6 +445,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       targetRole?: string | null;
       receiverId?: string | null;
       content?: string;
+      pdfUrl?: string | null;
+      linkUrl?: string | null;
       internshipIds?: string[];
       immersionIds?: string[];
     } = {};
@@ -374,27 +480,79 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         date: formData.get("date") as string,
         title: formData.get("title") as string,
         category: formData.get("category") as string,
-        description: formData.get("description") as string,
+        description: ((formData.get("description") as string) || (formData.get("content") as string)) as string,
+        content: ((formData.get("content") as string) || (formData.get("description") as string)) as string,
         targetRole: (formData.get("targetRole") as string) || null,
         receiverId: (formData.get("receiverId") as string) || null,
+        pdfUrl: (formData.get("pdfUrl") as string) || null,
+        linkUrl: (formData.get("linkUrl") as string) || null,
         internshipIds: parsedInternshipIds,
         immersionIds: parsedImmersionIds,
       };
       pdfFile =
         (formData.get("pdf") as File | null) ||
-        (formData.get("pdfFile") as File | null);
+        (formData.get("pdfFile") as File | null) ||
+        (formData.get("file") as File | null);
     } else {
       body = await request.json();
     }
 
-        if (body.targetRole === "") body.targetRole = null;
-    if (body.receiverId === "") body.receiverId = null;
-
-        if (!body.noticeNumber) {
-      body.noticeNumber = generateNoticeNumber();
+        // Verify sender exists in database
+    const sender = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true },
+    });
+    if (!sender) {
+      return errorResponse("UNAUTHORIZED", "Sender account not found in database.", {
+        status: HTTP_2.UNAUTHORIZED,
+      });
     }
+
+    if (body.targetRole === "") body.targetRole = null;
+    
+    // Resolve receiverId (supports Email address, Registration Number, or User ID)
+    let resolvedReceiverId: string | null = null;
+    let targetUserRecipient: { id: string; email: string; name: string | null } | null = null;
+
+    if (body.receiverId && typeof body.receiverId === "string" && body.receiverId.trim() !== "") {
+      const rawReceiver = body.receiverId.trim();
+      const targetUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: rawReceiver },
+            { email: { equals: rawReceiver, mode: "insensitive" } },
+            { registrationNo: rawReceiver },
+          ],
+          deletedAt: null,
+        },
+        select: { id: true, email: true, name: true },
+      });
+
+      if (!targetUser) {
+        return errorResponse(
+          "VALIDATION_ERROR",
+          `Target user "${rawReceiver}" was not found. Please enter a valid registered user email, registration number, or user ID.`,
+          {
+            status: HTTP_2.UNPROCESSABLE,
+            details: { receiverId: [`Target user "${rawReceiver}" not found`] },
+          },
+        );
+      }
+
+      resolvedReceiverId = targetUser.id;
+      targetUserRecipient = targetUser;
+      body.receiverId = resolvedReceiverId;
+    } else {
+      body.receiverId = null;
+    }
+
     if (!body.date) {
       body.date = new Date().toISOString().split("T")[0];
+    }
+    if (!body.noticeNumber || !/^NTC\/\d{4,}$/i.test(body.noticeNumber.trim())) {
+      body.noticeNumber = await generateSequentialNoticeNumber(body.date);
+    } else {
+      body.noticeNumber = body.noticeNumber.trim().toUpperCase();
     }
     if (!body.description && body.content) {
       body.description = body.content;
@@ -430,7 +588,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let pdfUrl = result.data.pdfUrl || null;
     let pdfPublicId = result.data.pdfPublicId || null;
 
-        if (pdfFile && pdfFile.size > 0) {
+    if (pdfFile && pdfFile.size > 0) {
       if (pdfFile.size > 5 * 1024 * 1024) {
         return errorResponse(
           "VALIDATION_ERROR",
@@ -476,12 +634,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         description: result.data.description,
         senderId: userId,
         targetRole: isProgramScoped ? null : result.data.targetRole || null,
-        receiverId: isProgramScoped ? null : result.data.receiverId || null,
+        receiverId: isProgramScoped ? null : resolvedReceiverId,
         pdfUrl,
         pdfPublicId,
+        linkUrl: result.data.linkUrl ? result.data.linkUrl.trim() : null,
       },
       include: {
         sender: { select: { id: true, name: true, email: true, role: true } },
+        receiver: { select: { id: true, name: true, email: true, registrationNo: true } },
       },
     });
 
@@ -560,7 +720,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 recipients.map((rec) =>
                   prisma.notice.create({
                     data: {
-                      noticeNumber: `${result.data.noticeNumber}-${rec.id}`,
+                      noticeNumber: result.data.noticeNumber,
                       date: result.data.date,
                       title: result.data.title,
                       category: result.data.category,
@@ -639,7 +799,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               programRecipients.map((rec) =>
                 prisma.notice.create({
                   data: {
-                    noticeNumber: `${result.data.noticeNumber}-${rec.id}`,
+                    noticeNumber: result.data.noticeNumber,
                     date: result.data.date,
                     title: result.data.title,
                     category: result.data.category,
@@ -658,17 +818,84 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               email: rec.email,
               name: rec.name,
             }));
-          } else if (notice.receiverId) {
-            const user = await prisma.user.findUnique({
-              where: { id: notice.receiverId },
-              select: { email: true, name: true },
-            });
-            if (user) recipients = [user];
+          } else if (targetUserRecipient || notice.receiverId) {
+            if (targetUserRecipient) {
+              recipients = [{ email: targetUserRecipient.email, name: targetUserRecipient.name }];
+            } else {
+              const user = await prisma.user.findUnique({
+                where: { id: notice.receiverId! },
+                select: { email: true, name: true },
+              });
+              if (user) recipients = [user];
+            }
           } else if (notice.targetRole) {
-            recipients = await prisma.user.findMany({
-              where: { role: notice.targetRole, deletedAt: null },
-              select: { email: true, name: true },
-            });
+            if (notice.targetRole === "RECRUIT_USER") {
+              const [recruitUsers, jobApplicants] = await Promise.all([
+                prisma.user.findMany({
+                  where: { role: "RECRUIT_USER", deletedAt: null },
+                  select: { email: true, name: true },
+                }),
+                prisma.jobApplication.findMany({
+                  where: { deletedAt: null },
+                  select: { email: true, name: true },
+                }),
+              ]);
+              const recipientsMap = new Map<
+                string,
+                { email: string; name: string | null }
+              >();
+              for (const u of recruitUsers) {
+                if (u.email) recipientsMap.set(u.email.toLowerCase().trim(), u);
+              }
+              for (const a of jobApplicants) {
+                if (
+                  a.email &&
+                  !recipientsMap.has(a.email.toLowerCase().trim())
+                ) {
+                  recipientsMap.set(a.email.toLowerCase().trim(), {
+                    email: a.email,
+                    name: a.name,
+                  });
+                }
+              }
+              recipients = Array.from(recipientsMap.values());
+            } else if (notice.targetRole === "IMMERSION_USER") {
+              const [immersionUsers, immersionRegs] = await Promise.all([
+                prisma.user.findMany({
+                  where: { role: "IMMERSION_USER", deletedAt: null },
+                  select: { email: true, name: true },
+                }),
+                prisma.immersionRegistration.findMany({
+                  select: {
+                    student: { select: { email: true, name: true } },
+                  },
+                }),
+              ]);
+              const recipientsMap = new Map<
+                string,
+                { email: string; name: string | null }
+              >();
+              for (const u of immersionUsers) {
+                if (u.email) recipientsMap.set(u.email.toLowerCase().trim(), u);
+              }
+              for (const r of immersionRegs) {
+                if (
+                  r.student?.email &&
+                  !recipientsMap.has(r.student.email.toLowerCase().trim())
+                ) {
+                  recipientsMap.set(r.student.email.toLowerCase().trim(), {
+                    email: r.student.email,
+                    name: r.student.name,
+                  });
+                }
+              }
+              recipients = Array.from(recipientsMap.values());
+            } else {
+              recipients = await prisma.user.findMany({
+                where: { role: notice.targetRole, deletedAt: null },
+                select: { email: true, name: true },
+              });
+            }
           } else {
                         recipients = await prisma.user.findMany({
               where: { deletedAt: null },

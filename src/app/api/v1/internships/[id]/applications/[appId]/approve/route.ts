@@ -1,46 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { create } from "zustand";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 import { prisma } from "@/x/e3746f45";
+import { issueIdCard } from "@/x/c6f69c52";
 
-async function generateIdCardNo(): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = `ID-${year}-`;
-
-  const last = await prisma.idCard.findFirst({
-    where: { cardNo: { startsWith: prefix } },
-    orderBy: { cardNo: "desc" },
-  });
-
-  if (!last) {
-    return `${prefix}0001`;
-  }
-
-  const lastSeq = parseInt(last.cardNo.replace(prefix, ""), 10);
-  const nextSeq = String(lastSeq + 1).padStart(4, "0");
-  return `${prefix}${nextSeq}`;
-}
-
-async function issueIdCard(studentId: string, enrollmentId: string) {
-    const existing = await prisma.idCard.findUnique({
-    where: { enrollmentId },
-  });
-
-  if (existing) {
-    return existing;
-  }
-
-  const cardNo = await generateIdCardNo();
-
-  return await prisma.idCard.create({
-    data: {
-      cardNo,
-      studentId,
-      enrollmentId,
-    },
-  });
-}
+export const dynamic = "force-dynamic";
 
 interface ApiErrorResponse {
   success: false;
@@ -49,6 +12,22 @@ interface ApiErrorResponse {
     message: string;
     details?: unknown;
   };
+}
+
+interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+interface ApiSuccessResponse<T = unknown> {
+  success: true;
+  data: T;
+  message?: string;
+  meta?: PaginationMeta;
 }
 
 const HTTP = {
@@ -87,9 +66,7 @@ function errorResponse(
   });
 }
 
-function validationErrorResponse(
-  error: ZodError,
-): NextResponse<ApiErrorResponse> {
+function validationErrorResponse(error: ZodError): NextResponse<ApiErrorResponse> {
   return errorResponse("VALIDATION_ERROR", "Request validation failed", {
     status: HTTP.UNPROCESSABLE,
     details: error.flatten().fieldErrors,
@@ -97,17 +74,24 @@ function validationErrorResponse(
 }
 
 function handleError(error: unknown): NextResponse<ApiErrorResponse> {
-  console.error("[API Error]", error);
+  console.error("[API Error in approve application]", error);
 
   if (error instanceof ZodError) {
     return validationErrorResponse(error);
   }
 
   if (error instanceof Error) {
-        const message =
-      process.env["NODE_ENV"] === "production"
-        ? "An internal server error occurred"
-        : error.message;
+    let message = error.message;
+
+    // Prisma-specific human friendly error mapping
+    const prismaError = error as { code?: string; meta?: any };
+    if (prismaError.code === "P2002") {
+      message = "A unique constraint conflict occurred while assigning enrollment.";
+    } else if (prismaError.code === "P2003") {
+      message = "A referenced record (user or internship) was not found.";
+    } else if (prismaError.code === "P2025") {
+      message = "Application record was not found or already modified.";
+    }
 
     return errorResponse("INTERNAL_SERVER_ERROR", message, {
       status: HTTP.INTERNAL_SERVER_ERROR,
@@ -117,22 +101,6 @@ function handleError(error: unknown): NextResponse<ApiErrorResponse> {
   return errorResponse("UNKNOWN_ERROR", "An unexpected error occurred", {
     status: HTTP.INTERNAL_SERVER_ERROR,
   });
-}
-
-interface PaginationMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-interface ApiSuccessResponse<T = unknown> {
-  success: true;
-  data: T;
-  message?: string;
-  meta?: PaginationMeta;
 }
 
 function successResponse<T>(
@@ -153,25 +121,9 @@ function successResponse<T>(
   return NextResponse.json(body, { status: options?.status ?? HTTP.OK });
 }
 
-const HTTP_2 = {
-  OK: 200,
-  CREATED: 201,
-  NO_CONTENT: 204,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  UNPROCESSABLE: 422,
-  TOO_MANY_REQUESTS: 429,
-  INTERNAL_SERVER_ERROR: 500,
-} as const;
-
 const approveApplicationSchema = z.object({
   reviewNote: z.string().max(500).optional(),
 });
-
-export const dynamic = "force-dynamic";
 
 interface RouteContext {
   params: Promise<{ id: string; appId: string }>;
@@ -187,26 +139,32 @@ export async function PATCH(
 
     if (!requesterId) {
       return errorResponse("UNAUTHORIZED", "Authentication required.", {
-        status: HTTP_2.UNAUTHORIZED,
+        status: HTTP.UNAUTHORIZED,
       });
     }
 
     const { id: internshipId, appId } = await params;
 
+    // 1. Fetch the application with internship and student details
     const application = await prisma.internshipApplication.findFirst({
       where: { id: appId, internshipId },
-      include: { internship: true },
+      include: {
+        internship: true,
+        student: { select: { id: true, name: true, email: true } },
+      },
     });
 
     if (!application) {
       return errorResponse("APPLICATION_NOT_FOUND", "Application not found.", {
-        status: HTTP_2.NOT_FOUND,
+        status: HTTP.NOT_FOUND,
       });
     }
 
+    // 2. Role-based access control
+    const normalizedRole = requesterRole?.toUpperCase();
     const hasAccess =
-      requesterRole === "SUPER_ADMIN" ||
-      (requesterRole === "INSTRUCTOR" &&
+      normalizedRole === "SUPER_ADMIN" ||
+      (normalizedRole === "INSTRUCTOR" &&
         (application.internship.instructorId === requesterId ||
           application.internship.createdById === requesterId));
 
@@ -215,78 +173,270 @@ export async function PATCH(
         "FORBIDDEN",
         "Only the assigned instructor or admin can approve applications.",
         {
-          status: HTTP_2.FORBIDDEN,
+          status: HTTP.FORBIDDEN,
         },
       );
     }
 
-    if (
-      application.status !== "UNDER_REVIEW" &&
-      application.status !== "REJECTED"
-    ) {
+    // 3. Idempotent check: if already approved, return success without failing
+    if (application.status === "APPROVED") {
+      return successResponse(application, {
+        message: "Application is already approved.",
+      });
+    }
+
+    // 4. Verify student existence
+    if (!application.studentId) {
+      return errorResponse("INVALID_STUDENT", "Application is missing student ID.", {
+        status: HTTP.BAD_REQUEST,
+      });
+    }
+
+    const studentUser = await prisma.user.findUnique({
+      where: { id: application.studentId },
+      select: { id: true, email: true, name: true },
+    });
+
+    if (!studentUser) {
       return errorResponse(
-        "INVALID_STATUS",
-        `Cannot approve — application is already ${application.status}.`,
-        { status: HTTP_2.CONFLICT },
+        "STUDENT_NOT_FOUND",
+        "The student account associated with this application does not exist.",
+        { status: HTTP.NOT_FOUND },
       );
     }
 
+    // 5. Parse review note safely
     const body: unknown = await request.json().catch(() => ({}));
     const parsed = approveApplicationSchema.safeParse(body);
     const reviewNote = parsed.success ? (parsed.data.reviewNote ?? null) : null;
 
-        const [enrollment] = await prisma.$transaction([
-      prisma.enrollment.create({
-        data: {
-          userId: application.studentId,
-          internshipId: application.internshipId,
-        },
-      }),
-    ]);
+    // 6. Verify reviewer user ID exists to prevent foreign key violation (P2003)
+    let validReviewerId: string | null = null;
+    if (requesterId) {
+      const reviewer = await prisma.user.findUnique({
+        where: { id: requesterId },
+        select: { id: true },
+      });
+      if (reviewer) {
+        validReviewerId = reviewer.id;
+      } else {
+        console.warn(
+          `[Approve Application] Requester ID ${requesterId} not found in User table. Setting reviewedById to null.`,
+        );
+      }
+    }
 
-        await issueIdCard(application.studentId, enrollment.id);
-
-    const updatedApp = await prisma.internshipApplication.update({
-      where: { id: appId },
-      data: {
-        status: "APPROVED",
-        reviewedAt: new Date(),
-        reviewedById: requesterId,
-        reviewNote,
-        enrollmentId: enrollment.id,
-      },
-      include: {
-        student: { select: { id: true, name: true, email: true } },
-        internship: {
-          select: {
-            id: true,
-            title: true,
-            companyName: true,
-            type: true,
-            mode: true,
+    // 7. Atomic transaction for Enrollment creation/linkage and Application update
+    const { updatedApp, enrollment } = await prisma.$transaction(
+      async (tx) => {
+        // A. Upsert enrollment for (userId, internshipId)
+        const enr = await tx.enrollment.upsert({
+          where: {
+            userId_internshipId: {
+              userId: application.studentId,
+              internshipId: application.internshipId,
+            },
           },
-        },
-        reviewedBy: { select: { id: true, name: true } },
-      },
-    });
+          update: {},
+          create: {
+            userId: application.studentId,
+            internshipId: application.internshipId,
+          },
+        });
 
-        const { sendInternshipApplicationStatusUpdateEmail } =
-      await import("@/x/b7e0f2d7");
-    sendInternshipApplicationStatusUpdateEmail(
-      updatedApp.student.email,
-      updatedApp.student.name || "Student",
-      updatedApp.internship.title,
-      "APPROVED",
-    ).catch((err) =>
-      console.error(
-        "[EMAIL ERROR] Failed to send internship application approval email:",
-        err,
-      ),
+        // B. Handle unique constraint on enrollmentId:
+        // If another application already points to this enrollmentId, unlink it
+        const conflictingApp = await tx.internshipApplication.findUnique({
+          where: { enrollmentId: enr.id },
+          select: { id: true },
+        });
+
+        if (conflictingApp && conflictingApp.id !== appId) {
+          await tx.internshipApplication.update({
+            where: { id: conflictingApp.id },
+            data: { enrollmentId: null },
+          });
+        }
+
+        // C. Update application status to APPROVED
+        const app = await tx.internshipApplication.update({
+          where: { id: appId },
+          data: {
+            status: "APPROVED",
+            reviewedAt: new Date(),
+            reviewedById: validReviewerId,
+            reviewNote,
+            enrollmentId: enr.id,
+          },
+          include: {
+            student: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                registrationNo: true,
+                studentRegistration: {
+                  select: {
+                    studentId: true,
+                    fullName: true,
+                    academics: {
+                      select: {
+                        qualification: true,
+                        stream: true,
+                        subject: true,
+                        instituteName: true,
+                        universityName: true,
+                        sessionYear: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            internship: {
+              select: {
+                id: true,
+                code: true,
+                title: true,
+                companyName: true,
+                type: true,
+                mode: true,
+                duration: true,
+                startDate: true,
+                stipendAmount: true,
+                organizer: true,
+                instructor: { select: { name: true } },
+              },
+            },
+            reviewedBy: { select: { id: true, name: true } },
+          },
+        });
+
+        return { updatedApp: app, enrollment: enr };
+      },
+      {
+        timeout: 15000,
+        maxWait: 5000,
+      },
     );
 
+    // 8. Safely issue ID card (non-fatal if card creation encounters a glitch)
+    try {
+      await issueIdCard(application.studentId, enrollment.id);
+    } catch (cardError) {
+      console.warn(
+        `[Approve Application] ID card generation warning for student ${application.studentId}:`,
+        cardError,
+      );
+    }
+
+    // 9. Generate official Offer Letter PDF and send email notification asynchronously
+    if (updatedApp.student?.email) {
+      (async () => {
+        try {
+          const { sendInternshipApplicationStatusUpdateEmail } = await import(
+            "@/x/b7e0f2d7"
+          );
+          const {
+            generateInternshipOfferLetterPDF,
+            pickHighestAcademicRecord,
+            formatQualificationStream,
+          } = await import("@/lib/offerLetterGenerator");
+
+          const student = updatedApp.student;
+          const reg = student.studentRegistration;
+          const highestAcademic = pickHighestAcademicRecord(reg?.academics);
+          const internship = updatedApp.internship;
+
+          const studentName = (
+            reg?.fullName ||
+            student.name ||
+            "Student"
+          ).trim();
+
+          const registrationNo =
+            reg?.studentId || student.registrationNo || "NA";
+
+          const collegeName =
+            highestAcademic?.instituteName || "Recognised College / Institution";
+          const universityName =
+            highestAcademic?.universityName || "Recognised University";
+          const qualificationStream =
+            formatQualificationStream(highestAcademic);
+          const sessionYear =
+            highestAcademic?.sessionYear || "Current Academic Session";
+
+          let stipendText: string | null = null;
+          if (
+            (internship?.type === "STIPEND" ||
+              (internship?.stipendAmount && internship.stipendAmount > 0)) &&
+            internship?.stipendAmount
+          ) {
+            stipendText = `Rs. ${internship.stipendAmount.toLocaleString("en-IN")} / Month`;
+          }
+
+          const safeStudentFilename = studentName
+            .replace(/[^a-zA-Z0-9_\-]/g, "_")
+            .replace(/_+/g, "_")
+            .trim();
+
+          let pdfAttachment: { buffer: Buffer; filename: string } | undefined;
+
+          try {
+            const offerPdfBuffer = await generateInternshipOfferLetterPDF({
+              letterRefNo:
+                updatedApp.code || `APP-${updatedApp.id.slice(-6).toUpperCase()}`,
+              applicationId:
+                updatedApp.code || `APP-${updatedApp.id.slice(-6).toUpperCase()}`,
+              offerDate: new Date(),
+              studentName,
+              registrationNo,
+              collegeName,
+              universityName,
+              qualificationStream,
+              sessionYear,
+              internshipId: internship?.code || "i3-INT-2026",
+              internshipTitle: internship?.title || "Internship Program",
+              duration: internship?.duration || "120 Hours",
+              mode: internship?.mode || "Online",
+              startDate: internship?.startDate || null,
+              endDate: null,
+              coordinator:
+                internship?.instructor?.name ||
+                internship?.organizer ||
+                "Dr. Avishek Kumar",
+              stipend: stipendText,
+              verificationUrl: `https://www.iiinternship.in/student/dashboard`,
+            });
+
+            if (offerPdfBuffer && Buffer.isBuffer(offerPdfBuffer)) {
+              pdfAttachment = {
+                buffer: offerPdfBuffer,
+                filename: `${safeStudentFilename}_Internship_Offer_Letter.pdf`,
+              };
+            }
+          } catch (pdfErr) {
+            console.error("[Offer Letter Generation Failed]", pdfErr);
+          }
+
+          await sendInternshipApplicationStatusUpdateEmail(
+            student.email,
+            studentName,
+            internship?.title || "Internship Program",
+            "APPROVED",
+            pdfAttachment,
+          );
+        } catch (err) {
+          console.error(
+            "[EMAIL ERROR] Failed to send internship application approval email:",
+            err,
+          );
+        }
+      })();
+    }
+
     return successResponse(updatedApp, {
-      message:
-        "Application approved. Enrollment & ID Card created successfully.",
+      message: "Application approved. Enrollment & ID Card processed successfully.",
     });
   } catch (error) {
     return handleError(error);

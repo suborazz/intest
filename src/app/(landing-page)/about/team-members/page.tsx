@@ -1,7 +1,55 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Award, Briefcase, GraduationCap, Quote, Sparkles, Users } from "lucide-react";
+import {
+  Award,
+  Briefcase,
+  GraduationCap,
+  Quote,
+  Sparkles,
+  Users,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+} from "lucide-react";
+import { prisma } from "@/x/e3746f45";
+
+export const dynamic = "force-dynamic";
+
+interface Official {
+  id: string;
+  slNo: number;
+  name: string;
+  designation: string;
+  workingLocation: string;
+  mobile: string;
+  email: string;
+  isActive?: boolean;
+}
+
+async function getOfficials(): Promise<Official[]> {
+  try {
+    const rows = await prisma.$queryRawUnsafe<any[]>(`
+      SELECT 
+        id, 
+        "slNo", 
+        name, 
+        designation, 
+        "workingLocation", 
+        mobile, 
+        email, 
+        "isActive"
+      FROM institution_officials
+      WHERE "isActive" = true
+      ORDER BY "slNo" ASC, "createdAt" ASC
+    `);
+    return rows || [];
+  } catch (error) {
+    console.error("Error fetching officials for team-members page:", error);
+    return [];
+  }
+}
 
 interface HeroSectionProps {
   tag: string;
@@ -121,7 +169,34 @@ const leaders = [
   },
 ];
 
-export default function TeamMembersPage() {
+export default async function TeamMembersPage() {
+  const dbOfficials = await getOfficials();
+
+  // Clean fallback sample records if DB doesn't have officials yet
+  const officials: Official[] =
+    dbOfficials.length > 0
+      ? dbOfficials
+      : [
+          {
+            id: "sample_1",
+            slNo: 1,
+            name: "Dr. Avishek Kumar",
+            designation: "CMD & Founder",
+            workingLocation: "Patna / Varanasi",
+            mobile: "+91 6204956366",
+            email: "info@iiinternship.in",
+          },
+          {
+            id: "sample_2",
+            slNo: 2,
+            name: "Mr. Tapas Kumar",
+            designation: "Strategic Advisor & CEO",
+            workingLocation: "Lucknow, Uttar Pradesh",
+            mobile: "+91 6204956366",
+            email: "tapas@learnifyconsultancy.com",
+          },
+        ];
+
   return (
     <main className="bg-background min-h-screen">
       <HeroSection_8
@@ -194,6 +269,148 @@ export default function TeamMembersPage() {
             </div>
           ))}
         </div>
+
+        {/* ── List of Officials from Our Institution ── */}
+        <section className="mb-16">
+          <div className="mb-8 text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-bold uppercase tracking-wider mb-3">
+              <Building2 className="size-3.5" />
+              Administrative Governance
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              List of Officials from Our Institution
+            </h2>
+            <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
+              संस्थान के अन्य महत्वपूर्ण पदाधिकारीगण, समन्वयक एवं विभिन्न क्षेत्रीय केंद्रों के प्रशासनिक प्रतिनिधि।
+            </p>
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-hidden rounded-3xl border border-emerald-900/10 bg-white shadow-xl shadow-emerald-950/5">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-emerald-100 bg-gradient-to-r from-emerald-50/90 via-emerald-50/50 to-slate-50/90 text-xs font-bold uppercase tracking-wider text-emerald-900">
+                  <th className="py-4 px-5 text-center w-20">Sl. No.</th>
+                  <th className="py-4 px-6">Name</th>
+                  <th className="py-4 px-6">Designation</th>
+                  <th className="py-4 px-6">Working Location</th>
+                  <th className="py-4 px-6">Contact</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {officials.map((official) => (
+                  <tr
+                    key={official.id}
+                    className="transition hover:bg-emerald-50/30 group"
+                  >
+                    <td className="py-4 px-5 text-center font-bold text-emerald-700">
+                      <span className="inline-flex size-8 items-center justify-center rounded-xl bg-emerald-50 text-xs font-extrabold text-emerald-800 border border-emerald-200/70">
+                        {official.slNo}
+                      </span>
+                    </td>
+
+                    <td className="py-4 px-6">
+                      <div className="font-bold text-slate-900 text-[15px] group-hover:text-emerald-800 transition">
+                        {official.name}
+                      </div>
+                    </td>
+
+                    <td className="py-4 px-6">
+                      <div className="inline-flex items-center gap-1.5 font-medium text-slate-700">
+                        <Briefcase className="size-3.5 text-emerald-600 shrink-0" />
+                        <span>{official.designation}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-4 px-6">
+                      <div className="inline-flex items-center gap-1.5 font-medium text-slate-600 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full text-xs">
+                        <MapPin className="size-3.5 text-amber-600 shrink-0" />
+                        <span className="text-amber-900">{official.workingLocation}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col gap-1.5 text-xs">
+                        {official.mobile && (
+                          <a
+                            href={`tel:${official.mobile}`}
+                            className="inline-flex items-center gap-2 font-semibold text-emerald-700 hover:text-emerald-800 hover:underline transition"
+                          >
+                            <Phone className="size-3.5 shrink-0 text-emerald-600" />
+                            <span>{official.mobile}</span>
+                          </a>
+                        )}
+                        {official.email && (
+                          <a
+                            href={`mailto:${official.email}`}
+                            className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-700 hover:underline transition"
+                          >
+                            <Mail className="size-3.5 shrink-0 text-emerald-600" />
+                            <span>{official.email}</span>
+                          </a>
+                        )}
+                        {!official.mobile && !official.email && (
+                          <span className="text-slate-400 italic">No contact provided</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards View */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {officials.map((official) => (
+              <div
+                key={official.id}
+                className="relative rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-md shadow-emerald-950/5 space-y-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="inline-flex size-6 items-center justify-center rounded-lg bg-emerald-50 text-[11px] font-bold text-emerald-800 border border-emerald-200/80 mb-1.5">
+                      #{official.slNo}
+                    </span>
+                    <h3 className="text-base font-bold text-slate-900">
+                      {official.name}
+                    </h3>
+                    <p className="text-xs font-semibold text-emerald-700 mt-0.5 flex items-center gap-1.5">
+                      <Briefcase className="size-3 shrink-0" />
+                      {official.designation}
+                    </p>
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/80 px-2.5 py-1 text-[11px] font-semibold text-amber-800 shrink-0">
+                    <MapPin className="size-3 shrink-0 text-amber-600" />
+                    {official.workingLocation}
+                  </span>
+                </div>
+
+                <div className="border-t border-slate-100 pt-3 flex flex-col gap-2 text-xs">
+                  {official.mobile && (
+                    <a
+                      href={`tel:${official.mobile}`}
+                      className="inline-flex items-center gap-2 font-medium text-emerald-700 bg-emerald-50/60 p-2 rounded-xl"
+                    >
+                      <Phone className="size-3.5 shrink-0" />
+                      <span>{official.mobile}</span>
+                    </a>
+                  )}
+                  {official.email && (
+                    <a
+                      href={`mailto:${official.email}`}
+                      className="inline-flex items-center gap-2 font-medium text-slate-700 bg-slate-50 p-2 rounded-xl"
+                    >
+                      <Mail className="size-3.5 shrink-0 text-emerald-600" />
+                      <span className="truncate">{official.email}</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Core Philosophy Banner */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#063B27] via-[#0A5C36] to-[#04281A] p-8 sm:p-10 text-white shadow-2xl">

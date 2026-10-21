@@ -198,6 +198,7 @@ const createJobPlacementCompanySchema = z.object({
     .trim(),
   skillsRequired: z.array(z.string()).min(1, "At least one skill is required"),
   staffStrength: z.string().min(1, "Staff strength is required").trim(),
+  salaryRange: z.string().optional().nullable(),
   website: z.string().url("Invalid website URL").trim(),
   logo: z.string().optional().nullable(),
   logoPublicId: z.string().optional().nullable(),
@@ -233,7 +234,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { page, limit, search } = parsed.data;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.JobPlacementCompanyWhereInput = {};
+    const where: any = {};
 
     if (search) {
       where.OR = [
@@ -241,6 +242,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         { address: { contains: search, mode: "insensitive" } },
         { postOpportunity: { contains: search, mode: "insensitive" } },
         { fieldOfEmployment: { contains: search, mode: "insensitive" } },
+        { salaryRange: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -290,6 +292,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       minQualification?: string;
       skillsRequired?: string[];
       staffStrength?: string;
+      salaryRange?: string;
       website?: string;
     } = {};
     let logoFile: File | null = null;
@@ -321,6 +324,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         minQualification: formData.get("minQualification") as string,
         skillsRequired,
         staffStrength: formData.get("staffStrength") as string,
+        salaryRange: (formData.get("salaryRange") as string) || undefined,
         website: formData.get("website") as string,
       };
 
@@ -378,12 +382,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         minQualification: result.data.minQualification,
         skillsRequired: result.data.skillsRequired,
         staffStrength: result.data.staffStrength,
+        salaryRange: result.data.salaryRange || null,
         website: result.data.website,
         logo: logoUrl,
         logoPublicId,
         photo: photoUrl,
         photoPublicId,
-      },
+      } as any,
     });
 
     return successResponse(company, {

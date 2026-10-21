@@ -656,13 +656,22 @@ function ResponsiveDialog({
             "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
             className,
           )}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
           <div className="shrink-0 p-4 pb-2">
             <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
+              {React.isValidElement(title) ? (
+                <DialogTitle asChild>{title}</DialogTitle>
+              ) : (
+                <DialogTitle>{title}</DialogTitle>
               )}
+              {description &&
+                (React.isValidElement(description) ? (
+                  <DialogDescription asChild>{description}</DialogDescription>
+                ) : (
+                  <DialogDescription>{description}</DialogDescription>
+                ))}
             </DialogHeader>
           </div>
           <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
@@ -674,11 +683,24 @@ function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
+    <Drawer dismissible={false} open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerContent
+        className={cn("max-h-[90vh]", className)}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
+          {React.isValidElement(title) ? (
+            <DrawerTitle asChild>{title}</DrawerTitle>
+          ) : (
+            <DrawerTitle>{title}</DrawerTitle>
+          )}
+          {description &&
+            (React.isValidElement(description) ? (
+              <DrawerDescription asChild>{description}</DrawerDescription>
+            ) : (
+              <DrawerDescription>{description}</DrawerDescription>
+            ))}
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
@@ -9584,11 +9606,22 @@ export default function JobApplicationsPage({
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `job-applications-${jobOpportunityId}.xlsx`;
+            const safePost = (job?.postOpportunity || "vacancy")
+              .replace(/[^a-z0-9]+/gi, "-")
+              .toLowerCase();
+            const safeAdvt = (job?.advtNo || "notice")
+              .replace(/[^a-z0-9]+/gi, "-")
+              .toLowerCase();
+            const dateStr = new Date().toISOString().split("T")[0];
+            a.download = `applications-${safePost}-${safeAdvt}-${dateStr}.xlsx`;
             document.body.appendChild(a);
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
+            toast.success("Applications Excel downloaded successfully!");
+          },
+          onError: (err: any) => {
+            toast.error(err?.message || "Failed to download applications Excel.");
           },
         });
 
@@ -9660,14 +9693,32 @@ export default function JobApplicationsPage({
                   small
                 />
                 <Button
-                  variant="outline"
+                  id="btn-download-vacancy-excel"
+                  variant="default"
                   size="sm"
-                                              onClick={() => exportApplications(jobOpportunityId)}
-                  disabled={isExporting || allApps.length === 0}
-                  className="h-8 shrink-0 gap-1.5 rounded-lg text-xs font-semibold"
+                  onClick={() => {
+                    if (allApps.length === 0) {
+                      toast.info("No applications submitted for this vacancy yet.");
+                      return;
+                    }
+                    exportApplications(jobOpportunityId);
+                  }}
+                  disabled={isExporting}
+                  className="h-8 shrink-0 gap-1.5 rounded-lg text-xs font-bold bg-[#006e52] hover:bg-[#005a43] text-white shadow-2xs transition-all active:scale-95"
+                  title="Download all candidate applications with full columns in Excel"
                 >
-                  <FileSpreadsheet className="size-3.5" />
-                  {isExporting ? "Exporting..." : "Download Excel"}
+                  {isExporting ? (
+                    <>
+                      <Loader2Icon className="size-3.5 animate-spin" />
+                      <span>Exporting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileSpreadsheet className="size-3.5" />
+                      <span>Download Excel</span>
+                      <Download className="size-3 opacity-90" />
+                    </>
+                  )}
                 </Button>
               </div>
             }

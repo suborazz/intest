@@ -647,6 +647,7 @@ interface Notice {
       description: string;
       pdfUrl?: string | null;
       pdfPublicId?: string | null;
+      linkUrl?: string | null;
       senderId: string;
       sender?: {
         id: string;
@@ -1381,13 +1382,13 @@ const HeroSection_12 = () => {
                 </svg>
               </div>
 
-              {}
-              <h1 className="text-primary-foreground font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-[clamp(2.3rem,6vw,5rem)] leading-[1.1]">
+              {/* Title */}
+              <h1 className="text-primary-foreground font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-2xl sm:text-3xl lg:text-4xl leading-tight font-bold">
                 Notices
               </h1>
 
-              {}
-              <p className="text-primary-foreground/85 mx-auto mt-[12px] max-w-[500px] text-left text-[0.9rem] leading-[1.6] sm:text-[1.1rem] lg:mx-0">
+              {/* Description */}
+              <p className="text-primary-foreground/85 mx-auto mt-[10px] max-w-[500px] text-left text-xs sm:text-sm leading-relaxed lg:mx-0">
                 Stay informed with the latest II (Industrial Internship) notices,
                 including important announcements, application schedules,
                 eligibility details, and guidelines. Check regularly for updates on
@@ -2341,6 +2342,11 @@ export default function NoticesPage() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedNoticeIds, setExpandedNoticeIds] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (id: string) => {
+    setExpandedNoticeIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const { data: res, isLoading } = StudentDataHook.useNotices();
   const notices = useMemo(() => res?.data || [], [res]);
@@ -2396,10 +2402,10 @@ export default function NoticesPage() {
             {}
             <div className="mb-6 flex flex-col justify-between gap-4 md:mb-8 md:flex-row md:items-end md:gap-6">
               <div>
-                <h2 className="text-foreground mb-1 text-2xl font-extrabold tracking-tight drop-shadow-sm md:mb-2 md:text-3xl">
+                <h2 className="text-foreground mb-1 text-lg sm:text-xl md:text-2xl font-bold tracking-tight drop-shadow-sm">
                   Notice Board
                 </h2>
-                <p className="text-muted-foreground max-w-2xl text-xs font-medium sm:text-sm md:text-base">
+                <p className="text-muted-foreground max-w-2xl text-xs sm:text-sm font-medium">
                   Search, filter, and download all official documents from the
                   archive.
                 </p>
@@ -2510,7 +2516,7 @@ export default function NoticesPage() {
                             Notice No.
                           </th>
                           <th className="text-muted-foreground/80 w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest md:px-6 md:py-4 md:text-xs">
-                            Subject
+                            Subject / Title & Description
                           </th>
                           <th className="text-muted-foreground/80 whitespace-nowrap px-4 py-3 text-center text-[10px] font-bold uppercase tracking-widest md:px-6 md:py-4 md:text-xs">
                             Category
@@ -2536,18 +2542,88 @@ export default function NoticesPage() {
                               })}
                             </td>
                             <td className="text-muted-foreground whitespace-nowrap px-4 py-3 text-xs md:px-6 md:py-5 md:text-sm">
-                              <span className="rounded-md border border-white/80 bg-white/60 px-2 py-1 font-mono text-[10px] font-medium md:rounded-lg md:px-3 md:py-1.5 md:text-xs">
+                              <span className="inline-flex items-center rounded-md border border-emerald-600/30 bg-emerald-50/90 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300 px-2.5 py-1 font-mono text-[11px] font-bold shadow-2xs">
                                 {notice.noticeNumber}
                               </span>
                             </td>
-                            <td className="text-foreground/90 group-hover:text-primary px-4 py-3 pr-6 text-sm font-bold transition-colors md:px-6 md:py-5 md:pr-10 md:text-[15px]">
-                              <Link href={`/notice/${notice.id}`}>
-                                {notice.title}
-                              </Link>
+                            <td className="px-4 py-3.5 md:px-6 md:py-4 align-top max-w-sm sm:max-w-md lg:max-w-xl">
+                              <div className="space-y-1">
+                                <Link
+                                  href={`/notice/${notice.id}`}
+                                  className="text-primary hover:text-primary/80 font-bold transition-colors inline-block text-[13px] md:text-sm leading-snug hover:underline"
+                                  title="Click to view full notice"
+                                >
+                                  {notice.title}
+                                </Link>
+                                {(() => {
+                                  const rawText = notice.description || (notice as any).content || "";
+                                  if (!rawText) return null;
+                                  const normalized = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+                                  const hasDoubleNewline = /\n\s*\n/.test(normalized);
+                                  const paragraphs = hasDoubleNewline
+                                    ? normalized.split(/\n\s*\n+/)
+                                    : normalized.split(/\n+/);
+                                  const isExpanded = !!expandedNoticeIds[notice.id];
+                                  const isMulti = paragraphs.length > 1 || normalized.length > 160;
+
+                                  if (!isExpanded) {
+                                    return (
+                                      <div className="space-y-1">
+                                        <p className="text-muted-foreground text-[11px] md:text-xs leading-relaxed text-justify line-clamp-2">
+                                          {paragraphs[0]}
+                                        </p>
+                                        {isMulti && (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              toggleExpand(notice.id);
+                                            }}
+                                            className="text-[10px] font-semibold text-primary hover:underline cursor-pointer inline-flex items-center gap-1"
+                                          >
+                                            + View Full Paragraphs ({paragraphs.length} paragraphs)
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  }
+
+                                  return (
+                                    <div className="space-y-2.5 pt-1.5 border-t border-border/30">
+                                      {paragraphs.map((p: string, i: number) => (
+                                        <p
+                                          key={i}
+                                          className="text-muted-foreground text-[11px] md:text-xs leading-relaxed text-justify whitespace-pre-line"
+                                        >
+                                          {p.trim()}
+                                        </p>
+                                      ))}
+                                      <div className="flex items-center gap-3 pt-1">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            toggleExpand(notice.id);
+                                          }}
+                                          className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
+                                        >
+                                          - Show Less
+                                        </button>
+                                        <Link
+                                          href={`/notice/${notice.id}`}
+                                          className="text-[10px] font-semibold text-emerald-600 hover:underline inline-flex items-center gap-0.5"
+                                        >
+                                          Open Dedicated Page &rarr;
+                                        </Link>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </div>
                             </td>
-                            <td className="whitespace-nowrap px-4 py-3 text-center md:px-6 md:py-5">
+                            <td className="whitespace-nowrap px-4 py-3.5 text-center md:px-6 md:py-4 align-top">
                               <span
-                                className={`inline-flex rounded-full px-3 py-1 text-[9px] font-extrabold uppercase tracking-widest md:px-4 md:py-1.5 md:text-[11px]
+                                className={`inline-flex rounded-full px-3 py-1 text-[9px] font-extrabold uppercase tracking-widest md:px-3.5 md:py-1 md:text-[10px]
                                 ${
                                   notice.category === "Important"
                                     ? "border border-red-200/60 bg-red-100/80 text-red-700"
@@ -2563,17 +2639,16 @@ export default function NoticesPage() {
                                 {notice.category}
                               </span>
                             </td>
-                            <td className="whitespace-nowrap px-4 py-3 text-right md:px-6 md:py-5">
-                              {notice.pdfUrl ? (
-                                <a
-                                  href={notice.pdfUrl}
-                                  download
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-primary hover:bg-primary inline-flex items-center justify-center rounded-full border border-white/60 bg-white/80 px-4 py-2 text-xs font-bold shadow-[0_2px_8px_rgba(var(--primary),0.1)] backdrop-blur-sm transition-all hover:text-white hover:shadow-[0_4px_16px_rgba(var(--primary),0.3)] md:px-5 md:py-2.5 md:text-sm"
+                            <td className="whitespace-nowrap px-4 py-3.5 text-right md:px-6 md:py-4 align-top">
+                              <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                {/* Read Button */}
+                                <Link
+                                  href={`/notice/${notice.id}`}
+                                  title="Read full notice and description"
+                                  className="text-primary hover:text-white bg-primary/10 hover:bg-primary border border-primary/30 inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-bold shadow-2xs transition-all hover:shadow-xs active:scale-95"
                                 >
                                   <svg
-                                    className="mr-1.5 h-3 w-3 md:mr-2 md:h-4 md:w-4"
+                                    className="mr-1 h-3.5 w-3.5"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -2581,15 +2656,72 @@ export default function NoticesPage() {
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
-                                      strokeWidth={2.5}
-                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                      strokeWidth={2}
+                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                     />
                                   </svg>
-                                  Download
-                                </a>
-                              ) : (
-                                "—"
-                              )}
+                                  Read
+                                </Link>
+
+                                {/* Download File Button */}
+                                {notice.pdfUrl && (
+                                  <a
+                                    href={notice.pdfUrl}
+                                    download
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Download Attached Document / PDF"
+                                    className="text-emerald-700 hover:text-white bg-emerald-50 hover:bg-emerald-600 border border-emerald-300 inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-bold shadow-2xs transition-all hover:shadow-xs active:scale-95"
+                                  >
+                                    <svg
+                                      className="mr-1 h-3.5 w-3.5"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2.5}
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                      />
+                                    </svg>
+                                    Download
+                                  </a>
+                                )}
+
+                                {/* External Link Button */}
+                                {notice.linkUrl && (
+                                  <a
+                                    href={notice.linkUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Open Link in New Tab"
+                                    className="text-blue-700 hover:text-white bg-blue-50 hover:bg-blue-600 border border-blue-300 inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-bold shadow-2xs transition-all hover:shadow-xs active:scale-95"
+                                  >
+                                    <svg
+                                      className="mr-1 h-3.5 w-3.5"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2.5}
+                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                      />
+                                    </svg>
+                                    Link ↗
+                                  </a>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -2778,6 +2910,29 @@ export default function NoticesPage() {
                           >
                             {notice.category}
                           </span>
+                          {notice.pdfUrl && (
+                            <a
+                              href={notice.pdfUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              download
+                              title="Download File"
+                              className="inline-flex items-center gap-1 text-[8px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 rounded px-1.5 py-0.5 hover:bg-emerald-600 hover:text-white transition-colors"
+                            >
+                              PDF
+                            </a>
+                          )}
+                          {notice.linkUrl && (
+                            <a
+                              href={notice.linkUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open Link in New Tab"
+                              className="inline-flex items-center gap-1 text-[8px] font-bold text-blue-700 bg-blue-50 border border-blue-300 rounded px-1.5 py-0.5 hover:bg-blue-600 hover:text-white transition-colors"
+                            >
+                              Link ↗
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>

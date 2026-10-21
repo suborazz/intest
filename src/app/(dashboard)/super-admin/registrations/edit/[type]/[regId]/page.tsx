@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import * as React from "react";
-import { Code, Compass, Edit, GraduationCap as GraduationCap_2, MapPin as MapPin_2, Save, User, Target } from "lucide-react";
+import { Code, Compass, Edit, GraduationCap as GraduationCap_2, MapPin as MapPin_2, Save, User, Target, Plus, Trash2, Upload, ImageIcon, Award, BookOpen, FileText } from "lucide-react";
 import React_3 from "react";
 import { useRouter } from "next/navigation";
 import { Select as SelectPrimitive } from "radix-ui";
@@ -3802,66 +3802,27 @@ function ResponsiveDialog({
   setIsOpen?: (open: boolean) => void;
   className?: string;
 }) {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-
-  if (isDesktop) {
-    return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent
-          className={cn(
-            "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
-            className,
-          )}
-        >
-          <div className="shrink-0 p-4 pb-2">
-            <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
-              )}
-            </DialogHeader>
-          </div>
-          <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
-            {children}
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
-        <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
-        </DrawerHeader>
-        <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent
+        className={cn(
+          "flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 w-[96vw] max-w-4xl",
+          className,
+        )}
+      >
+        <div className="shrink-0 p-4 pb-3 border-b border-border/50 bg-muted/20">
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg font-bold">{title}</DialogTitle>
+            {description && (
+              <DialogDescription className="text-xs text-muted-foreground">{description}</DialogDescription>
+            )}
+          </DialogHeader>
+        </div>
+        <div className="overflow-y-auto p-4 sm:p-6 space-y-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
         </div>
-        <div className="absolute right-4 top-4">
-          <DrawerClose asChild>
-            <button className="bg-muted/50 hover:bg-muted rounded-full p-2 transition-colors">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-              <span className="sr-only">Close</span>
-            </button>
-          </DrawerClose>
-        </div>
-      </DrawerContent>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -5075,71 +5036,310 @@ function SelectValue_27({
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
+const qualificationsOptions = [
+  "Matriculation",
+  "Intermediate",
+  "Under Graduate",
+  "Graduate Pass Out",
+  "Under Post Graduate",
+  "Post Graduate Pass Out",
+  "Under M. Phil.",
+  "M. Phil. Pass Out",
+  "Under Ph.D",
+  "Ph.D Pass Out",
+  "Diploma / ITI",
+  "Other",
+];
+
 const EditStudentForm_2: React_3.FunctionComponent<
   IEditStudentFormProps
 > = ({ reg }) => {
   const router = useRouter();
+  const photoInputRef = React.useRef<HTMLInputElement>(null);
+  const sigInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm({
     defaultValues: {
       fullName: reg.fullName || "",
       fatherName: reg.fatherName || "",
       motherName: reg.motherName || "",
-      dob: reg.dob || "",
+      dob: reg.dob ? (reg.dob.includes("T") ? reg.dob.split("T")[0] : reg.dob) : "",
       gender: reg.gender || "Male",
       category: reg.category || "General",
       mobileNo: reg.mobileNo || "",
       aadharNo: reg.aadharNo || "",
-      internshipGoal: reg.internshipGoal || "Skill Enhancement",
+      internshipGoal: reg.internshipGoal ? reg.internshipGoal.replace(/_/g, " ") : "Skill Enhancement",
       localAddressLocal: reg.localAddressLocal || "",
+      localAddressBlock: reg.localAddressBlock || "",
       localAddressDistrict: reg.localAddressDistrict || "",
       localAddressState: reg.localAddressState || "",
       localAddressPinCode: reg.localAddressPinCode || "",
-      sameAsLocal: reg.sameAsLocal || false,
+      sameAsLocal: Boolean(reg.sameAsLocal),
       permAddressLocal: reg.permAddressLocal || "",
+      permAddressBlock: reg.permAddressBlock || "",
       permAddressDistrict: reg.permAddressDistrict || "",
       permAddressState: reg.permAddressState || "",
       permAddressPinCode: reg.permAddressPinCode || "",
     },
   });
 
+  const sameAsLocal = form.watch("sameAsLocal");
+
+  // Academics dynamic list
+  const [academics, setAcademics] = useState<
+    Array<{
+      id?: string;
+      qualification: string;
+      stream: string;
+      subject: string;
+      instituteName: string;
+      universityName: string;
+      sessionYear: string;
+      gradeDivision: string;
+      status: "Pass Out" | "Persuing";
+    }>
+  >(() => {
+    if (Array.isArray(reg.academics) && reg.academics.length > 0) {
+      return reg.academics.map((ac: any) => ({
+        id: ac.id,
+        qualification: ac.qualification || "Under Graduate",
+        stream: ac.stream || "",
+        subject: ac.subject || "",
+        instituteName: ac.instituteName || "",
+        universityName: ac.universityName || "",
+        sessionYear: ac.sessionYear || "",
+        gradeDivision: ac.gradeDivision || "",
+        status:
+          ac.status === "Pass_Out" || ac.status === "Pass Out"
+            ? "Pass Out"
+            : "Persuing",
+      }));
+    }
+    return [
+      {
+        qualification: "Under Graduate",
+        stream: "",
+        subject: "",
+        instituteName: "",
+        universityName: "",
+        sessionYear: "",
+        gradeDivision: "",
+        status: "Persuing",
+      },
+    ];
+  });
+
+  // Skills dynamic list
+  const [skills, setSkills] = useState<
+    Array<{
+      id?: string;
+      skillName: string;
+      description: string;
+      certifyingBody: string;
+      certYear: string;
+    }>
+  >(() => {
+    if (Array.isArray(reg.skills) && reg.skills.length > 0) {
+      return reg.skills.map((sk: any) => ({
+        id: sk.id,
+        skillName: sk.skillName || "",
+        description: sk.description || "",
+        certifyingBody: sk.certifyingBody || "",
+        certYear: sk.certYear || "",
+      }));
+    }
+    return [];
+  });
+
+  // Photo & Signature management
+  const [photoPreview, setPhotoPreview] = useState<string>(reg.photoUrl || "");
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+  const [photoName, setPhotoName] = useState<string>(reg.photoName || "photo.jpg");
+
+  const [sigPreview, setSigPreview] = useState<string>(reg.signatureUrl || "");
+  const [sigBase64, setSigBase64] = useState<string | null>(null);
+  const [sigName, setSigName] = useState<string>(reg.signatureName || "signature.jpg");
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1.2 * 1024 * 1024) {
+      toast.error("Photo size must be less than 1.2 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setPhotoPreview(result);
+      setPhotoBase64(result);
+      setPhotoName(file.name);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSigUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1.2 * 1024 * 1024) {
+      toast.error("Signature size must be less than 1.2 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setSigPreview(result);
+      setSigBase64(result);
+      setSigName(file.name);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const addAcademic = () => {
+    setAcademics((prev) => [
+      ...prev,
+      {
+        qualification: "Graduate Pass Out",
+        stream: "",
+        subject: "",
+        instituteName: "",
+        universityName: "",
+        sessionYear: "",
+        gradeDivision: "",
+        status: "Pass Out",
+      },
+    ]);
+  };
+
+  const removeAcademic = (index: number) => {
+    setAcademics((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateAcademic = (index: number, field: string, val: string) => {
+    setAcademics((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item)),
+    );
+  };
+
+  const addSkill = () => {
+    setSkills((prev) => [
+      ...prev,
+      {
+        skillName: "",
+        description: "",
+        certifyingBody: "",
+        certYear: "",
+      },
+    ]);
+  };
+
+  const removeSkill = (index: number) => {
+    setSkills((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateSkill = (index: number, field: string, val: string) => {
+    setSkills((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item)),
+    );
+  };
+
   const { mutate: updateReg, isPending } =
     SuperAdminDataHooks.useUpdateStudentRegistration({
       onSuccess: () => {
+        toast.success("Student registration updated successfully!");
         router.back();
         router.refresh();
+      },
+      onError: (err: any) => {
+        toast.error(
+          err?.response?.data?.error?.message ||
+            err?.message ||
+            "Failed to update student registration",
+        );
       },
     });
 
   const onSubmit = (values: any) => {
+    // Validate academics: at least qualification and instituteName must be entered
+    const validAcademics = academics.filter(
+      (a) => a.qualification.trim() && a.instituteName.trim(),
+    );
+
+    if (academics.length > 0 && validAcademics.length === 0) {
+      toast.error(
+        "Please fill in qualification and institute name for all academic records.",
+      );
+      return;
+    }
+
+    const payload: any = {
+      fullName: values.fullName,
+      fatherName: values.fatherName,
+      motherName: values.motherName,
+      dob: values.dob,
+      gender: values.gender,
+      category: values.category,
+      mobileNo: values.mobileNo,
+      aadharNo: values.aadharNo ? values.aadharNo.replace(/[\s-]/g, "") : null,
+      internshipGoal: values.internshipGoal,
+      sameAsLocal: values.sameAsLocal,
+      localAddress: {
+        local: values.localAddressLocal,
+        block: values.localAddressBlock || "",
+        district: values.localAddressDistrict,
+        state: values.localAddressState,
+        country: "India",
+        pinCode: values.localAddressPinCode,
+      },
+      permanentAddress: {
+        local: values.sameAsLocal
+          ? values.localAddressLocal
+          : values.permAddressLocal,
+        block: values.sameAsLocal
+          ? values.localAddressBlock || ""
+          : values.permAddressBlock || "",
+        district: values.sameAsLocal
+          ? values.localAddressDistrict
+          : values.permAddressDistrict,
+        state: values.sameAsLocal
+          ? values.localAddressState
+          : values.permAddressState,
+        country: "India",
+        pinCode: values.sameAsLocal
+          ? values.localAddressPinCode
+          : values.permAddressPinCode,
+      },
+      academics: validAcademics.map((ac) => ({
+        qualification: ac.qualification,
+        stream: ac.stream || "General",
+        subject: ac.subject || "All",
+        instituteName: ac.instituteName,
+        universityName: ac.universityName || ac.instituteName,
+        sessionYear: ac.sessionYear || "",
+        gradeDivision: ac.gradeDivision || "",
+        status: ac.status,
+      })),
+      skills: skills
+        .filter((sk) => sk.skillName.trim())
+        .map((sk) => ({
+          skillName: sk.skillName.trim(),
+          description: sk.description || "",
+          certifyingBody: sk.certifyingBody || "",
+          certYear: sk.certYear || "",
+        })),
+    };
+
+    if (photoBase64) {
+      payload.photoBase64 = photoBase64;
+      payload.photoName = photoName;
+    }
+    if (sigBase64) {
+      payload.signatureBase64 = sigBase64;
+      payload.signatureName = sigName;
+    }
+
     updateReg({
       id: reg.id,
-      payload: {
-        fullName: values.fullName,
-        fatherName: values.fatherName,
-        motherName: values.motherName,
-        dob: values.dob,
-        gender: values.gender,
-        category: values.category,
-        mobileNo: values.mobileNo,
-        aadharNo: values.aadharNo || null,
-        internshipGoal: values.internshipGoal,
-        sameAsLocal: values.sameAsLocal,
-        localAddress: {
-          local: values.localAddressLocal,
-          district: values.localAddressDistrict,
-          state: values.localAddressState,
-          country: "India",
-          pinCode: values.localAddressPinCode,
-        },
-        permanentAddress: {
-          local: values.permAddressLocal,
-          district: values.permAddressDistrict,
-          state: values.permAddressState,
-          country: "India",
-          pinCode: values.permAddressPinCode,
-        },
-      },
+      payload,
     });
   };
 
@@ -5149,28 +5349,45 @@ const EditStudentForm_2: React_3.FunctionComponent<
       setIsOpen={(open) => {
         if (!open) router.back();
       }}
-      title="Edit Student Registration"
-      description="Update candidate profiles and onboarding registration details."
+      title={
+        <div className="flex flex-wrap items-center justify-between gap-2 pr-6">
+          <div className="flex items-center gap-2">
+            <span className="text-base sm:text-lg font-bold">Edit Student Registration</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+              {reg.studentId || "Student Profile"}
+            </span>
+          </div>
+          {reg.user?.email && (
+            <span className="text-xs font-normal text-muted-foreground bg-muted/60 px-2 py-0.5 rounded">
+              {reg.user.email}
+            </span>
+          )}
+        </div>
+      }
+      description="Update candidate personal info, contact, full address, academic qualifications, skills and documents."
     >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 pb-4 pr-2 pt-2 text-xs"
+          className="space-y-6 pb-4 text-xs"
         >
-          {}
-          <div className="border-border/50 bg-background space-y-3 rounded-xl border p-4">
-            <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
-              Personal Details
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* 1. PERSONAL DETAILS */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-border/40 pb-2">
+              <User className="h-4 w-4 text-primary" />
+              <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                1. Personal Details (व्यक्तिगत विवरण)
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               <FormField
                 control={form.control}
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Full Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Full Name" {...field} />
+                      <Input placeholder="Candidate Full Name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -5182,7 +5399,7 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="dob"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Date of Birth *</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -5196,7 +5413,7 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="fatherName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Father's Name</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Father's Name *</FormLabel>
                     <FormControl>
                       <Input placeholder="Father's Name" {...field} />
                     </FormControl>
@@ -5210,7 +5427,7 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="motherName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mother's Name</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Mother's Name *</FormLabel>
                     <FormControl>
                       <Input placeholder="Mother's Name" {...field} />
                     </FormControl>
@@ -5224,14 +5441,14 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gender</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Gender *</FormLabel>
                     <Select_27
                       onValueChange={field.onChange}
                       value={field.value}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-9 text-xs">
                           <SelectValue_27 placeholder="Select Gender" />
                         </SelectTrigger>
                       </FormControl>
@@ -5251,9 +5468,9 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Category *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Category" {...field} />
+                      <Input placeholder="General / OBC / SC / ST / EWS" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -5262,20 +5479,23 @@ const EditStudentForm_2: React_3.FunctionComponent<
             </div>
           </div>
 
-          {}
-          <div className="border-border/50 bg-background space-y-3 rounded-xl border p-4">
-            <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
-              Contact & Internship Goals
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* 2. CONTACT & INTERNSHIP GOALS */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-border/40 pb-2">
+              <Target className="h-4 w-4 text-primary" />
+              <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                2. Contact & Goals (संपर्क एवं लक्ष्य)
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               <FormField
                 control={form.control}
                 name="mobileNo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Mobile Number *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Mobile Number" {...field} />
+                      <Input placeholder="10-digit Mobile Number" maxLength={10} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -5287,9 +5507,9 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="aadharNo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Aadhar Number (Optional)</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Aadhar Number (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Aadhar Number" {...field} />
+                      <Input placeholder="12-digit Aadhar Number" maxLength={12} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -5300,15 +5520,15 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 control={form.control}
                 name="internshipGoal"
                 render={({ field }) => (
-                  <FormItem className="col-span-1 sm:col-span-2">
-                    <FormLabel>Internship Goal</FormLabel>
+                  <FormItem>
+                    <FormLabel className="text-xs font-semibold">Internship Goal *</FormLabel>
                     <Select_27
                       onValueChange={field.onChange}
                       value={field.value}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-9 text-xs">
                           <SelectValue_27 placeholder="Select Goal" />
                         </SelectTrigger>
                       </FormControl>
@@ -5332,20 +5552,37 @@ const EditStudentForm_2: React_3.FunctionComponent<
             </div>
           </div>
 
-          {}
-          <div className="border-border/50 bg-background space-y-3 rounded-xl border p-4">
-            <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
-              Local Address
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* 3. LOCAL ADDRESS */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-border/40 pb-2">
+              <MapPin_2 className="h-4 w-4 text-primary" />
+              <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                3. Local Address (स्थानीय पता)
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               <FormField
                 control={form.control}
                 name="localAddressLocal"
                 render={({ field }) => (
                   <FormItem className="col-span-1 sm:col-span-2">
-                    <FormLabel>Flat / Street / Locality</FormLabel>
+                    <FormLabel className="text-xs font-semibold">Flat / Street / Locality *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Address line" {...field} />
+                      <Input placeholder="House No, Road, Area" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="localAddressBlock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-semibold">Block / Tehsil</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Block / Tehsil (Optional)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -5357,7 +5594,7 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="localAddressDistrict"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>District</FormLabel>
+                    <FormLabel className="text-xs font-semibold">District *</FormLabel>
                     <FormControl>
                       <Input placeholder="District" {...field} />
                     </FormControl>
@@ -5371,7 +5608,7 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="localAddressState"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>State</FormLabel>
+                    <FormLabel className="text-xs font-semibold">State *</FormLabel>
                     <FormControl>
                       <Input placeholder="State" {...field} />
                     </FormControl>
@@ -5385,9 +5622,9 @@ const EditStudentForm_2: React_3.FunctionComponent<
                 name="localAddressPinCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>PIN Code</FormLabel>
+                    <FormLabel className="text-xs font-semibold">PIN Code *</FormLabel>
                     <FormControl>
-                      <Input placeholder="PIN Code" {...field} />
+                      <Input placeholder="6-digit PIN Code" maxLength={6} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -5396,71 +5633,548 @@ const EditStudentForm_2: React_3.FunctionComponent<
             </div>
           </div>
 
-          {}
-          <div className="border-border/50 bg-background space-y-3 rounded-xl border p-4">
-            <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
-              Permanent Address
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="permAddressLocal"
-                render={({ field }) => (
-                  <FormItem className="col-span-1 sm:col-span-2">
-                    <FormLabel>Flat / Street / Locality</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Address line" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* 4. PERMANENT ADDRESS */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2">
+              <div className="flex items-center gap-2">
+                <MapPin_2 className="h-4 w-4 text-primary" />
+                <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                  4. Permanent Address (स्थायी पता)
+                </h3>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium bg-muted/40 hover:bg-muted/70 px-2.5 py-1 rounded-md border border-border/50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={sameAsLocal}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    form.setValue("sameAsLocal", checked);
+                    if (checked) {
+                      form.setValue("permAddressLocal", form.getValues("localAddressLocal"));
+                      form.setValue("permAddressBlock", form.getValues("localAddressBlock"));
+                      form.setValue("permAddressDistrict", form.getValues("localAddressDistrict"));
+                      form.setValue("permAddressState", form.getValues("localAddressState"));
+                      form.setValue("permAddressPinCode", form.getValues("localAddressPinCode"));
+                    }
+                  }}
+                  className="h-3.5 w-3.5 rounded border-input text-primary focus:ring-primary cursor-pointer"
+                />
+                <span>Same as Local Address (स्थानीय पते के समान)</span>
+              </label>
+            </div>
 
-              <FormField
-                control={form.control}
-                name="permAddressDistrict"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>District</FormLabel>
-                    <FormControl>
-                      <Input placeholder="District" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {sameAsLocal ? (
+              <div className="p-3 bg-muted/30 border border-dashed rounded-lg text-xs text-muted-foreground">
+                Permanent address is marked identical to Local Address. If you need a different permanent address, uncheck the box above.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="permAddressLocal"
+                  render={({ field }) => (
+                    <FormItem className="col-span-1 sm:col-span-2">
+                      <FormLabel className="text-xs font-semibold">Flat / Street / Locality *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="House No, Road, Area" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="permAddressState"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <Input placeholder="State" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="permAddressBlock"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold">Block / Tehsil</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Block / Tehsil (Optional)" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="permAddressPinCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>PIN Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="PIN Code" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="permAddressDistrict"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold">District *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="District" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="permAddressState"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold">State *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="State" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="permAddressPinCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold">PIN Code *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="6-digit PIN Code" maxLength={6} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 5. ACADEMIC QUALIFICATIONS */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2">
+              <div className="flex items-center gap-2">
+                <GraduationCap_2 className="h-4 w-4 text-primary" />
+                <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                  5. Academic Qualifications (शैक्षणिक विवरण)
+                </h3>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addAcademic}
+                className="h-8 gap-1.5 text-xs font-medium border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add Qualification
+              </Button>
+            </div>
+
+            {academics.length === 0 ? (
+              <div className="text-center py-6 border border-dashed rounded-lg bg-muted/20 text-muted-foreground text-xs space-y-2">
+                <p>No academic qualifications recorded.</p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={addAcademic}
+                  className="gap-1.5 text-xs"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add First Qualification
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {academics.map((ac, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-lg border border-border/70 bg-muted/15 space-y-3 relative group"
+                  >
+                    <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                      <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] flex items-center justify-center font-bold">
+                          {idx + 1}
+                        </span>
+                        Qualification Details
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeAcademic(idx)}
+                        className="h-7 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive gap-1 text-xs"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Remove
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Qualification Level *
+                        </label>
+                        <select
+                          value={ac.qualification}
+                          onChange={(e) => updateAcademic(idx, "qualification", e.target.value)}
+                          className="flex h-9 w-full rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          {qualificationsOptions.map((q) => (
+                            <option key={q} value={q}>
+                              {q}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Status *
+                        </label>
+                        <select
+                          value={ac.status}
+                          onChange={(e) => updateAcademic(idx, "status", e.target.value as "Pass Out" | "Persuing")}
+                          className="flex h-9 w-full rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          <option value="Pass Out">Pass Out</option>
+                          <option value="Persuing">Persuing</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Stream / Branch
+                        </label>
+                        <Input
+                          placeholder="e.g. Science, Arts, CS"
+                          value={ac.stream}
+                          onChange={(e) => updateAcademic(idx, "stream", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Major Subject(s)
+                        </label>
+                        <Input
+                          placeholder="e.g. Maths, Physics, IT"
+                          value={ac.subject}
+                          onChange={(e) => updateAcademic(idx, "subject", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          School / College / Institute Name *
+                        </label>
+                        <Input
+                          placeholder="School or College Name"
+                          value={ac.instituteName}
+                          onChange={(e) => updateAcademic(idx, "instituteName", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Board / University Name
+                        </label>
+                        <Input
+                          placeholder="University / Board Name"
+                          value={ac.universityName}
+                          onChange={(e) => updateAcademic(idx, "universityName", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Session / Passing Year
+                        </label>
+                        <Input
+                          placeholder="e.g. 2021-2024 or 2023"
+                          value={ac.sessionYear}
+                          onChange={(e) => updateAcademic(idx, "sessionYear", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Grade / Division / %
+                        </label>
+                        <Input
+                          placeholder="e.g. 1st Div, 78%, 8.2 CGPA"
+                          value={ac.gradeDivision}
+                          onChange={(e) => updateAcademic(idx, "gradeDivision", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 6. SKILLS & CERTIFICATIONS */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2">
+              <div className="flex items-center gap-2">
+                <Award className="h-4 w-4 text-primary" />
+                <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                  6. Skills & Certifications (कौशल एवं प्रमाण पत्र)
+                </h3>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addSkill}
+                className="h-8 gap-1.5 text-xs font-medium border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add Skill
+              </Button>
+            </div>
+
+            {skills.length === 0 ? (
+              <div className="text-center py-6 border border-dashed rounded-lg bg-muted/20 text-muted-foreground text-xs space-y-2">
+                <p>No additional skills or certifications added.</p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={addSkill}
+                  className="gap-1.5 text-xs"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add First Skill
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {skills.map((sk, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-lg border border-border/70 bg-muted/15 space-y-2.5 relative"
+                  >
+                    <div className="flex items-center justify-between border-b border-border/30 pb-1.5">
+                      <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] flex items-center justify-center font-bold">
+                          {idx + 1}
+                        </span>
+                        Skill #{idx + 1}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeSkill(idx)}
+                        className="h-7 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive gap-1 text-xs"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Remove
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Skill Name / Domain *
+                        </label>
+                        <Input
+                          placeholder="e.g. Web Development"
+                          value={sk.skillName}
+                          onChange={(e) => updateSkill(idx, "skillName", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Description / Tools
+                        </label>
+                        <Input
+                          placeholder="e.g. HTML, CSS, React, Next.js"
+                          value={sk.description}
+                          onChange={(e) => updateSkill(idx, "description", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Certifying Body
+                        </label>
+                        <Input
+                          placeholder="e.g. Google, Coursera, IIIT"
+                          value={sk.certifyingBody}
+                          onChange={(e) => updateSkill(idx, "certifyingBody", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                          Certification Year
+                        </label>
+                        <Input
+                          placeholder="e.g. 2024"
+                          value={sk.certYear}
+                          onChange={(e) => updateSkill(idx, "certYear", e.target.value)}
+                          className="h-9 text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 7. DOCUMENTS / PHOTO & SIGNATURE */}
+          <div className="border-border/60 bg-card space-y-4 rounded-xl border p-4 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-border/40 pb-2">
+              <ImageIcon className="h-4 w-4 text-primary" />
+              <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                7. Photo & Signature (फोटो और हस्ताक्षर)
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Photo Box */}
+              <div className="border border-border/60 rounded-xl p-3.5 bg-muted/15 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-xs text-foreground">Candidate Photograph</span>
+                  {photoBase64 && (
+                    <span className="text-[10px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-medium">
+                      New Photo Selected
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-border/80 bg-background flex items-center justify-center shrink-0">
+                    {photoPreview ? (
+                      <img
+                        src={photoPreview}
+                        alt="Student Photo"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground flex flex-col items-center justify-center p-2 text-center text-[10px]">
+                        <User className="h-8 w-8 mb-1 opacity-40" />
+                        No photo
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 flex-1">
+                    <input
+                      type="file"
+                      ref={photoInputRef}
+                      onChange={handlePhotoUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => photoInputRef.current?.click()}
+                      className="h-8 gap-1.5 text-xs w-full sm:w-auto"
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {photoPreview ? "Change Photo" : "Upload Photo"}
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground truncate max-w-[200px]">
+                      {photoName || "JPG, PNG or WebP under 1.2MB"}
+                    </p>
+                    {photoBase64 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setPhotoPreview(reg.photoUrl || "");
+                          setPhotoBase64(null);
+                          setPhotoName(reg.photoName || "photo.jpg");
+                        }}
+                        className="h-6 px-1.5 text-[11px] text-destructive hover:bg-destructive/10"
+                      >
+                        Reset to Original
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Signature Box */}
+              <div className="border border-border/60 rounded-xl p-3.5 bg-muted/15 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-xs text-foreground">Candidate Signature</span>
+                  {sigBase64 && (
+                    <span className="text-[10px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-medium">
+                      New Signature Selected
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="relative w-32 h-20 rounded-lg overflow-hidden border border-border/80 bg-white dark:bg-zinc-900 flex items-center justify-center shrink-0 p-1.5">
+                    {sigPreview ? (
+                      <img
+                        src={sigPreview}
+                        alt="Student Signature"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground flex flex-col items-center justify-center text-center text-[10px]">
+                        <FileText className="h-6 w-6 mb-1 opacity-40" />
+                        No signature
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 flex-1">
+                    <input
+                      type="file"
+                      ref={sigInputRef}
+                      onChange={handleSigUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => sigInputRef.current?.click()}
+                      className="h-8 gap-1.5 text-xs w-full sm:w-auto"
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {sigPreview ? "Change Signature" : "Upload Signature"}
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground truncate max-w-[200px]">
+                      {sigName || "JPG, PNG or WebP under 1.2MB"}
+                    </p>
+                    {sigBase64 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSigPreview(reg.signatureUrl || "");
+                          setSigBase64(null);
+                          setSigName(reg.signatureName || "signature.jpg");
+                        }}
+                        className="h-6 px-1.5 text-[11px] text-destructive hover:bg-destructive/10"
+                      >
+                        Reset to Original
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          {/* ACTION BUTTONS */}
+          <div className="sticky bottom-0 z-10 -mx-4 -mb-4 border-t border-border/60 bg-background/95 backdrop-blur px-6 py-3 flex items-center justify-end gap-3 shadow-lg">
             <Button
               variant="outline"
               type="button"
@@ -5469,14 +6183,14 @@ const EditStudentForm_2: React_3.FunctionComponent<
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} className="min-w-[130px]">
               {isPending ? (
                 <>
-                  <Spinner className="mr-2 h-4 w-4" /> Saving...
+                  <Spinner className="mr-2 h-4 w-4" /> Saving Changes...
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 h-4 w-4" /> Save Changes
+                  <Save className="mr-2 h-4 w-4" /> Save All Changes
                 </>
               )}
             </Button>

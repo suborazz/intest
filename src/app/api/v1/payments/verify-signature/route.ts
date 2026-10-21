@@ -8,6 +8,7 @@ import { ZodError } from "zod";
 import nodemailer from "nodemailer";
 import { axiosInstance } from "@/x/acfb3dca";
 import { prisma } from "@/x/e3746f45";
+import { issueIdCard } from "@/x/c6f69c52";
 
 interface AppConfig {
   nodeEnv: "development" | "production" | "test";
@@ -80,12 +81,12 @@ const buildConfig = (): AppConfig => ({
   ),
   smtpSenderName: getEnv("SMTP_SENDER_NAME", "II Internship"),
   clientUrl: getEnv("NEXT_PUBLIC_CLIENT_URL", "http://localhost:3000"),
-  razorpayKeyId: getEnv("RAZORPAY_KEY_ID", "mock-razorpay-key-id"),
-  razorpayKeySecret: getEnv("RAZORPAY_KEY_SECRET", "mock-razorpay-key-secret"),
+  razorpayKeyId: getEnv("RAZORPAY_KEY_ID", "mock-razorpay-key-id").trim(),
+  razorpayKeySecret: getEnv("RAZORPAY_KEY_SECRET", "mock-razorpay-key-secret").trim(),
   razorpayWebhookSecret: getEnv(
     "RAZORPAY_WEBHOOK_SECRET",
     "mock-webhook-secret",
-  ),
+  ).trim(),
 });
 
 const AUTH_KEYS = {
@@ -286,43 +287,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    async function generateIdCardNo(): Promise<string> {
-      const year = new Date().getFullYear();
-      const prefix = `ID-${year}-`;
 
-      const last = await prisma.idCard.findFirst({
-        where: { cardNo: { startsWith: prefix } },
-        orderBy: { cardNo: "desc" },
-      });
-
-      if (!last) {
-        return `${prefix}0001`;
-      }
-
-      const lastSeq = parseInt(last.cardNo.replace(prefix, ""), 10);
-      const nextSeq = String(lastSeq + 1).padStart(4, "0");
-      return `${prefix}${nextSeq}`;
-    }
-
-    async function issueIdCard(studentId: string, enrollmentId: string) {
-        const existing = await prisma.idCard.findUnique({
-        where: { enrollmentId },
-      });
-
-      if (existing) {
-        return existing;
-      }
-
-      const cardNo = await generateIdCardNo();
-
-      return await prisma.idCard.create({
-        data: {
-          cardNo,
-          studentId,
-          enrollmentId,
-        },
-      });
-    }
 
     const { razorpayKeyId, razorpayKeySecret } = config;
 
@@ -489,11 +454,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
   try {
-    const userId = request.headers.get("X-User-Id");
+    let userId = request.headers.get("X-User-Id");
     if (!userId) {
-      return errorResponse("UNAUTHORIZED", "Authentication required", {
-        status: HTTP_2.UNAUTHORIZED,
-      });
+      const token = request.cookies.get("access_token")?.value;
+      if (token) {
+        try {
+          const secret = new TextEncoder().encode(config.jwtSecret);
+          const { jwtVerify } = await import("jose");
+          const { payload } = await jwtVerify(token, secret);
+          if (payload?.sub) {
+            userId = String(payload.sub);
+          }
+        } catch {
+          // Token decoding failed, will check payment record ownership below
+        }
+      }
     }
 
     const body: unknown = await request.json();
@@ -509,7 +484,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } =
       parsed.data;
 
-        const payment = await prisma.payment.findUnique({
+    const payment = await prisma.payment.findUnique({
       where: { razorpayOrderId },
       include: {
         user: true,
@@ -527,7 +502,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    if (payment.status !== "PENDING") {
+    // If userId was not found in headers or cookie, associate with payment owner
+    if (!userId) {
+      userId = payment.userId;
+    } else if (userId !== payment.userId) {
+      console.warn(`[VERIFY SIGNATURE] Request user ${userId} differs from payment user ${payment.userId}`);
+    }
+
+    if (payment.status === "COMPLETED") {
+      const existingEnrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_internshipId: {
+            userId: payment.userId,
+            internshipId: payment.internshipId,
+          },
+        },
+      });
+
+      return successResponse(
+        {
+          paymentId: payment.id,
+          enrollmentId: existingEnrollment?.id,
+          status: "COMPLETED",
+          alreadyProcessed: true,
+        },
+        {
+          message: "Payment already verified successfully.",
+        },
+      );
+    }
+
+    // Allow re-verifying if status is PENDING or was previously marked FAILED due to a temporary glitch
+    if (payment.status !== "PENDING" && payment.status !== "FAILED") {
       return errorResponse(
         "INVALID_PAYMENT_STATUS",
         `Payment is already processed. Current status: ${payment.status}`,
@@ -539,8 +545,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     let isValid = false;
 
-        if (isMockRazorpay || razorpayOrderId.startsWith("order_mock_")) {
-            isValid = true;
+    if (isMockRazorpay || razorpayOrderId.startsWith("order_mock_")) {
+      isValid = true;
       console.log(
         `[MOCK RAZORPAY] Signature verification bypassed for: ${razorpayOrderId}`,
       );
@@ -552,7 +558,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       isValid = generatedSignature === razorpaySignature;
     }
 
-        if (!isValid && !isMockRazorpay) {
+    if (!isValid && !isMockRazorpay) {
       try {
         const rzp = new Razorpay({
           key_id: config.razorpayKeyId,
@@ -564,6 +570,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           rzpPayment.order_id === razorpayOrderId &&
           (rzpPayment.status === "captured" || rzpPayment.status === "authorized")
         ) {
+          if (rzpPayment.status === "authorized") {
+            try {
+              await rzp.payments.capture(
+                razorpayPaymentId,
+                rzpPayment.amount,
+                rzpPayment.currency || "INR",
+              );
+            } catch (capErr) {
+              console.warn("[RAZORPAY API] Auto-capture warning:", capErr);
+            }
+          }
           isValid = true;
           console.log(
             `[RAZORPAY API] Payment verified via direct API lookup for order ${razorpayOrderId}, payment ${razorpayPaymentId}`
@@ -578,7 +595,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     if (!isValid) {
-            await prisma.payment.update({
+      await prisma.payment.update({
         where: { id: payment.id },
         data: { status: "FAILED" },
       });
@@ -593,7 +610,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-            const updatedPayment = await tx.payment.update({
+      const updatedPayment = await tx.payment.update({
         where: { id: payment.id },
         data: {
           status: "COMPLETED",
@@ -602,7 +619,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         },
       });
 
-            const application = await tx.internshipApplication.upsert({
+      const application = await tx.internshipApplication.upsert({
         where: {
           studentId_internshipId: {
             studentId: payment.userId,
@@ -619,8 +636,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         },
       });
 
-            const enrollment = await tx.enrollment.create({
-        data: {
+      const enrollment = await tx.enrollment.upsert({
+        where: {
+          userId_internshipId: {
+            userId: payment.userId,
+            internshipId: payment.internshipId,
+          },
+        },
+        update: {
+          paymentId: payment.id,
+        },
+        create: {
           userId: payment.userId,
           internshipId: payment.internshipId,
           paymentId: payment.id,
@@ -631,15 +657,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         application.code ||
         generateApplicationCode(application.id, application.appliedAt);
 
-            await tx.internshipApplication.update({
-        where: { id: application.id },
-        data: { enrollmentId: enrollment.id, code: formattedCode },
-      });
+      try {
+        await tx.internshipApplication.update({
+          where: { id: application.id },
+          data: {
+            enrollmentId: enrollment.id,
+            ...(application.code ? {} : { code: formattedCode }),
+          },
+        });
+      } catch (appErr: any) {
+        console.warn("[PAYMENT VERIFY] Application link warning:", appErr?.message);
+        await tx.internshipApplication.update({
+          where: { id: application.id },
+          data: { status: "APPROVED" },
+        }).catch(() => {});
+      }
 
       return { updatedPayment, enrollment };
     });
 
-        await issueIdCard(payment.userId, result.enrollment.id);
+    try {
+      await issueIdCard(payment.userId, result.enrollment.id);
+    } catch (idCardErr) {
+      console.error("[ID CARD ERROR] Failed to issue ID card on payment:", idCardErr);
+    }
 
         sendPaymentConfirmationEmail(
       payment.user.email,

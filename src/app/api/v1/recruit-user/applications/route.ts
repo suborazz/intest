@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { prisma } from "@/x/e3746f45";
+import { isJobClosingDateExpired } from "@/x/a85a9c0c";
 
 interface PaginationMeta {
   page: number;
@@ -89,7 +90,7 @@ function handleError(error: unknown): NextResponse<ApiErrorResponse> {
   }
 
   if (error instanceof Error) {
-        const message =
+    const message =
       process.env["NODE_ENV"] === "production"
         ? "An internal server error occurred"
         : error.message;
@@ -166,7 +167,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!userId || userRole !== "RECRUIT_USER") {
       return errorResponse(
         "FORBIDDEN",
-        "Access denied. Recruit User privileges required.",
+        "Access denied. Job Applicant User privileges required.",
         {
           status: HTTP_2.FORBIDDEN,
         },
@@ -187,6 +188,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               postOpportunity: true,
               jobNature: true,
               logoUrl: true,
+              advtNo: true,
+              advtDate: true,
+              closingDate: true,
+              salary: true,
+              minQualification: true,
+              skillsRequired: true,
             },
           },
         },
@@ -215,7 +222,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userId || userRole !== "RECRUIT_USER") {
       return errorResponse(
         "UNAUTHORIZED",
-        "Recruit User credentials required.",
+        "Job Applicant User credentials required.",
         {
           status: HTTP_2.UNAUTHORIZED,
         },
@@ -231,7 +238,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-        const existingApp = await prisma.jobApplication.findFirst({
+    // Verify job opening exists, is active, and has not expired
+    const jobOpportunity = await prisma.jobOpportunity.findUnique({
+      where: { id: jobOpportunityId, deletedAt: null },
+      select: {
+        id: true,
+        postOpportunity: true,
+        companyName: true,
+        closingDate: true,
+        isActive: true,
+      },
+    });
+
+    if (!jobOpportunity) {
+      return errorResponse("NOT_FOUND", "Job opening not found.", {
+        status: HTTP_2.NOT_FOUND,
+      });
+    }
+
+    if (!jobOpportunity.isActive || isJobClosingDateExpired(jobOpportunity.closingDate)) {
+      return errorResponse(
+        "JOB_EXPIRED",
+        "The deadline for this job opening has passed and applications are closed.",
+        {
+          status: HTTP_2.BAD_REQUEST,
+        },
+      );
+    }
+
+    const existingApp = await prisma.jobApplication.findFirst({
       where: { jobOpportunityId, userId, deletedAt: null },
     });
 
@@ -245,7 +280,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const profile = await prisma.recruitProfile.findUnique({
+    const profile = await prisma.recruitProfile.findUnique({
       where: { userId },
       include: { academics: true },
     });
@@ -260,7 +295,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const birthDate = new Date(profile.dob);
+    const birthDate = new Date(profile.dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
@@ -271,7 +306,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const highestQual =
       profile.academics.map((a) => a.qualification).join(", ") || "N/A";
 
-        const jobApp = await prisma.jobApplication.create({
+    const jobApp = await prisma.jobApplication.create({
       data: {
         jobOpportunityId,
         userId,
@@ -288,8 +323,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
+    // Send confirmation email asynchronously
+    const { sendJobApplicationSubmittedEmail } = await import("@/x/b7e0f2d7");
+    sendJobApplicationSubmittedEmail(
+      profile.email,
+      profile.fullName,
+      jobOpportunity.postOpportunity,
+      jobOpportunity.companyName || "International Institute of Internship",
+    ).catch((err) =>
+      console.error(
+        "[EMAIL ERROR] Failed to send job application confirmation email:",
+        err,
+      ),
+    );
+
     return successResponse(jobApp, {
-      message: "Applied successfully!",
+      message: "Applied successfully! A confirmation email has been sent to your email address.",
       status: HTTP_2.CREATED,
     });
   } catch (error) {

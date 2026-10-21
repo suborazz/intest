@@ -151,7 +151,7 @@ export async function GET(
       try {
         const doc = new PDFDocument({
           size: "A4",
-          margin: 35,
+          margins: { top: 15, bottom: 15, left: 24, right: 24 },
           bufferPages: true,
         });
         const chunks: Buffer[] = [];
@@ -159,33 +159,35 @@ export async function GET(
         doc.on("end", () => resolve(Buffer.concat(chunks)));
         doc.on("error", reject);
 
-        const drawBorder = () => {
-          doc
-            .rect(15, 15, doc.page.width - 30, doc.page.height - 30)
-            .lineWidth(1)
-            .stroke("#059669");
-          doc
-            .rect(18, 18, doc.page.width - 36, doc.page.height - 36)
-            .lineWidth(1.5)
-            .stroke("#065F46");
-        };
+        const pageWidth = doc.page.width;
+        const pageHeight = doc.page.height;
+        const contentX = 24;
+        const usableWidth = pageWidth - 48;
 
-        drawBorder();
-        doc.on("pageAdded", () => {
-          drawBorder();
-        });
+        // Double Border
+        doc
+          .rect(12, 12, pageWidth - 24, pageHeight - 24)
+          .lineWidth(1)
+          .stroke("#059669");
+        doc
+          .rect(15, 15, pageWidth - 30, pageHeight - 30)
+          .lineWidth(1.5)
+          .stroke("#065F46");
 
+        // Header Section
         const logoPath = join(process.cwd(), "public", "logo.png");
-        const headerY = 24;
+        const headerY = 19;
         const hasLogo = fs.existsSync(logoPath);
 
         if (hasLogo) {
-          doc.image(logoPath, 35, headerY, { width: 45 });
+          try {
+            doc.image(logoPath, contentX + 4, headerY, { width: 36 });
+          } catch {}
         }
 
         const studentCode = reg.studentId || "S2026XX10001";
 
-        // Top right Vector QR Code for Instant Smartphone Verification
+        // Top right Vector QR Code for Instant Verification
         try {
           const host = request.headers.get("host") || "www.iiinternship.in";
           const protocol = host.includes("localhost") ? "http" : "https";
@@ -195,15 +197,12 @@ export async function GET(
           qr.addData(verifyUrl);
           qr.make();
           const moduleCount = qr.getModuleCount();
-          const qrSize = 42;
+          const qrSize = 35;
           const cellSize = qrSize / moduleCount;
-          const qrX = doc.page.width - 35 - qrSize;
-          const qrY = headerY - 1;
+          const qrX = pageWidth - contentX - qrSize - 4;
+          const qrY = headerY;
 
-          // White background
           doc.rect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4).fill("#ffffff");
-
-          // Render QR modules as vector rectangles
           doc.fillColor("#000000");
           for (let row = 0; row < moduleCount; row++) {
             for (let col = 0; col < moduleCount; col++) {
@@ -221,72 +220,72 @@ export async function GET(
           }
 
           doc
-            .fontSize(5)
+            .fontSize(4.5)
             .font("Helvetica-Bold")
             .fillColor("#059669")
-            .text("SCAN TO VERIFY", qrX - 10, qrY + qrSize + 2, {
-              width: qrSize + 20,
+            .text("SCAN TO VERIFY", qrX - 8, qrY + qrSize + 2, {
+              width: qrSize + 16,
               align: "center",
             });
         } catch (qrErr) {
-          console.error("QR Code vector rendering failed:", qrErr);
+          console.error("QR Code rendering failed:", qrErr);
         }
 
+        // Center Header Typography
         doc
-          .fontSize(15)
+          .fontSize(13)
           .font("Helvetica-Bold")
           .fillColor("#065f46")
-          .text("International Institute of Internship [i3]", 35, headerY, {
+          .text("International Institute of Internship [i3]", contentX, headerY, {
             align: "center",
-            width: doc.page.width - 70,
+            width: usableWidth,
           });
 
         doc
-          .fontSize(9)
+          .fontSize(8)
           .font("Helvetica-Bold")
-          .fillColor("#374151")
-          .text("STUDENT ONBOARDING REGISTRATION RECORD", 35, headerY + 16, {
-            align: "center",
-            width: doc.page.width - 70,
-          });
-
-        doc
-          .fontSize(7.5)
-          .font("Helvetica")
-          .fillColor("#4b5563")
+          .fillColor("#1f2937")
           .text(
-            "A Unit of DPKHRC Trust  |  Website: www.iiinternship.in",
-            35,
-            headerY + 28,
-            { align: "center", width: doc.page.width - 70 },
+            "STUDENT ONBOARDING REGISTRATION RECORD",
+            contentX,
+            headerY + 14,
+            { align: "center", width: usableWidth },
           );
 
         doc
-          .moveTo(35, 76)
-          .lineTo(doc.page.width - 35, 76)
+          .fontSize(6.5)
+          .font("Helvetica")
+          .fillColor("#4b5563")
+          .text(
+            "A Unit of DPKHRC Trust  |  Official Verification Record  |  www.iiinternship.in",
+            contentX,
+            headerY + 25,
+            { align: "center", width: usableWidth },
+          );
+
+        doc
+          .moveTo(contentX, 58)
+          .lineTo(pageWidth - contentX, 58)
           .lineWidth(0.5)
           .stroke("#cbd5e1");
 
-        let currentY = 84;
-        const usableWidth = 525;
+        let currentY = 63;
 
         const drawSectionHeader = (
           title: string,
           y: number,
           width: number = usableWidth,
         ) => {
-          doc.fillColor("#ecfdf5").rect(35, y, width, 15).fill();
-
+          doc.fillColor("#ecfdf5").rect(contentX, y, width, 12).fill();
           doc
             .font("Helvetica-Bold")
-            .fontSize(8)
+            .fontSize(7)
             .fillColor("#065f46")
-            .text(title, 42, y + 4);
-
+            .text(title, contentX + 6, y + 2.5);
           doc
-            .moveTo(35, y + 15)
-            .lineTo(35 + width, y + 15)
-            .lineWidth(0.8)
+            .moveTo(contentX, y + 12)
+            .lineTo(contentX + width, y + 12)
+            .lineWidth(0.6)
             .stroke("#a7f3d0");
         };
 
@@ -296,7 +295,6 @@ export async function GET(
           totalWidth: number = usableWidth,
         ) => {
           let curRowY = y;
-
           rows.forEach((row) => {
             const colWidth = totalWidth / row.length;
             let maxRowHeight = 0;
@@ -307,37 +305,27 @@ export async function GET(
               const valueStr = cell.value || "N/A";
 
               const labelHeight = doc.heightOfString(labelStr, {
-                width: colWidth - 12,
+                width: colWidth - 8,
               });
               const valueHeight = doc.heightOfString(valueStr, {
-                width: colWidth - 12,
+                width: colWidth - 8,
               });
 
-              const labelAreaHeight = labelHeight + 4;
-              const valueAreaHeight = valueHeight + 6;
+              const labelAreaHeight = Math.max(labelHeight + 2, 9);
+              const valueAreaHeight = Math.max(valueHeight + 3, 11);
               const cellHeight = labelAreaHeight + valueAreaHeight;
 
-              if (cellHeight > maxRowHeight) {
-                maxRowHeight = cellHeight;
-              }
-              if (labelAreaHeight > maxLabelAreaHeight) {
+              if (cellHeight > maxRowHeight) maxRowHeight = cellHeight;
+              if (labelAreaHeight > maxLabelAreaHeight)
                 maxLabelAreaHeight = labelAreaHeight;
-              }
 
-              return {
-                labelStr,
-                valueStr,
-                labelHeight,
-                valueHeight,
-                labelAreaHeight,
-                valueAreaHeight,
-              };
+              return { labelStr, valueStr, labelAreaHeight, valueAreaHeight };
             });
 
-            maxRowHeight = Math.max(maxRowHeight, 28);
-            maxLabelAreaHeight = Math.max(maxLabelAreaHeight, 12);
+            maxRowHeight = Math.max(maxRowHeight, 20);
+            maxLabelAreaHeight = Math.max(maxLabelAreaHeight, 9);
 
-            let currentX = 35;
+            let currentX = contentX;
             cellData.forEach((cell) => {
               doc.save();
               doc
@@ -353,10 +341,10 @@ export async function GET(
 
               doc
                 .font("Helvetica-Bold")
-                .fontSize(6)
+                .fontSize(5.5)
                 .fillColor("#64748b")
-                .text(cell.labelStr, currentX + 6, curRowY + 3, {
-                  width: colWidth - 12,
+                .text(cell.labelStr, currentX + 4, curRowY + 2, {
+                  width: colWidth - 8,
                 });
 
               doc
@@ -367,15 +355,13 @@ export async function GET(
 
               doc
                 .font("Helvetica")
-                .fontSize(7.5)
+                .fontSize(6.8)
                 .fillColor("#0f172a")
                 .text(
                   cell.valueStr,
-                  currentX + 6,
-                  curRowY + maxLabelAreaHeight + 3,
-                  {
-                    width: colWidth - 12,
-                  },
+                  currentX + 4,
+                  curRowY + maxLabelAreaHeight + 2,
+                  { width: colWidth - 8 },
                 );
 
               currentX += colWidth;
@@ -387,17 +373,12 @@ export async function GET(
           return curRowY - y;
         };
 
-        const checkPageBreak = (neededHeight: number) => {
-          if (currentY + neededHeight > 760) {
-            doc.addPage();
-            currentY = 35;
-          }
-        };
-
-        const photoX = 485;
+        // 1. Photo and Summary (Side-by-Side)
+        const photoW = 62;
+        const photoH = 76;
+        const photoX = pageWidth - contentX - photoW;
         const photoY = currentY;
-        const photoW = 75;
-        const photoH = 95;
+        const summaryWidth = photoX - contentX - 6;
 
         let photoRendered = false;
         const photoUrl = reg.photoUrl;
@@ -422,7 +403,10 @@ export async function GET(
           }
         }
 
-        doc.rect(photoX, photoY, photoW, photoH).lineWidth(0.5).stroke("#cbd5e1");
+        doc
+          .rect(photoX, photoY, photoW, photoH)
+          .lineWidth(0.5)
+          .stroke("#cbd5e1");
         if (!photoRendered) {
           doc
             .fillColor("#f8fafc")
@@ -432,20 +416,20 @@ export async function GET(
             .font("Helvetica-Bold")
             .fontSize(6)
             .fillColor("#64748b")
-            .text("PHOTO", photoX, photoY + 38, {
+            .text("PHOTO", photoX, photoY + 30, {
               align: "center",
               width: photoW,
             })
             .font("Helvetica")
-            .fontSize(5)
-            .text("NOT PROVIDED", photoX, photoY + 48, {
+            .fontSize(4.5)
+            .text("NOT PROVIDED", photoX, photoY + 40, {
               align: "center",
               width: photoW,
             });
         }
 
-        drawSectionHeader("REGISTRATION SUMMARY", currentY, 430);
-        currentY += 15;
+        drawSectionHeader("REGISTRATION SUMMARY", currentY, summaryWidth);
+        currentY += 12;
 
         const regDateStr = reg.createdAt
           ? new Date(reg.createdAt).toLocaleDateString("en-IN")
@@ -454,7 +438,7 @@ export async function GET(
           ? reg.internshipGoal.replace(/_/g, " ").toUpperCase()
           : "N/A";
 
-        currentY += drawGridTable(
+        const summaryTableHeight = drawGridTable(
           currentY,
           [
             [
@@ -473,14 +457,14 @@ export async function GET(
               { label: "Account Status", value: "ACTIVE & VERIFIED" },
             ],
           ],
-          430,
+          summaryWidth,
         );
 
-        currentY = Math.max(photoY + photoH, currentY) + 8;
+        currentY = Math.max(photoY + photoH, currentY + summaryTableHeight) + 4;
 
-        checkPageBreak(120);
-        drawSectionHeader("STUDENT & GUARDIAN PROFILE", currentY);
-        currentY += 15;
+        // 2. Student & Guardian Profile
+        drawSectionHeader("STUDENT & GUARDIAN PROFILE", currentY, usableWidth);
+        currentY += 12;
 
         currentY += drawGridTable(currentY, [
           [
@@ -497,21 +481,22 @@ export async function GET(
           ],
         ]);
 
-        currentY += 8;
+        currentY += 4;
 
-        checkPageBreak(90);
-        drawSectionHeader("ADDRESS DETAILS", currentY);
-        currentY += 15;
+        // 3. Address Details
+        drawSectionHeader("ADDRESS DETAILS", currentY, usableWidth);
+        currentY += 12;
 
-        const localAddressStr = [
-          reg.localAddressLocal,
-          reg.localAddressDistrict,
-          reg.localAddressState
-            ? `${reg.localAddressState}${reg.localAddressPinCode ? ` - ${reg.localAddressPinCode}` : ""}`
-            : reg.localAddressPinCode,
-        ]
-          .filter(Boolean)
-          .join(", ") || "N/A";
+        const localAddressStr =
+          [
+            reg.localAddressLocal,
+            reg.localAddressDistrict,
+            reg.localAddressState
+              ? `${reg.localAddressState}${reg.localAddressPinCode ? ` - ${reg.localAddressPinCode}` : ""}`
+              : reg.localAddressPinCode,
+          ]
+            .filter(Boolean)
+            .join(", ") || "N/A";
 
         const permAddressStr = reg.sameAsLocal
           ? "Same as local address"
@@ -532,11 +517,10 @@ export async function GET(
           ],
         ]);
 
-        currentY += 8;
+        currentY += 4;
 
-        const acadRowsCount = reg.academics?.length || 1;
-        checkPageBreak(35 + acadRowsCount * 22);
-        drawSectionHeader("ACADEMIC QUALIFICATIONS", currentY);
+        // 4. Academic Qualifications
+        drawSectionHeader("ACADEMIC QUALIFICATIONS", currentY, usableWidth);
         currentY += 12;
 
         const tableHeaders: {
@@ -544,12 +528,12 @@ export async function GET(
           width: number;
           align?: "center" | "justify" | "left" | "right";
         }[] = [
-          { text: "S.No", width: 25, align: "center" },
-          { text: "Qualification", width: 95 },
+          { text: "S.No", width: 24, align: "center" },
+          { text: "Qualification", width: 90 },
           { text: "Stream / Subject", width: 110 },
-          { text: "Board/University & Institute", width: 170 },
+          { text: "Board/University & Institute", width: 188 },
           { text: "Year", width: 60, align: "center" },
-          { text: "Grade / Status", width: 65, align: "center" },
+          { text: "Grade / Status", width: 75, align: "center" },
         ];
 
         const drawAcadRow = (
@@ -561,7 +545,7 @@ export async function GET(
           }[],
           isHeader = false,
         ) => {
-          let currentX = 35;
+          let curX = contentX;
           let maxHeight = 0;
 
           cells.forEach((cell) => {
@@ -571,29 +555,29 @@ export async function GET(
             if (textHeight > maxHeight) maxHeight = textHeight;
           });
 
-          const rowHeight = Math.max(maxHeight + 4, isHeader ? 12 : 15);
+          const rowHeight = Math.max(maxHeight + 3, isHeader ? 11 : 13);
 
           if (isHeader) {
             doc
-              .rect(35, y, usableWidth, rowHeight)
+              .rect(contentX, y, usableWidth, rowHeight)
               .fillAndStroke("#ecfdf5", "#a7f3d0");
           } else {
-            doc.rect(35, y, usableWidth, rowHeight).stroke("#cbd5e1");
+            doc.rect(contentX, y, usableWidth, rowHeight).stroke("#cbd5e1");
           }
 
           cells.forEach((cell) => {
             doc
-              .rect(currentX, y, cell.width, rowHeight)
+              .rect(curX, y, cell.width, rowHeight)
               .lineWidth(0.5)
               .stroke("#cbd5e1");
 
             doc
               .font(isHeader ? "Helvetica-Bold" : "Helvetica")
-              .fontSize(isHeader ? 6.5 : 6)
+              .fontSize(isHeader ? 6 : 5.5)
               .fillColor(isHeader ? "#065f46" : "#0f172a")
               .text(
                 cell.text || "N/A",
-                currentX + 3,
+                curX + 3,
                 y +
                   (rowHeight -
                     doc.heightOfString(cell.text || "N/A", {
@@ -602,7 +586,7 @@ export async function GET(
                     2,
                 { width: cell.width - 6, align: cell.align || "left" },
               );
-            currentX += cell.width;
+            curX += cell.width;
           });
 
           return rowHeight;
@@ -617,39 +601,38 @@ export async function GET(
               width: number;
               align?: "center" | "justify" | "left" | "right";
             }[] = [
-              { text: String(idx + 1), width: 25, align: "center" },
-              { text: acad.qualification || "N/A", width: 95 },
+              { text: String(idx + 1), width: 24, align: "center" },
+              { text: acad.qualification || "N/A", width: 90 },
               { text: acad.stream || acad.subject || "N/A", width: 110 },
               {
-                text: `${acad.universityName || "N/A"}\n${acad.instituteName || "N/A"}`,
-                width: 170,
+                text: `${acad.universityName || "N/A"} - ${acad.instituteName || "N/A"}`,
+                width: 188,
               },
               { text: acad.sessionYear || "N/A", width: 60, align: "center" },
               {
-                text: `${acad.gradeDivision || "N/A"}\n(${acad.status || "N/A"})`,
-                width: 65,
+                text: `${acad.gradeDivision || "N/A"} (${acad.status || "N/A"})`,
+                width: 75,
                 align: "center",
               },
             ];
             currentY += drawAcadRow(currentY, cells);
           });
         } else {
-          doc.rect(35, currentY, usableWidth, 15).stroke("#cbd5e1");
+          doc.rect(contentX, currentY, usableWidth, 13).stroke("#cbd5e1");
           doc
             .font("Helvetica-Oblique")
-            .fontSize(7)
+            .fontSize(6)
             .fillColor("#64748b")
-            .text("No academic records provided.", 45, currentY + 4, {
-              width: usableWidth - 20,
+            .text("No academic records provided.", contentX + 6, currentY + 3.5, {
+              width: usableWidth - 12,
             });
-          currentY += 15;
+          currentY += 13;
         }
 
-        currentY += 8;
+        currentY += 4;
 
-        const skillRowsCount = reg.skills?.length || 1;
-        checkPageBreak(30 + skillRowsCount * 18);
-        drawSectionHeader("SKILLS & EXPERTISE", currentY);
+        // 5. Skills & Expertise
+        drawSectionHeader("SKILLS & EXPERTISE", currentY, usableWidth);
         currentY += 12;
 
         const skillHeaders: {
@@ -657,8 +640,8 @@ export async function GET(
           width: number;
           align?: "center" | "justify" | "left" | "right";
         }[] = [
-          { text: "Skill Name", width: 130 },
-          { text: "Description", width: 395 },
+          { text: "Skill Name", width: 140 },
+          { text: "Description", width: 407 },
         ];
 
         const drawSkillRow = (
@@ -670,48 +653,48 @@ export async function GET(
           }[],
           isHeader = false,
         ) => {
-          let currentX = 35;
+          let curX = contentX;
           let maxHeight = 0;
 
           cells.forEach((cell) => {
             const textHeight = doc.heightOfString(cell.text || "", {
-              width: cell.width - 8,
+              width: cell.width - 6,
             });
             if (textHeight > maxHeight) maxHeight = textHeight;
           });
 
-          const rowHeight = Math.max(maxHeight + 4, isHeader ? 11 : 14);
+          const rowHeight = Math.max(maxHeight + 3, isHeader ? 11 : 12);
 
           if (isHeader) {
             doc
-              .rect(35, y, usableWidth, rowHeight)
+              .rect(contentX, y, usableWidth, rowHeight)
               .fillAndStroke("#ecfdf5", "#a7f3d0");
           } else {
-            doc.rect(35, y, usableWidth, rowHeight).stroke("#cbd5e1");
+            doc.rect(contentX, y, usableWidth, rowHeight).stroke("#cbd5e1");
           }
 
           cells.forEach((cell) => {
             doc
-              .rect(currentX, y, cell.width, rowHeight)
+              .rect(curX, y, cell.width, rowHeight)
               .lineWidth(0.5)
               .stroke("#cbd5e1");
 
             doc
               .font(isHeader ? "Helvetica-Bold" : "Helvetica")
-              .fontSize(isHeader ? 6.5 : 6)
+              .fontSize(isHeader ? 6 : 5.5)
               .fillColor(isHeader ? "#065f46" : "#0f172a")
               .text(
                 cell.text || "N/A",
-                currentX + 4,
+                curX + 3,
                 y +
                   (rowHeight -
                     doc.heightOfString(cell.text || "N/A", {
-                      width: cell.width - 8,
+                      width: cell.width - 6,
                     })) /
                     2,
-                { width: cell.width - 8, align: cell.align || "left" },
+                { width: cell.width - 6, align: cell.align || "left" },
               );
-            currentX += cell.width;
+            curX += cell.width;
           });
 
           return rowHeight;
@@ -722,50 +705,50 @@ export async function GET(
         if (reg.skills && reg.skills.length > 0) {
           reg.skills.forEach((skill) => {
             const cells = [
-              { text: skill.skillName || "N/A", width: 130 },
+              { text: skill.skillName || "N/A", width: 140 },
               {
                 text: skill.description || "No description provided.",
-                width: 395,
+                width: 407,
               },
             ];
             currentY += drawSkillRow(currentY, cells);
           });
         } else {
-          doc.rect(35, currentY, usableWidth, 15).stroke("#cbd5e1");
+          doc.rect(contentX, currentY, usableWidth, 13).stroke("#cbd5e1");
           doc
             .font("Helvetica-Oblique")
-            .fontSize(7)
+            .fontSize(6)
             .fillColor("#64748b")
-            .text("No skills recorded.", 45, currentY + 4, {
-              width: usableWidth - 20,
+            .text("No skills recorded.", contentX + 6, currentY + 3.5, {
+              width: usableWidth - 12,
             });
-          currentY += 15;
+          currentY += 13;
         }
 
-        currentY += 8;
+        currentY += 4;
 
-        checkPageBreak(120);
+        // 6. Declaration Box
         const decY = currentY;
         const decText =
-          "I hereby declare that all the information provided in this student registration dossier is true, complete, and correct to the best of my knowledge and belief. I understand that any false statement or omission may lead to rejection or cancellation of registration.";
-        const decLabelHeight = 13;
+          "I hereby declare that all information provided in this registration form is true, complete, and correct. Any false statement or omission may lead to cancellation of registration.";
+        const decLabelHeight = 10;
         const decValHeight = doc.heightOfString(decText, {
-          width: usableWidth - 16,
+          width: usableWidth - 12,
         });
-        const totalDecHeight = decLabelHeight + decValHeight + 8;
+        const totalDecHeight = decLabelHeight + decValHeight + 5;
 
         doc.lineWidth(0.5).strokeColor("#cbd5e1");
-        doc.rect(35, decY, usableWidth, totalDecHeight).stroke();
+        doc.rect(contentX, decY, usableWidth, totalDecHeight).stroke();
 
         doc
-          .moveTo(35, decY + decLabelHeight)
-          .lineTo(35 + usableWidth, decY + decLabelHeight)
+          .moveTo(contentX, decY + decLabelHeight)
+          .lineTo(contentX + usableWidth, decY + decLabelHeight)
           .stroke();
 
         doc.save();
         doc
           .rect(
-            35 + 0.25,
+            contentX + 0.25,
             decY + 0.25,
             usableWidth - 0.5,
             decLabelHeight - 0.5,
@@ -776,21 +759,58 @@ export async function GET(
 
         doc
           .font("Helvetica-Bold")
-          .fontSize(6.5)
+          .fontSize(6)
           .fillColor("#065f46")
-          .text("DECLARATION", 43, decY + 3, { width: usableWidth - 16 });
+          .text("DECLARATION", contentX + 6, decY + 2, {
+            width: usableWidth - 12,
+          });
 
         doc
           .font("Helvetica")
-          .fontSize(7)
+          .fontSize(5.8)
           .fillColor("#0f172a")
-          .text(decText, 43, decY + decLabelHeight + 4, {
-            width: usableWidth - 16,
+          .text(decText, contentX + 6, decY + decLabelHeight + 2.5, {
+            width: usableWidth - 12,
             align: "justify",
           });
 
-        const sigY = Math.max(680, decY + totalDecHeight + 8);
-        const sigX = doc.page.width - 35 - 130;
+        currentY = decY + totalDecHeight + 6;
+
+        // 7. Verification Seal & Candidate Signature (Side-by-Side)
+        const footerBlockY = currentY;
+
+        // Left: Official Authenticity Badge
+        const stampW = 280;
+        const stampH = 36;
+        doc
+          .rect(contentX, footerBlockY, stampW, stampH)
+          .lineWidth(0.5)
+          .stroke("#cbd5e1");
+        doc.fillColor("#f8fafc").rect(contentX + 0.5, footerBlockY + 0.5, stampW - 1, stampH - 1).fill();
+        doc.fillColor("#ecfdf5").rect(contentX + 0.5, footerBlockY + 0.5, stampW - 1, 10).fill();
+
+        doc
+          .font("Helvetica-Bold")
+          .fontSize(5.5)
+          .fillColor("#065f46")
+          .text("SYSTEM VERIFICATION & RECORD AUTHENTICITY", contentX + 6, footerBlockY + 2.5);
+
+        doc
+          .font("Helvetica")
+          .fontSize(5)
+          .fillColor("#475569")
+          .text(
+            `Registered & verified on International Institute of Internship [i3] Registrar Database.\nStudent ID: ${studentCode}  |  Official electronic record.`,
+            contentX + 6,
+            footerBlockY + 13,
+            { width: stampW - 12 },
+          );
+
+        // Right: Candidate Signature
+        const sigW = 120;
+        const sigH = 22;
+        const sigX = pageWidth - contentX - sigW;
+        const sigY = footerBlockY;
         let sigRendered = false;
         const signatureUrl = reg.signatureUrl;
 
@@ -799,9 +819,9 @@ export async function GET(
           if (sigBuf) {
             try {
               doc.save();
-              doc.rect(sigX, sigY, 130, 24).clip();
+              doc.rect(sigX, sigY, sigW, sigH).clip();
               doc.image(sigBuf, sigX, sigY, {
-                fit: [130, 24],
+                fit: [sigW, sigH],
                 align: "center",
                 valign: "center",
               });
@@ -815,45 +835,42 @@ export async function GET(
         }
 
         doc
-          .moveTo(sigX, sigY + 26)
-          .lineTo(sigX + 130, sigY + 26)
-          .lineWidth(0.8)
+          .moveTo(sigX, sigY + 23)
+          .lineTo(sigX + sigW, sigY + 23)
+          .lineWidth(0.7)
           .stroke("#94a3b8");
 
         doc
           .font("Helvetica-Bold")
-          .fontSize(6.5)
+          .fontSize(6)
           .fillColor("#334155")
-          .text("CANDIDATE'S SIGNATURE", sigX, sigY + 30, {
-            width: 130,
+          .text("CANDIDATE'S SIGNATURE", sigX, sigY + 26, {
+            width: sigW,
             align: "center",
           });
 
         if (!sigRendered) {
           doc
             .font("Helvetica-Oblique")
-            .fontSize(6)
+            .fontSize(5.5)
             .fillColor("#94a3b8")
-            .text("Digitally Submitted", sigX, sigY + 12, {
-              width: 130,
+            .text("Digitally Submitted", sigX, sigY + 10, {
+              width: sigW,
               align: "center",
             });
         }
 
-        const range = doc.bufferedPageRange();
-        for (let i = range.start; i < range.start + range.count; i++) {
-          doc.switchToPage(i);
-          doc
-            .font("Helvetica")
-            .fontSize(6.5)
-            .fillColor("#94a3b8")
-            .text(
-              "Official Student Onboarding Registration Record from International Institute of Internship [i3].",
-              35,
-              doc.page.height - 25,
-              { width: doc.page.width - 70, align: "center" },
-            );
-        }
+        // Single Page Footer Line
+        doc
+          .font("Helvetica")
+          .fontSize(6)
+          .fillColor("#94a3b8")
+          .text(
+            "Official Student Onboarding Registration Record from International Institute of Internship [i3].",
+            contentX,
+            pageHeight - 22,
+            { width: usableWidth, align: "center", lineBreak: false },
+          );
 
         doc.end();
       } catch (error) {
@@ -982,11 +999,25 @@ export async function GET(
 
     const fileBuffer = await generateStudentRegistrationPDF(registration);
 
+    const rawStudentName =
+      registration.fullName ||
+      registration.user?.name ||
+      registration.studentId ||
+      "Student";
+
+    const safeStudentName = rawStudentName
+      .trim()
+      .replace(/[/\\?%*:|"<>]/g, "")
+      .replace(/\s+/g, "_");
+
+    const filename = `${safeStudentName || "Student"}_Application.pdf`;
+    const encodedFilename = encodeURIComponent(filename);
+
     return new NextResponse(new Uint8Array(fileBuffer), {
       status: HTTP.OK,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="student_registration_${registration.studentId || registration.id}.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
       },
     });
   } catch (error) {

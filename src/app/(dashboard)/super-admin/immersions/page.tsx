@@ -1,7 +1,7 @@
 "use client";
 
 import React_2, { Suspense } from "react";
-import { Activity as Activity_2, AlertTriangle, Award, BookOpen, Calendar, Check as Check_2, Clock as Clock_2, CreditCard, DollarSign, Download, Edit, ExternalLink, Eye, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, LucideIcon, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, School, Send, ShieldCheck, Sparkles as Sparkles_2, Trash2, Trash2Icon, User, Users as Users_2, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
+import { Activity as Activity_2, AlertTriangle, Award, BookOpen, Calendar, Check as Check_2, Clock as Clock_2, CreditCard, DollarSign, Download, Edit, ExternalLink, Eye, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, LucideIcon, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, RotateCcw, School, Send, ShieldCheck, Sparkles as Sparkles_2, Trash2, Trash2Icon, User, Users as Users_2, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import * as React_4 from "react";
@@ -34,6 +34,7 @@ import { AuthContext } from "@/x/8789d6dc";
 import { axiosInstance } from "@/x/acfb3dca";
 import { LayoutContext } from "@/x/72be5b4f";
 import { SidebarFiltersContext } from "@/x/d50b23c8";
+import { isDateExpired } from "@/x/a85a9c0c";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -9715,12 +9716,112 @@ export default function SuperAdminImmersionsPage() {
         enableHiding: false,
       },
     ];
+    const ReopenImmersionDialog = ({
+      isOpen,
+      onClose,
+      program,
+    }: {
+      isOpen: boolean;
+      onClose: () => void;
+      program: any;
+    }) => {
+      const [newEndDate, setNewEndDate] = useState("");
+      const { mutate: updateImmersion, isPending } =
+        SuperAdminDataHooks.useUpdateImmersion();
+
+      const handleReopen = (e: React_3.FormEvent) => {
+        e.preventDefault();
+        if (!newEndDate) {
+          toast.error("Please enter a new end date.");
+          return;
+        }
+
+        const todayStr = new Date().toISOString().split("T")[0];
+        updateImmersion(
+          {
+            id: program.id,
+            payload: {
+              endDate: newEndDate,
+              startDate: program.startDate || todayStr,
+            },
+          },
+          {
+            onSuccess: () => {
+              toast.success("Immersion program reopened successfully with extended date!");
+              onClose();
+            },
+          },
+        );
+      };
+
+      return (
+        <ResponsiveDialog
+          isOpen={isOpen}
+          setIsOpen={(open) => !open && onClose()}
+          title="Reopen Immersion Program"
+          description="Extend the cohort concluding date to reactivate this immersion program for student participation."
+        >
+          <form onSubmit={handleReopen} className="space-y-4 pt-1">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 text-xs space-y-1 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+              <div className="font-bold text-foreground">{program.title}</div>
+              <div className="text-muted-foreground">Location: {program.location}</div>
+              <div className="text-muted-foreground">
+                Previous End Date:{" "}
+                <span className="font-semibold text-rose-600 dark:text-rose-400">
+                  {program.endDate ? String(program.endDate).split("T")[0] : "N/A"}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="reopenEndDate" className="text-xs font-semibold">
+                New Extended End Date *
+              </Label>
+              <Input
+                id="reopenEndDate"
+                type="date"
+                min={new Date().toISOString().split("T")[0]}
+                value={newEndDate}
+                onChange={(e) => setNewEndDate(e.target.value)}
+                required
+                className="w-full cursor-pointer"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Once saved, this program will automatically become Active and open for applications.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t pt-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isPending}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold cursor-pointer"
+              >
+                {isPending ? "Reopening..." : "Reopen Program"}
+              </Button>
+            </div>
+          </form>
+        </ResponsiveDialog>
+      );
+    };
+
     const ImmersionActions: React.FC<ImmersionActionsProps> = ({
       program,
     }) => {
       const [detailOpen, setDetailOpen] = React.useState(false);
       const [editOpen, setEditOpen] = React.useState(false);
       const [deleteOpen, setDeleteOpen] = React.useState(false);
+      const [reopenOpen, setReopenOpen] = React.useState(false);
 
       const { mutate: deleteImmersion, isPending } =
         SuperAdminDataHooks.useDeleteImmersion();
@@ -9774,6 +9875,16 @@ export default function SuperAdminImmersionsPage() {
                 </Link>
               </DropdownMenuItem>
 
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => setReopenOpen(true)}
+                className="cursor-pointer font-semibold text-emerald-600 focus:bg-emerald-50 focus:text-emerald-700 dark:text-emerald-400 dark:focus:bg-emerald-950/40"
+              >
+                <RotateCcw className="mr-2 size-3.5 text-emerald-600" />
+                <span>Reopen / Extend Date</span>
+              </DropdownMenuItem>
+
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -9791,6 +9902,14 @@ export default function SuperAdminImmersionsPage() {
             <ImmersionDetailDialog
               isOpen={detailOpen}
               onClose={() => setDetailOpen(false)}
+              program={program}
+            />
+          )}
+
+          {reopenOpen && (
+            <ReopenImmersionDialog
+              isOpen={reopenOpen}
+              onClose={() => setReopenOpen(false)}
               program={program}
             />
           )}
@@ -9876,6 +9995,24 @@ export default function SuperAdminImmersionsPage() {
           return (
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
               {val === 0 ? "Free" : `₹${val.toLocaleString()}`}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const isExpired = isDateExpired((row.original as any).endDate) || row.original.status === "COMPLETED";
+          return (
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                isExpired
+                  ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300"
+                  : "border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
+              }`}
+            >
+              {isExpired ? "Archived (Concluded)" : (row.original.status || "ACTIVE")}
             </span>
           );
         },

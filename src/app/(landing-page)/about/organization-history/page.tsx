@@ -1,7 +1,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Home } from "lucide-react";
+import { Building2, Calendar, Home, MapPin, Sparkles, Users } from "lucide-react";
 import Image from "next/image";
 import * as z from "zod";
 import Link_2 from "next/link";
@@ -175,6 +175,96 @@ export default function OrganizationHistoryPage() {
             {organizationHistoryData}
           </ReactMarkdown>
         </div>
+
+        {/* Official Web Portal Launch Milestone Showcase (Circled Location) */}
+        <section className="mt-14 overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-b from-emerald-50/70 via-card to-emerald-50/30 p-6 shadow-xl dark:from-emerald-950/20 dark:via-card dark:to-emerald-950/10 md:p-10">
+          {/* Badge & Title Block */}
+          <div className="mb-6 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+              <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              Historic Milestone • October 3, 2026
+            </div>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+              Grand Launch of the i3 Web Portal
+            </h2>
+            <p className="mt-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+              Malayagiri Spiritual Consciousness Camp &amp; North-South India Cultural Exchange Ceremony
+            </p>
+          </div>
+
+          {/* Featured Launch Photograph */}
+          <div className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 shadow-md">
+            <img
+              src="/images/portal-launch-ceremony.webp"
+              alt="Grand Launch Ceremony of International Institute of Internship Web Portal in Kerala"
+              className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              loading="lazy"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white">
+              <p className="text-xs md:text-sm font-medium leading-relaxed drop-shadow">
+                Dignitaries holding up the official portal launch posters at the SMSF Heartfulness Spiritual Retreat Center, Malampuzha, Palakkad, Kerala.
+              </p>
+            </div>
+          </div>
+
+          {/* Official Narrative */}
+          <div className="mt-6 rounded-2xl border border-border bg-background/80 p-5 shadow-sm md:p-6">
+            <p className="text-base leading-relaxed text-foreground md:text-lg">
+              On October 3, 2026, the &apos;International Institute of Internship&apos; web portal was grandly launched by dignitaries during the Malayagiri Spiritual Consciousness Camp and the North-South India Cultural Exchange and Felicitation Ceremony, held at the SMSF Heartfulness Spiritual Retreat Center in Malampuzha, Palakkad district, Kerala. The event was successfully organized by the DPKHRC Trust and saw the participation of hundreds of scholars from the field of education representing 18 states across India.
+            </p>
+          </div>
+
+          {/* 4-Pillar Key Event Highlights */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+              <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+                <MapPin className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Venue</p>
+                <p className="text-xs font-semibold text-foreground md:text-sm">
+                  SMSF Retreat Center, Malampuzha, Palakkad, Kerala
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+              <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Launch Date</p>
+                <p className="text-xs font-semibold text-foreground md:text-sm">
+                  October 3, 2026
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+              <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Organized By</p>
+                <p className="text-xs font-semibold text-foreground md:text-sm">
+                  DPKHRC Trust
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+              <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">National Delegation</p>
+                <p className="text-xs font-semibold text-foreground md:text-sm">
+                  100+ Scholars from 18 Indian States
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </article>
     </main>
   );

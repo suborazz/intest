@@ -1,8 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Briefcase, Download, ExternalLink } from "lucide-react";
+import { Briefcase, Download, ExternalLink, Calendar, Clock, CheckCircle2, Search, Filter, X, FileText, Archive } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { isJobClosingDateExpired } from "@/x/a85a9c0c";
 import React_3 from "react";
 import { toast } from "sonner";
 import { LucideIcon as LucideIcon_2 } from "lucide-react";
@@ -833,6 +834,7 @@ function DataTable<TData, TValue>({
       <TableCell
         key={cell.id}
         style={{
+          width: cell.column.columnDef.size,
           minWidth: cell.column.columnDef.minSize,
           maxWidth: cell.column.columnDef.maxSize,
         }}
@@ -843,16 +845,14 @@ function DataTable<TData, TValue>({
           }
         }}
         className={cn(
-          "px-4 py-2",
-          cell.column.columnDef.minSize === 20
-            ? "max-w-60 text-clip text-nowrap"
-            : "line-clamp-3",
+          "px-4 py-3 align-top whitespace-normal break-words",
+          cell.column.columnDef.minSize === 20 && "max-w-60 text-clip text-nowrap",
           isLink && "cursor-pointer",
         )}
       >
-        <span className="select-text">
+        <div className="select-text w-full">
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </span>
+        </div>
       </TableCell>
     );
   }
@@ -902,10 +902,10 @@ function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
 
-      <TableOverflow className="w-full">
+      <TableOverflow className="w-full rounded-xl border border-border/60 bg-card shadow-xs">
         <Table
           className={cn(
-            "relative",
+            "relative min-w-[840px] w-full",
             columnBorder &&
               "rounded-2xl [&_td:last-child]:border-r-0 [&_td]:border-r [&_th:last-child]:border-r-0 [&_th]:border-r",
             tableClassName,
@@ -2200,6 +2200,11 @@ export default function RecruitOpeningsPage() {
       },
     };
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = React_3.useState("");
+  const [openingTab, setOpeningTab] = React_3.useState<"CURRENT" | "ARCHIVED">("CURRENT");
+  const [statusFilter, setStatusFilter] = React_3.useState<"ALL" | "NOT_APPLIED" | "APPLIED">("ALL");
+  const [applyingJobId, setApplyingJobId] = React_3.useState<string | null>(null);
+
   const { data: profileResponse, isLoading: isProfileLoading } =
     RecruitDataHooks.useProfile();
   const { data: openingsResponse, isLoading: isOpeningsLoading } =
@@ -2212,26 +2217,67 @@ export default function RecruitOpeningsPage() {
       onSuccess: () => {
         toast.success("Successfully applied for the job opening!");
       },
+      onSettled: () => {
+        setApplyingJobId(null);
+      },
     });
 
   const hasProfile = !!profileResponse?.success && !!profileResponse.data;
   const openings = (openingsResponse?.data ?? []) as TRecruitOpening[];
   const myApplications = (applicationsResponse?.data ?? []) as any[];
 
-    const appliedJobIds = React_3.useMemo(() => {
+  const appliedJobIds = React_3.useMemo(() => {
     return new Set(myApplications.map((app) => app.jobOpportunityId));
   }, [myApplications]);
+
+  // Dynamically separate current active openings vs archived openings based on closing date
+  const { activeOpenings, archivedOpenings } = React_3.useMemo(() => {
+    const active: TRecruitOpening[] = [];
+    const archived: TRecruitOpening[] = [];
+    for (const op of openings) {
+      const isExpired = isJobClosingDateExpired(op.closingDate);
+      if (op.isActive && !isExpired) {
+        active.push(op);
+      } else {
+        archived.push(op);
+      }
+    }
+    return { activeOpenings: active, archivedOpenings: archived };
+  }, [openings]);
+
+  const targetOpenings = openingTab === "CURRENT" ? activeOpenings : archivedOpenings;
+
+  const filteredOpenings = React_3.useMemo(() => {
+    return targetOpenings.filter((opening) => {
+      const isApplied = appliedJobIds.has(opening.id);
+      if (statusFilter === "APPLIED" && !isApplied) return false;
+      if (statusFilter === "NOT_APPLIED" && isApplied) return false;
+
+      if (!searchTerm.trim()) return true;
+      const q = searchTerm.toLowerCase();
+      const titleMatch = (opening.postOpportunity || opening.postName || "").toLowerCase().includes(q);
+      const skillsMatch = (opening.skillsRequired || "").toLowerCase().includes(q);
+      const advtMatch = (opening.advtNo || "").toLowerCase().includes(q);
+      const qualMatch = (opening.minQualification || "").toLowerCase().includes(q);
+      return titleMatch || skillsMatch || advtMatch || qualMatch;
+    });
+  }, [targetOpenings, appliedJobIds, statusFilter, searchTerm]);
 
   const openingsColumns = (): ColumnDef<TRecruitOpening>[] => [
     {
       id: "advt",
       header: "Advt. No. & Date",
+      minSize: 130,
+      size: 150,
       cell: ({ row }) => {
         const { advtNo, advtDate } = row.original;
         return (
-          <div className="flex flex-col text-xs font-semibold">
-            <span>{advtNo || "N/A"}</span>
-            <span className="text-muted-foreground font-normal">
+          <div className="flex flex-col gap-1 text-xs">
+            <span className="font-semibold text-foreground bg-muted/80 px-2 py-0.5 rounded w-fit border border-border/50 text-[11px]">
+              {advtNo || "N/A"}
+            </span>
+            <span className="text-muted-foreground font-normal text-[11px] flex items-center gap-1 mt-0.5">
+              <Calendar className="size-3 text-muted-foreground/70 shrink-0" />
               {advtDate ? formatDate(advtDate) : "N/A"}
             </span>
           </div>
@@ -2241,36 +2287,122 @@ export default function RecruitOpeningsPage() {
     {
       accessorKey: "postOpportunity",
       header: "Name of the Post",
+      minSize: 180,
+      size: 210,
       cell: ({ row }) => (
-        <span className="text-sm font-semibold">
-          {row.original.postOpportunity}
-        </span>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-sm font-bold text-foreground">
+            {row.original.postOpportunity || row.original.postName}
+          </span>
+          {row.original.jobNature && (
+            <span className="text-[11px] text-muted-foreground font-normal">
+              Nature: {row.original.jobNature}
+            </span>
+          )}
+        </div>
       ),
     },
     {
       id: "jobDescription",
       header: "Job Description",
+      minSize: 300,
+      size: 380,
       cell: ({ row }) => {
-        const { skillsRequired, minQualification, jobNature, jdDocUrl } =
-          row.original;
+        const op = row.original as any;
+        const jdUrl = `/api/v1/job-opportunities/${op.id}/jd`;
+        const hasWebsite = Boolean(op.website && op.website.trim());
+        const cleanWebsiteUrl = hasWebsite
+          ? op.website.startsWith("http://") || op.website.startsWith("https://")
+            ? op.website
+            : `https://${op.website.replace(/^\/+/, "")}`
+          : "";
+        const displayWebsiteText = hasWebsite
+          ? op.website.replace(/^https?:\/\//, "").replace(/^\/+/, "")
+          : "";
+
         return (
-          <div className="flex max-w-[320px] flex-col gap-2 py-1">
-            <p className="text-muted-foreground text-xs leading-relaxed">
-              Required Skills: {skillsRequired || "N/A"}. Qualification:{" "}
-              {minQualification || "N/A"}. Nature: {jobNature || "N/A"}.
-            </p>
-            {jdDocUrl && (
-              <Button
-                asChild
-                size="sm"
-                variant="secondary"
-                className="h-8 gap-1.5 self-start bg-[#e2f0ed] text-xs font-bold text-[#006e52] transition-colors hover:bg-[#d0e6e1]"
-              >
-                <a href={jdDocUrl} target="_blank" rel="noreferrer">
-                  <Download className="size-3.5" /> Download JD
-                </a>
-              </Button>
+          <div className="flex max-w-[380px] flex-col gap-2 py-1">
+            {op.jdDescription && (
+              <p className="rounded-md border border-border/50 bg-muted/40 p-2 text-xs font-medium leading-relaxed text-foreground/90">
+                {op.jdDescription}
+              </p>
             )}
+
+            <ul className="space-y-1 text-xs leading-relaxed text-muted-foreground">
+              {op.totalStaffStrength && (
+                <li className="flex items-start gap-1.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#006e52]" />
+                  <span>
+                    <strong className="font-semibold text-foreground">Total Seat Vacant:</strong>{" "}
+                    <span className="font-bold text-[#006e52]">{op.totalStaffStrength}</span>
+                  </span>
+                </li>
+              )}
+              {op.address && (
+                <li className="flex items-start gap-1.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#006e52]" />
+                  <span>
+                    <strong className="font-semibold text-foreground">Job Location:</strong>{" "}
+                    <span className="font-medium text-foreground/90">{op.address}</span>
+                  </span>
+                </li>
+              )}
+              {op.skillsRequired && (
+                <li className="flex items-start gap-1.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#006e52]" />
+                  <span>
+                    <strong className="font-semibold text-foreground">Required Skills:</strong>{" "}
+                    <span>{op.skillsRequired}</span>
+                  </span>
+                </li>
+              )}
+              {op.minQualification && (
+                <li className="flex items-start gap-1.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#006e52]" />
+                  <span>
+                    <strong className="font-semibold text-foreground">Qualification:</strong>{" "}
+                    <span>{op.minQualification}</span>
+                  </span>
+                </li>
+              )}
+              {op.jobNature && (
+                <li className="flex items-start gap-1.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#006e52]" />
+                  <span>
+                    <strong className="font-semibold text-foreground">Nature:</strong>{" "}
+                    <span>{op.jobNature}</span>
+                  </span>
+                </li>
+              )}
+              {hasWebsite && (
+                <li className="flex items-start gap-1.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#006e52]" />
+                  <span className="break-all">
+                    <strong className="font-semibold text-foreground">Website / Link:</strong>{" "}
+                    <a
+                      href={cleanWebsiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-semibold text-[#006e52] underline decoration-[#006e52]/40 underline-offset-2 hover:text-[#005a43]"
+                    >
+                      <span>{displayWebsiteText}</span>
+                      <ExternalLink className="size-3 inline shrink-0" />
+                    </a>
+                  </span>
+                </li>
+              )}
+            </ul>
+
+            <Button
+              asChild
+              size="sm"
+              variant="secondary"
+              className="h-7 px-2.5 gap-1.5 self-start bg-emerald-50 text-[11px] font-semibold text-emerald-700 border border-emerald-200/60 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+            >
+              <a href={jdUrl} target="_blank" rel="noreferrer">
+                <Download className="size-3 shrink-0" /> Download JD
+              </a>
+            </Button>
           </div>
         );
       },
@@ -2278,32 +2410,61 @@ export default function RecruitOpeningsPage() {
     {
       accessorKey: "closingDate",
       header: "Closing Date",
-      cell: ({ row }) => (
-        <span className="text-sm font-medium text-rose-500">
-          {row.original.closingDate
-            ? formatDate(row.original.closingDate)
-            : "N/A"}
-        </span>
-      ),
+      minSize: 130,
+      size: 140,
+      cell: ({ row }) => {
+        const isExpired = isJobClosingDateExpired(row.original.closingDate);
+        return (
+          <div
+            className={cn(
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap border",
+              isExpired
+                ? "bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700"
+                : "bg-rose-50 text-rose-700 border-rose-200/70 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/40",
+            )}
+          >
+            {isExpired ? (
+              <Archive className="size-3 text-zinc-500 shrink-0" />
+            ) : (
+              <Clock className="size-3 text-rose-500 shrink-0" />
+            )}
+            <span>
+              {row.original.closingDate
+                ? formatDate(row.original.closingDate)
+                : "N/A"}
+              {isExpired ? " (Closed)" : ""}
+            </span>
+          </div>
+        );
+      },
     },
     {
       id: "actions",
-      header: () => <div className="text-right">Action</div>,
+      header: () => <div className="text-right pr-2">Action</div>,
+      minSize: 110,
+      size: 120,
       cell: ({ row }) => {
         const jobId = row.original.id;
         const isAlreadyApplied = appliedJobIds.has(jobId);
+        const isThisApplying = applyingJobId === jobId;
+        const isExpired = isJobClosingDateExpired(row.original.closingDate);
 
         return (
-          <div className="flex justify-end">
+          <div className="flex justify-end pr-1">
             {isAlreadyApplied ? (
-              <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 whitespace-nowrap">
+                <CheckCircle2 className="size-3.5 text-emerald-600" />
                 Applied
+              </span>
+            ) : isExpired ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 whitespace-nowrap">
+                <Archive className="size-3.5 text-zinc-500" />
+                Closed
               </span>
             ) : (
               <Button
                 size="sm"
-                variant="outline"
-                className="h-8 px-3 text-xs font-semibold"
+                className="h-8 px-3.5 text-xs font-semibold bg-[#006e52] hover:bg-[#005a43] text-white shadow-xs transition-all whitespace-nowrap"
                 disabled={isApplying}
                 onClick={() => {
                   if (!hasProfile) {
@@ -2313,10 +2474,18 @@ export default function RecruitOpeningsPage() {
                     router.push("/recruit/profile");
                     return;
                   }
+                  setApplyingJobId(jobId);
                   applyJob(jobId);
                 }}
               >
-                Apply Now
+                {isThisApplying ? (
+                  <>
+                    <Loader2Icon className="size-3.5 animate-spin mr-1.5" />
+                    Applying...
+                  </>
+                ) : (
+                  "Apply Now"
+                )}
               </Button>
             )}
           </div>
@@ -2328,19 +2497,314 @@ export default function RecruitOpeningsPage() {
   return (
     <RecruitSectionShell
       title="Job Openings"
-      description="Browse through the active recruitment notices and submit your expression of interest."
+      description="Browse through active recruitment notices and submit your expression of interest."
       icon={Briefcase}
-      actions={null}
+      actions={
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground bg-muted/60 border border-border/50 px-2.5 py-1 rounded-md">
+            {targetOpenings.length} {openingTab === "CURRENT" ? "Current" : "Archived"} {targetOpenings.length === 1 ? "Opening" : "Openings"}
+          </span>
+        </div>
+      }
     >
-      <div className="w-full min-w-0">
-        <DataTable
-          isLoading={
-            isOpeningsLoading || isApplicationsLoading || isProfileLoading
-          }
-          columns={openingsColumns()}
-          data={openings}
-          full={true}
-        />
+      <div className="w-full min-w-0 space-y-4">
+        {/* Main Mode Tabs: Current Openings vs Archived Openings */}
+        <div className="flex items-center gap-2 border-b border-border/50 pb-2 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setOpeningTab("CURRENT");
+              setStatusFilter("ALL");
+            }}
+            className={cn(
+              "inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+              openingTab === "CURRENT"
+                ? "bg-[#006e52] text-white shadow-xs"
+                : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60",
+            )}
+          >
+            <Briefcase className="size-3.5" />
+            Current Job Openings
+            <span
+              className={cn(
+                "ml-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold",
+                openingTab === "CURRENT"
+                  ? "bg-white/20 text-white"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {activeOpenings.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setOpeningTab("ARCHIVED");
+              setStatusFilter("ALL");
+            }}
+            className={cn(
+              "inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+              openingTab === "ARCHIVED"
+                ? "bg-[#006e52] text-white shadow-xs"
+                : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60",
+            )}
+          >
+            <Archive className="size-3.5" />
+            Archived Openings
+            <span
+              className={cn(
+                "ml-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold",
+                openingTab === "ARCHIVED"
+                  ? "bg-white/20 text-white"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {archivedOpenings.length}
+            </span>
+          </button>
+        </div>
+
+        {/* Notice for Archived Openings */}
+        {openingTab === "ARCHIVED" && (
+          <div className="flex items-start gap-2.5 rounded-lg border border-amber-200/80 bg-amber-50/80 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+            <Archive className="size-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
+            <p className="leading-relaxed">
+              These vacancies have passed their application deadline. If an opening's last date is extended by the administration, it will automatically return to <strong>Current Job Openings</strong>.
+            </p>
+          </div>
+        )}
+
+        {/* Search & Filter Toolbar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pb-1">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by post name, skills, or advt no..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-9 w-full rounded-lg border border-border/70 bg-card pl-9 pr-8 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#006e52] focus:border-[#006e52] transition-colors shadow-2xs"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded transition-colors"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Filter Status Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <button
+              type="button"
+              onClick={() => setStatusFilter("ALL")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap",
+                statusFilter === "ALL"
+                  ? "bg-[#006e52] text-white shadow-2xs"
+                  : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40",
+              )}
+            >
+              All ({targetOpenings.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("NOT_APPLIED")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap",
+                statusFilter === "NOT_APPLIED"
+                  ? "bg-[#006e52] text-white shadow-2xs"
+                  : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40",
+              )}
+            >
+              Not Applied ({Math.max(0, targetOpenings.filter((o) => !appliedJobIds.has(o.id)).length)})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("APPLIED")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap",
+                statusFilter === "APPLIED"
+                  ? "bg-[#006e52] text-white shadow-2xs"
+                  : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40",
+              )}
+            >
+              Applied ({targetOpenings.filter((o) => appliedJobIds.has(o.id)).length})
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop & Tablet View: Structured Data Grid */}
+        <div className="hidden md:block">
+          <DataTable
+            isLoading={
+              isOpeningsLoading || isApplicationsLoading || isProfileLoading
+            }
+            columns={openingsColumns()}
+            data={filteredOpenings}
+            full={true}
+          />
+        </div>
+
+        {/* Mobile View: Dedicated Clean Cards (Prevents Any Table Squishing) */}
+        <div className="block md:hidden">
+          {isOpeningsLoading || isApplicationsLoading || isProfileLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2Icon className="size-6 animate-spin text-[#006e52]" />
+            </div>
+          ) : filteredOpenings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center border rounded-xl bg-card">
+              <Briefcase className="size-8 text-muted-foreground/50 mb-2" />
+              <p className="text-sm font-semibold">No matching job openings found</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {searchTerm
+                  ? `No vacancies matched "${searchTerm}". Try another search term.`
+                  : "No vacancies match the selected filter."}
+              </p>
+              {(searchTerm || statusFilter !== "ALL") && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setStatusFilter("ALL");
+                  }}
+                  className="mt-3 h-8 text-xs font-semibold"
+                >
+                  Reset Filters
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              {filteredOpenings.map((opening) => {
+                const jobId = opening.id;
+                const isAlreadyApplied = appliedJobIds.has(jobId);
+                const isThisApplying = applyingJobId === jobId;
+                const jdUrl = `/api/v1/job-opportunities/${opening.id}/jd`;
+
+                return (
+                  <div
+                    key={opening.id}
+                    className="p-4 rounded-xl border border-border/70 bg-card shadow-xs flex flex-col gap-3 transition-shadow hover:shadow-sm"
+                  >
+                    {/* Header: Notice & Closing Date */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span className="text-[11px] font-semibold text-foreground bg-muted/80 px-2 py-0.5 rounded border border-border/50">
+                        {opening.advtNo || "Notice"} • {opening.advtDate ? formatDate(opening.advtDate) : "Recent"}
+                      </span>
+
+                      <div
+                        className={cn(
+                          "inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-semibold border",
+                          isJobClosingDateExpired(opening.closingDate)
+                            ? "bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700"
+                            : "bg-rose-50 text-rose-700 border-rose-200/70 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/40",
+                        )}
+                      >
+                        {isJobClosingDateExpired(opening.closingDate) ? (
+                          <Archive className="size-3 text-zinc-500 shrink-0" />
+                        ) : (
+                          <Clock className="size-3 text-rose-500 shrink-0" />
+                        )}
+                        <span>
+                          {isJobClosingDateExpired(opening.closingDate)
+                            ? `Closed (${opening.closingDate ? formatDate(opening.closingDate) : "Expired"})`
+                            : `Closes ${opening.closingDate ? formatDate(opening.closingDate) : "Open"}`}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Post Title */}
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">
+                        {opening.postOpportunity || opening.postName}
+                      </h3>
+                      {opening.jobNature && (
+                        <span className="inline-block mt-1 text-[11px] font-medium text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded">
+                          {opening.jobNature}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Description Details */}
+                    <div className="space-y-1.5 text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-lg border border-border/40 leading-relaxed">
+                      {opening.skillsRequired && (
+                        <p>
+                          <span className="font-semibold text-foreground">Skills:</span>{" "}
+                          {opening.skillsRequired}
+                        </p>
+                      )}
+                      {opening.minQualification && (
+                        <p>
+                          <span className="font-semibold text-foreground">Min Qualification:</span>{" "}
+                          {opening.minQualification}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs font-semibold text-[#006e52] border-[#006e52]/30 hover:bg-[#006e52]/10"
+                      >
+                        <a href={jdUrl} target="_blank" rel="noreferrer">
+                          <Download className="size-3.5" /> JD
+                        </a>
+                      </Button>
+
+                      {isAlreadyApplied ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-500/20">
+                          <CheckCircle2 className="size-3.5 text-emerald-600" />
+                          Applied
+                        </span>
+                      ) : isJobClosingDateExpired(opening.closingDate) ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                          <Archive className="size-3.5 text-zinc-500" />
+                          Closed
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="h-8 px-4 text-xs font-semibold bg-[#006e52] hover:bg-[#005a43] text-white shadow-xs"
+                          disabled={isApplying}
+                          onClick={() => {
+                            if (!hasProfile) {
+                              toast.error(
+                                "Please complete your registration profile before applying.",
+                              );
+                              router.push("/recruit/profile");
+                              return;
+                            }
+                            setApplyingJobId(jobId);
+                            applyJob(jobId);
+                          }}
+                        >
+                          {isThisApplying ? (
+                            <>
+                              <Loader2Icon className="size-3.5 animate-spin mr-1.5" />
+                              Applying...
+                            </>
+                          ) : (
+                            "Apply Now"
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </RecruitSectionShell>
   );

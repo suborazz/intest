@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { AlertTriangle, Briefcase as Briefcase_2, Building as Building_2, CheckCircle, CheckCircle2, Clock as Clock_2, Coffee, CreditCard, DollarSign, Gift, GraduationCap as GraduationCap_2, Info, Key, Layers, List, Loader2, Phone as Phone_2, ShieldCheck, Sparkles as Sparkles_2, XCircle, Zap, Search } from "lucide-react";
+import { AlertTriangle, Briefcase as Briefcase_2, Building as Building_2, CheckCircle, CheckCircle2, Clock as Clock_2, Coffee, CreditCard, DollarSign, Eye, Gift, GraduationCap as GraduationCap_2, Info, Key, Layers, List, Loader2, Phone as Phone_2, ShieldCheck, Sparkles as Sparkles_2, XCircle, Zap, Search } from "lucide-react";
 import * as React_4 from "react";
 import React_3 from "react";
 import React_2 from "react";
@@ -1499,6 +1499,7 @@ interface InternshipPublic {
       remoteDetails?: string | null;
       isApproved?: boolean;
       approvedAt?: string | null;
+      imageUrl?: string | null;
     }
 
 interface ListInternshipsResponse {
@@ -2661,6 +2662,12 @@ function InternshipCard_2({
         }
       };
 
+      const flyerImage =
+        internship.imageUrl ||
+        (internship as any).flyer ||
+        (internship as any).flyerUrl ||
+        (internship as any).bannerUrl ||
+        null;
       const timePeriod = (internship as any).timePeriod || "Non-Residential";
       const qualification =
         (internship as any).qualification || "B.Tech/M.Tech (CS/IT)";
@@ -2799,6 +2806,40 @@ function InternshipCard_2({
               </span>
             )}
           </div>
+
+          {/* Landscape Flyer Image (Only shown if uploaded) */}
+          {flyerImage && (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onViewDetails(internship)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onViewDetails(internship);
+                }
+              }}
+              className="group/img relative block w-full overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-100/70 shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-md dark:border-zinc-800/80 dark:bg-zinc-900/70 cursor-pointer"
+            >
+              <div className="relative aspect-16/9 sm:aspect-21/9 w-full overflow-hidden bg-black/5 dark:bg-black/30 flex items-center justify-center">
+                <img
+                  src={flyerImage}
+                  alt={`${internship.title} Flyer`}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                  loading="lazy"
+                  onError={(e) => {
+                    const container = (e.target as HTMLElement).closest(".group\\/img");
+                    if (container) (container as HTMLElement).style.display = "none";
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover/img:opacity-100">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-black shadow-md backdrop-blur-md">
+                    <Eye className="size-3.5 text-primary" /> View Details & Flyer
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {}
           <div>
@@ -3273,6 +3314,11 @@ export default function InternshipsNewPage() {
             queryClient.invalidateQueries({
               queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
             });
+            // Refresh the per-internship application-status query so the
+            // detail dialog immediately switches from "Apply Now" to "Applied".
+            queryClient.invalidateQueries({
+              queryKey: ["students", "application-status"],
+            });
             toast.success(
               (data as { message?: string })?.message ||
                 "Application submitted successfully!",
@@ -3434,6 +3480,9 @@ export default function InternshipsNewPage() {
             });
             queryClient.invalidateQueries({
               queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+            });
+            queryClient.invalidateQueries({
+              queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
             });
             toast.success(
               (data as { message?: string })?.message ||
@@ -3866,7 +3915,11 @@ export default function InternshipsNewPage() {
             },
             handler: (response: RazorpayResponse_2) => {
               verifyPayment({
-                razorpayOrderId: response.razorpay_order_id,
+                razorpayOrderId:
+                  response.razorpay_order_id ||
+                  data.razorpayOrderId ||
+                  orderData?.razorpayOrderId ||
+                  "",
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
               });
@@ -3910,10 +3963,17 @@ export default function InternshipsNewPage() {
           onSuccess: () => {
             toast.success("Payment verified! You are now enrolled.");
             onClose();
+            setTimeout(() => {
+              window.location.reload();
+            }, 800);
           },
-          onError: (error) => {
-            setPaymentError(error.message || "Payment verification failed.");
-            toast.error("Payment verification failed.");
+          onError: (error: any) => {
+            const msg =
+              error?.response?.data?.error?.message ||
+              error?.message ||
+              "Payment verification failed.";
+            setPaymentError(msg);
+            toast.error(msg);
           },
         });
 
@@ -4088,6 +4148,12 @@ export default function InternshipsNewPage() {
         applyInternship(internship.id);
       };
 
+      const flyerImage =
+        internship.imageUrl ||
+        (internship as any).flyer ||
+        (internship as any).flyerUrl ||
+        (internship as any).bannerUrl ||
+        null;
       const companyName = internship.companyName || "N/A";
       const timePeriod = (internship as any).timePeriod || "N/A";
       const qualification = (internship as any).qualification || "N/A";
@@ -4167,7 +4233,7 @@ export default function InternshipsNewPage() {
         );
       } else if (applicationStatus) {
         const statusLabels: Record<ApplicationStatus_3, string> = {
-          UNDER_REVIEW: "Application Submitted (Under Review)",
+          UNDER_REVIEW: "Applied",
           APPROVED: "Application Approved",
           REJECTED: "Application Rejected",
           WAITING: "Waiting List",
@@ -4242,6 +4308,24 @@ export default function InternshipsNewPage() {
               </DialogHeader>
 
               <div className="mt-3 space-y-6">
+                {/* Landscape Flyer Image (Only shown if uploaded) */}
+                {flyerImage && (
+                  <div className="relative w-full overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-100/70 shadow-xs dark:border-zinc-800/80 dark:bg-zinc-900/70">
+                    <div className="relative aspect-16/9 sm:aspect-21/9 w-full overflow-hidden bg-black/5 dark:bg-black/30 flex items-center justify-center">
+                      <img
+                        src={flyerImage}
+                        alt={`${internship.title} Flyer`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          const container = (e.target as HTMLElement).closest(".relative");
+                          if (container) (container as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {}
                 <div className="flex flex-wrap gap-2">
                   {internship.type && (
@@ -4627,6 +4711,7 @@ export default function InternshipsNewPage() {
               open={showPayment}
               onClose={() => {
                 setShowPayment(false);
+                onClose();
               }}
               onCancel={() => setShowPayment(false)}
             />

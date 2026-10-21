@@ -41,6 +41,9 @@ axiosInstance.interceptors.request.use(
           config.headers.Authorization = `Bearer ${token}`;
         }
       }
+      if (typeof FormData !== "undefined" && config.data instanceof FormData && config.headers) {
+        delete config.headers["Content-Type"];
+      }
     } catch (e) {
       console.warn("Axios Interceptor: Could not fetch auth token", e);
     }
@@ -142,7 +145,7 @@ axiosInstance.interceptors.response.use(
     const isAuthRoute =
       url.includes("/auth/login") ||
       url.includes("/auth/register") ||
-      url.includes("/auth/refresh-token");
+      url.includes("/auth/refresh");
 
         if (
       error.response?.status === 401 &&
@@ -179,12 +182,22 @@ axiosInstance.interceptors.response.use(
         }
 
                 const response = await axios.post(
-          "/auth/refresh-token",
+          "/auth/refresh",
           { refreshToken },
           { baseURL: axiosInstance.defaults.baseURL },
         );
 
-        const { token, newRefreshToken } = response.data;
+        const refreshPayload = (response.data?.data ??
+          response.data ??
+          {}) as {
+          token?: string;
+          accessToken?: string;
+          newRefreshToken?: string;
+          refreshToken?: string;
+        };
+        const token = refreshPayload.accessToken || refreshPayload.token;
+        const newRefreshToken =
+          refreshPayload.newRefreshToken || refreshPayload.refreshToken;
 
         if (token) {
           if (typeof window !== "undefined") {

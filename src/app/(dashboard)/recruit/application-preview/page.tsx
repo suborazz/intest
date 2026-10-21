@@ -4,6 +4,10 @@ import { Metadata } from "next";
 import React_2 from "react";
 import { Download, Eye, FileWarning, Printer, LucideIcon as LucideIcon_2 } from "lucide-react";
 import Link from "next/link";
+import {
+  RecruitRegistrationPrintout,
+  printRecruitRegistrationForm,
+} from "@/components/recruit/RecruitRegistrationPrintout";
 import * as React from "react";
 import * as React_4 from "react";
 import React_3 from "react";
@@ -1811,8 +1815,8 @@ export default function RecruitApplicationPreviewPage() {
       experience: TRecruitExperience[];
       references: TRecruitReference[];
       specificInfo?: TRecruitSpecificInfo;
-        applicationId: string;
-        advtNo?: string;
+      applicationId: string;
+      advtNo?: string;
       postName?: string;
       submittedAt?: string;
     }
@@ -1821,422 +1825,21 @@ export default function RecruitApplicationPreviewPage() {
       profile,
       education,
       experience,
-      references,
-      specificInfo,
       applicationId,
       advtNo,
       postName,
       submittedAt,
     }: ApplicationPrintoutProps) {
-        const raw = profile as unknown as Record<string, string | null | undefined>;
-      const pick = (...keys: string[]) => {
-        for (const key of keys) {
-          const value = raw[key];
-          if (typeof value === "string" && value.trim()) return value;
-        }
-        return "";
-      };
-
-      const name = pick("name", "fullName");
-      const mobile = pick("mobile", "mobileNo");
-      const aadhaar = pick("adharNo", "aadharNo");
-      const languages = pick("languageKnown", "languagesKnown");
-      const photoUrl = pick("photoUrl");
-      const signatureUrl = pick("signatureUrl");
-
-      const permanent = [
-        pick("permAddressLocal"),
-        pick("permAddressBlock"),
-        [pick("permAddressDistrict"), pick("permAddressState")]
-          .filter(Boolean)
-          .join(", "),
-        [pick("permAddressCountry"), pick("permAddressPinCode")]
-          .filter(Boolean)
-          .join(" - "),
-      ];
-      const correspondence = [
-        pick("currAddressLocal"),
-        pick("currAddressBlock"),
-        [pick("currAddressDistrict"), pick("currAddressState")]
-          .filter(Boolean)
-          .join(", "),
-        [pick("currAddressCountry"), pick("currAddressPinCode")]
-          .filter(Boolean)
-          .join(" - "),
-      ];
-
-      const qr = qrDataUrl(applicationId);
-
-        const physicallyChallenged =
-        typeof profile.physicalChallenged === "boolean"
-          ? profile.physicalChallenged
-            ? "Y"
-            : "N"
-          : pick("physicallyChallenged") === "Yes"
-            ? "Y"
-            : "N";
-
-      const highestQualification = education.length
-        ? formatEnum(education[education.length - 1]!.qualification)
-        : "—";
-
       return (
-        <div className="printable-area mx-auto w-full max-w-3xl border border-slate-400 bg-white p-4 text-slate-900 md:p-6 print:border-0 print:p-0">
-          {}
-          <div className="relative mt-2 flex flex-col items-center justify-center space-y-0.5 text-center">
-            {qr && (
-              <div className="absolute right-0 top-0">
-                <img src={qr} alt="" aria-hidden="true" className="size-16" />
-              </div>
-            )}
-            <h1 className="mt-2 text-[13px] font-bold text-blue-900 md:text-[15px]">
-              International Institute of Internship [i3]
-            </h1>
-            <p className="text-[10px] font-semibold">
-              Recruitment Application Form
-            </p>
-          </div>
-
-          {}
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 border-y border-slate-400 py-1 text-[9.5px]">
-            <span>
-              <b>Advt. No:</b> {advtNo || "—"}
-            </span>
-            <span>
-              <b>Application No:</b>{" "}
-              <span className="font-mono font-bold">{applicationId}</span>
-            </span>
-            <span>
-              <b>Position:</b> {postName || "—"}
-            </span>
-          </div>
-
-          {}
-          <Band>Personal Information</Band>
-          <div className="flex gap-3">
-            <div className="min-w-0 flex-1 border-x border-t border-slate-300">
-              <Cell label="Name">{name}</Cell>
-              <Cell label="S/O | D/O | W/O">{profile.fatherName}</Cell>
-              <Cell label="Mother's Name">{profile.motherName}</Cell>
-              <Cell label="Date of Birth">{govDate(profile.dob)}</Cell>
-              {}
-              <Cell label="Age">{ageBreakdown(profile.dob)}</Cell>
-              <Cell label="Gender">{formatEnum(profile.gender)}</Cell>
-              <Cell label="Physically Challenged">{physicallyChallenged}</Cell>
-              <Cell label="Marital Status">
-                {formatEnum(profile.maritalStatus)}
-              </Cell>
-              <Cell label="Category">{formatEnum(profile.category)}</Cell>
-              <Cell label="Religion">{formatEnum(profile.religion)}</Cell>
-              <Cell label="Blood Group">{formatEnum(profile.bloodGroup)}</Cell>
-              <Cell label="Nationality">{profile.nationality}</Cell>
-              <Cell label="Mobile No">{mobile}</Cell>
-              <Cell label="Email">{profile.email}</Cell>
-              <Cell label="Aadhaar No">{aadhaar}</Cell>
-              <Cell label="Language(s) Known">{languages}</Cell>
-            </div>
-            {}
-            <div className="flex h-[104px] w-[84px] shrink-0 items-center justify-center border border-slate-400 bg-slate-50">
-              {photoUrl ? (
-                <img
-                  src={photoUrl}
-                  alt="Applicant photograph"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="px-1 text-center text-[8px] text-slate-400">
-                  Photograph
-                </span>
-              )}
-            </div>
-          </div>
-
-          {}
-          <div className="mt-2 grid grid-cols-1 border border-slate-300 sm:grid-cols-2">
-            <div className="border-b border-slate-300 sm:border-b-0 sm:border-r">
-              <div className="border-b border-slate-300 bg-slate-50/80 px-1.5 py-1 text-[9.5px] font-bold">
-                Permanent Address
-              </div>
-              <div className="px-1.5 py-1 text-[9.5px] leading-relaxed">
-                {addressLines(permanent)}
-              </div>
-            </div>
-            <div>
-              <div className="border-b border-slate-300 bg-slate-50/80 px-1.5 py-1 text-[9.5px] font-bold">
-                Correspondence Address
-              </div>
-              <div className="px-1.5 py-1 text-[9.5px] leading-relaxed">
-                {addressLines(correspondence)}
-              </div>
-            </div>
-          </div>
-
-          {}
-          <Band>
-            Education Qualification Details
-            <span className="float-right font-normal normal-case">
-              Essential Qualification : {highestQualification}
-            </span>
-          </Band>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <Th className="w-[26px] text-center">#</Th>
-                <Th>Qualification</Th>
-                <Th>Board or University</Th>
-                <Th>Subjects</Th>
-                <Th className="w-[110px]">Division Marks Year</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {education.length === 0 ? (
-                <tr>
-                  <Td className="text-center text-slate-500">—</Td>
-                  <Td className="text-slate-500">No records</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                </tr>
-              ) : (
-                education.map((row, index) => {
-                  const r = row as unknown as Record<string, unknown>;
-                  const institute = (r["instituteName"] ??
-                    r["schoolInstitute"] ??
-                    "") as string;
-                  const division = (r["division"] ??
-                    r["passingDivision"] ??
-                    "") as string;
-                  const marks = (r["percentage"] ?? r["passingMarks"] ?? "") as
-                    string | number;
-                  return (
-                    <tr key={row.id ?? index}>
-                      <Td className="text-center">{index + 1}</Td>
-                      <Td className="font-semibold text-blue-800">
-                        {formatEnum(row.qualification)}
-                      </Td>
-                      <Td>{row.boardUniversity || institute || "—"}</Td>
-                      <Td>{row.subject || "—"}</Td>
-                      <Td>
-                        {[division, marks !== "" ? `${marks}%` : "", row.endYear]
-                          .filter(Boolean)
-                          .join(" - ") || "—"}
-                      </Td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-
-          {}
-          <Band>
-            Work Experience Details
-            <span className="float-right font-normal normal-case">
-              Total Experience : {totalExperience(experience)}
-            </span>
-          </Band>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <Th className="w-[26px] text-center">#</Th>
-                <Th className="w-[110px]">Employer Details</Th>
-                <Th className="w-[130px]">Employment Details</Th>
-                <Th>Nature of Work</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {experience.length === 0 ? (
-                <tr>
-                  <Td className="text-center text-slate-500">—</Td>
-                  <Td className="text-slate-500">No records</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                </tr>
-              ) : (
-                experience.map((row, index) => {
-                  const r = row as unknown as Record<string, unknown>;
-                  const years = (r["totalExperience"] ??
-                    r["experienceYears"] ??
-                    "") as string | number;
-                  return (
-                    <tr key={row.id ?? index}>
-                      <Td className="text-center">{index + 1}</Td>
-                      <Td className="font-semibold text-blue-800">
-                        {row.employerName}
-                        {row.postingLocation && (
-                          <div className="font-normal text-slate-600">
-                            {row.postingLocation}
-                          </div>
-                        )}
-                      </Td>
-                      <Td>
-                        <div className="font-semibold">{row.designation}</div>
-                        <div className="text-slate-600">
-                          Tenure: {govDate(row.startDate)} —{" "}
-                          {row.endDate ? govDate(row.endDate) : "Present"}
-                        </div>
-                        {years !== "" && (
-                          <div className="text-slate-600">
-                            Duration: {years} Year(s)
-                          </div>
-                        )}
-                      </Td>
-                      <Td>{row.natureOfWork || "—"}</Td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-
-          {}
-          <Band>Reference Details</Band>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <Th className="w-[26px] text-center">#</Th>
-                <Th>Name with Designation</Th>
-                <Th>Organization Name with Address</Th>
-                <Th className="w-[80px]">Mobile</Th>
-                <Th className="w-[120px]">Email ID</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {references.length === 0 ? (
-                <tr>
-                  <Td className="text-center text-slate-500">—</Td>
-                  <Td className="text-slate-500">No records</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                </tr>
-              ) : (
-                references.map((row, index) => (
-                  <tr key={row.id ?? index}>
-                    <Td className="text-center">{index + 1}</Td>
-                    <Td className="uppercase">
-                      {row.name}
-                      {row.designation ? ` (${row.designation})` : ""}
-                    </Td>
-                    <Td>
-                      {row.organisation || "—"}
-                      {row.address && (
-                        <div className="text-slate-600">{row.address}</div>
-                      )}
-                    </Td>
-                    <Td>{row.mobile || "—"}</Td>
-                    <Td className="break-all">{row.email || "—"}</Td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-
-          {}
-          <Band>Application Fee</Band>
-          <p className="px-1.5 py-1 text-[9.5px]">No Application fee to be Paid.</p>
-
-          <Band>Additional Documents</Band>
-          <ol className="list-inside list-decimal px-1.5 py-1 text-[9.5px]">
-            {[
-              profile.resumeUrl && "RESUME",
-              signatureUrl && "SIGNATURE",
-              photoUrl && "PHOTOGRAPH",
-            ]
-              .filter(Boolean)
-              .map((label) => <li key={label as string}>{label}</li>) || null}
-            {!profile.resumeUrl && !signatureUrl && !photoUrl && (
-              <li className="list-none text-slate-500">No documents uploaded.</li>
-            )}
-          </ol>
-
-          {}
-          <Band>Specific Information</Band>
-          <ol className="list-outside list-decimal space-y-1 py-1 pl-6 pr-1.5 text-[9.5px]">
-            <li>
-              Whether agreeable to undergo thorough training on various issues
-              relating to the job to be performed as per the Terms of Reference:{" "}
-              <b>{specificInfo ? "Yes" : "—"}</b>
-            </li>
-            <li>
-              Whether agreeable to reside in any State of India or own my
-              arrangement, work in the remote rural areas of the allocated
-              districts:{" "}
-              <b>
-                {specificInfo
-                  ? specificInfo.willingToRelocate
-                    ? "Yes"
-                    : "No"
-                  : "—"}
-              </b>
-            </li>
-            <li>
-              Preference of State/UT for your posting: <b>Not Applicable</b>
-            </li>
-            <li>
-              Language(s) known: <b className="uppercase">{languages || "—"}</b>
-            </li>
-            {specificInfo?.isGovernmentEmployee && (
-              <li>
-                Currently employed with a Government / Public Sector organisation:{" "}
-                <b>Yes</b>
-              </li>
-            )}
-            {specificInfo?.isEverConvicted && (
-              <li>
-                Ever convicted by a court of law: <b>Yes</b>
-                {specificInfo.convictionDetails
-                  ? ` — ${specificInfo.convictionDetails}`
-                  : ""}
-              </li>
-            )}
-            {specificInfo?.noticePeriod && (
-              <li>
-                Notice period: <b>{specificInfo.noticePeriod}</b>
-              </li>
-            )}
-          </ol>
-
-          {}
-          <Band>Declaration</Band>
-          <p className="px-1.5 py-1 text-[9.5px] leading-relaxed">
-            I have carefully gone through the vacancy advertisement and I am well
-            aware that the information furnished in the Application Form duly
-            supported by the documents in respect of Essential Qualification / Work
-            Experience submitted by me will also be assessed by the Selection
-            Committee at the time of selection for the post. The information /
-            details furnished by me are correct and true to the best of my knowledge
-            and no material fact having a bearing on my selection has been
-            suppressed / withheld.
-          </p>
-
-          {}
-          <div className="mt-2 flex items-end justify-between gap-4 border-t border-slate-400 pt-1.5">
-            <div className="text-[9px] text-slate-600">
-              <div>
-                <b>Date:</b> {govDate(submittedAt ?? profile.updatedAt)}
-              </div>
-              <div>
-                <b>Application No:</b>{" "}
-                <span className="font-mono">{applicationId}</span>
-              </div>
-            </div>
-            <div className="text-center">
-              {signatureUrl ? (
-                <img
-                  src={signatureUrl}
-                  alt="Applicant signature"
-                  className="mx-auto h-10 w-28 object-contain"
-                />
-              ) : (
-                <div className="h-10 w-28" />
-              )}
-              <div className="border-t border-slate-400 pt-0.5 text-[8.5px] font-semibold uppercase">
-                Signature of the Applicant
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecruitRegistrationPrintout
+          data={profile as any}
+          education={education as any}
+          experience={experience as any}
+          applicationId={applicationId}
+          advtNo={advtNo}
+          postName={postName}
+          submittedAt={submittedAt}
+        />
       );
     }
 
@@ -2288,9 +1891,17 @@ export default function RecruitApplicationPreviewPage() {
                               </a>
                             </Button>
                           )}
-                          <Button size="sm" onClick={() => window.print()}>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              printRecruitRegistrationForm(
+                                selected?.applicationId || profile?.id,
+                              )
+                            }
+                            className="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm"
+                          >
                             <Printer className="mr-1.5 size-4" />
-                            Print
+                            Print / Save PDF
                           </Button>
                         </>
                       ) : null

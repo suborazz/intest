@@ -1,7 +1,6 @@
 "use client";
 
-import type { Metadata } from "next";
-import { BookOpen, Calendar, CheckCircle2, Clock as Clock_2, Code, Download, IdCard as IdCardIcon } from "lucide-react";
+import { BookOpen, Calendar, CheckCircle2, Clock as Clock_2, Code, Download, IdCard as IdCardIcon, Printer } from "lucide-react";
 import React_3 from "react";
 import React_2 from "react";
 import { useState } from "react";
@@ -20,6 +19,7 @@ import { Slot } from "radix-ui";
 import { ClassValue, clsx as clsx_2 } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { axiosInstance } from "@/x/acfb3dca";
+import { printIdCard } from "@/lib/idCardPrint";
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -2425,6 +2425,17 @@ export default function IDCardsPage() {
         }
       };
 
+      const handlePrint = () => {
+        if (!card) {
+          toast.error("Failed to find ID card details.");
+          return;
+        }
+        printIdCard(
+          `id-card-${enrollmentId}`,
+          `Student ID Card - ${card?.cardNo || enrollmentId}`,
+        );
+      };
+
       return (
         <Dialog_8 open={open} onOpenChange={(o) => !o && onClose()}>
           <DialogContent className="max-w-[440px] p-3">
@@ -2632,14 +2643,23 @@ export default function IDCardsPage() {
               </div>
             </div>
 
-            <Button
-              id={`download-id-card-${enrollmentId}`}
-              variant="outline"
-              className="text-foreground hover:bg-muted mt-4 w-full gap-2 font-semibold"
-              onClick={handleDownload}
-            >
-              <Download className="size-4" /> Download ID Card (PDF)
-            </Button>
+            <div className="mt-4 flex w-full flex-col gap-2 sm:flex-row">
+              <Button
+                id={`download-id-card-${enrollmentId}`}
+                variant="outline"
+                className="text-foreground hover:bg-muted flex-1 gap-2 font-semibold"
+                onClick={handleDownload}
+              >
+                <Download className="size-4" /> Download ID Card (PDF)
+              </Button>
+              <Button
+                id={`print-id-card-${enrollmentId}`}
+                className="bg-emerald-600 text-white hover:bg-emerald-700 flex-1 gap-2 font-semibold"
+                onClick={handlePrint}
+              >
+                <Printer className="size-4" /> Print Card
+              </Button>
+            </div>
           </div>
         ) : (
           <p className="text-muted-foreground py-4 text-center text-sm">

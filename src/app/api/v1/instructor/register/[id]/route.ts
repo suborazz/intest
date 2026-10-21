@@ -3,6 +3,78 @@ import { ZodError } from "zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { prisma } from "@/x/e3746f45";
+import { cloudinary } from "@/x/cloudinary";
+
+interface CloudinaryUploadResult {
+  url: string;
+  publicId: string;
+}
+
+async function uploadBuffer(
+  buffer: Buffer,
+  folder: string,
+  publicIdPrefix: string,
+  resourceType: "image" | "raw" | "auto" = "auto",
+): Promise<CloudinaryUploadResult> {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        public_id: `${publicIdPrefix}-${Date.now()}`,
+        resource_type: resourceType,
+        overwrite: false,
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error("Cloudinary upload returned no result"));
+          return;
+        }
+        resolve({
+          url: result.secure_url,
+          publicId: result.public_id,
+        });
+      },
+    );
+    uploadStream.end(buffer);
+  });
+}
+
+async function uploadBase64(
+  base64String: string,
+  folder: string,
+  publicIdPrefix: string,
+  resourceType: "image" | "raw" | "auto" = "auto",
+): Promise<CloudinaryUploadResult> {
+  const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  let buffer: Buffer;
+  let finalResourceType = resourceType;
+
+  if (matches && matches.length === 3) {
+    const mimeType = matches[1];
+    buffer = Buffer.from(matches[2], "base64");
+    if (mimeType === "application/pdf") {
+      finalResourceType = "raw";
+    }
+  } else {
+    buffer = Buffer.from(base64String, "base64");
+  }
+
+  return uploadBuffer(buffer, folder, publicIdPrefix, finalResourceType);
+}
+
+async function deleteAsset(
+  publicId: string | null | undefined,
+  resourceType: "image" | "raw" | "auto" = "auto",
+): Promise<void> {
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
+  } catch (err) {
+    console.error(`[Cloudinary] Failed to delete asset "${publicId}":`, err);
+  }
+}
 
 interface ApiErrorResponse {
   success: false;
@@ -260,6 +332,19 @@ const updateInstructorRegistrationSchema = z.object({
     .optional(),
   availability: z.string().optional().or(z.literal("")),
   selfIntroduction: z.string().optional().or(z.literal("")),
+  accountHolderName: z.string().optional().or(z.literal("")),
+  accountNo: z.string().optional().or(z.literal("")),
+  ifscCode: z.string().optional().or(z.literal("")),
+  bankName: z.string().optional().or(z.literal("")),
+  bankBranchAddress: z.string().optional().or(z.literal("")),
+  photoBase64: z.string().optional().or(z.literal("")),
+  photoName: z.string().optional().or(z.literal("")),
+  identityProofBase64: z.string().optional().or(z.literal("")),
+  identityProofName: z.string().optional().or(z.literal("")),
+  educationCertBase64: z.string().optional().or(z.literal("")),
+  educationCertName: z.string().optional().or(z.literal("")),
+  experienceCertBase64: z.string().optional().or(z.literal("")),
+  experienceCertName: z.string().optional().or(z.literal("")),
   isApproved: z.boolean().optional(),
 });
 
@@ -410,6 +495,13 @@ export async function PATCH(
       updateData["availability"] = data.availability;
     if (data.selfIntroduction !== undefined && data.selfIntroduction !== "")
       updateData["selfIntroduction"] = data.selfIntroduction;
+    if (data.accountHolderName !== undefined)
+      updateData["accountHolderName"] = data.accountHolderName;
+    if (data.accountNo !== undefined) updateData["accountNo"] = data.accountNo;
+    if (data.ifscCode !== undefined) updateData["ifscCode"] = data.ifscCode;
+    if (data.bankName !== undefined) updateData["bankName"] = data.bankName;
+    if (data.bankBranchAddress !== undefined)
+      updateData["bankBranchAddress"] = data.bankBranchAddress;
 
     if (data.currentAddress) {
       if (data.currentAddress.local !== undefined) updateData["currentAddressLocal"] = data.currentAddress.local;
@@ -427,6 +519,91 @@ export async function PATCH(
     }
     if (data.sameAsCurrentAddress !== undefined)
       updateData["sameAsCurrentAddress"] = data.sameAsCurrentAddress;
+
+    // Process new Photo upload if provided
+    if (data.photoBase64 && (data.photoBase64.startsWith("data:") || data.photoBase64.length > 200)) {
+      try {
+        const photoResult = await uploadBase64(
+          data.photoBase64,
+          "iiit/instructors/photos",
+          `inst-photo-${existing.instructorId || existing.id}`,
+          "image",
+        );
+        updateData["photoUrl"] = photoResult.url;
+        updateData["photoPublicId"] = photoResult.publicId;
+        if (data.photoName) {
+          updateData["photoName"] = data.photoName;
+        }
+        if (existing.photoPublicId) {
+          await deleteAsset(existing.photoPublicId, "image");
+        }
+      } catch (uploadErr) {
+        console.error("Failed to upload updated instructor photo:", uploadErr);
+      }
+    }
+
+    // Process new Identity Proof upload if provided
+    if (data.identityProofBase64 && (data.identityProofBase64.startsWith("data:") || data.identityProofBase64.length > 200)) {
+      try {
+        const idResult = await uploadBase64(
+          data.identityProofBase64,
+          "iiit/instructors/id-proofs",
+          `inst-id-${existing.instructorId || existing.id}`,
+        );
+        updateData["identityProofUrl"] = idResult.url;
+        updateData["identityProofPublicId"] = idResult.publicId;
+        if (data.identityProofName) {
+          updateData["identityProofName"] = data.identityProofName;
+        }
+        if (existing.identityProofPublicId) {
+          await deleteAsset(existing.identityProofPublicId);
+        }
+      } catch (uploadErr) {
+        console.error("Failed to upload updated identity proof:", uploadErr);
+      }
+    }
+
+    // Process new Education Certificate upload if provided
+    if (data.educationCertBase64 && (data.educationCertBase64.startsWith("data:") || data.educationCertBase64.length > 200)) {
+      try {
+        const eduResult = await uploadBase64(
+          data.educationCertBase64,
+          "iiit/instructors/edu-certs",
+          `inst-edu-${existing.instructorId || existing.id}`,
+        );
+        updateData["educationCertUrl"] = eduResult.url;
+        updateData["educationCertPublicId"] = eduResult.publicId;
+        if (data.educationCertName) {
+          updateData["educationCertName"] = data.educationCertName;
+        }
+        if (existing.educationCertPublicId) {
+          await deleteAsset(existing.educationCertPublicId);
+        }
+      } catch (uploadErr) {
+        console.error("Failed to upload updated education certificate:", uploadErr);
+      }
+    }
+
+    // Process new Experience Certificate upload if provided
+    if (data.experienceCertBase64 && (data.experienceCertBase64.startsWith("data:") || data.experienceCertBase64.length > 200)) {
+      try {
+        const expResult = await uploadBase64(
+          data.experienceCertBase64,
+          "iiit/instructors/exp-certs",
+          `inst-exp-${existing.instructorId || existing.id}`,
+        );
+        updateData["experienceCertUrl"] = expResult.url;
+        updateData["experienceCertPublicId"] = expResult.publicId;
+        if (data.experienceCertName) {
+          updateData["experienceCertName"] = data.experienceCertName;
+        }
+        if (existing.experienceCertPublicId) {
+          await deleteAsset(existing.experienceCertPublicId);
+        }
+      } catch (uploadErr) {
+        console.error("Failed to upload updated experience certificate:", uploadErr);
+      }
+    }
 
     const updatedRegistration = await prisma.$transaction(async (tx) => {
       if (data.qualifications && data.qualifications.length > 0) {

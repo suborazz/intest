@@ -2432,9 +2432,21 @@ export default function InstructorNoticesPage() {
                                       </div>
                                     </div>
                                   </div>
-                                  <p className="text-muted-foreground border-border/40 whitespace-pre-line border-t pt-2.5 text-xs leading-relaxed">
-                                    {notice.description || notice.content}
-                                  </p>
+                                  <div className="text-muted-foreground border-border/40 border-t pt-2.5 text-xs leading-relaxed space-y-2">
+                                    {(() => {
+                                      const raw = notice.description || notice.content || "";
+                                      const normalized = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+                                      const hasDoubleNewline = /\n\s*\n/.test(normalized);
+                                      const paragraphs = hasDoubleNewline
+                                        ? normalized.split(/\n\s*\n+/)
+                                        : normalized.split(/\n+/);
+                                      return paragraphs.map((p, i) => (
+                                        <p key={i} className="whitespace-pre-line leading-relaxed text-justify">
+                                          {p.trim()}
+                                        </p>
+                                      ));
+                                    })()}
+                                  </div>
                                 </div>
                               ))}
                             </div>

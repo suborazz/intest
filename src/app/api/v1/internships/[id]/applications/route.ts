@@ -221,7 +221,40 @@ export async function GET(
         orderBy: { createdAt: "desc" },
       });
 
+      const enrollments = await prisma.enrollment.findMany({
+        where: { internshipId },
+        include: {
+          user: { select: { id: true, email: true } },
+          certificate: true,
+          submissions: {
+            select: { id: true, status: true, grade: true },
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+      const enrollmentByEmail = new Map(
+        enrollments.map((e) => [e.user.email.toLowerCase(), e]),
+      );
+
       const formattedInterests = interests.map((interest) => {
+        const matchedEnrollment = enrollmentByEmail.get(
+          interest.email.toLowerCase(),
+        );
+        const gradedSubmission = matchedEnrollment?.submissions?.find(
+          (s) => s.status === "GRADED" && !!s.grade?.trim(),
+        );
+        const isGraded =
+          Boolean(gradedSubmission) ||
+          Boolean(matchedEnrollment?.certificate?.grade);
+        const grade =
+          gradedSubmission?.grade ||
+          matchedEnrollment?.certificate?.grade ||
+          null;
+        const hasSubmission =
+          (matchedEnrollment?.submissions?.length ?? 0) > 0;
+        const submissionCount =
+          matchedEnrollment?.submissions?.length ?? 0;
+
         return {
           id: interest.id,
           status: "APPROVED",
@@ -229,10 +262,16 @@ export async function GET(
           reviewedAt: interest.createdAt,
           reviewNote: "Expression of Interest",
           updatedAt: interest.createdAt,
-          studentId: null,
+          studentId: matchedEnrollment?.user.id ?? null,
           internshipId: interest.internshipId,
           reviewedById: null,
-          enrollmentId: null,
+          enrollmentId: matchedEnrollment?.id ?? null,
+          certificate: matchedEnrollment?.certificate || null,
+          isCertIssued: !!matchedEnrollment?.certificate,
+          isGraded,
+          grade,
+          hasSubmission,
+          submissionCount,
           student: null,
           reviewedBy: null,
           applicationId: interest.id,
@@ -318,6 +357,10 @@ export async function GET(
         },
         payment: true,
         certificate: true,
+        submissions: {
+          select: { id: true, status: true, grade: true },
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
 
@@ -356,6 +399,21 @@ export async function GET(
             const matchingEnrollment = enrollments.find(
         (e) => e.userId === app.studentId,
       );
+      const gradedSubmission = matchingEnrollment?.submissions?.find(
+        (s) => s.status === "GRADED" && !!s.grade?.trim(),
+      );
+      const isGraded =
+        Boolean(gradedSubmission) ||
+        Boolean(matchingEnrollment?.certificate?.grade);
+      const grade =
+        gradedSubmission?.grade ||
+        matchingEnrollment?.certificate?.grade ||
+        null;
+      const hasSubmission =
+        (matchingEnrollment?.submissions?.length ?? 0) > 0;
+      const submissionCount =
+        matchingEnrollment?.submissions?.length ?? 0;
+
       const paymentStatus =
         matchingEnrollment?.payment?.status === "COMPLETED" ||
         (app.status === "APPROVED" && internship.type === "PAID")
@@ -368,6 +426,10 @@ export async function GET(
         enrollmentId: matchingEnrollment?.id || null,
         certificate: matchingEnrollment?.certificate || null,
         isCertIssued: !!matchingEnrollment?.certificate,
+        isGraded,
+        grade,
+        hasSubmission,
+        submissionCount,
         paymentStatus,
         applicationStatus: app.status,
         registration: reg
@@ -419,6 +481,19 @@ export async function GET(
               .join(", ");
       }
 
+      const gradedSubmission = e.submissions?.find(
+        (s) => s.status === "GRADED" && !!s.grade?.trim(),
+      );
+      const isGraded =
+        Boolean(gradedSubmission) ||
+        Boolean(e.certificate?.grade);
+      const grade =
+        gradedSubmission?.grade ||
+        e.certificate?.grade ||
+        null;
+      const hasSubmission = (e.submissions?.length ?? 0) > 0;
+      const submissionCount = e.submissions?.length ?? 0;
+
       const pStatus = e.payment?.status === "COMPLETED" ? "PAID" : "FREE";
 
       return {
@@ -434,6 +509,10 @@ export async function GET(
         enrollmentId: e.id,
         certificate: e.certificate || null,
         isCertIssued: !!e.certificate,
+        isGraded,
+        grade,
+        hasSubmission,
+        submissionCount,
         student: e.user,
         reviewedBy: null,
         applicationId: `enroll-${e.id}`,

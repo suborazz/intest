@@ -306,7 +306,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } as const;
 
     const createOrderSchema = z.object({
-      internshipId: z.string().cuid("Invalid Internship ID"),
+      internshipId: z.string().min(1, "Internship ID is required"),
     });
 
   try {

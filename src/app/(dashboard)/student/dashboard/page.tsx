@@ -1,7 +1,7 @@
 "use client";
 
 import React_2 from "react";
-import { Award, BookOpen, Briefcase as Briefcase_2, CheckCircle2, ChevronRight, Clock as Clock_2, GraduationCap as GraduationCap_2, List, Megaphone, TrendingUp } from "lucide-react";
+import { Award, Bell, BookOpen, Briefcase as Briefcase_2, Calendar, CheckCircle2, ChevronDown, ChevronRight, ChevronUp, Clock as Clock_2, ExternalLink, FileDown, GraduationCap as GraduationCap_2, List, Megaphone, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import React_3 from "react";
 import { useRouter } from "next/navigation";
@@ -123,17 +123,23 @@ interface DashboardRecentCertificate {
 
 interface DashboardRecentNotice {
   id: string;
+  noticeNumber?: string;
+  date?: string;
   title: string;
   description: string;
   content?: string;
   category: string;
+  pdfUrl?: string | null;
+  pdfPublicId?: string | null;
+  linkUrl?: string | null;
+  targetRole?: string | null;
   createdAt: string;
-  sender: {
+  sender?: {
     id: string;
-    name: string;
+    name: string | null;
     email: string;
     role: string;
-  };
+  } | null;
 }
 
 interface DashboardRecentSubmission {
@@ -2284,17 +2290,23 @@ export default function StudentDashboardPage() {
 
     interface DashboardRecentNotice {
       id: string;
+      noticeNumber?: string;
+      date?: string;
       title: string;
       description: string;
       content?: string;
       category: string;
+      pdfUrl?: string | null;
+      pdfPublicId?: string | null;
+      linkUrl?: string | null;
+      targetRole?: string | null;
       createdAt: string;
-      sender: {
+      sender?: {
         id: string;
-        name: string;
+        name: string | null;
         email: string;
         role: string;
-      };
+      } | null;
     }
 
     interface DashboardRecentSubmission {
@@ -2351,6 +2363,56 @@ export default function StudentDashboardPage() {
       );
     }
 
+    function NoticeCategoryBadge({ category }: { category?: string }) {
+      const map: Record<string, { label: string; className: string }> = {
+        Important: {
+          label: "Important",
+          className:
+            "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+        },
+        General: {
+          label: "General",
+          className:
+            "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+        },
+        Result: {
+          label: "Result",
+          className:
+            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+        },
+        Schedule: {
+          label: "Schedule",
+          className:
+            "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+        },
+        Guidelines: {
+          label: "Guidelines",
+          className:
+            "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+        },
+      };
+      const cfg = (category && map[category]) ? map[category] : map.General;
+      return (
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+            cfg.className
+          )}
+        >
+          {category || cfg.label}
+        </span>
+      );
+    }
+
+    function formatNoticeText(text: string) {
+      if (!text) return [];
+      const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+      const hasDoubleNewline = /\n\s*\n/.test(normalized);
+      return hasDoubleNewline
+        ? normalized.split(/\n\s*\n+/)
+        : normalized.split(/\n+/);
+    }
+
     function StudentDashboardOverview_2() {
       const router = useRouter();
       const { user } = useAuth();
@@ -2400,6 +2462,8 @@ export default function StudentDashboardPage() {
       const notices: DashboardRecentNotice[] = data?.data?.recentNotices ?? [];
       const recentSubmissions: DashboardRecentSubmission[] =
         data?.data?.recentSubmissions ?? [];
+
+      const [expandedNoticeId, setExpandedNoticeId] = React.useState<string | null>(null);
 
       return (
         <div className="animate-in fade-in space-y-8 duration-300">
@@ -2468,7 +2532,158 @@ export default function StudentDashboardPage() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {}
             <div className="space-y-6 lg:col-span-2">
-              {}
+              {/* Important Notices & Announcements Section */}
+              <div className="bg-card/60 border-border/40 space-y-5 rounded-2xl border p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)] backdrop-blur-md dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="bg-primary/10 text-primary shrink-0 rounded-lg p-1.5">
+                      <Megaphone className="size-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-foreground flex items-center gap-2 text-base font-bold">
+                        Notices & Announcements
+                        {notices.length > 0 && (
+                          <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[11px] font-semibold">
+                            {notices.length} New
+                          </span>
+                        )}
+                      </h2>
+                      <p className="text-muted-foreground text-xs">
+                        महत्वपूर्ण सूचनाएं एवं आधिकारिक घोषणाएं
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-primary gap-1 text-xs"
+                    onClick={() => router.push("/student/notifications")}
+                  >
+                    View all notices <ChevronRight className="size-3" />
+                  </Button>
+                </div>
+
+                {notices.length === 0 ? (
+                  <div className="text-muted-foreground py-6 text-center text-sm italic">
+                    No new announcements at this time. You&apos;re completely up to date!
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {notices.map((notice) => {
+                      const isExpanded = expandedNoticeId === notice.id;
+                      const rawContent = notice.description || notice.content || "";
+                      const paragraphs = formatNoticeText(rawContent);
+                      const displayParagraphs = isExpanded ? paragraphs : paragraphs.slice(0, 1);
+                      const noticeNo =
+                        notice.noticeNumber || `NOT-${notice.id.slice(0, 6).toUpperCase()}`;
+                      const noticeDate = notice.date
+                        ? new Date(notice.date).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : new Date(notice.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          });
+
+                      return (
+                        <div
+                          key={notice.id}
+                          className="border-border/50 bg-background/50 hover:border-primary/30 relative space-y-3 rounded-xl border p-4 transition-all duration-200"
+                        >
+                          {notice.category === "Important" && (
+                            <div className="absolute bottom-0 left-0 top-0 w-1 rounded-l-xl bg-red-500" />
+                          )}
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-muted-foreground bg-muted font-mono rounded px-1.5 py-0.5 text-[10px] font-semibold">
+                                  {noticeNo}
+                                </span>
+                                <NoticeCategoryBadge category={notice.category} />
+                              </div>
+                              <h3 className="text-foreground text-sm sm:text-base font-bold leading-snug">
+                                {notice.title}
+                              </h3>
+                            </div>
+                            <span className="text-muted-foreground flex items-center gap-1 text-[11px]">
+                              <Calendar className="text-primary size-3" />
+                              {noticeDate}
+                            </span>
+                          </div>
+
+                          <div className="text-muted-foreground text-xs sm:text-sm space-y-2">
+                            {displayParagraphs.map((p, idx) => (
+                              <p
+                                key={idx}
+                                className={cn(
+                                  "whitespace-pre-line leading-relaxed",
+                                  !isExpanded && "line-clamp-2"
+                                )}
+                              >
+                                {p.trim()}
+                              </p>
+                            ))}
+                            {(paragraphs.length > 1 || rawContent.length > 140) && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setExpandedNoticeId(isExpanded ? null : notice.id)
+                                }
+                                className="text-primary hover:underline font-semibold text-xs inline-flex items-center gap-1 pt-1"
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    Show less <ChevronUp className="size-3" />
+                                  </>
+                                ) : (
+                                  <>
+                                    Read full notice <ChevronDown className="size-3" />
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="border-border/40 text-muted-foreground flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-xs">
+                            <span className="text-[11px] text-muted-foreground/80">
+                              Issued by: {notice.sender?.name || "Administration"}
+                            </span>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {notice.pdfUrl && (
+                                <a
+                                  href={notice.pdfUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors"
+                                >
+                                  <FileDown className="size-3.5" />
+                                  Download PDF
+                                </a>
+                              )}
+                              {notice.linkUrl && (
+                                <a
+                                  href={notice.linkUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="border-border/60 bg-muted/40 text-foreground hover:bg-muted/70 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors"
+                                >
+                                  <ExternalLink className="size-3.5" />
+                                  Link
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Applications */}
               <div className="bg-card/60 border-border/40 space-y-5 rounded-2xl border p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)] backdrop-blur-md dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
                 <div className="flex items-center justify-between border-b pb-3">
                   <h2 className="text-foreground flex items-center gap-2.5 text-base font-bold">
@@ -2667,37 +2882,69 @@ export default function StudentDashboardPage() {
                 )}
               </div>
 
-              {}
+              {/* Announcements Sidebar Widget */}
               <div className="bg-card/60 border-border/40 space-y-4 rounded-2xl border p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)] backdrop-blur-md dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
-                <h2 className="text-foreground flex items-center gap-2.5 border-b pb-3 text-sm font-bold">
-                  <div className="bg-primary/10 text-primary shrink-0 rounded-lg p-1.5">
-                    <Megaphone className="size-4" />
-                  </div>
-                  Announcements
-                </h2>
+                <div className="flex items-center justify-between border-b pb-3">
+                  <h2 className="text-foreground flex items-center gap-2.5 text-sm font-bold">
+                    <div className="bg-primary/10 text-primary shrink-0 rounded-lg p-1.5">
+                      <Megaphone className="size-4" />
+                    </div>
+                    Announcements
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-primary gap-1 text-[11px] h-7 px-2"
+                    onClick={() => router.push("/student/notifications")}
+                  >
+                    View all <ChevronRight className="size-3" />
+                  </Button>
+                </div>
                 {notices.length === 0 ? (
                   <p className="text-muted-foreground py-2 text-xs italic">
                     No new announcements.
                   </p>
                 ) : (
-                  <ScrollArea className="h-48 pr-3">
+                  <ScrollArea className="h-64 pr-3">
                     <div className="space-y-3">
-                      {notices.map((notice) => (
-                        <div
-                          key={notice.id}
-                          className="border-border/40 border-b pb-2.5 last:border-0 last:pb-0"
-                        >
-                          <p className="text-foreground text-xs font-semibold">
-                            {notice.title}
-                          </p>
-                          <p className="text-muted-foreground mt-0.5 line-clamp-2 text-[10px]">
-                            {notice.description || notice.content}
-                          </p>
-                          <span className="text-muted-foreground/60 mt-1 block text-[9px]">
-                            {new Date(notice.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      ))}
+                      {notices.map((notice) => {
+                        const noticeNo =
+                          notice.noticeNumber || `NOT-${notice.id.slice(0, 6).toUpperCase()}`;
+                        return (
+                          <div
+                            key={notice.id}
+                            className="border-border/40 space-y-1.5 border-b pb-3 last:border-0 last:pb-0"
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-muted-foreground bg-muted font-mono rounded px-1.5 py-0.5 text-[9px] font-semibold">
+                                {noticeNo}
+                              </span>
+                              <NoticeCategoryBadge category={notice.category} />
+                            </div>
+                            <p className="text-foreground text-xs font-semibold leading-snug">
+                              {notice.title}
+                            </p>
+                            <p className="text-muted-foreground mt-0.5 line-clamp-2 text-[11px] leading-relaxed">
+                              {notice.description || notice.content}
+                            </p>
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-muted-foreground/70 text-[10px]">
+                                {new Date(notice.date || notice.createdAt).toLocaleDateString()}
+                              </span>
+                              {notice.pdfUrl && (
+                                <a
+                                  href={notice.pdfUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline inline-flex items-center gap-1 text-[10px] font-semibold"
+                                >
+                                  <FileDown className="size-3" /> PDF
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </ScrollArea>
                 )}

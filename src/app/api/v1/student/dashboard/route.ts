@@ -219,13 +219,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
             prisma.notice.findMany({
         where: {
-          OR: [{ targetRole: "STUDENT" }, { receiverId: userId }],
+          OR: [
+            { targetRole: "STUDENT" },
+            { receiverId: userId },
+            { targetRole: null, receiverId: null },
+          ],
         },
         include: {
           sender: { select: { id: true, name: true, email: true, role: true } },
         },
         orderBy: { createdAt: "desc" },
-        take: 3,
+        take: 5,
       }),
 
             prisma.projectSubmission.findMany({

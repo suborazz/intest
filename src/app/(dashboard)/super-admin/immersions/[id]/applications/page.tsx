@@ -3,7 +3,7 @@
 import { ArrowLeft, BookOpen, Compass, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import React_5, { Suspense, use, useMemo } from "react";
-import { AlertTriangle, Award, Calendar, Check as Check_2, CreditCard, Download, ExternalLink, Eye, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, Printer, School, Send, ShieldCheck, Star, Trash2, User, X, AlertCircle as AlertCircle_2, Award as Award_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Globe, Mail, Phone, Search, Target, XCircle as XCircle_2 } from "lucide-react";
+import { AlertTriangle, Award, Calendar, Check as Check_2, CreditCard, Download, ExternalLink, Eye, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, Printer, School, Send, ShieldCheck, Star, Trash2, User, X, AlertCircle as AlertCircle_2, Award as Award_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Globe, Mail, Phone, Search, Target, XCircle as XCircle_2, QrCode } from "lucide-react";
 import * as React from "react";
 import * as React_4 from "react";
 import React_3 from "react";
@@ -716,13 +716,22 @@ function ResponsiveDialog({
             "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
             className,
           )}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
           <div className="shrink-0 p-4 pb-2">
             <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
+              {React.isValidElement(title) ? (
+                <DialogTitle asChild>{title}</DialogTitle>
+              ) : (
+                <DialogTitle>{title}</DialogTitle>
               )}
+              {description &&
+                (React.isValidElement(description) ? (
+                  <DialogDescription asChild>{description}</DialogDescription>
+                ) : (
+                  <DialogDescription>{description}</DialogDescription>
+                ))}
             </DialogHeader>
           </div>
           <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
@@ -734,11 +743,24 @@ function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
+    <Drawer dismissible={false} open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerContent
+        className={cn("max-h-[90vh]", className)}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
+          {React.isValidElement(title) ? (
+            <DrawerTitle asChild>{title}</DrawerTitle>
+          ) : (
+            <DrawerTitle>{title}</DrawerTitle>
+          )}
+          {description &&
+            (React.isValidElement(description) ? (
+              <DrawerDescription asChild>{description}</DrawerDescription>
+            ) : (
+              <DrawerDescription>{description}</DrawerDescription>
+            ))}
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
@@ -5166,6 +5188,7 @@ interface MyCertificate_6 {
       issuedAt: string;
       signatureUrl?: string | null;
       studentId?: string | null;
+      photoUrl?: string | null;
       grade?: string | null;
       credits?: string | null;
       internship: {
@@ -5315,6 +5338,32 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
             </div>
           </div>
 
+          {/* Top-Left Verification Barcode / QR Code (below Certificate No) */}
+          <div className="absolute left-8 top-11 z-10 flex flex-col items-center rounded border border-slate-300/80 bg-white p-1 shadow-sm">
+            <QrCode className="h-10 w-10 text-slate-900" />
+            <span className="mt-0.5 text-[6.5px] font-bold tracking-wider text-emerald-700">
+              SCAN TO VERIFY
+            </span>
+          </div>
+
+          {/* Right-Hand Student Photo (Red marked area) */}
+          <div className="absolute right-8 top-[170px] z-10 flex h-[100px] w-[78px] flex-col items-center justify-center overflow-hidden rounded-[2px] border-[1.5px] border-amber-800 bg-white p-[2px] shadow-sm">
+            {certificate.photoUrl ? (
+              <img
+                src={certificate.photoUrl}
+                alt={studentName}
+                className="h-full w-full rounded-[1px] object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full flex-col items-center justify-center rounded-[1px] bg-slate-100 text-center">
+                <User className="h-7 w-7 text-slate-400" />
+                <span className="mt-1 text-[6.5px] font-bold uppercase tracking-wider text-slate-500">
+                  Photo
+                </span>
+              </div>
+            )}
+          </div>
+
           {}
           <div className="z-10 space-y-0.5 text-center">
             <div className="mb-2 flex justify-center">
@@ -5337,7 +5386,7 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
               Regd. Under Indian Trust Act 1882, Government of India
             </p>
             <p className="text-[9.5px] font-bold text-emerald-700">
-              BCC Greens, Deva Road, Lucknow, Uttar Pradesh, India
+              Regd. Office: Thekma, District- Azamgarh, Uttar Pradesh (India)
             </p>
           </div>
 
@@ -5469,7 +5518,7 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
                 </div>
                 <div className="whitespace-normal">
                   <span className="font-semibold text-slate-800">Place:</span>{" "}
-                  Lucknow, Uttar Pradesh, India
+                  Thekma, Azamgarh, Uttar Pradesh, India
                 </div>
               </div>
             </div>

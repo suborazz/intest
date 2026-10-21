@@ -827,10 +827,17 @@ function ResponsiveDialog({
         >
           <div className="shrink-0 p-4 pb-2">
             <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
+              {React.isValidElement(title) ? (
+                <DialogTitle asChild>{title}</DialogTitle>
+              ) : (
+                <DialogTitle>{title}</DialogTitle>
               )}
+              {description &&
+                (React.isValidElement(description) ? (
+                  <DialogDescription asChild>{description}</DialogDescription>
+                ) : (
+                  <DialogDescription>{description}</DialogDescription>
+                ))}
             </DialogHeader>
           </div>
           <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
@@ -845,8 +852,17 @@ function ResponsiveDialog({
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerContent className={cn("max-h-[90vh]", className)}>
         <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
+          {React.isValidElement(title) ? (
+            <DrawerTitle asChild>{title}</DrawerTitle>
+          ) : (
+            <DrawerTitle>{title}</DrawerTitle>
+          )}
+          {description &&
+            (React.isValidElement(description) ? (
+              <DrawerDescription asChild>{description}</DrawerDescription>
+            ) : (
+              <DrawerDescription>{description}</DrawerDescription>
+            ))}
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
@@ -4479,6 +4495,10 @@ interface InternshipApplicationDetail_3 extends RegistrationDetail_3 {
       enrollmentId?: string;
       certificate?: unknown;
       isCertIssued?: boolean;
+      isGraded?: boolean;
+      grade?: string | null;
+      hasSubmission?: boolean;
+      submissionCount?: number;
     }
 
 interface ImmersionProgram {
@@ -4971,7 +4991,11 @@ interface GetApplicationsColumnsProps_3 {
       onDownloadPDF?: (regId: string) => void;
       onApprove: (applicationId: string) => void;
       onReject: (applicationId: string) => void;
-      onIssueCertificate: (enrollmentId: string, studentName?: string) => void;
+      onIssueCertificate: (
+        enrollmentId: string,
+        studentName?: string,
+        grade?: string | null,
+      ) => void;
       onViewSubmissions: (enrollmentId: string, studentName: string) => void;
       onAssignGrade: (
         certificateId: string,
@@ -5199,6 +5223,14 @@ const getApplicationsColumns_3 = ({
               >
                 {status.replace(/_/g, " ")}
               </Badge>
+              {row.original.grade && (
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-violet-500/40 bg-violet-500/10 text-[9px] font-bold text-violet-600 dark:text-violet-400"
+                >
+                  <GraduationCap_2 className="size-2.5" /> Grade: {row.original.grade}
+                </Badge>
+              )}
               {isCertIssued && (
                 <Badge
                   variant="outline"
@@ -5243,6 +5275,7 @@ const getApplicationsColumns_3 = ({
             !!app.isCertIssued ||
             !!app.certificate ||
             !!app.enrollment?.certificate;
+          const isGraded = Boolean(app.isGraded) || Boolean(app.grade);
 
           return (
             <div
@@ -5367,6 +5400,35 @@ const getApplicationsColumns_3 = ({
                             <span>Assign Grade</span>
                           </DropdownMenuItem>
                         </>
+                      ) : !isGraded ? (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const enrollmentId =
+                              app.enrollmentId ||
+                              app.enrollment?.id ||
+                              app.applicationId ||
+                              app.id;
+                            const candName =
+                              app.registration?.fullName ||
+                              app.studentName ||
+                              app.student?.fullName ||
+                              app.name ||
+                              "Candidate";
+                            toast.warning(
+                              `Grade required: Please evaluate & grade ${candName}'s project submission before issuing a certificate.`,
+                            );
+                            onViewSubmissions(enrollmentId, candName);
+                          }}
+                          className="cursor-pointer font-semibold text-amber-600 focus:bg-amber-500/10 focus:text-amber-600 dark:text-amber-400"
+                        >
+                          <Award className="mr-2 size-3.5 opacity-60" />
+                          <div className="flex flex-col text-left">
+                            <span>Issue Certificate</span>
+                            <span className="text-[10px] font-normal text-amber-500">
+                              (Grade Required First)
+                            </span>
+                          </div>
+                        </DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem
                           disabled={isIssuingCertificate}
@@ -5382,7 +5444,7 @@ const getApplicationsColumns_3 = ({
                               app.student?.fullName ||
                               app.name ||
                               "Candidate";
-                            onIssueCertificate(enrollmentId, candName);
+                            onIssueCertificate(enrollmentId, candName, app.grade);
                           }}
                           className="cursor-pointer font-semibold text-violet-600 focus:bg-violet-500/10 focus:text-violet-600 dark:text-violet-400"
                         >
@@ -5522,6 +5584,7 @@ interface IssueCertificateDialogProps {
       onOpenChange: (open: boolean) => void;
       enrollmentIds: string[];
       studentNames: string[];
+      grade?: string | null;
       onIssue: (payload: {
         enrollmentIds: string[];
         signatureUrl?: string;
@@ -5536,6 +5599,7 @@ function IssueCertificateDialog({
       onOpenChange,
       enrollmentIds,
       studentNames,
+      grade,
       onIssue,
       isLoading,
     }: IssueCertificateDialogProps) {
@@ -5543,7 +5607,7 @@ function IssueCertificateDialog({
       const isBulk = count > 1;
 
       const handleSubmit = () => {
-        onIssue({ enrollmentIds });
+        onIssue({ enrollmentIds, grade: grade || undefined });
       };
 
       return (
@@ -5603,12 +5667,20 @@ function IssueCertificateDialog({
               </div>
             </div>
 
+            {!isBulk && grade && (
+              <div className="flex items-center gap-2 rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-2 text-xs text-violet-700 dark:text-violet-300">
+                <GraduationCap_2 className="size-4 text-violet-500" />
+                <span className="font-medium">Evaluated Project Grade:</span>
+                <span className="font-bold text-violet-900 dark:text-violet-100">{grade}</span>
+                <span className="text-[10px] text-muted-foreground ml-auto">(Printed on certificate)</span>
+              </div>
+            )}
+
             {}
-            <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-[11px] text-amber-800 dark:text-amber-300">
-              <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+            <div className="flex items-start gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-[11px] text-emerald-800 dark:text-emerald-300">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
               <p className="font-medium leading-normal">
-                Once issued, certificates are final and digitally verified. You can
-                assign a <strong>Grade</strong> separately after issuing.
+                Student evaluation is verified. The certificate will be digitally issued and sealed with their earned project grade.
               </p>
             </div>
 
@@ -6991,11 +7063,11 @@ export default function InternshipApplicationsPage({
         options?: TMutationOptions<
           Blob,
           Error,
-          { internshipId: string; applicationId: string }
+          { internshipId: string; applicationId: string; studentName?: string }
         >,
       ) => TMutationReturnType<
         Blob,
-        { internshipId: string; applicationId: string }
+        { internshipId: string; applicationId: string; studentName?: string }
       >;
 
         useMyPayments: (
@@ -7746,7 +7818,14 @@ export default function InternshipApplicationsPage({
 
         useDownloadApplicationPDF(options) {
         return useMutation({
-          mutationFn: async ({ internshipId, applicationId }) =>
+          mutationFn: async ({
+            internshipId,
+            applicationId,
+          }: {
+            internshipId: string;
+            applicationId: string;
+            studentName?: string;
+          }) =>
             await StudentService.downloadApplicationPDF(
               internshipId,
               applicationId,
@@ -13464,15 +13543,22 @@ export default function InternshipApplicationsPage({
 
       const handleSubmit = (e: React_3.FormEvent) => {
         e.preventDefault();
+        if (!grade || grade === "NO_GRADE") {
+          toast.error("Grade is mandatory. Please select a grade (e.g. A+, A, B) to evaluate this project.");
+          return;
+        }
         submitGrade(
           {
             id: submissionId,
-            payload: { grade: grade === "NO_GRADE" ? "" : grade, feedback },
+            payload: { grade, feedback },
           },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({
                 queryKey: ["students", "enrollment-submissions", enrollmentId],
+              });
+              queryClient.invalidateQueries({
+                queryKey: ["instructors", "internship"],
               });
               onSuccess?.();
             },
@@ -13480,26 +13566,35 @@ export default function InternshipApplicationsPage({
         );
       };
 
+      const hasValidGrade = Boolean(grade && grade !== "NO_GRADE");
+
       return (
         <form
           onSubmit={handleSubmit}
           className="border-border/50 bg-muted/10 space-y-2 rounded-lg border p-1.5"
         >
-          <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-            {initialGrade || initialFeedback
-              ? "Edit Evaluation"
-              : "Grade Submission (Optional)"}
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+              {initialGrade || initialFeedback
+                ? "Edit Evaluation"
+                : "Grade Submission"}
+            </span>
+            <span className="text-[9px] font-semibold text-rose-500">
+              * Grade Mandatory
+            </span>
+          </div>
           <div className="flex gap-2">
             <Select_21 value={grade} onValueChange={(val) => setGrade(val)}>
               <SelectTrigger
                 size="sm"
-                className="border-border/80 bg-background h-7 w-24 px-2 py-0 text-[10px] font-semibold"
+                className={cn(
+                  "border-border/80 bg-background h-7 w-28 px-2 py-0 text-[10px] font-semibold",
+                  !hasValidGrade && "border-rose-400 focus:ring-rose-400/20",
+                )}
               >
-                <SelectValue_21 placeholder="No Grade" />
+                <SelectValue_21 placeholder="Select Grade *" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="NO_GRADE">No Grade</SelectItem>
                 <SelectItem value="A+">A+ (Outstanding)</SelectItem>
                 <SelectItem value="A">A (Excellent)</SelectItem>
                 <SelectItem value="B+">B+ (Very Good)</SelectItem>
@@ -13512,16 +13607,16 @@ export default function InternshipApplicationsPage({
               type="text"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Evaluation notes (optional)..."
+              placeholder="Evaluation notes / feedback (optional)..."
               className="border-border/80 bg-background focus:ring-primary/20 focus:border-primary h-7 flex-1 rounded-md border px-2 text-[10px] font-medium focus:outline-none"
             />
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !hasValidGrade}
               size="sm"
               className="h-7 rounded-md px-2 text-[10px] font-semibold"
             >
-              {isPending ? "Saving..." : "Save"}
+              {isPending ? "Saving..." : "Save Grade"}
             </Button>
             {onCancel && (
               <Button
@@ -13561,6 +13656,12 @@ export default function InternshipApplicationsPage({
       const queryClient = useQueryClient();
       const { mutate: submitGrade } = InstructorDataHooks.useGradeSubmission();
 
+      React_3.useEffect(() => {
+        if (!open) {
+          setEditingSubmissionId(null);
+        }
+      }, [open]);
+
       const handleDeleteEvaluation = (submissionId: string) => {
         submitGrade(
           {
@@ -13569,6 +13670,7 @@ export default function InternshipApplicationsPage({
           },
           {
             onSuccess: () => {
+              setEditingSubmissionId(null);
               queryClient.invalidateQueries({
                 queryKey: ["students", "enrollment-submissions", enrollmentId],
               });
@@ -13943,6 +14045,9 @@ export default function InternshipApplicationsPage({
       const [issueCertOpen, setIssueCertOpen] = useState(false);
       const [issueEnrollmentIds, setIssueEnrollmentIds] = useState<string[]>([]);
       const [issueStudentNames, setIssueStudentNames] = useState<string[]>([]);
+      const [issueStudentGrade, setIssueStudentGrade] = useState<
+        string | null | undefined
+      >(null);
 
       const [selectedRows, setSelectedRows] = useState<
         InternshipApplicationDetail_3[]
@@ -13972,13 +14077,25 @@ export default function InternshipApplicationsPage({
         isPending: isIssuingCertificate,
       } = InstructorDataHooks.useIssueCertificate();
 
+      const [downloadTargetName, setDownloadTargetName] = useState("");
+
       const { mutate: downloadAppPDF, isPending: isDownloadingApp } =
         StudentDataHook.useDownloadApplicationPDF({
           onSuccess: (blob, variables) => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `application-${variables.applicationId}.pdf`;
+            const targetName = (
+              variables.studentName ||
+              downloadTargetName ||
+              ""
+            ).trim();
+            const safeName = targetName
+              .replace(/[/\\?%*:|"<>]/g, "")
+              .replace(/\s+/g, "_");
+            a.download = safeName
+              ? `${safeName}_Application.pdf`
+              : `application-${variables.applicationId}.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -14061,9 +14178,10 @@ export default function InternshipApplicationsPage({
                 appId: applicationId,
                 action: "reject",
               }),
-            onIssueCertificate: (enrollmentId, name) => {
+            onIssueCertificate: (enrollmentId, name, grade) => {
               setIssueEnrollmentIds([enrollmentId]);
               setIssueStudentNames([name || "Candidate"]);
+              setIssueStudentGrade(grade || null);
               setIssueCertOpen(true);
             },
             onViewSubmissions: (enrollmentId, name) => {
@@ -14113,6 +14231,16 @@ export default function InternshipApplicationsPage({
           return;
         }
 
+        const ungraded = unissued.filter(
+          (item) => !item.isGraded && !item.grade,
+        );
+        if (ungraded.length > 0) {
+          toast.error(
+            `${ungraded.length} student(s) cannot receive certificates because their project submissions have not been graded yet. Please grade them first.`,
+          );
+          return;
+        }
+
         const ids = unissued.map(
           (item) =>
             item.enrollmentId ||
@@ -14131,6 +14259,7 @@ export default function InternshipApplicationsPage({
 
         setIssueEnrollmentIds(ids);
         setIssueStudentNames(names);
+        setIssueStudentGrade(null);
         setIssueCertOpen(true);
       };
 
@@ -14152,7 +14281,7 @@ export default function InternshipApplicationsPage({
             await issueCertificateAsync({
               enrollmentId: id,
               signatureUrl,
-              grade,
+              grade: grade || issueStudentGrade || undefined,
               credits,
             });
             successCount++;
@@ -14175,6 +14304,7 @@ export default function InternshipApplicationsPage({
         setSelectedRows([]);
         setIssueEnrollmentIds([]);
         setIssueStudentNames([]);
+        setIssueStudentGrade(null);
       };
 
       return (
@@ -14229,7 +14359,18 @@ export default function InternshipApplicationsPage({
               application={selectedApp}
               onDownloadApplication={() => {
                 const appId = selectedApp.applicationId || selectedApp.id;
-                downloadAppPDF({ internshipId, applicationId: appId });
+                const candName =
+                  selectedApp.registration?.fullName ||
+                  selectedApp.studentName ||
+                  selectedApp.student?.fullName ||
+                  selectedApp.name ||
+                  "";
+                setDownloadTargetName(candName);
+                downloadAppPDF({
+                  internshipId,
+                  applicationId: appId,
+                  studentName: candName,
+                });
               }}
               isDownloadingApplication={isDownloadingApp}
               onApprove={(applicationId) =>
@@ -14267,6 +14408,7 @@ export default function InternshipApplicationsPage({
             onOpenChange={setIssueCertOpen}
             enrollmentIds={issueEnrollmentIds}
             studentNames={issueStudentNames}
+            grade={issueStudentGrade}
             isLoading={isIssuingCertificate || isBulkIssuing}
             onIssue={handlePerformIssue}
           />

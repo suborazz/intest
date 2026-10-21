@@ -596,7 +596,7 @@ export async function GET(
             [
               { label: "Internship Title", value: application.internship.title },
               {
-                label: "Company Name",
+                label: "Organisation Name",
                 value: application.internship.companyName || "N/A",
               },
             ],
@@ -1153,11 +1153,24 @@ export async function GET(
       internship: application.internship,
     });
 
+    const rawStudentName =
+      application.student?.studentRegistration?.fullName ||
+      application.student?.name ||
+      "Student";
+
+    const safeStudentName = rawStudentName
+      .trim()
+      .replace(/[/\\?%*:|"<>]/g, "")
+      .replace(/\s+/g, "_");
+
+    const filename = `${safeStudentName || "Student"}_Application.pdf`;
+    const encodedFilename = encodeURIComponent(filename);
+
     return new NextResponse(new Uint8Array(fileBuffer), {
       status: HTTP_2.OK,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="application-${application.id}.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
       },
     });
   } catch (error) {

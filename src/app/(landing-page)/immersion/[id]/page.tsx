@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import { create } from "zustand";
 import { axiosInstance } from "@/x/acfb3dca";
+import { isDateExpired } from "@/x/a85a9c0c";
 type TQueryOptions<TData, TError = Error> = Omit<
       UseQueryOptions<TData, TError, TData, readonly unknown[]>,
       "queryKey" | "queryFn"
@@ -2174,6 +2175,8 @@ export default function ImmersionDetailPage() {
   const formattedFees =
     program.fees === 0 ? "Free" : `₹${(program.fees ?? 0).toLocaleString()}`;
 
+  const isExpired = isDateExpired(program.endDate) || program.status === "COMPLETED";
+
   return (
     <main className="bg-background relative min-h-screen pb-24 pt-[20px]">
       {}
@@ -2205,6 +2208,11 @@ export default function ImmersionDetailPage() {
                   <Sparkles className="h-3 w-3" />
                   {program.category?.name || "Cohort"}
                 </span>
+                {isExpired && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-300 bg-rose-50 px-3 py-1 text-xs font-bold uppercase text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-400">
+                    Cohort Ended (Archived)
+                  </span>
+                )}
               </div>
               <h1 className="text-foreground text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
                 {program.title}
@@ -2216,13 +2224,19 @@ export default function ImmersionDetailPage() {
             </div>
 
             <div className="flex min-w-[200px] flex-col gap-3 sm:flex-row md:flex-col">
-              <Link
-                href="/sign-up?role=IMMERSION_USER"
-                className="bg-linear-to-r from-primary hover:from-primary/95 flex items-center justify-center gap-2 rounded-xl to-emerald-500 px-6 py-3 font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:to-emerald-500/95"
-              >
-                <Send className="h-4 w-4" />
-                Express Interest
-              </Link>
+              {isExpired ? (
+                <div className="flex items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 px-6 py-3 text-center text-sm font-bold text-amber-700 dark:text-amber-400">
+                  <span>Applications Closed (Archived)</span>
+                </div>
+              ) : (
+                <Link
+                  href="/sign-up?role=IMMERSION_USER"
+                  className="bg-linear-to-r from-primary hover:from-primary/95 flex items-center justify-center gap-2 rounded-xl to-emerald-500 px-6 py-3 font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:to-emerald-500/95"
+                >
+                  <Send className="h-4 w-4" />
+                  Express Interest
+                </Link>
+              )}
               <button
                 onClick={() => {
                   const url = window.location.href;
@@ -2387,12 +2401,18 @@ export default function ImmersionDetailPage() {
               </div>
 
               <div className="pt-2">
-                <Link
-                  href="/sign-up?role=IMMERSION_USER"
-                  className="bg-linear-to-r from-primary hover:from-primary/95 text-primary-foreground flex h-11 w-full items-center justify-center rounded-xl to-emerald-500 text-sm font-bold shadow-md transition-all"
-                >
-                  Express Interest
-                </Link>
+                {isExpired ? (
+                  <div className="flex h-11 w-full items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-center text-xs font-bold text-amber-700 dark:text-amber-400">
+                    Applications Closed (Archived)
+                  </div>
+                ) : (
+                  <Link
+                    href="/sign-up?role=IMMERSION_USER"
+                    className="bg-linear-to-r from-primary hover:from-primary/95 text-primary-foreground flex h-11 w-full items-center justify-center rounded-xl to-emerald-500 text-sm font-bold shadow-md transition-all"
+                  >
+                    Express Interest
+                  </Link>
+                )}
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ZodError } from "zod";
 import { cloudinary } from "@/x/cloudinary";
 import { prisma } from "@/x/e3746f45";
+import { generateNextJobOpportunityId, generateNextAdvtNo } from "@/lib/jobIdGenerator";
 
 interface CloudinaryUploadResult {
     url: string;
@@ -194,7 +195,8 @@ const createJobOpportunitySchema = z.object({
   advtNo: z.string().optional(),
   advtDate: z.string().optional(),
   closingDate: z.string().optional(),
-        jdDescription: z.string().nullish().or(z.literal("")),
+  salary: z.string().nullish().or(z.literal("")),
+  jdDescription: z.string().nullish().or(z.literal("")),
 });
 
 const listJobOpportunitiesQuerySchema = z.object({
@@ -299,6 +301,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const advtNo = formData.get("advtNo") as string | null;
     const advtDate = formData.get("advtDate") as string | null;
     const closingDate = formData.get("closingDate") as string | null;
+    const salary = formData.get("salary") as string | null;
     const jdDoc = formData.get("jdDoc") as File | null;
     const jdDescription = formData.get("jdDescription") as string | null;
 
@@ -315,6 +318,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       advtNo: advtNo || undefined,
       advtDate: advtDate || undefined,
       closingDate: closingDate || undefined,
+      salary: salary || undefined,
       jdDescription: jdDescription || undefined,
     });
 
@@ -417,8 +421,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
+    const jobId = await generateNextJobOpportunityId(prisma);
+    const targetYear = data.advtDate
+      ? new Date(data.advtDate).getFullYear() || new Date().getFullYear()
+      : new Date().getFullYear();
+    const finalAdvtNo =
+      data.advtNo?.trim() || (await generateNextAdvtNo(prisma, targetYear));
+
     const job = await prisma.jobOpportunity.create({
       data: {
+        id: jobId,
         companyName: data.companyName,
         address: data.address,
         postOpportunity: data.postOpportunity,
@@ -430,9 +442,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         website: normalizedWebsite,
         logoUrl,
         logoPublicId,
-        advtNo: data.advtNo ?? null,
+        advtNo: finalAdvtNo,
         advtDate: data.advtDate ?? null,
         closingDate: data.closingDate ?? null,
+        salary: data.salary ?? null,
         jdDocUrl,
         jdDocPublicId,
         jdDescription: data.jdDescription || null,

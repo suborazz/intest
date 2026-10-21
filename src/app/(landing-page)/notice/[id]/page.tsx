@@ -2170,20 +2170,48 @@ export default function ViewNoticePage() {
                 )}
               </span>
               <span className="text-muted-foreground/60 text-sm">&bull;</span>
-              <span className="text-muted-foreground/80 font-mono text-sm">
+              <span className="inline-flex items-center rounded-md border border-emerald-600/30 bg-emerald-50 px-2 py-0.5 font-mono text-xs font-bold text-emerald-900">
                 {notice.noticeNumber}
               </span>
             </div>
 
-            <h1 className="text-foreground mb-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            <h1 className="text-foreground mb-2 text-lg sm:text-xl md:text-2xl font-bold leading-snug tracking-tight">
               {notice.title}
             </h1>
           </div>
 
           {}
-          <div className="bg-card p-8 sm:p-10">
-            <div className="prose prose-emerald text-foreground/80 max-w-none leading-relaxed">
-              <p>{notice.description}</p>
+          <div className="bg-card p-6 sm:p-8 md:p-10">
+            <div className="text-foreground/90 max-w-none text-sm sm:text-base leading-relaxed">
+              {(() => {
+                const rawText = notice.description || (notice as any).content || "";
+                const normalized = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+                if (!normalized) {
+                  return (
+                    <p className="text-muted-foreground italic text-sm">
+                      No notice description available.
+                    </p>
+                  );
+                }
+
+                const hasDoubleNewline = /\n\s*\n/.test(normalized);
+                const paragraphs = hasDoubleNewline
+                  ? normalized.split(/\n\s*\n+/)
+                  : normalized.split(/\n+/);
+
+                return (
+                  <div className="space-y-4">
+                    {paragraphs.map((para: string, idx: number) => (
+                      <p
+                        key={idx}
+                        className="whitespace-pre-line leading-relaxed text-justify text-foreground/85 text-sm sm:text-base"
+                      >
+                        {para.trim()}
+                      </p>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {notice.category === "Schedule" && (
                 <div className="mt-8 rounded-lg border border-blue-100 bg-blue-50/50 p-4">
@@ -2194,15 +2222,72 @@ export default function ViewNoticePage() {
                   </p>
                 </div>
               )}
+              {((notice as any).pdfUrl || (notice as any).linkUrl) && (
+                <div className="mt-8 rounded-xl border border-emerald-500/20 bg-emerald-50/60 p-5 dark:bg-emerald-950/20">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    Attachments & Reference Links
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {(notice as any).pdfUrl && (
+                      <a
+                        href={(notice as any).pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-emerald-700 hover:shadow"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                        Download Attached File
+                      </a>
+                    )}
+                    {(notice as any).linkUrl && (
+                      <a
+                        href={(notice as any).linkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-blue-700 hover:shadow"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                        Open Official Link (New Tab)
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {}
-            <div className="border-border/50 mt-12 flex flex-col items-center gap-4 border-t pt-8 sm:flex-row">
-              {notice.pdfUrl && (
+            {/* Action Bar */}
+            <div className="border-border/50 mt-12 flex flex-col items-center gap-4 border-t pt-8 sm:flex-row flex-wrap">
+              {(notice as any).pdfUrl && (
                 <a
-                  href={notice.pdfUrl}
+                  href={(notice as any).pdfUrl}
                   target="_blank"
                   rel="noreferrer"
+                  download
                   className="bg-primary hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:shadow sm:w-auto"
                 >
                   <svg
@@ -2219,6 +2304,29 @@ export default function ViewNoticePage() {
                     />
                   </svg>
                   Download Notice PDF
+                </a>
+              )}
+              {(notice as any).linkUrl && (
+                <a
+                  href={(notice as any).linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 hover:bg-blue-700 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:shadow sm:w-auto"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                  Open External Link
                 </a>
               )}
               <button

@@ -290,6 +290,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    if (payment.status === "COMPLETED") {
+      return successResponse(
+        {
+          paymentId: payment.id,
+          applicationId: payment.applicationId,
+          status: "COMPLETED",
+          alreadyProcessed: true,
+        },
+        {
+          message: "Payment already verified successfully.",
+        },
+      );
+    }
+
     if (payment.status !== "PENDING") {
       return errorResponse(
         "INVALID_PAYMENT_STATUS",

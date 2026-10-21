@@ -6,6 +6,7 @@ import React_4, { useEffect, useState } from "react";
 import { type FieldPath, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight as ArrowRight_2, CalendarIcon, CheckCircle, Code, Download, Edit, LayoutDashboard, Mail as Mail_2, MapPin as MapPin_2, Pencil, Phone as Phone_2, Plus, Save, School, Trash2, Upload, Check } from "lucide-react";
+import { RegistrationPreview } from "./RegistrationPreview";
 import React_3 from "react";
 import React_2 from "react";
 import { clsx, ClassValue } from "clsx";
@@ -256,13 +257,22 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
+function Input({ className, type, icon: Icon, onFocus, ...props }: InputProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // When virtual keyboard opens on mobile, give it a moment to expand then center the input
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 180);
+    onFocus?.(e);
+  };
+
   const input = (
     <input
       type={type}
       data-slot="input"
+      onFocus={handleFocus}
       className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         Icon && "pl-8",
         className,
       )}
@@ -2697,191 +2707,7 @@ export default function RecruitRegistrationPage() {
       };
     }
 
-    const RegistrationPreview_3: React_3.FC<RegistrationPreviewProps_3> = ({
-      data,
-      photoPreview,
-      signaturePreview,
-      appId,
-      onPrint,
-      onGoToDashboard,
-    }) => {
-      return (
-        <div className="bg-card border-border animate-in fade-in space-y-6 rounded-3xl border p-6 text-center shadow-xl duration-300 md:p-8">
-          <div className="flex justify-center">
-            <CheckCircle className="size-16 animate-bounce text-emerald-500" />
-          </div>
-          <h2 className="text-foreground text-2xl font-extrabold md:text-3xl">
-            Registration Profile Completed
-          </h2>
-          <p className="text-muted-foreground mx-auto max-w-lg">
-            Your recruiter application is successfully registered. Keep a copy of
-            your application details.
-          </p>
-
-          {}
-          <div className="printable-area mx-auto max-w-2xl space-y-6 rounded-2xl border bg-white p-6 text-left font-sans shadow-inner dark:bg-zinc-900">
-            <div className="space-y-1 border-b pb-4 text-center">
-              <h2 className="text-xl font-extrabold">
-                International Institute of Internship [i3]
-              </h2>
-              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest">
-                Job Applicant Profile Registration Form
-              </p>
-              <div className="text-muted-foreground flex items-center justify-center gap-1 text-[11px] font-semibold">
-                Reg ID:{" "}
-                <ApplicationIdChip
-                  id={appId}
-                  type="registration"
-                  className="text-[10px]"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 space-y-2 text-xs">
-                  <h3 className="text-primary text-sm font-extrabold uppercase">
-                    1. Basic Information
-                  </h3>
-                  <div>
-                    Name: <span className="font-bold">{data.fullName}</span>
-                  </div>
-                  <div>
-                    DOB: <span className="font-bold">{data.dob}</span>
-                  </div>
-                  <div>
-                    Gender: <span className="font-bold">{data.gender}</span>
-                  </div>
-                  <div>
-                    Mobile No: <span className="font-bold">{data.mobileNo}</span>
-                  </div>
-                  <div>
-                    Email ID: <span className="font-bold">{data.email}</span>
-                  </div>
-                  <div>
-                    Marital Status:{" "}
-                    <span className="font-bold">{data.maritalStatus}</span>
-                  </div>
-                  <div>
-                    Religion: <span className="font-bold">{data.religion}</span>
-                  </div>
-                  <div>
-                    Category: <span className="font-bold">{data.category}</span>
-                  </div>
-                  <div>
-                    Blood Group:{" "}
-                    <span className="font-bold">{data.bloodGroup}</span>
-                  </div>
-                </div>
-                {photoPreview && (
-                  <img
-                    src={photoPreview}
-                    alt="profile preview"
-                    className="size-20 shrink-0 rounded border object-cover"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <h3 className="text-primary text-sm font-extrabold uppercase">
-                  2. Address Details
-                </h3>
-                <div>
-                  Current Address:{" "}
-                  <span className="font-bold">
-                    {formatAddress(data.localAddress)}
-                  </span>
-                </div>
-                <div>
-                  Permanent Address:{" "}
-                  <span className="font-bold">
-                    {formatAddress(data.permanentAddress)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <h3 className="text-primary text-sm font-extrabold uppercase">
-                  3. Academic Details
-                </h3>
-                {(data.academics ?? []).map((ac, idx) => (
-                  <div key={idx} className="border-primary/50 border-l-2 pl-2">
-                    <span className="font-bold">
-                      {ac.qualification} in {ac.subject}
-                    </span>{" "}
-                    ({ac.startYear} - {ac.endYear})
-                    <div className="text-muted-foreground text-[10px]">
-                      {ac.schoolInstitute} | Board/Uni: {ac.boardUniversity} |
-                      Marks: {ac.passingMarks}%
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {data.experiences && data.experiences.length > 0 && (
-                <div className="space-y-2 text-xs">
-                  <h3 className="text-primary text-sm font-extrabold uppercase">
-                    4. Work History
-                  </h3>
-                  {data.experiences.map((exp, idx) => (
-                    <div
-                      key={idx}
-                      className="border-l-2 border-emerald-500/50 pl-2"
-                    >
-                      <span className="font-bold">
-                        {exp.designation} at {exp.employerName}
-                      </span>{" "}
-                      ({exp.startDate} to {exp.endDate || "Present"})
-                      <div className="text-muted-foreground text-[10px]">
-                        {exp.postingLocation} | Role: {exp.natureOfWork} |{" "}
-                        {exp.experienceYears} Years
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {signaturePreview && (
-                <div className="flex flex-col items-end pt-4">
-                  <img
-                    src={signaturePreview}
-                    alt="signature"
-                    className="h-8 w-24 border bg-zinc-50 object-contain"
-                  />
-                  <span className="text-muted-foreground block pr-4 text-[9px]">
-                    Authorized Signature
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4 pt-4">
-            <Button onClick={onPrint} className="flex items-center gap-2">
-              <Download className="size-4" /> Download PDF Form
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  window.location.href = "/recruit/registration?edit=true";
-                }
-              }}
-              className="flex items-center gap-2"
-            >
-              <Download className="hidden size-4 opacity-0" /> Edit Details
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onGoToDashboard}
-              className="flex items-center gap-2"
-            >
-              <LayoutDashboard className="size-4" /> Go to Dashboard
-            </Button>
-          </div>
-        </div>
-      );
-    };
+    const RegistrationPreview_3 = RegistrationPreview;
     const StepDocuments_3: React_3.FC<StepDocumentsProps_3> = ({
       photoPreview,
       signaturePreview,
@@ -4099,6 +3925,26 @@ export default function RecruitRegistrationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isFinalSubmitted, setIsFinalSubmitted] = useState(false);
   const [appId, setAppId] = useState("");
+
+  // Auto-scroll focused inputs into view on mobile keyboard appearance
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.getAttribute("role") === "combobox")
+      ) {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 220);
+      }
+    };
+    window.addEventListener("focusin", handleFocusIn);
+    return () => window.removeEventListener("focusin", handleFocusIn);
+  }, []);
 
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [signaturePreview, setSignaturePreview] = useState<string | null>(null);

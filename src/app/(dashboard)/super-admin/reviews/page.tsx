@@ -1,7 +1,7 @@
 "use client";
 
 import React_2, { Suspense } from "react";
-import { AlertTriangle, Award, Calendar, CheckIcon, CreditCard, Download, EllipsisVerticalIcon, ExternalLink, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, School, Send, ShieldCheck, Trash2, Trash2Icon, User, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, Star as Star_2, XCircle as XCircle_2 } from "lucide-react";
+import { AlertTriangle, Award, Calendar, CheckIcon, CreditCard, Download, EllipsisVerticalIcon, ExternalLink, FolderOpen, GraduationCap as GraduationCap_2, Info, Pencil as PencilIcon, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, School, Send, ShieldCheck, Trash2, Trash2Icon, User, AlertCircle as AlertCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, Star as Star_2, XCircle as XCircle_2 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import * as React_4 from "react";
@@ -2243,6 +2243,16 @@ interface GetReviewsParams {
       page?: number;
       limit?: number;
       search?: string;
+      status?: "pending" | "approved" | "all";
+    }
+
+    interface UpdateReviewPayload {
+      name?: string;
+      email?: string;
+      role?: string | null;
+      rating?: number;
+      comment?: string;
+      isApproved?: boolean;
     }
 
 interface GetDonationsParams {
@@ -4349,6 +4359,10 @@ export default function SuperAdminReviewsPage() {
       ) => Promise<GenericApiResponse<ReviewPublic[]>>;
       approveReview: (id: string) => Promise<GenericApiResponse>;
       deleteReview: (id: string) => Promise<GenericApiResponse>;
+      updateReview: (
+        id: string,
+        payload: UpdateReviewPayload,
+      ) => Promise<GenericApiResponse<ReviewPublic>>;
 
         getDonations: (
         params?: GetDonationsParams,
@@ -4768,6 +4782,13 @@ export default function SuperAdminReviewsPage() {
         const response = await axiosInstance.delete<GenericApiResponse>(
           ENDPOINTS.SUPER_ADMIN.REVIEW_BY_ID(id),
         );
+        return response.data;
+      },
+
+      async updateReview(id, payload) {
+        const response = await axiosInstance.patch<
+          GenericApiResponse<ReviewPublic>
+        >(ENDPOINTS.SUPER_ADMIN.REVIEW_BY_ID(id), payload);
         return response.data;
       },
 
@@ -5973,6 +5994,30 @@ export default function SuperAdminReviewsPage() {
           },
           onError: (err, variables, context) => {
             toast.error(err.message || "Failed to delete review.");
+            options?.onError?.(err, variables, context, undefined as any);
+          },
+        });
+      },
+
+      useUpdateReview(
+        options?: TMutationOptions<
+          GenericApiResponse<ReviewPublic>,
+          Error,
+          { id: string; payload: UpdateReviewPayload }
+        >,
+      ) {
+        const queryClient = useQueryClient();
+        return useMutation({
+          mutationFn: async ({ id, payload }) =>
+            await SuperAdminService.updateReview(id, payload),
+          ...options,
+          onSuccess: (data, variables, context) => {
+            queryClient.invalidateQueries({ queryKey: SUPER_ADMIN_QUERY_KEYS.ALL });
+            toast.success(data.message || "Testimonial updated successfully!");
+            options?.onSuccess?.(data, variables, context, undefined as any);
+          },
+          onError: (err, variables, context) => {
+            toast.error(err.message || "Failed to update testimonial.");
             options?.onError?.(err, variables, context, undefined as any);
           },
         });
@@ -8691,16 +8736,238 @@ export default function SuperAdminReviewsPage() {
       review: ReviewPublic;
     }
 
+    interface IReviewDialogProps {
+      review: ReviewPublic | null;
+      open: boolean;
+      onClose: () => void;
+    }
+
+    const ReviewDetailDialog: React.FunctionComponent<IReviewDialogProps> = ({
+      review,
+      open,
+      onClose,
+    }) => {
+      if (!review) return null;
+      const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
+        <div className="grid grid-cols-[130px_1fr] gap-2 border-b border-border/40 py-1.5 text-xs last:border-0">
+          <span className="text-muted-foreground font-semibold">{label}</span>
+          <span className="text-foreground font-medium break-words">{value}</span>
+        </div>
+      );
+      return (
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+          <DialogContent className="sm:max-w-[520px]">
+            <DialogHeader>
+              <DialogTitle>Testimonial Details</DialogTitle>
+              <DialogDescription>
+                Full details of this testimonial submission.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="pt-1">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-muted-foreground text-xs font-semibold uppercase">
+                  Status
+                </span>
+                <Badge
+                  className={
+                    review.isApproved
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                  }
+                >
+                  {review.isApproved ? "Published" : "Pending"}
+                </Badge>
+              </div>
+              <Row label="Author Name" value={review.name} />
+              <Row label="Email" value={review.email} />
+              <Row label="Role / Designation" value={review.role || "Visitor"} />
+              <Row
+                label="Rating"
+                value={
+                  <span className="flex items-center gap-2">
+                    <RatingStars_3 rating={review.rating} />
+                    <span className="text-muted-foreground">
+                      {review.rating}/5
+                    </span>
+                  </span>
+                }
+              />
+              <Row label="Comment / Review" value={review.comment} />
+              <Row
+                label="Submitted"
+                value={
+                  review.createdAt
+                    ? formatHumanReadableDate_13(review.createdAt)
+                    : "—"
+                }
+              />
+              {review.approvedAt && (
+                <Row
+                  label="Approved"
+                  value={formatHumanReadableDate_13(review.approvedAt)}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    };
+
+    const ReviewEditDialog: React.FunctionComponent<IReviewDialogProps> = ({
+      review,
+      open,
+      onClose,
+    }) => {
+      const [name, setName] = useState("");
+      const [email, setEmail] = useState("");
+      const [role, setRole] = useState("");
+      const [rating, setRating] = useState(5);
+      const [comment, setComment] = useState("");
+
+      const { mutate: updateReview, isPending } =
+        SuperAdminDataHooks.useUpdateReview();
+
+      useEffect(() => {
+        if (open && review) {
+          setName(review.name || "");
+          setEmail(review.email || "");
+          setRole(review.role || "");
+          setRating(review.rating || 5);
+          setComment(review.comment || "");
+        }
+      }, [open, review]);
+
+      const handleSubmit = () => {
+        if (!review) return;
+        updateReview(
+          {
+            id: review.id,
+            payload: {
+              name: name.trim(),
+              email: email.trim(),
+              role: role.trim() || null,
+              rating,
+              comment: comment.trim(),
+            },
+          },
+          { onSuccess: () => onClose() },
+        );
+      };
+
+      return (
+        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+          <DialogContent className="sm:max-w-[520px]">
+            <DialogHeader>
+              <DialogTitle>Edit Testimonial</DialogTitle>
+              <DialogDescription>
+                Update the testimonial details and save your changes.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 pt-1">
+              <div className="space-y-1">
+                <label className="text-foreground text-xs font-semibold">
+                  Author Name
+                </label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-foreground text-xs font-semibold">
+                    Email
+                  </label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-foreground text-xs font-semibold">
+                    Role / Designation
+                  </label>
+                  <Input value={role} onChange={(e) => setRole(e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-foreground text-xs font-semibold">
+                  Rating
+                </label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      type="button"
+                      key={n}
+                      onClick={() => setRating(n)}
+                      className="cursor-pointer"
+                      aria-label={"Set rating " + n}
+                    >
+                      <Star_2
+                        className={cn(
+                          "size-5",
+                          n <= rating
+                            ? "fill-amber-500 text-amber-500"
+                            : "text-muted-foreground/30",
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-foreground text-xs font-semibold">
+                  Comment / Review
+                </label>
+                <Textarea
+                  rows={4}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-2 flex flex-row gap-2 sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={isPending}
+                className="font-semibold"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={isPending}
+                className="flex items-center gap-2 font-semibold"
+              >
+                {isPending ? <Spinner className="size-4" /> : null} Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      );
+    };
+
     const ReviewActions: React.FunctionComponent<IReviewActionsProps> = ({
       review,
     }) => {
       const [open, setOpen] = React.useState(false);
+      const [detailOpen, setDetailOpen] = React.useState(false);
+      const [editOpen, setEditOpen] = React.useState(false);
       const [deleteOpen, setDeleteOpen] = React.useState(false);
 
       const { mutate: approveReview, isPending: isApproving } =
         SuperAdminDataHooks.useApproveReview();
       const { mutate: deleteReview, isPending: isDeleting } =
         SuperAdminDataHooks.useDeleteReview();
+      const { mutate: updateReview, isPending: isUnpublishing } =
+        SuperAdminDataHooks.useUpdateReview();
+
+      const handleTogglePublish = () => {
+        if (review.isApproved) {
+          updateReview({ id: review.id, payload: { isApproved: false } });
+        } else {
+          approveReview(review.id);
+        }
+      };
 
       return (
         <div onClick={(e) => e.stopPropagation()}>
@@ -8710,15 +8977,40 @@ export default function SuperAdminReviewsPage() {
                 <EllipsisVerticalIcon className="text-muted-foreground h-4 w-4" />
               </Button>
             </DropdownMenuTrigger_18>
-            <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuContent align="end" className="w-44">
               <DropdownMenuItem
-                disabled={isApproving}
-                onClick={() => approveReview(review.id)}
+                onClick={() => setDetailOpen(true)}
                 className="flex cursor-pointer items-center justify-between"
               >
-                <span>Approve</span>
-                <span className="inline-flex items-center justify-center rounded-md bg-emerald-500/10 p-1 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                  <CheckIcon size={12} />
+                <span>View details</span>
+                <span className="bg-primary/10 text-primary inline-flex items-center justify-center rounded-md p-1">
+                  <Info size={12} />
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setEditOpen(true)}
+                className="flex cursor-pointer items-center justify-between"
+              >
+                <span>Edit</span>
+                <span className="bg-primary/10 text-primary inline-flex items-center justify-center rounded-md p-1">
+                  <PencilIcon size={12} />
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                disabled={isApproving || isUnpublishing}
+                onClick={handleTogglePublish}
+                className="flex cursor-pointer items-center justify-between"
+              >
+                <span>{review.isApproved ? "Unpublish" : "Publish"}</span>
+                <span
+                  className={
+                    review.isApproved
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center justify-center rounded-md p-1"
+                      : "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 inline-flex items-center justify-center rounded-md p-1"
+                  }
+                >
+                  {review.isApproved ? <XCircle_2 size={12} /> : <CheckIcon size={12} />}
                 </span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -8727,7 +9019,7 @@ export default function SuperAdminReviewsPage() {
                 onClick={() => setDeleteOpen(true)}
                 className="flex cursor-pointer items-center justify-between"
               >
-                <span>Reject &amp; delete</span>
+                <span>Delete</span>
                 <span className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive inline-flex items-center justify-center rounded-md p-1">
                   <Trash2Icon size={12} />
                 </span>
@@ -8735,6 +9027,16 @@ export default function SuperAdminReviewsPage() {
             </DropdownMenuContent>
           </DropdownMenu_18>
 
+          <ReviewDetailDialog
+            review={review}
+            open={detailOpen}
+            onClose={() => setDetailOpen(false)}
+          />
+          <ReviewEditDialog
+            review={review}
+            open={editOpen}
+            onClose={() => setEditOpen(false)}
+          />
           <DeleteConfirmationDialog_7
             isOpen={deleteOpen}
             onClose={() => setDeleteOpen(false)}
@@ -8788,6 +9090,21 @@ export default function SuperAdminReviewsPage() {
         ),
       },
       {
+        accessorKey: "isApproved",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge
+            className={
+              row.original.isApproved
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            }
+          >
+            {row.original.isApproved ? "Published" : "Pending"}
+          </Badge>
+        ),
+      },
+      {
         id: "actions",
         header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => (
@@ -8808,12 +9125,16 @@ export default function SuperAdminReviewsPage() {
       const search = searchParams?.get("filter") || undefined;
 
       const [meta, setMeta] = useState<TMeta_23>({ total: 0, limit, page });
+      const [status, setStatus] = useState<"pending" | "approved" | "all">(
+        "all",
+      );
 
       const { data: reviewsResponse, isLoading } =
         SuperAdminDataHooks.usePendingReviews({
           page,
           limit,
           search,
+          status,
         });
 
       const reviewsList = reviewsResponse?.data || [];
@@ -8849,7 +9170,30 @@ export default function SuperAdminReviewsPage() {
               meta={meta}
               setMeta={setMeta}
               toolbar={
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="bg-muted/50 flex items-center gap-0.5 rounded-lg border p-0.5">
+                    {(
+                      [
+                        { key: "all", label: "All" },
+                        { key: "pending", label: "Pending" },
+                        { key: "approved", label: "Published" },
+                      ] as const
+                    ).map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setStatus(tab.key)}
+                        className={cn(
+                          "cursor-pointer rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
+                          status === tab.key
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
                   <DataTableSearch
                     searchKey="filter"
                     placeholder="Search by author name or comment"

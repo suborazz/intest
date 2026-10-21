@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React_2 from "react";
 import { Eye, EyeOff, Lock, Mail as Mail_2, User, AlertCircle, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -252,13 +252,22 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
+function Input({ className, type, icon: Icon, onFocus, ...props }: InputProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // When virtual keyboard opens on mobile, give it a moment to expand then center the input
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 180);
+    onFocus?.(e);
+  };
+
   const input = (
     <input
       type={type}
       data-slot="input"
+      onFocus={handleFocus}
       className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         Icon && "pl-8",
         className,
       )}
@@ -3665,6 +3674,26 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [loginError, setLoginError] = useState<string | null>(null);
 
+    // Auto-scroll focused inputs into view on mobile keyboard appearance
+    useEffect(() => {
+      const handleFocusIn = (e: FocusEvent) => {
+        const target = e.target as HTMLElement;
+        if (
+          target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.tagName === "SELECT" ||
+            target.getAttribute("role") === "combobox")
+        ) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 220);
+        }
+      };
+      window.addEventListener("focusin", handleFocusIn);
+      return () => window.removeEventListener("focusin", handleFocusIn);
+    }, []);
+
     const form = useForm<TLogin>({
       resolver: zodResolver(ZLogin),
       defaultValues: {
@@ -3780,9 +3809,9 @@ export default function LoginPage() {
 
   return (
     <div className="bg-background text-foreground flex min-h-screen w-full flex-col font-sans md:flex-row">
-      {}
-      <div className="relative flex h-[280px] w-full items-center justify-center overflow-hidden rounded-none bg-zinc-950 p-6 md:h-auto md:w-1/2 md:p-12">
-        {}
+      {/* Left Visual Banner */}
+      <div className="relative flex h-[120px] sm:h-[180px] w-full items-center justify-center overflow-hidden rounded-none bg-zinc-950 p-4 sm:p-6 md:h-auto md:w-1/2 md:p-12">
+        {/* Subtle Image Background */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/auth-banner.webp"
@@ -3820,8 +3849,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {}
-      <div className="bg-background relative z-10 -mt-6 flex w-full flex-col justify-center rounded-t-[30px] px-6 pb-8 pt-5 md:mt-0 md:w-1/2 md:rounded-none md:px-12 md:py-8 lg:px-20 xl:px-24">
+      {/* Right Form Section */}
+      <div className="bg-background relative z-10 -mt-6 flex w-full flex-col justify-center rounded-t-[30px] px-6 pb-36 sm:pb-8 pt-5 md:mt-0 md:w-1/2 md:rounded-none md:px-12 md:py-8 lg:px-20 xl:px-24">
         {}
         <div className="mx-auto w-full max-w-[400px]">
           <div className="mb-4">
@@ -3839,7 +3868,7 @@ export default function LoginPage() {
               Welcome back
             </h1>
             <p className="text-muted-foreground text-sm">
-              Sign in to manage your internship profile and dashboard.
+              Sign in to manage your profile and dashboard.
             </p>
           </div>
 

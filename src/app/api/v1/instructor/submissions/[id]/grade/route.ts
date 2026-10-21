@@ -198,19 +198,40 @@ export async function POST(
 
     const isClearing = !grade && !feedback;
 
+    if (!isClearing && !grade) {
+      return errorResponse(
+        "BAD_REQUEST",
+        "Grade is mandatory to evaluate submission.",
+        { status: HTTP_2.BAD_REQUEST },
+      );
+    }
+
+    const graderUser = userId ? await prisma.user.findUnique({ where: { id: userId } }) : null;
+    const validGradedById = isClearing ? null : (graderUser ? userId : null);
+
     const updated = await prisma.projectSubmission.update({
       where: { id },
       data: {
         grade: grade || null,
         feedback: feedback || null,
         status: isClearing ? "PENDING" : "GRADED",
-        gradedById: isClearing ? null : userId,
+        gradedById: validGradedById,
         gradedAt: isClearing ? null : new Date(),
       },
     });
 
+    // Synchronize grade with issued certificate if present
+    if (grade && submission.enrollmentId) {
+      await prisma.certificate.updateMany({
+        where: { enrollmentId: submission.enrollmentId },
+        data: { grade },
+      });
+    }
+
     return successResponse(updated, {
-      message: "Submission graded successfully.",
+      message: isClearing
+        ? "Evaluation removed successfully."
+        : "Submission graded successfully.",
     });
   } catch (error) {
     return handleError(error);

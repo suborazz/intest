@@ -1,7 +1,19 @@
 "use client";
 
-import { LayoutGrid, List, Filter } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  LayoutGrid,
+  List,
+  Filter,
+  Calendar,
+  Maximize2,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Image as ImageIcon,
+} from "lucide-react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { MediaNav } from "../media-nav";
 import * as z from "zod";
@@ -2100,13 +2112,30 @@ export default function PhotoPage() {
       description?: string;
     }
 
+    function formatPhotoDate(dateStr?: string | null): string {
+      if (!dateStr) return "Recent Event";
+      const trimmed = dateStr.trim();
+      if (/^\d{4}$/.test(trimmed)) {
+        return trimmed;
+      }
+      const d = new Date(trimmed);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      }
+      return trimmed;
+    }
+
     const DEFAULT_MEDIA_PHOTOS: PublicPhoto[] = [
       {
         id: "photo-1",
         title: "International Immersion Program — Cultural & Academic Exchange",
         category: "International Immersion",
         year: "2026",
-        date: "2026",
+        date: "2026-03-12",
         imageUrl: "/images/gallery/moment-5.jpg",
         description: "International immersion cohort exploring cross-border spiritual heritage, linguistic roots and civilizational exchange.",
       },
@@ -2115,7 +2144,7 @@ export default function PhotoPage() {
         title: "Convocation & Honorary Doctorate Degree Honours",
         category: "Convocation & Honours",
         year: "2026",
-        date: "2026",
+        date: "2026-02-24",
         imageUrl: "/images/gallery/moment-7.png",
         description: "Scholars, faculty and distinguished guests celebrated in ceremonial robes with accredited doctorate & completion certificates.",
       },
@@ -2124,7 +2153,7 @@ export default function PhotoPage() {
         title: "Internship Certificate Distribution at Field Project",
         category: "Field Projects",
         year: "2025",
-        date: "2025",
+        date: "2025-11-18",
         imageUrl: "/images/gallery/moment-8.jpg",
         description: "Successful student interns receiving official completion certificates for grassroots socio-economic training.",
       },
@@ -2133,7 +2162,7 @@ export default function PhotoPage() {
         title: "International Buddha Award & Cultural Honors Ceremony",
         category: "Award Ceremonies",
         year: "2025",
-        date: "2025",
+        date: "2025-10-25",
         imageUrl: "/images/gallery/moment-1.jpg",
         description: "Global dignitaries and academic fellows presenting commemorative books and international citations.",
       },
@@ -2142,7 +2171,7 @@ export default function PhotoPage() {
         title: "Inaugural Lamp Lighting (Deep Prajjwalan) Assembly",
         category: "Campus Events",
         year: "2026",
-        date: "2026",
+        date: "2026-01-15",
         imageUrl: "/images/gallery/moment-16.png",
         description: "Traditional auspicious lamp lighting by honorable trustees, mentor council, and student delegates.",
       },
@@ -2151,7 +2180,7 @@ export default function PhotoPage() {
         title: "Grand Stage Felicitation & Dignitaries Dais",
         category: "Campus Events",
         year: "2025",
-        date: "2025",
+        date: "2025-12-10",
         imageUrl: "/images/gallery/moment-17.jpg",
         description: "Keynote leaders, academic heads, and trustees addressing the annual internship summit.",
       },
@@ -2160,7 +2189,7 @@ export default function PhotoPage() {
         title: "Training Centre Faculty, Scholars & Mentors Group",
         category: "Mentorship & Workshops",
         year: "2025",
-        date: "2025",
+        date: "2025-09-20",
         imageUrl: "/images/gallery/moment-13.jpg",
         description: "Academic leadership and expert instructors gathered at the i3 Advanced Training Facility.",
       },
@@ -2169,7 +2198,7 @@ export default function PhotoPage() {
         title: "Grand National Awards Assembly & Honors",
         category: "Award Ceremonies",
         year: "2025",
-        date: "2025",
+        date: "2025-08-15",
         imageUrl: "/images/gallery/moment-14.jpg",
         description: "Distinguished achievers honored with trophies, medals, and official government-recognized citations.",
       },
@@ -2178,7 +2207,7 @@ export default function PhotoPage() {
         title: "Classroom Orientation & Domain Masterclass",
         category: "Mentorship & Workshops",
         year: "2026",
-        date: "2026",
+        date: "2026-02-05",
         imageUrl: "/images/gallery/moment-15.jpg",
         description: "Hands-on academic lectures, NEP 2020 curriculum guidelines, and career preparation masterclasses.",
       },
@@ -2187,7 +2216,7 @@ export default function PhotoPage() {
         title: "Certificate of Honor Presentation to Research Scholars",
         category: "Convocation & Honours",
         year: "2025",
-        date: "2025",
+        date: "2025-11-02",
         imageUrl: "/images/gallery/moment-12.jpg",
         description: "Recognizing exceptional performance in practical problem-solving and applied research projects.",
       },
@@ -2196,7 +2225,7 @@ export default function PhotoPage() {
         title: "National Immersion Cohort Riverfront Summit",
         category: "National Immersion",
         year: "2025",
-        date: "2025",
+        date: "2025-10-12",
         imageUrl: "/images/gallery/moment-6.png",
         description: "Youth empowerment delegates and community leaders celebrating national immersion milestones.",
       },
@@ -2205,7 +2234,7 @@ export default function PhotoPage() {
         title: "i3 Honor Stole & Citation Presentation",
         category: "Convocation & Honours",
         year: "2026",
-        date: "2026",
+        date: "2026-01-28",
         imageUrl: "/images/gallery/moment-10.jpg",
         description: "Interns honored with official institute stoles and recognition awards.",
       },
@@ -2214,7 +2243,7 @@ export default function PhotoPage() {
         title: "Chairman Stole Felicitation & Mentorship",
         category: "Mentorship & Workshops",
         year: "2025",
-        date: "2025",
+        date: "2025-09-05",
         imageUrl: "/images/gallery/moment-11.jpg",
         description: "Personal mentorship and recognition conferred upon promising student innovators.",
       },
@@ -2223,7 +2252,7 @@ export default function PhotoPage() {
         title: "Executive Mentorship & Academic Roundtable",
         category: "Mentorship & Workshops",
         year: "2025",
-        date: "2025",
+        date: "2025-08-22",
         imageUrl: "/images/gallery/moment-4.jpg",
         description: "Roundtable dialogue between industry practitioners, educators, and intern cohort leads.",
       },
@@ -2232,7 +2261,7 @@ export default function PhotoPage() {
         title: "Airport Welcome of International Delegation",
         category: "International Immersion",
         year: "2025",
-        date: "2025",
+        date: "2025-07-30",
         imageUrl: "/images/gallery/moment-2.png",
         description: "Warm garland welcome accorded to visiting international professors and educational delegates.",
       },
@@ -2241,7 +2270,7 @@ export default function PhotoPage() {
         title: "Community Field Discussion & Group Mentoring",
         category: "Field Projects",
         year: "2025",
-        date: "2025",
+        date: "2025-06-18",
         imageUrl: "/images/gallery/moment-9.jpg",
         description: "Interactive grassroots review and community impact assessment with student researchers.",
       },
@@ -2250,7 +2279,7 @@ export default function PhotoPage() {
         title: "Grand Felicitation & Leadership Assembly",
         category: "Campus Events",
         year: "2025",
-        date: "2025",
+        date: "2025-05-14",
         imageUrl: "/images/gallery/moment-3.jpg",
         description: "Gala gathering of fellows, faculty members, and community representatives celebrating mutual achievements.",
       },
@@ -2264,40 +2293,88 @@ export default function PhotoPage() {
       selectedCategory: string[];
     }) {
       const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-      const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+      const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+      const [mounted, setMounted] = useState(false);
       const { data: rawPhotos = [], isLoading } = StudentDataHook.usePublicPhotos();
 
-      const photos = useMemo(() => {
-        // Filter out legacy dummy test mocks with broken Unsplash/poster seeds
-        const serverPhotos = ((rawPhotos as unknown as PublicPhoto[]) || [])
-          .filter((p) => {
-            const title = (p.title || "").toLowerCase();
-            return (
-              !title.includes("dbms online") &&
-              !title.includes("tech-ops hackathon") &&
-              !title.includes("hands-on logistics") &&
-              !title.includes("inaugural batch")
-            );
-          })
-          .map((p) => ({
-            ...p,
-            imageUrl: p.url || p.imageUrl,
-          }));
+      useEffect(() => {
+        setMounted(true);
+      }, []);
 
-        // All 17 authentic institution photos are always included as the primary verified archive
-        const combined = [...DEFAULT_MEDIA_PHOTOS, ...serverPhotos];
+      const photos = useMemo(() => {
+        // Process server photos uploaded from the Super-Admin Media Panel
+        const serverPhotos = ((rawPhotos as unknown as PublicPhoto[]) || [])
+          .filter((p) => Boolean(p.url || p.imageUrl))
+          .map((p) => {
+            let derivedYear = "2026";
+            if (p.date) {
+              const match = p.date.match(/\b(20\d\d)\b/);
+              if (match) derivedYear = match[1];
+            } else if (p.createdAt) {
+              derivedYear = new Date(p.createdAt).getFullYear().toString();
+            }
+
+            return {
+              ...p,
+              category: p.category || "Campus Events",
+              year: p.year || derivedYear,
+              imageUrl: p.url || p.imageUrl,
+            };
+          });
+
+        // Server photos uploaded from Admin Panel appear first so newly uploaded photos are highlighted immediately
+        const combined = [...serverPhotos, ...DEFAULT_MEDIA_PHOTOS];
 
         return combined.filter((item) => {
           if (selectedYear.length > 0) {
-            const itemYear = item.year || (item.createdAt ? new Date(item.createdAt).getFullYear().toString() : "2026");
+            const itemYear =
+              item.year || (item.date ? item.date.slice(0, 4) : "2026");
             if (!selectedYear.includes(itemYear)) return false;
           }
           if (selectedCategory.length > 0) {
-            if (!item.category || !selectedCategory.includes(item.category)) return false;
+            if (!item.category || !selectedCategory.includes(item.category))
+              return false;
           }
           return true;
         });
       }, [rawPhotos, selectedYear, selectedCategory]);
+
+      const handlePrevPhoto = useCallback(() => {
+        setSelectedPhotoIndex((prev) => {
+          if (prev === null) return null;
+          return prev > 0 ? prev - 1 : photos.length - 1;
+        });
+      }, [photos.length]);
+
+      const handleNextPhoto = useCallback(() => {
+        setSelectedPhotoIndex((prev) => {
+          if (prev === null) return null;
+          return prev < photos.length - 1 ? prev + 1 : 0;
+        });
+      }, [photos.length]);
+
+      useEffect(() => {
+        if (selectedPhotoIndex === null) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === "Escape") {
+            setSelectedPhotoIndex(null);
+          } else if (e.key === "ArrowLeft") {
+            handlePrevPhoto();
+          } else if (e.key === "ArrowRight") {
+            handleNextPhoto();
+          }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+          window.removeEventListener("keydown", handleKeyDown);
+          document.body.style.overflow = prevOverflow;
+        };
+      }, [selectedPhotoIndex, handlePrevPhoto, handleNextPhoto]);
 
       if (isLoading) {
         return (
@@ -2319,14 +2396,14 @@ export default function PhotoPage() {
             <div className="bg-white border border-gray-200 flex items-center rounded-xl p-1 shadow-sm">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`rounded-lg p-1.5 transition-all duration-200 ${viewMode === "grid" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
+                className={`rounded-lg p-1.5 transition-all duration-200 cursor-pointer ${viewMode === "grid" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
                 title="Grid View"
               >
                 <LayoutGrid className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`rounded-lg p-1.5 transition-all duration-200 ${viewMode === "list" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
+                className={`rounded-lg p-1.5 transition-all duration-200 cursor-pointer ${viewMode === "list" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
                 title="List View"
               >
                 <List className="h-4 w-4" />
@@ -2348,90 +2425,204 @@ export default function PhotoPage() {
             >
               {photos.map((photo, index) => (
                 <motion.div
-                  key={photo.id}
+                  key={photo.id || index}
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.35, delay: index * 0.05 }}
-                  className={`group flex ${viewMode === "grid" ? "flex-col" : "flex-col sm:flex-row items-stretch"} bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all duration-300 overflow-hidden`}
+                  transition={{ duration: 0.35, delay: index * 0.04 }}
+                  onClick={() => setSelectedPhotoIndex(index)}
+                  className={`group flex cursor-pointer ${
+                    viewMode === "grid"
+                      ? "flex-col"
+                      : "flex-col sm:flex-row items-stretch"
+                  } bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-lg hover:border-emerald-400 transition-all duration-300 overflow-hidden`}
                 >
                   <div
-                    onClick={() => setSelectedPhoto(photo.imageUrl || null)}
-                    className={`relative shrink-0 overflow-hidden bg-slate-900 cursor-pointer ${viewMode === "grid" ? "aspect-[4/3] w-full" : "w-full sm:w-72 min-h-[190px]"}`}
+                    className={`relative shrink-0 overflow-hidden bg-slate-900 ${
+                      viewMode === "grid"
+                        ? "aspect-[4/3] w-full"
+                        : "w-full sm:w-72 min-h-[190px]"
+                    }`}
                   >
                     <img
                       src={photo.imageUrl}
                       alt={photo.title}
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#0A5C36]/90 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold shadow-sm">
-                        View Full Size
+                    {/* Mobile/Touch hint pill */}
+                    <div className="absolute bottom-2.5 right-2.5 bg-black/65 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-1 rounded-md flex items-center gap-1 group-hover:bg-[#0A5C36]/90 transition-colors shadow-sm">
+                      <Maximize2 className="size-3" />
+                      <span>Full Size</span>
+                    </div>
+                    {/* Desktop hover badge */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
+                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#0A5C36]/95 backdrop-blur-xs px-3.5 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+                        <Maximize2 className="size-3.5" />
+                        <span>Touch / Click for Full Size</span>
                       </span>
                     </div>
                   </div>
-                  <div
-                    className={`flex w-full flex-grow flex-col justify-between p-4`}
-                  >
+                  <div className="flex w-full flex-grow flex-col justify-between p-4 sm:p-5">
                     <div>
-                      {photo.category && (
-                        <div className="bg-emerald-50 text-[#0A5C36] mb-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold border border-emerald-200/60">
-                          {photo.category}
-                        </div>
-                      )}
-                      <h3 className="group-hover:text-[#0A5C36] text-sm font-bold text-slate-900 leading-snug transition-colors line-clamp-2">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="bg-emerald-50 text-[#0A5C36] inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-[11px] font-bold border border-emerald-200/60">
+                          {photo.category || "Campus Events"}
+                        </span>
+                        <span className="text-slate-500 text-[11px] font-semibold flex items-center gap-1 shrink-0">
+                          <Calendar className="size-3.5 text-[#0A5C36]" />
+                          {formatPhotoDate(photo.date)}
+                        </span>
+                      </div>
+                      <h3 className="group-hover:text-[#0A5C36] text-sm sm:text-base font-bold text-slate-900 leading-snug transition-colors line-clamp-2">
                         {photo.title}
                       </h3>
-                      {photo.description && (
-                        <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed mt-1.5">
-                          {photo.description}
-                        </p>
-                      )}
+                      <p className="text-slate-600 text-xs sm:text-[13px] line-clamp-2 leading-relaxed mt-2">
+                        {photo.description ||
+                          "Official media gallery photograph capturing student leadership, immersion cohorts, and campus celebrations."}
+                      </p>
                     </div>
-                    {photo.date && (
-                      <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
-                        <span>Year: {photo.date}</span>
-                        <span className="text-[#0A5C36] font-semibold group-hover:underline">Explore</span>
-                      </div>
-                    )}
+                    <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400 font-medium flex items-center gap-1">
+                        <Calendar className="size-3 text-slate-400" />
+                        {formatPhotoDate(photo.date)}
+                      </span>
+                      <span className="text-[#0A5C36] font-bold group-hover:underline flex items-center gap-1">
+                        <span>View Full Size</span>
+                        <Maximize2 className="size-3" />
+                      </span>
+                    </div>
                   </div>
                 </motion.div>
               ))}
             </div>
           )}
 
-          {selectedPhoto && (
-            <div
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-              onClick={() => setSelectedPhoto(null)}
-            >
-              <button
-                className="absolute top-6 right-6 text-white hover:text-yellow-400 transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-full backdrop-blur-md focus:outline-none"
-                onClick={() => setSelectedPhoto(null)}
+          {/* Full-Size Responsive Lightbox Modal */}
+          {mounted &&
+            typeof document !== "undefined" &&
+            selectedPhotoIndex !== null &&
+            photos[selectedPhotoIndex] &&
+            createPortal(
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label={photos[selectedPhotoIndex].title}
+                className="fixed inset-0 z-[99999] flex flex-col justify-between bg-black/95 backdrop-blur-md animate-in fade-in duration-200 select-none overflow-y-auto"
+                onClick={() => setSelectedPhotoIndex(null)}
               >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                {/* Lightbox Header Bar */}
+                <div
+                  className="relative z-10 flex items-center justify-between px-4 py-3 sm:px-6 bg-gradient-to-b from-black/80 to-transparent text-white shrink-0"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <div className="relative max-h-[90vh] max-w-[95vw] overflow-hidden rounded-2xl bg-white/10 shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
-                <img
-                  src={selectedPhoto}
-                  alt="Full size preview"
-                  className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl object-contain"
-                />
-              </div>
-            </div>
-          )}
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full">
+                      {photos[selectedPhotoIndex].category || "Campus Events"}
+                    </span>
+                    <span className="text-white/70 text-xs sm:text-sm font-medium">
+                      {selectedPhotoIndex + 1} of {photos.length}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    {photos[selectedPhotoIndex].imageUrl && (
+                      <a
+                        href={photos[selectedPhotoIndex].imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md transition-colors"
+                        title="Download / Open Original Image"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Download className="size-3.5" />
+                        <span className="hidden sm:inline">Download</span>
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPhotoIndex(null)}
+                      className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 sm:p-2.5 rounded-full backdrop-blur-md transition-colors focus:outline-none cursor-pointer"
+                      aria-label="Close full size photo"
+                    >
+                      <X className="size-5 sm:size-6" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Center Image Container with Navigation Arrows */}
+                <div
+                  className="relative flex-1 flex items-center justify-center p-2 sm:p-6 overflow-hidden min-h-[40vh]"
+                  onClick={() => setSelectedPhotoIndex(null)}
+                >
+                  {/* Prev Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevPhoto();
+                    }}
+                    className="absolute left-2 sm:left-6 z-20 text-white bg-black/50 hover:bg-emerald-600/90 p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-lg border border-white/10 active:scale-95"
+                    title="Previous Photo (Left Arrow)"
+                    aria-label="Previous Photo"
+                  >
+                    <ChevronLeft className="size-5 sm:size-7" />
+                  </button>
+
+                  {/* Main High-Res Image */}
+                  <div
+                    className="relative max-h-[62vh] sm:max-h-[68vh] max-w-[94vw] sm:max-w-[85vw] flex items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <img
+                      src={photos[selectedPhotoIndex].imageUrl}
+                      alt={photos[selectedPhotoIndex].title}
+                      className="max-h-[62vh] sm:max-h-[68vh] w-auto max-w-[94vw] sm:max-w-[85vw] rounded-xl sm:rounded-2xl object-contain shadow-2xl ring-1 ring-white/15"
+                    />
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextPhoto();
+                    }}
+                    className="absolute right-2 sm:right-6 z-20 text-white bg-black/50 hover:bg-emerald-600/90 p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-lg border border-white/10 active:scale-95"
+                    title="Next Photo (Right Arrow)"
+                    aria-label="Next Photo"
+                  >
+                    <ChevronRight className="size-5 sm:size-7" />
+                  </button>
+                </div>
+
+                {/* Bottom Details Drawer with Full Short Description and Date */}
+                <div
+                  className="relative z-10 w-full max-w-4xl mx-auto px-4 pb-4 sm:pb-6 text-white shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="bg-slate-900/95 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-xl shadow-2xl space-y-2.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-white leading-snug">
+                        {photos[selectedPhotoIndex].title}
+                      </h3>
+                      {photos[selectedPhotoIndex].date && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold shrink-0 w-fit">
+                          <Calendar className="size-3.5" />
+                          <span>{formatPhotoDate(photos[selectedPhotoIndex].date)}</span>
+                        </div>
+                      )}
+                    </div>
+                    {photos[selectedPhotoIndex].description && (
+                      <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-h-28 sm:max-h-36 overflow-y-auto pr-2">
+                        {photos[selectedPhotoIndex].description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )}
         </section>
       );
     }

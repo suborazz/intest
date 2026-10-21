@@ -497,6 +497,27 @@ export function getInternshipApplicationStatusUpdateEmailTemplate(
         </p>
       </div>
 
+      ${isApproved ? `
+      <!-- Official Offer Letter Attached Notice -->
+      <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0; text-align: left;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="width: 28px; vertical-align: top; padding-top: 2px;">
+              <span style="font-size: 18px;">📄</span>
+            </td>
+            <td style="vertical-align: top;">
+              <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #065f46;">
+                Official Internship Offer Letter Attached
+              </p>
+              <p style="margin: 0; font-size: 12.5px; color: #047857; line-height: 1.5;">
+                Your verified Internship Offer Letter PDF has been automatically generated and attached to this email. You may present this document to your College Internship Nodal Officer (CINO) and Academic Department for academic credit records.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      ` : ""}
+
       <!-- Primary CTA Button -->
       <div style="text-align: center; margin: 24px 0 16px 0;">
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; width: auto;">

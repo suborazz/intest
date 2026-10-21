@@ -5409,18 +5409,100 @@ export default function ImmersionPaymentsPage() {
       const [paymentError, setPaymentError] = useState<string | null>(null);
       const [isProcessing, setIsProcessing] = useState(false);
 
+      const openRazorpayCheckout = async (data: {
+        paymentId: string;
+        razorpayOrderId: string;
+        amount: number;
+        currency: string;
+        keyId: string;
+        isMockMode: boolean;
+      }) => {
+        setIsProcessing(true);
+        setPaymentError(null);
+
+        const loaded = await loadRazorpayScript_2();
+        if (!loaded) {
+          setPaymentError(
+            "Failed to load payment gateway. Please check your connection or ad-blocker.",
+          );
+          setIsProcessing(false);
+          return;
+        }
+
+        try {
+          const RazorpayConstructor = (window as any).Razorpay || window.Razorpay;
+          if (!RazorpayConstructor) {
+            setPaymentError("Razorpay SDK is not available.");
+            setIsProcessing(false);
+            return;
+          }
+
+          const rzp = new RazorpayConstructor({
+            key: data.keyId,
+            amount: data.amount,
+            currency: data.currency,
+            name: "IIInternship",
+            description: program.title,
+            order_id: data.razorpayOrderId,
+            modal: {
+              ondismiss: () => {
+                setIsProcessing(false);
+              },
+            },
+            handler: (response: RazorpayResponse) => {
+              verifyPayment({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              });
+            },
+            theme: { color: "#059669" },
+          });
+
+          rzp.on("payment.failed", (response: any) => {
+            const description =
+              response.error?.description || "Payment was rejected or failed.";
+            setPaymentError(description);
+            toast.error(description);
+            setIsProcessing(false);
+          });
+
+          rzp.open();
+        } catch (err: any) {
+          console.error("Razorpay initialization error:", err);
+          setPaymentError(
+            err?.message || "Could not open Razorpay checkout window.",
+          );
+          setIsProcessing(false);
+        }
+      };
+
       const { mutate: createOrder, isPending: isCreatingOrder } =
         EmersionDataHooks.useCreateEmersionPaymentOrder({
           onSuccess: (data) => {
             if (data.success && data.data) {
               setOrderData(data.data);
+              openRazorpayCheckout(data.data);
             }
+          },
+          onError: (error) => {
+            setPaymentError(error.message || "Failed to create payment order.");
           },
         });
 
       const { mutate: verifyPayment, isPending: isVerifying } =
         EmersionDataHooks.useVerifyEmersionPaymentSignature({
-          onSuccess: () => onClose(),
+          onSuccess: () => {
+            toast.success("Payment verified! You are now enrolled.");
+            onClose();
+            setTimeout(() => {
+              window.location.reload();
+            }, 800);
+          },
+          onError: (error) => {
+            setPaymentError(error.message || "Payment verification failed.");
+            toast.error("Payment verification failed.");
+          },
         });
 
       const handleCreateOrder = () => {
@@ -5428,39 +5510,9 @@ export default function ImmersionPaymentsPage() {
         createOrder({ applicationId } as any);
       };
 
-      const handleOpenRazorpay = async () => {
+      const handleOpenRazorpay = () => {
         if (!orderData) return;
-        setIsProcessing(true);
-        setPaymentError(null);
-
-        const loaded = await loadRazorpayScript_2();
-        if (!loaded) {
-          setPaymentError(
-            "Failed to load payment gateway. Please try the mock payment option.",
-          );
-          setIsProcessing(false);
-          return;
-        }
-
-        const rzp = new window.Razorpay({
-          key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
-          name: "IIInternship",
-          description: program.title,
-          order_id: orderData.razorpayOrderId,
-          handler: (response: RazorpayResponse) => {
-            verifyPayment({
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            });
-          },
-          theme: { color: "#059669" },
-        });
-
-        rzp.open();
-        setIsProcessing(false);
+        openRazorpayCheckout(orderData);
       };
 
       const handleMockPayment = () => {

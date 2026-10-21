@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import type { UserRole } from "@/x/c0183428";
 import { NextRequest, NextResponse } from "next/server";
 import { cloudinary } from "@/x/cloudinary";
 import { z } from "zod";
@@ -190,10 +190,14 @@ const updateNoticeSchema = z.object({
     .enum(["Important", "General", "Result", "Schedule", "Guidelines"])
     .optional(),
   description: z.string().min(5, "Description is required").trim().optional(),
-  targetRole: z.enum(["STUDENT", "INSTRUCTOR"]).optional().nullable(),
+  targetRole: z
+    .enum(["STUDENT", "INSTRUCTOR", "IMMERSION_USER", "RECRUIT_USER"])
+    .optional()
+    .nullable(),
   receiverId: z.string().optional().nullable(),
   pdfUrl: z.string().optional().nullable(),
   pdfPublicId: z.string().optional().nullable(),
+  linkUrl: z.string().optional().nullable(),
 });
 
 export const dynamic = "force-dynamic";
@@ -245,6 +249,8 @@ export async function PATCH(
       description?: string;
       targetRole?: string | null;
       receiverId?: string | null;
+      pdfUrl?: string | null;
+      linkUrl?: string | null;
     } = {};
     let pdfFile: File | null = null;
 
@@ -256,19 +262,61 @@ export async function PATCH(
         date: (formData.get("date") as string) || undefined,
         title: (formData.get("title") as string) || undefined,
         category: (formData.get("category") as string) || undefined,
-        description: (formData.get("description") as string) || undefined,
+        description: ((formData.get("description") as string) || (formData.get("content") as string)) || undefined,
         targetRole: (formData.get("targetRole") as string) || undefined,
         receiverId: (formData.get("receiverId") as string) || undefined,
+        pdfUrl: (formData.get("pdfUrl") as string) || undefined,
+        linkUrl: (formData.get("linkUrl") as string) || undefined,
       };
       pdfFile =
         (formData.get("pdf") as File | null) ||
-        (formData.get("pdfFile") as File | null);
+        (formData.get("pdfFile") as File | null) ||
+        (formData.get("file") as File | null);
     } else {
       body = await request.json();
     }
 
-        if (body.targetRole === "") body.targetRole = null;
+    if (!body.description && (body as any).content) {
+      body.description = (body as any).content;
+    }
+
+    if (body.targetRole === "") body.targetRole = null;
     if (body.receiverId === "") body.receiverId = null;
+
+    let resolvedReceiverId: string | null | undefined = undefined;
+    if (body.receiverId !== undefined) {
+      if (body.receiverId && typeof body.receiverId === "string" && body.receiverId.trim() !== "") {
+        const rawReceiver = body.receiverId.trim();
+        const targetUser = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: rawReceiver },
+              { email: { equals: rawReceiver, mode: "insensitive" } },
+              { registrationNo: rawReceiver },
+            ],
+            deletedAt: null,
+          },
+          select: { id: true, email: true, name: true },
+        });
+
+        if (!targetUser) {
+          return errorResponse(
+            "VALIDATION_ERROR",
+            `Target user "${rawReceiver}" was not found. Please enter a valid registered user email, registration number, or user ID.`,
+            {
+              status: HTTP_2.UNPROCESSABLE,
+              details: { receiverId: [`Target user "${rawReceiver}" not found`] },
+            },
+          );
+        }
+
+        resolvedReceiverId = targetUser.id;
+        body.receiverId = resolvedReceiverId;
+      } else {
+        resolvedReceiverId = null;
+        body.receiverId = null;
+      }
+    }
 
     const result = updateNoticeSchema.safeParse(body);
 
@@ -288,7 +336,7 @@ export async function PATCH(
         ? result.data.pdfPublicId
         : existingNotice.pdfPublicId;
 
-        if (pdfFile && pdfFile.size > 0) {
+    if (pdfFile && pdfFile.size > 0) {
       if (pdfFile.size > 5 * 1024 * 1024) {
         return errorResponse(
           "VALIDATION_ERROR",
@@ -300,7 +348,7 @@ export async function PATCH(
         );
       }
 
-            if (existingNotice.pdfPublicId) {
+      if (existingNotice.pdfPublicId) {
         try {
           await deleteAsset(existingNotice.pdfPublicId, "raw");
         } catch (e) {
@@ -333,7 +381,10 @@ export async function PATCH(
         ? { description: data.description }
         : {}),
       ...(data.targetRole !== undefined ? { targetRole: data.targetRole } : {}),
-      ...(data.receiverId !== undefined ? { receiverId: data.receiverId } : {}),
+      ...(resolvedReceiverId !== undefined ? { receiverId: resolvedReceiverId } : {}),
+      ...(data.linkUrl !== undefined
+        ? { linkUrl: data.linkUrl ? data.linkUrl.trim() : null }
+        : {}),
       pdfUrl,
       pdfPublicId,
     };
@@ -343,6 +394,7 @@ export async function PATCH(
       data: updateData,
       include: {
         sender: { select: { id: true, name: true, email: true, role: true } },
+        receiver: { select: { id: true, name: true, email: true, registrationNo: true } },
       },
     });
 

@@ -5,12 +5,16 @@ import {
   Clock,
   Globe,
   GraduationCap,
+  IndianRupee,
   Layout,
   MapPin,
+  Search,
   Send,
+  Share2,
   Users,
+  X,
 } from "lucide-react";
-import React_2, { useState } from "react";
+import React_2, { useState, useMemo } from "react";
 import { Upload } from "lucide-react";
 import * as React from "react";
 import { clsx, ClassValue } from "clsx";
@@ -2132,6 +2136,7 @@ interface JobPlacementPartner extends BasePartner {
   minQualification?: string;
   skillsRequired: string[];
   staffStrength?: string;
+  salaryRange?: string;
 }
 
 const Form = FormProvider;
@@ -2950,12 +2955,35 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
         ? rawSkills
         : [];
 
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareData = {
+      title: `${company.name} - Job Placement`,
+      text: `Explore job opportunity "${company.postOpportunity || "Job Opening"}" at ${company.name} on International Institute of Internship!`,
+      url: typeof window !== "undefined" ? window.location.href : "",
+    };
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // Dismissed share dialog
+      }
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      } catch {
+        toast.error("Failed to copy link.");
+      }
+    }
+  };
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/60 bg-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl transition-all duration-300 dark:border-white/20 dark:bg-black/40">
       {}
       <div className="flex flex-1 flex-col gap-2.5 p-3">
         {}
-        <div className="border-border/40 flex items-stretch gap-2.5 border-b pb-2">
+        <div className="border-border/40 relative flex items-stretch gap-2.5 border-b pb-2">
           <div className="border-border/30 flex w-16 shrink-0 items-center justify-center rounded-xl border bg-white p-2">
             <img
               src={company.logo || "/images/bg-lines.png"}
@@ -2963,7 +2991,7 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
               className="h-full w-full object-contain"
             />
           </div>
-          <div className="flex flex-1 flex-col gap-1.5 py-0.5">
+          <div className="flex flex-1 flex-col gap-1.5 py-0.5 pr-8">
             <div className="flex flex-col gap-0.5">
               <span className="text-muted-foreground text-[9px] font-bold uppercase tracking-widest">
                 Company/Organisation & Address
@@ -2981,7 +3009,27 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={handleShare}
+            title="Share this opportunity"
+            aria-label="Share"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/10 absolute right-0 top-0 flex size-8 items-center justify-center rounded-lg transition-colors cursor-pointer"
+          >
+            <Share2 className="size-4" />
+          </button>
         </div>
+
+        {/* Company photo banner (blue marked location) */}
+        {company.photo && (
+          <div className="border-border/40 relative my-0.5 aspect-[16/9] w-full overflow-hidden rounded-xl border bg-muted shadow-xs">
+            <img
+              src={company.photo}
+              alt={`${company.name} photo`}
+              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            />
+          </div>
+        )}
 
         {}
         <div className="mt-0.5 grid grid-cols-2 gap-x-2 gap-y-1.5">
@@ -3036,24 +3084,42 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
           </div>
         </div>
 
-        {}
-        {skills.length > 0 && (
-          <div className="mt-1 flex flex-col gap-1">
+        {/* Skill Required and Salary Range (red marked location) */}
+        <div className="mt-1 grid grid-cols-2 items-start gap-x-2 gap-y-1.5">
+          <div className="flex flex-col gap-1">
             <span className="text-muted-foreground text-[9px] font-bold uppercase tracking-widest">
               Skill Required
             </span>
             <div className="mt-0.5 flex flex-wrap gap-1">
-              {skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="bg-black/4 dark:bg-white/4 text-foreground rounded px-2 py-0.5 text-[10px] font-semibold"
-                >
-                  {skill}
+              {skills.length > 0 ? (
+                skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="bg-black/5 dark:bg-white/5 text-foreground rounded px-2 py-0.5 text-[10px] font-semibold"
+                  >
+                    {skill}
+                  </span>
+                ))
+              ) : (
+                <span className="text-muted-foreground text-[10px] italic">
+                  Visit official website
                 </span>
-              ))}
+              )}
             </div>
           </div>
-        )}
+
+          <div className="flex flex-col gap-1">
+            <span className="text-muted-foreground text-[9px] font-bold uppercase tracking-widest">
+              Salary Range
+            </span>
+            <span className="inline-flex w-fit max-w-full items-center gap-1.5 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-500">
+              <IndianRupee className="h-3 w-3 shrink-0" />
+              <span className="truncate">
+                {company.salaryRange || "Best in Industry"}
+              </span>
+            </span>
+          </div>
+        </div>
 
         {}
         <div className="border-border/40 mt-auto flex items-center justify-between border-t pt-2.5">
@@ -3197,6 +3263,29 @@ export default function JobPlacementPage() {
   const { data: companiesRaw = [], isLoading } =
     StudentDataHook.usePublicPartners("job-placement");
   const companies = companiesRaw as unknown as JobPlacementPartner[];
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCompanies = useMemo(() => {
+    if (!searchQuery.trim()) return companies;
+    const q = searchQuery.toLowerCase().trim();
+    return companies.filter((c) => {
+      const skillsStr = Array.isArray(c.skillsRequired)
+        ? c.skillsRequired.join(" ")
+        : typeof c.skillsRequired === "string"
+          ? c.skillsRequired
+          : "";
+      return (
+        c.name?.toLowerCase().includes(q) ||
+        c.address?.toLowerCase().includes(q) ||
+        c.fieldOfEmployment?.toLowerCase().includes(q) ||
+        c.postOpportunity?.toLowerCase().includes(q) ||
+        c.jobNature?.toLowerCase().includes(q) ||
+        c.minQualification?.toLowerCase().includes(q) ||
+        c.salaryRange?.toLowerCase().includes(q) ||
+        skillsStr.toLowerCase().includes(q)
+      );
+    });
+  }, [companies, searchQuery]);
 
   return (
     <>
@@ -3208,7 +3297,7 @@ export default function JobPlacementPage() {
         <div className="bg-primary pointer-events-none absolute bottom-[10%] right-[-5%] z-0 h-[400px] w-[400px] rounded-full opacity-20 mix-blend-multiply blur-[120px] filter md:h-[500px] md:w-[500px] md:blur-[150px]"></div>
 
         <section className="relative z-10 mx-auto mt-12 max-w-[1400px] px-4 sm:px-6 md:mt-16 lg:px-8">
-          <div className="mb-10 text-center">
+          <div className="mb-6 text-center">
             <h2 className="text-foreground mb-4 text-3xl font-extrabold tracking-tight drop-shadow-sm md:text-4xl">
               Job Placement Companies
             </h2>
@@ -3216,6 +3305,35 @@ export default function JobPlacementPage() {
               Find the perfect job opportunity. Browse through our partnered
               companies and send your interest to kickstart your career.
             </p>
+          </div>
+
+          {/* Search bar at green marked position */}
+          <div className="mx-auto mb-10 max-w-xl">
+            <div className="border-border/60 bg-white/70 shadow-xs focus-within:border-primary focus-within:ring-primary/20 dark:bg-black/40 relative flex items-center rounded-2xl border backdrop-blur-md transition-all focus-within:ring-2">
+              <Search className="text-muted-foreground pointer-events-none absolute left-3.5 size-4" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search companies, domain sectors, skills, location..."
+                className="text-foreground placeholder:text-muted-foreground h-11 w-full bg-transparent pl-10 pr-10 text-xs sm:text-sm outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="text-muted-foreground hover:text-foreground absolute right-3 flex size-6 items-center justify-center rounded-full transition-colors cursor-pointer"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="text-muted-foreground mt-2 text-center text-xs">
+                Found {filteredCompanies.length}{" "}
+                {filteredCompanies.length === 1 ? "company" : "companies"} matching &quot;{searchQuery}&quot;
+              </p>
+            )}
           </div>
 
           {isLoading ? (
@@ -3226,9 +3344,20 @@ export default function JobPlacementPage() {
             <div className="text-muted-foreground py-12 text-center font-semibold">
               No job placement companies registered yet.
             </div>
+          ) : filteredCompanies.length === 0 ? (
+            <div className="text-muted-foreground py-12 text-center">
+              <p className="text-base font-semibold">No companies match &quot;{searchQuery}&quot;</p>
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="text-primary hover:underline mt-2 text-sm font-medium cursor-pointer"
+              >
+                Clear search
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-              {companies.map((company) => (
+              {filteredCompanies.map((company) => (
                 <JobPlacementCard key={company.id} company={company} />
               ))}
             </div>

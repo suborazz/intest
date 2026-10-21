@@ -34,11 +34,15 @@ const PUBLIC_API_ROUTES = [
   "/api/v1/contact",
   "/api/v1/id-cards",
   "/api/v1/immersion-id-cards",
+  "/api/v1/certificates/verify",
 ];
 
 function isProtectedApiRoute(pathname: string, method: string): boolean {
   if (pathname === "/api/v1/payments/webhook") {
     return false;
+  }
+  if (pathname.startsWith("/api/v1/officials")) {
+    return method !== "GET";
   }
   if (
     pathname.startsWith("/api/v1/internships/") &&
@@ -146,7 +150,8 @@ function isProtectedApiRoute(pathname: string, method: string): boolean {
   }
   if (
     (pathname.startsWith("/api/v1/id-cards/") ||
-      pathname.startsWith("/api/v1/immersion-id-cards/")) &&
+      pathname.startsWith("/api/v1/immersion-id-cards/") ||
+      pathname.startsWith("/api/v1/certificates/verify")) &&
     method === "GET"
   ) {
     return false;
@@ -203,6 +208,10 @@ const EXTERNAL_CALLER_ROUTES = [
   "/api/v1/visitors",
   "/api/v1/id-cards",
   "/api/v1/immersion-id-cards",
+  "/api/v1/certificates/verify",
+  "/api/v1/media",
+  "/api/v1/job-opportunities",
+  "/api/v1/officials",
 ];
 
 const SPOOFABLE_IDENTITY_HEADERS = ["x-user-id", "x-user-email", "x-user-role"];
@@ -236,6 +245,15 @@ function isSameAppRequest(request: NextRequest): boolean {
   const { pathname } = request.nextUrl;
 
   if (EXTERNAL_CALLER_ROUTES.some((route) => pathname.startsWith(route))) {
+    return true;
+  }
+
+  // Allow public JD downloads without requiring origin/referer (essential for mobile downloads & target="_blank")
+  if (
+    request.method === "GET" &&
+    pathname.startsWith("/api/v1/job-opportunities") &&
+    pathname.endsWith("/jd")
+  ) {
     return true;
   }
 
@@ -320,6 +338,33 @@ export async function middleware(request: NextRequest) {
     }
 
         if (PUBLIC_API_ROUTES.some((r) => pathname.startsWith(r))) {
+      // Public endpoints don't require auth, but some (e.g. ID-card PDF download)
+      // still need to know WHO is requesting in order to authorize ownership.
+      // Transparently attach verified identity headers when a valid bearer token /
+      // cookie is present, without forcing the protected-route flow. (Spoofable
+      // identity headers were already stripped above, so this is safe.)
+      const authHeader = request.headers.get("Authorization");
+      const publicToken = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7).trim()
+        : (request.cookies.get("access_token")?.value ?? null);
+
+      if (publicToken) {
+        try {
+          const secret = new TextEncoder().encode(
+            process.env["JWT_SECRET"] ?? "",
+          );
+          const { payload } = await jwtVerify(publicToken, secret);
+          requestHeaders.set("X-User-Id", String(payload["sub"] ?? ""));
+          requestHeaders.set("X-User-Email", String(payload["email"] ?? ""));
+          requestHeaders.set(
+            "X-User-Role",
+            String(payload["role"] ?? "STUDENT"),
+          );
+        } catch {
+          // Invalid/expired token on a public route: continue without identity.
+        }
+      }
+
       const response = NextResponse.next({
         request: { headers: requestHeaders },
       });
@@ -333,7 +378,7 @@ export async function middleware(request: NextRequest) {
     const authHeader = request.headers.get("Authorization");
     const token = authHeader?.startsWith("Bearer ")
       ? authHeader.slice(7).trim()
-      : null;
+      : (request.cookies.get("access_token")?.value ?? null);
 
     if (!token && isProtected) {
       return NextResponse.json(

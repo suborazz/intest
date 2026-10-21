@@ -44,15 +44,18 @@ const transporter = nodemailer.createTransport({
   port: config.smtpPort,
   secure: config.smtpPort === 465,
   auth: {
-    user: config.smtpUser,
-    pass: (config.smtpPass || "").replace(/\s+/g, ""),
+    user: (config.smtpUser || "").replace(/['"\s]/g, ""),
+    pass: (config.smtpPass || "").replace(/['"\s]/g, ""),
   },
   tls: {
     rejectUnauthorized: false,
   },
   pool: true,
-  maxConnections: 3,
-  maxMessages: 50,
+  maxConnections: 5,
+  maxMessages: 100,
+  connectionTimeout: 5000,
+  greetingTimeout: 5000,
+  socketTimeout: 8000,
 });
 
 export async function verifyEmailConnection(): Promise<boolean> {
@@ -71,7 +74,9 @@ export interface SendEmailPayload {
   to: { email: string; name?: string }[];
   subject: string;
   htmlContent: string;
-  attachment?: { content: string; name: string }[] | undefined;
+  attachment?:
+    | { content: string | Buffer; name: string; contentType?: string }[]
+    | undefined;
 }
 
 export async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
@@ -105,16 +110,6 @@ export async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
   }
 
   try {
-    const logoFilePath = join(process.cwd(), "public", "logo.png");
-    const inlineAttachments: any[] = [];
-    if (fs.existsSync(logoFilePath)) {
-      inlineAttachments.push({
-        filename: "logo.png",
-        path: logoFilePath,
-        cid: "brand-logo@iiinternship",
-      });
-    }
-
     const mailOptions = {
       from: `"${smtpSenderName}" <${smtpSenderEmail}>`,
       to: payload.to
@@ -122,15 +117,15 @@ export async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
         .join(", "),
       subject: payload.subject,
       html: payload.htmlContent,
-      attachments: [
-        ...inlineAttachments,
-        ...(payload.attachment
-          ? payload.attachment.map((att) => ({
-              filename: att.name,
-              content: Buffer.from(att.content, "base64"),
-            }))
-          : []),
-      ],
+      attachments: payload.attachment
+        ? payload.attachment.map((att) => ({
+            filename: att.name,
+            content: Buffer.isBuffer(att.content)
+              ? att.content
+              : Buffer.from(att.content, "base64"),
+            contentType: att.contentType,
+          }))
+        : [],
     };
 
     await transporter.sendMail(mailOptions);
@@ -428,6 +423,10 @@ export async function sendInternshipApplicationStatusUpdateEmail(
   name: string,
   internshipTitle: string,
   status: string,
+  pdfAttachment?: {
+    buffer: Buffer;
+    filename: string;
+  },
 ): Promise<boolean> {
   const htmlContent = getInternshipApplicationStatusUpdateEmailTemplate(
     name,
@@ -435,10 +434,26 @@ export async function sendInternshipApplicationStatusUpdateEmail(
     status,
   );
   const upperStatus = (status || "UPDATED").toUpperCase();
+
+  let attachmentPayload:
+    | { content: Buffer; name: string; contentType?: string }[]
+    | undefined;
+
+  if (pdfAttachment && Buffer.isBuffer(pdfAttachment.buffer)) {
+    attachmentPayload = [
+      {
+        content: pdfAttachment.buffer,
+        name: pdfAttachment.filename,
+        contentType: "application/pdf",
+      },
+    ];
+  }
+
   return sendEmail({
     to: [{ email, name }],
     subject: `Application Status Update: ${internshipTitle} [${upperStatus}] — International Institute of Internship™`,
     htmlContent,
+    attachment: attachmentPayload,
   });
 }
 

@@ -1,8 +1,24 @@
 "use client";
 
-import { Briefcase, ShieldCheck, TrendingUp } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  ChevronRight,
+  Clock,
+  Printer,
+  ShieldCheck,
+  TrendingUp,
+  UserCheck,
+  Download,
+  FileText,
+  CheckCircle2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import React_2, { useEffect } from "react";
+import {
+  RecruitRegistrationPrintout,
+  printRecruitRegistrationForm,
+} from "@/components/recruit/RecruitRegistrationPrintout";
 import React_3 from "react";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions } from "@tanstack/react-query";
@@ -1475,8 +1491,8 @@ export default function RecruitDashboardPage() {
       experience: TRecruitExperience_3[];
       references: TRecruitReference[];
       specificInfo?: TRecruitSpecificInfo;
-        applicationId: string;
-        advtNo?: string;
+      applicationId: string;
+      advtNo?: string;
       postName?: string;
       submittedAt?: string;
     }
@@ -1485,422 +1501,21 @@ export default function RecruitDashboardPage() {
       profile,
       education,
       experience,
-      references,
-      specificInfo,
       applicationId,
       advtNo,
       postName,
       submittedAt,
     }: ApplicationPrintoutProps) {
-        const raw = profile as unknown as Record<string, string | null | undefined>;
-      const pick = (...keys: string[]) => {
-        for (const key of keys) {
-          const value = raw[key];
-          if (typeof value === "string" && value.trim()) return value;
-        }
-        return "";
-      };
-
-      const name = pick("name", "fullName");
-      const mobile = pick("mobile", "mobileNo");
-      const aadhaar = pick("adharNo", "aadharNo");
-      const languages = pick("languageKnown", "languagesKnown");
-      const photoUrl = pick("photoUrl");
-      const signatureUrl = pick("signatureUrl");
-
-      const permanent = [
-        pick("permAddressLocal"),
-        pick("permAddressBlock"),
-        [pick("permAddressDistrict"), pick("permAddressState")]
-          .filter(Boolean)
-          .join(", "),
-        [pick("permAddressCountry"), pick("permAddressPinCode")]
-          .filter(Boolean)
-          .join(" - "),
-      ];
-      const correspondence = [
-        pick("currAddressLocal"),
-        pick("currAddressBlock"),
-        [pick("currAddressDistrict"), pick("currAddressState")]
-          .filter(Boolean)
-          .join(", "),
-        [pick("currAddressCountry"), pick("currAddressPinCode")]
-          .filter(Boolean)
-          .join(" - "),
-      ];
-
-      const qr = qrDataUrl(applicationId);
-
-        const physicallyChallenged =
-        typeof profile.physicalChallenged === "boolean"
-          ? profile.physicalChallenged
-            ? "Y"
-            : "N"
-          : pick("physicallyChallenged") === "Yes"
-            ? "Y"
-            : "N";
-
-      const highestQualification = education.length
-        ? formatEnum(education[education.length - 1]!.qualification)
-        : "—";
-
       return (
-        <div className="printable-area mx-auto w-full max-w-3xl border border-slate-400 bg-white p-4 text-slate-900 md:p-6 print:border-0 print:p-0">
-          {}
-          <div className="relative mt-2 flex flex-col items-center justify-center space-y-0.5 text-center">
-            {qr && (
-              <div className="absolute right-0 top-0">
-                <img src={qr} alt="" aria-hidden="true" className="size-16" />
-              </div>
-            )}
-            <h1 className="mt-2 text-[13px] font-bold text-blue-900 md:text-[15px]">
-              International Institute of Internship [i3]
-            </h1>
-            <p className="text-[10px] font-semibold">
-              Recruitment Application Form
-            </p>
-          </div>
-
-          {}
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 border-y border-slate-400 py-1 text-[9.5px]">
-            <span>
-              <b>Advt. No:</b> {advtNo || "—"}
-            </span>
-            <span>
-              <b>Application No:</b>{" "}
-              <span className="font-mono font-bold">{applicationId}</span>
-            </span>
-            <span>
-              <b>Position:</b> {postName || "—"}
-            </span>
-          </div>
-
-          {}
-          <Band>Personal Information</Band>
-          <div className="flex gap-3">
-            <div className="min-w-0 flex-1 border-x border-t border-slate-300">
-              <Cell label="Name">{name}</Cell>
-              <Cell label="S/O | D/O | W/O">{profile.fatherName}</Cell>
-              <Cell label="Mother's Name">{profile.motherName}</Cell>
-              <Cell label="Date of Birth">{govDate(profile.dob)}</Cell>
-              {}
-              <Cell label="Age">{ageBreakdown(profile.dob)}</Cell>
-              <Cell label="Gender">{formatEnum(profile.gender)}</Cell>
-              <Cell label="Physically Challenged">{physicallyChallenged}</Cell>
-              <Cell label="Marital Status">
-                {formatEnum(profile.maritalStatus)}
-              </Cell>
-              <Cell label="Category">{formatEnum(profile.category)}</Cell>
-              <Cell label="Religion">{formatEnum(profile.religion)}</Cell>
-              <Cell label="Blood Group">{formatEnum(profile.bloodGroup)}</Cell>
-              <Cell label="Nationality">{profile.nationality}</Cell>
-              <Cell label="Mobile No">{mobile}</Cell>
-              <Cell label="Email">{profile.email}</Cell>
-              <Cell label="Aadhaar No">{aadhaar}</Cell>
-              <Cell label="Language(s) Known">{languages}</Cell>
-            </div>
-            {}
-            <div className="flex h-[104px] w-[84px] shrink-0 items-center justify-center border border-slate-400 bg-slate-50">
-              {photoUrl ? (
-                <img
-                  src={photoUrl}
-                  alt="Applicant photograph"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="px-1 text-center text-[8px] text-slate-400">
-                  Photograph
-                </span>
-              )}
-            </div>
-          </div>
-
-          {}
-          <div className="mt-2 grid grid-cols-1 border border-slate-300 sm:grid-cols-2">
-            <div className="border-b border-slate-300 sm:border-b-0 sm:border-r">
-              <div className="border-b border-slate-300 bg-slate-50/80 px-1.5 py-1 text-[9.5px] font-bold">
-                Permanent Address
-              </div>
-              <div className="px-1.5 py-1 text-[9.5px] leading-relaxed">
-                {addressLines(permanent)}
-              </div>
-            </div>
-            <div>
-              <div className="border-b border-slate-300 bg-slate-50/80 px-1.5 py-1 text-[9.5px] font-bold">
-                Correspondence Address
-              </div>
-              <div className="px-1.5 py-1 text-[9.5px] leading-relaxed">
-                {addressLines(correspondence)}
-              </div>
-            </div>
-          </div>
-
-          {}
-          <Band>
-            Education Qualification Details
-            <span className="float-right font-normal normal-case">
-              Essential Qualification : {highestQualification}
-            </span>
-          </Band>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <Th className="w-[26px] text-center">#</Th>
-                <Th>Qualification</Th>
-                <Th>Board or University</Th>
-                <Th>Subjects</Th>
-                <Th className="w-[110px]">Division Marks Year</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {education.length === 0 ? (
-                <tr>
-                  <Td className="text-center text-slate-500">—</Td>
-                  <Td className="text-slate-500">No records</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                </tr>
-              ) : (
-                education.map((row, index) => {
-                  const r = row as unknown as Record<string, unknown>;
-                  const institute = (r["instituteName"] ??
-                    r["schoolInstitute"] ??
-                    "") as string;
-                  const division = (r["division"] ??
-                    r["passingDivision"] ??
-                    "") as string;
-                  const marks = (r["percentage"] ?? r["passingMarks"] ?? "") as
-                    string | number;
-                  return (
-                    <tr key={row.id ?? index}>
-                      <Td className="text-center">{index + 1}</Td>
-                      <Td className="font-semibold text-blue-800">
-                        {formatEnum(row.qualification)}
-                      </Td>
-                      <Td>{row.boardUniversity || institute || "—"}</Td>
-                      <Td>{row.subject || "—"}</Td>
-                      <Td>
-                        {[division, marks !== "" ? `${marks}%` : "", row.endYear]
-                          .filter(Boolean)
-                          .join(" - ") || "—"}
-                      </Td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-
-          {}
-          <Band>
-            Work Experience Details
-            <span className="float-right font-normal normal-case">
-              Total Experience : {totalExperience(experience)}
-            </span>
-          </Band>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <Th className="w-[26px] text-center">#</Th>
-                <Th className="w-[110px]">Employer Details</Th>
-                <Th className="w-[130px]">Employment Details</Th>
-                <Th>Nature of Work</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {experience.length === 0 ? (
-                <tr>
-                  <Td className="text-center text-slate-500">—</Td>
-                  <Td className="text-slate-500">No records</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                </tr>
-              ) : (
-                experience.map((row, index) => {
-                  const r = row as unknown as Record<string, unknown>;
-                  const years = (r["totalExperience"] ??
-                    r["experienceYears"] ??
-                    "") as string | number;
-                  return (
-                    <tr key={row.id ?? index}>
-                      <Td className="text-center">{index + 1}</Td>
-                      <Td className="font-semibold text-blue-800">
-                        {row.employerName}
-                        {row.postingLocation && (
-                          <div className="font-normal text-slate-600">
-                            {row.postingLocation}
-                          </div>
-                        )}
-                      </Td>
-                      <Td>
-                        <div className="font-semibold">{row.designation}</div>
-                        <div className="text-slate-600">
-                          Tenure: {govDate(row.startDate)} —{" "}
-                          {row.endDate ? govDate(row.endDate) : "Present"}
-                        </div>
-                        {years !== "" && (
-                          <div className="text-slate-600">
-                            Duration: {years} Year(s)
-                          </div>
-                        )}
-                      </Td>
-                      <Td>{row.natureOfWork || "—"}</Td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-
-          {}
-          <Band>Reference Details</Band>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <Th className="w-[26px] text-center">#</Th>
-                <Th>Name with Designation</Th>
-                <Th>Organization Name with Address</Th>
-                <Th className="w-[80px]">Mobile</Th>
-                <Th className="w-[120px]">Email ID</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {references.length === 0 ? (
-                <tr>
-                  <Td className="text-center text-slate-500">—</Td>
-                  <Td className="text-slate-500">No records</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                  <Td>—</Td>
-                </tr>
-              ) : (
-                references.map((row, index) => (
-                  <tr key={row.id ?? index}>
-                    <Td className="text-center">{index + 1}</Td>
-                    <Td className="uppercase">
-                      {row.name}
-                      {row.designation ? ` (${row.designation})` : ""}
-                    </Td>
-                    <Td>
-                      {row.organisation || "—"}
-                      {row.address && (
-                        <div className="text-slate-600">{row.address}</div>
-                      )}
-                    </Td>
-                    <Td>{row.mobile || "—"}</Td>
-                    <Td className="break-all">{row.email || "—"}</Td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-
-          {}
-          <Band>Application Fee</Band>
-          <p className="px-1.5 py-1 text-[9.5px]">No Application fee to be Paid.</p>
-
-          <Band>Additional Documents</Band>
-          <ol className="list-inside list-decimal px-1.5 py-1 text-[9.5px]">
-            {[
-              profile.resumeUrl && "RESUME",
-              signatureUrl && "SIGNATURE",
-              photoUrl && "PHOTOGRAPH",
-            ]
-              .filter(Boolean)
-              .map((label) => <li key={label as string}>{label}</li>) || null}
-            {!profile.resumeUrl && !signatureUrl && !photoUrl && (
-              <li className="list-none text-slate-500">No documents uploaded.</li>
-            )}
-          </ol>
-
-          {}
-          <Band>Specific Information</Band>
-          <ol className="list-outside list-decimal space-y-1 py-1 pl-6 pr-1.5 text-[9.5px]">
-            <li>
-              Whether agreeable to undergo thorough training on various issues
-              relating to the job to be performed as per the Terms of Reference:{" "}
-              <b>{specificInfo ? "Yes" : "—"}</b>
-            </li>
-            <li>
-              Whether agreeable to reside in any State of India or own my
-              arrangement, work in the remote rural areas of the allocated
-              districts:{" "}
-              <b>
-                {specificInfo
-                  ? specificInfo.willingToRelocate
-                    ? "Yes"
-                    : "No"
-                  : "—"}
-              </b>
-            </li>
-            <li>
-              Preference of State/UT for your posting: <b>Not Applicable</b>
-            </li>
-            <li>
-              Language(s) known: <b className="uppercase">{languages || "—"}</b>
-            </li>
-            {specificInfo?.isGovernmentEmployee && (
-              <li>
-                Currently employed with a Government / Public Sector organisation:{" "}
-                <b>Yes</b>
-              </li>
-            )}
-            {specificInfo?.isEverConvicted && (
-              <li>
-                Ever convicted by a court of law: <b>Yes</b>
-                {specificInfo.convictionDetails
-                  ? ` — ${specificInfo.convictionDetails}`
-                  : ""}
-              </li>
-            )}
-            {specificInfo?.noticePeriod && (
-              <li>
-                Notice period: <b>{specificInfo.noticePeriod}</b>
-              </li>
-            )}
-          </ol>
-
-          {}
-          <Band>Declaration</Band>
-          <p className="px-1.5 py-1 text-[9.5px] leading-relaxed">
-            I have carefully gone through the vacancy advertisement and I am well
-            aware that the information furnished in the Application Form duly
-            supported by the documents in respect of Essential Qualification / Work
-            Experience submitted by me will also be assessed by the Selection
-            Committee at the time of selection for the post. The information /
-            details furnished by me are correct and true to the best of my knowledge
-            and no material fact having a bearing on my selection has been
-            suppressed / withheld.
-          </p>
-
-          {}
-          <div className="mt-2 flex items-end justify-between gap-4 border-t border-slate-400 pt-1.5">
-            <div className="text-[9px] text-slate-600">
-              <div>
-                <b>Date:</b> {govDate(submittedAt ?? profile.updatedAt)}
-              </div>
-              <div>
-                <b>Application No:</b>{" "}
-                <span className="font-mono">{applicationId}</span>
-              </div>
-            </div>
-            <div className="text-center">
-              {signatureUrl ? (
-                <img
-                  src={signatureUrl}
-                  alt="Applicant signature"
-                  className="mx-auto h-10 w-28 object-contain"
-                />
-              ) : (
-                <div className="h-10 w-28" />
-              )}
-              <div className="border-t border-slate-400 pt-0.5 text-[8.5px] font-semibold uppercase">
-                Signature of the Applicant
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecruitRegistrationPrintout
+          data={profile as any}
+          education={education as any}
+          experience={experience as any}
+          applicationId={applicationId}
+          advtNo={advtNo}
+          postName={postName}
+          submittedAt={submittedAt}
+        />
       );
     }
 
@@ -1912,117 +1527,346 @@ export default function RecruitDashboardPage() {
 
   const profile = profileResponse?.data as Record<string, any>;
   const applications = applicationsResponse?.data || [];
+  const [dashboardPrintApp, setDashboardPrintApp] = React.useState<any>(null);
 
-        const academics = (profile?.academics ?? []) as TRecruitEducation[];
+  const handlePrintApplication = (app: any) => {
+    setDashboardPrintApp(app);
+    setTimeout(() => {
+      printRecruitRegistrationForm(app.id);
+    }, 100);
+  };
+
+  const academics = (profile?.academics ?? []) as TRecruitEducation[];
   const experiences = (profile?.experiences ?? []) as TRecruitExperience_2[];
 
-        useEffect(() => {
+  useEffect(() => {
     if (!isProfileLoading && !profile?.id) {
       router.replace("/recruit/registration");
     }
   }, [profile, isProfileLoading, router]);
 
+  useEffect(() => {
+    document.title = "Recruiter Dashboard | International Institute of Internship™";
+  }, []);
+
   const isProfileComplete = !!profile;
+  const registrationCode = profile?.id
+    ? generateRecruitRegistrationCode(
+        profile.id as string,
+        (profile.createdAt as string) ?? null,
+      )
+    : "";
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
-      {}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-emerald-900 to-zinc-950 p-6 text-white shadow-xl md:p-8">
-        <div className="relative z-10 space-y-2">
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-400">
-            Recruiter Portal
-          </span>
-          <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">
+    <div className="mx-auto max-w-6xl space-y-5 sm:space-y-6 p-3.5 sm:p-5 md:p-6 print:m-0 print:max-w-none print:p-0">
+      {/* Recruiter Portal Banner with Quick Action CTAs (Hidden on Print) */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-gradient-to-r from-emerald-950 via-emerald-900 to-zinc-950 p-5 sm:p-6 md:p-8 text-white shadow-xl print:hidden">
+        <div className="relative z-10 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-400">
+              Recruiter Portal
+            </span>
+            {registrationCode && (
+              <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 font-mono text-[11px] font-medium text-emerald-200">
+                ID: {registrationCode}
+              </span>
+            )}
+          </div>
+
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl text-white">
             Welcome Back, {profile?.fullName || "Recruiter"}
           </h1>
-          <p className="max-w-lg text-sm text-zinc-300">
-            Manage your recruitment registration parameters, check job postings,
-            and track applications in real-time.
+          <p className="max-w-xl text-xs sm:text-sm text-zinc-300 leading-relaxed">
+            Manage your official application form, track live job applications,
+            and explore newly announced vacancies across institutional partners.
           </p>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
+            <Button
+              size="sm"
+              onClick={() => router.push("/recruit/openings")}
+              className="bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold shadow-md hover:shadow-lg transition-all justify-center"
+            >
+              <Briefcase className="size-3.5" /> Explore Openings
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => router.push("/recruit/profile")}
+              className="border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm justify-center"
+            >
+              <UserCheck className="size-3.5" /> Edit Profile & Documents
+            </Button>
+          </div>
         </div>
+
         <div className="pointer-events-none absolute bottom-0 right-0 top-0 flex items-center justify-center opacity-10">
-          <Briefcase className="-mr-16 size-64" />
+          <Briefcase className="-mr-16 size-72" />
         </div>
       </div>
 
-      {}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="bg-card/45 border-border/50 backdrop-blur-xl">
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-2xl bg-emerald-500/10 p-3 text-emerald-600">
-              <ShieldCheck className="size-6" />
-            </div>
-            <div>
-              <span className="text-muted-foreground block text-xs font-medium">
-                Profile Status
-              </span>
-              <span className="text-foreground block text-lg font-bold">
-                {isProfileComplete
-                  ? "Verified & Registered"
-                  : "Pending Registration"}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/45 border-border/50 backdrop-blur-xl">
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-2xl bg-blue-500/10 p-3 text-blue-600">
-              <Briefcase className="size-6" />
-            </div>
-            <div>
-              <span className="text-muted-foreground block text-xs font-medium">
-                Total Applications
-              </span>
-              <span className="text-foreground block text-lg font-bold">
-                {applications.length} Submitted
-              </span>
+      {/* Interactive Metric Cards (Hidden on Print) */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 print:hidden">
+        {/* Card 1: Profile Status */}
+        <Card
+          onClick={() => router.push("/recruit/profile")}
+          className="group/metric bg-card/50 hover:bg-card/80 border-border/50 hover:border-emerald-500/50 backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md"
+        >
+          <CardContent className="flex items-center justify-between p-5">
+            <div className="flex items-center gap-3.5 min-w-0 flex-1">
+              <div className="rounded-2xl bg-emerald-500/10 p-3 text-emerald-600 group-hover/metric:bg-emerald-500/20 transition-colors shrink-0">
+                <ShieldCheck className="size-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-muted-foreground block text-xs font-medium">
+                  Profile Status
+                </span>
+                <span className="text-foreground block text-base font-bold">
+                  {isProfileComplete ? "Verified & Registered" : "Pending Registration"}
+                </span>
+                <span className="text-[11px] text-emerald-600 font-medium group-hover/metric:underline flex items-center gap-0.5 mt-0.5">
+                  Manage profile <ChevronRight className="size-3 shrink-0" />
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/45 border-border/50 backdrop-blur-xl">
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-2xl bg-amber-500/10 p-3 text-amber-600">
-              <TrendingUp className="size-6" />
+        {/* Card 2: My Applications */}
+        <Card
+          onClick={() => router.push("/recruit/applications")}
+          className="group/metric bg-card/50 hover:bg-card/80 border-border/50 hover:border-[#006e52]/50 backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md"
+        >
+          <CardContent className="flex items-center justify-between p-5">
+            <div className="flex items-center gap-3.5 min-w-0 flex-1">
+              <div className="rounded-2xl bg-[#006e52]/10 p-3 text-[#006e52] group-hover/metric:bg-[#006e52]/20 transition-colors shrink-0">
+                <FileText className="size-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-muted-foreground block text-xs font-medium">
+                  My Applications
+                </span>
+                <span className="text-foreground block text-base font-bold">
+                  {applications.length} Applied {applications.length === 1 ? "Position" : "Positions"}
+                </span>
+                <span className="text-[11px] text-[#006e52] font-medium group-hover/metric:underline flex items-center gap-0.5 mt-0.5">
+                  Track status & print forms <ChevronRight className="size-3 shrink-0" />
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="text-muted-foreground block text-xs font-medium">
-                Qualifications On Record
-              </span>
-              <span className="text-foreground block text-lg font-bold">
-                {academics.length} Added
-              </span>
+          </CardContent>
+        </Card>
+
+        {/* Card 3: Qualifications On Record */}
+        <Card
+          onClick={() => router.push("/recruit/profile")}
+          className="group/metric bg-card/50 hover:bg-card/80 border-border/50 hover:border-amber-500/50 backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md sm:col-span-2 lg:col-span-1"
+        >
+          <CardContent className="flex items-center justify-between p-5">
+            <div className="flex items-center gap-3.5 min-w-0 flex-1">
+              <div className="rounded-2xl bg-amber-500/10 p-3 text-amber-600 group-hover/metric:bg-amber-500/20 transition-colors shrink-0">
+                <TrendingUp className="size-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-muted-foreground block text-xs font-medium">
+                  Qualifications On Record
+                </span>
+                <span className="text-foreground block text-base font-bold">
+                  {academics.length} Added
+                </span>
+                <span className="text-[11px] text-amber-600 font-medium group-hover/metric:underline flex items-center gap-0.5 mt-0.5">
+                  View credentials <ChevronRight className="size-3 shrink-0" />
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {}
-      <Card className="border-border/60">
-        <CardHeader className="flex flex-row items-center justify-between print:hidden">
-          <CardTitle className="text-lg">Application Preview</CardTitle>
-          <Button size="sm" onClick={() => window.print()}>
-            Print Form / Save PDF
+      {/* Recent Job Applications Section (Hidden on Print) */}
+      <Card className="border-border/60 bg-card/60 backdrop-blur-xl shadow-xs print:hidden">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 p-4 sm:p-5">
+          <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+            <div className="rounded-xl bg-[#006e52]/10 p-2 text-[#006e52] dark:text-[#006e52] shrink-0 mt-0.5 sm:mt-0">
+              <Briefcase className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <CardTitle className="text-base font-bold">Recent Job Applications</CardTitle>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Track status and review details of your submitted employment applications.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/recruit/applications")}
+            className="flex items-center justify-center gap-1.5 text-xs w-full sm:w-auto shrink-0 font-semibold text-[#006e52] border-[#006e52]/30 hover:bg-[#006e52]/10"
+          >
+            View All Applications ({applications.length}) <ArrowRight className="size-3.5" />
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
+          {applications.length > 0 ? (
+            <div className="divide-y divide-border/40 rounded-lg border border-border/50 bg-background/50 overflow-hidden">
+              {applications.map((app: any, idx: number) => {
+                const job = app.jobOpportunity;
+                const status = app.status || "PENDING";
+                const appliedDate = app.createdAt
+                  ? new Date(app.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Recently";
+
+                return (
+                  <div
+                    key={app.id || idx}
+                    className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-muted/40"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-foreground text-sm">
+                          {job?.postOpportunity || "Job Application"}
+                        </span>
+                        {job?.advtNo && (
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono font-medium text-muted-foreground">
+                            Advt: {job.advtNo}
+                          </span>
+                        )}
+                        {job?.jobNature && (
+                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600">
+                            {job.jobNature}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                          {job?.companyName || "International Institute of Internship"}
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="size-3 text-muted-foreground" /> Applied on {appliedDate}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto pt-2 sm:pt-0 border-t border-border/30 sm:border-t-0">
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide",
+                          status === "ACCEPTED"
+                            ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                            : status === "SHORTLISTED"
+                            ? "bg-blue-500/10 text-blue-600 border border-blue-500/20"
+                            : status === "REJECTED"
+                            ? "bg-rose-500/10 text-rose-600 border border-rose-500/20"
+                            : "bg-amber-500/10 text-amber-600 border border-amber-500/20",
+                        )}
+                      >
+                        {status === "ACCEPTED"
+                          ? "Selected"
+                          : status === "SHORTLISTED"
+                          ? "Shortlisted"
+                          : status === "REJECTED"
+                          ? "Not Selected"
+                          : "Under Review"}
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePrintApplication(app)}
+                          className="h-8 gap-1.5 text-xs font-semibold text-[#006e52] border-[#006e52]/30 hover:bg-[#006e52]/10"
+                        >
+                          <Download className="size-3" /> Form PDF
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => router.push("/recruit/applications")}
+                          className="h-8 text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div className="rounded-full bg-muted p-3 text-muted-foreground mb-3">
+                <Briefcase className="size-6" />
+              </div>
+              <h4 className="text-sm font-semibold text-foreground">No Active Job Applications</h4>
+              <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-4">
+                You haven't submitted applications for any openings yet. Check current vacancy listings to apply.
+              </p>
+              <Button
+                size="sm"
+                onClick={() => router.push("/recruit/openings")}
+                className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs"
+              >
+                Explore Current Openings
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Printable Application Preview Section */}
+      <Card className="border-border/60 print:border-0 print:bg-transparent print:p-0 print:shadow-none">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 p-4 sm:p-5 print:hidden">
+          <div>
+            <CardTitle className="text-base sm:text-lg font-bold">Application Form Preview</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Official 1-page A4 registration form with verified barcode & QR code.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => printRecruitRegistrationForm(registrationCode)}
+            className="flex items-center justify-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm w-full sm:w-auto shrink-0"
+          >
+            <Printer className="size-4" /> Print Application Form
+          </Button>
+        </CardHeader>
+        <CardContent className="p-3 sm:p-5 print:p-0">
           {!profile ? (
             <div className="text-muted-foreground py-6 text-center text-sm">
               No profile data available to preview.
             </div>
           ) : (
-            <ApplicationPrintout
-              profile={profile as unknown as TRecruitProfile}
-              education={academics}
-              experience={experiences}
-              references={[]}
-              applicationId={generateRecruitRegistrationCode(
-                profile.id as string,
-                (profile.createdAt as string) ?? null,
-              )}
-              submittedAt={(profile.updatedAt as string) ?? undefined}
-            />
+            <div className="w-full space-y-2">
+              {/* Mobile View Hint */}
+              <div className="flex sm:hidden items-center justify-between text-[11px] bg-emerald-50/80 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-2 rounded-lg border border-emerald-200/60 dark:border-emerald-800/40">
+                <span className="flex items-center gap-1.5 font-medium">
+                  ↔️ Swipe horizontally to inspect full A4 form
+                </span>
+                <span className="font-bold text-[10px] uppercase tracking-wider bg-emerald-600 text-white px-1.5 py-0.5 rounded">
+                  Official A4
+                </span>
+              </div>
+
+              {/* Scrollable Document Canvas with Min-Width Isolation */}
+              <div className="w-full overflow-x-auto rounded-xl border border-border/60 bg-slate-100/70 p-2 sm:p-4 shadow-inner print:overflow-visible print:border-0 print:bg-transparent print:p-0">
+                <ApplicationPrintout
+                  profile={profile as unknown as TRecruitProfile}
+                  education={academics}
+                  experience={experiences}
+                  references={[]}
+                  applicationId={dashboardPrintApp?.id || registrationCode}
+                  advtNo={dashboardPrintApp?.jobOpportunity?.advtNo}
+                  postName={dashboardPrintApp?.jobOpportunity?.postOpportunity}
+                  submittedAt={dashboardPrintApp?.createdAt || ((profile.updatedAt as string) ?? undefined)}
+                />
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

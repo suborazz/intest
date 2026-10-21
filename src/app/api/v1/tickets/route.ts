@@ -130,14 +130,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       INTERNAL_SERVER_ERROR: 500,
     } as const;
 
-    const createTicketSchema = z.object({
-      title: z.string().min(3, "Title must be at least 3 characters long").trim(),
-      description: z
-        .string()
-        .min(10, "Description must be at least 10 characters long")
-        .trim(),
-      priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).default("MEDIUM"),
-    });
+    const createTicketSchema = z
+      .object({
+        title: z.string().min(3, "Title must be at least 3 characters long").trim(),
+        description: z.string().optional(),
+        message: z.string().optional(),
+        priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).default("MEDIUM"),
+      })
+      .refine(
+        (data) =>
+          (data.description && data.description.trim().length >= 3) ||
+          (data.message && data.message.trim().length >= 3),
+        {
+          message: "Description must be at least 3 characters long",
+          path: ["description"],
+        },
+      );
 
     async function generateUniqueTicketNo(): Promise<string> {
       let isUnique = false;
@@ -174,14 +182,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const { title, description, priority } = result.data;
+    const { title, description, message, priority } = result.data;
+    const finalDescription = (description || message)!.trim();
     const ticketNo = await generateUniqueTicketNo();
 
     const ticket = await prisma.supportTicket.create({
       data: {
         ticketNo,
         title,
-        description,
+        description: finalDescription,
         priority,
         userId,
       },
@@ -201,7 +210,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             user.name || "User",
             ticketNo,
             title,
-            description,
+            finalDescription,
           );
         }
       } catch (err) {
@@ -218,5 +227,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
   } catch (error) {
     return handleError(error);
+  }
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  try {
+    const userId = request.headers.get("X-User-Id");
+    const userRole = request.headers.get("X-User-Role");
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required." } },
+        { status: 401 },
+      );
+    }
+
+    if (userRole === "SUPER_ADMIN") {
+      const tickets = await prisma.supportTicket.findMany({
+        where: { deletedAt: null },
+        include: {
+          user: { select: { id: true, name: true, email: true, role: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return NextResponse.json({ success: true, data: tickets });
+    }
+
+    const tickets = await prisma.supportTicket.findMany({
+      where: { userId, deletedAt: null },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ success: true, data: tickets });
+  } catch (error) {
+    console.error("[GET /api/v1/tickets Error]:", error);
+    return NextResponse.json(
+      { success: false, error: { code: "INTERNAL_SERVER_ERROR", message: "An unexpected error occurred" } },
+      { status: 500 },
+    );
   }
 }

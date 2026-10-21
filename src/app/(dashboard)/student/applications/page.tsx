@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { AlertTriangle, Award, Calendar, CreditCard, Download, Edit, ExternalLink, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, List, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Pencil, Phone as Phone_2, Plus, Printer, Save, School, Send, ShieldCheck, Trash2, User, AlertCircle as AlertCircle_2, CheckCircle as CheckCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2 } from "lucide-react";
+import { AlertTriangle, Award, Calendar, CreditCard, Download, Edit, ExternalLink, FileText, FolderOpen, GraduationCap as GraduationCap_2, Info, List, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Pencil, Phone as Phone_2, Plus, Printer, Save, School, Send, ShieldCheck, Trash2, User, AlertCircle as AlertCircle_2, CheckCircle as CheckCircle_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Search, XCircle as XCircle_2, Upload, X } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import * as React_4 from "react";
@@ -459,8 +459,8 @@ function ResponsiveDialog({
 }
 
 interface ApplicationIdChipProps extends React_2.HTMLAttributes<HTMLSpanElement> {
-    id: string;
-    createdAt?: string | Date | null;
+  id: string;
+  createdAt?: string | Date | null;
   className?: string;
   type?: "default" | "registration" | "application";
 }
@@ -519,22 +519,22 @@ function generateApplicationCode(
   id: string,
   createdAt?: string | Date | null,
 ): string {
-    const date = createdAt ? new Date(createdAt) : new Date();
+  const date = createdAt ? new Date(createdAt) : new Date();
   const year = String(date.getFullYear()).slice(-2);
 
-    let hash = 0;
+  let hash = 0;
   for (let i = 0; i < id.length; i++) {
-    hash = (hash * 31 + id.charCodeAt(i)) >>> 0; 
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
   }
 
-    const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const c1 = ALPHA[hash % 26]!;
   const h2 = Math.floor(hash / 26);
   const c2 = ALPHA[h2 % 26]!;
   const h3 = Math.floor(h2 / 26);
   const c3 = ALPHA[h3 % 26]!;
 
-    const h4 = Math.floor(h3 / 26);
+  const h4 = Math.floor(h3 / 26);
   const numeric = String(10000 + (h4 % 90000)).padStart(5, "0");
 
   return `${year}${c1}${c2}${c3}${numeric}`;
@@ -619,7 +619,7 @@ interface LayoutContextProps {
   setIsFilterOpen: React_2.Dispatch<React_2.SetStateAction<boolean>>;
   setIsDetailsSidebarOpen: React_2.Dispatch<React_2.SetStateAction<boolean>>;
   setIsLeftSidebarOpen: React_2.Dispatch<React_2.SetStateAction<boolean>>;
-          requestNoPadding: () => () => void;
+  requestNoPadding: () => () => void;
 
   slots: Record<ESlotName, React_2.ReactNode>;
   setSlot: (name: ESlotName, content: React_2.ReactNode) => void;
@@ -642,18 +642,18 @@ const DEFAULT_TEST_CONTEXT: LayoutContextProps = {
   isDetailsSidebarOpen: false,
   isLeftSidebarOpen: false,
   noPadding: false,
-  setIsFilterOpen: () => {},
-  setIsDetailsSidebarOpen: () => {},
-  setIsLeftSidebarOpen: () => {},
-  requestNoPadding: () => () => {},
+  setIsFilterOpen: () => { },
+  setIsDetailsSidebarOpen: () => { },
+  setIsLeftSidebarOpen: () => { },
+  requestNoPadding: () => () => { },
   slots: DEFAULT_TEST_SLOTS,
-  setSlot: () => {},
+  setSlot: () => { },
 };
 
 const useLayoutContext = () => {
   const context = React_2.useContext(LayoutContext);
   if (!context) {
-        if (process.env.NODE_ENV === "test") {
+    if (process.env.NODE_ENV === "test") {
       return DEFAULT_TEST_CONTEXT;
     }
     throw new Error(
@@ -673,7 +673,7 @@ const SidebarFilters: React_2.FC<
 
 const useSlot = (name: ESlotName, content: React_2.ReactNode) => {
   const { setSlot } = useLayoutContext();
-    useLayoutEffect(() => {
+  useLayoutEffect(() => {
     setSlot(name, content);
     return () => setSlot(name, null);
   }, [name, content, setSlot]);
@@ -771,8 +771,8 @@ interface DataTableProps<TData, TValue> {
   columnBorder?: boolean;
   activeRowId?: string;
   renderSubRow?: (row: Row<TData>) => React_2.ReactNode;
-    hideHeader?: boolean;
-    toolbar?: React_2.ReactNode;
+  hideHeader?: boolean;
+  toolbar?: React_2.ReactNode;
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
@@ -1014,7 +1014,7 @@ const NoData: React.FunctionComponent<INoDataProps> = ({
           className,
         )}
       >
-        {}
+        { }
         <TableIcon size={14} />
         <p className="text-muted-foreground text-xs">No results found.</p>
         {children}
@@ -1143,7 +1143,7 @@ function SelectContent({
         className={cn(
           "max-h-(--radix-select-content-available-height) origin-(--radix-select-content-transform-origin) bg-popover text-popover-foreground ring-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 relative z-50 min-w-32 overflow-y-auto overflow-x-hidden rounded-lg shadow-md ring-1 duration-100 data-[align-trigger=true]:animate-none",
           position === "popper" &&
-            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className,
         )}
         position={position}
@@ -1200,10 +1200,10 @@ function DataTablePagination_2({
   const path = usePathname();
   const router = useRouter();
 
-    const searchPage = Number(params?.get("page")) || 1;
+  const searchPage = Number(params?.get("page")) || 1;
   const searchLimit = Number(params?.get("size")) || 10;
 
-    const totalPage = Math.max(1, Math.ceil(meta.total / meta.limit));
+  const totalPage = Math.max(1, Math.ceil(meta.total / meta.limit));
   const [tablePageSize, setTablePageSize] = useState<number>(searchLimit);
   const [tablePage, setTablePage] = useState<number>(searchPage);
 
@@ -1389,7 +1389,7 @@ function DataTable<TData, TValue>({
   }, [reset, setSelectedRows, table]);
 
   useEffect(() => {
-        const stillSelectedRows =
+    const stillSelectedRows =
       selectedRows?.filter((row) => {
         const rowId = (
           ((row as Record<string, unknown>).id ||
@@ -1399,7 +1399,7 @@ function DataTable<TData, TValue>({
         return rowId && rowSelection[rowId];
       }) || [];
 
-        const updatedSelectedRows = [...stillSelectedRows];
+    const updatedSelectedRows = [...stillSelectedRows];
     data.forEach((row, index) => {
       const rowId = (
         ((row as Record<string, unknown>).id ||
@@ -1421,7 +1421,7 @@ function DataTable<TData, TValue>({
       }
     });
 
-        const currentIds = (selectedRows || [])
+    const currentIds = (selectedRows || [])
       .map((r) =>
         (
           ((r as Record<string, unknown>).id ||
@@ -1569,7 +1569,7 @@ function DataTable<TData, TValue>({
           className={cn(
             "relative",
             columnBorder &&
-              "rounded-2xl [&_td:last-child]:border-r-0 [&_td]:border-r [&_th:last-child]:border-r-0 [&_th]:border-r",
+            "rounded-2xl [&_td:last-child]:border-r-0 [&_td]:border-r [&_th:last-child]:border-r-0 [&_th]:border-r",
             tableClassName,
           )}
         >
@@ -1877,9 +1877,9 @@ interface ISidebarFiltersContextProps {
 
 const DEFAULT_TEST_FILTERS_CONTEXT: ISidebarFiltersContextProps = {
   open: false,
-  setOpen: (() => {}) as React_2.Dispatch<React_2.SetStateAction<boolean>>,
+  setOpen: (() => { }) as React_2.Dispatch<React_2.SetStateAction<boolean>>,
   selectedFilters: [],
-  setSelectedFilter: () => {},
+  setSelectedFilter: () => { },
 };
 
 const useSidebarFilters = () => {
@@ -2044,7 +2044,7 @@ const CopyButton: React.FunctionComponent<ICopyButtonProps> = ({
       label ? `${label} copied to the clipboard.` : "Copied to the clipboard.",
     );
 
-    setTimeout(() => setCopied(false), 2000); 
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -2086,7 +2086,7 @@ const TruncatedText: React_2.FunctionComponent<ITruncatedTextProps> = ({
   const textRef = useRef<HTMLParagraphElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
-    const checkTruncation = () => {
+  const checkTruncation = () => {
     if (textRef.current) {
       const isTruncated =
         textRef.current.scrollWidth > textRef.current.clientWidth;
@@ -2121,8 +2121,8 @@ const TruncatedText: React_2.FunctionComponent<ITruncatedTextProps> = ({
                       style={
                         width
                           ? {
-                              maxWidth: `${width}px`,
-                            }
+                            maxWidth: `${width}px`,
+                          }
                           : {}
                       }
                       className={cn(
@@ -2143,8 +2143,8 @@ const TruncatedText: React_2.FunctionComponent<ITruncatedTextProps> = ({
                     style={
                       width
                         ? {
-                            maxWidth: `${width}px`,
-                          }
+                          maxWidth: `${width}px`,
+                        }
                         : {}
                     }
                     className={cn(
@@ -2215,8 +2215,8 @@ const TruncatedText: React_2.FunctionComponent<ITruncatedTextProps> = ({
             style={
               width
                 ? {
-                    maxWidth: `${width}px`,
-                  }
+                  maxWidth: `${width}px`,
+                }
                 : {}
             }
             className={cn(
@@ -2237,8 +2237,8 @@ const TruncatedText: React_2.FunctionComponent<ITruncatedTextProps> = ({
           style={
             width
               ? {
-                  maxWidth: `${width}px`,
-                }
+                maxWidth: `${width}px`,
+              }
               : {}
           }
           className={cn(
@@ -2338,7 +2338,7 @@ const SidebarCheckBoxFilter: React_2.FC<{
           >
             <div className="flex items-center gap-2">
               <Checkbox
-                                className="scale-75"
+                className="scale-75"
                 checked={isSelected}
                 onCheckedChange={(checked) =>
                   updateSearchParams(filter.value, checked === true)
@@ -2377,30 +2377,30 @@ const SidebarFiltersHeader: React_2.FC<
   left = true,
   width = "w-full",
 }) => {
-  const { open } = useSidebarFilters();
+    const { open } = useSidebarFilters();
 
-  return (
-    <div
-      className={cn(
-        "h-full overflow-hidden py-0 transition-all duration-300 will-change-auto [transition-timing-function:cubic-bezier(0.31,0.1,0.08,0.96)]",
-        open ? width : "w-0 opacity-0",
-        !open && "mr-0",
-      )}
-    >
+    return (
       <div
         className={cn(
-          "customScroll mr-4 flex h-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg pb-4 pr-2 pt-1",
-          bordered && "border-border border-r",
-          left ? "pl-1" : "pl-3",
-          className,
+          "h-full overflow-hidden py-0 transition-all duration-300 will-change-auto [transition-timing-function:cubic-bezier(0.31,0.1,0.08,0.96)]",
+          open ? width : "w-0 opacity-0",
+          !open && "mr-0",
         )}
       >
-        {}
-        {children}
+        <div
+          className={cn(
+            "customScroll mr-4 flex h-full shrink-0 flex-col gap-2 overflow-y-auto rounded-lg pb-4 pr-2 pt-1",
+            bordered && "border-border border-r",
+            left ? "pl-1" : "pl-3",
+            className,
+          )}
+        >
+          { }
+          {children}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 function Separator({
   className,
@@ -2675,5385 +2675,5405 @@ function AlertDialogTitle({
   );
 }
 type TQueryOptions<TData, TError = Error> = Omit<
-      UseQueryOptions<TData, TError, TData, readonly unknown[]>,
-      "queryKey" | "queryFn"
-    >;
+  UseQueryOptions<TData, TError, TData, readonly unknown[]>,
+  "queryKey" | "queryFn"
+>;
 
 interface DashboardStats {
-      totalApplied: number;
-      totalEnrolled: number;
-      totalCompleted: number;
-      totalCertificates: number;
-    }
+  totalApplied: number;
+  totalEnrolled: number;
+  totalCompleted: number;
+  totalCertificates: number;
+}
 
 type ApplicationStatus =
-      "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "WAITING";
+  "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "WAITING";
 
 interface DashboardRecentApplication {
-      id: string;
-      status: ApplicationStatus;
-      appliedAt: string;
-      internship: {
-        id: string;
-        title: string;
-        companyName: string;
-      };
-    }
+  id: string;
+  status: ApplicationStatus;
+  appliedAt: string;
+  internship: {
+    id: string;
+    title: string;
+    companyName: string;
+  };
+}
 
 interface DashboardRecentEnrollment {
-      id: string;
-      createdAt: string;
-      internship: {
-        id: string;
-        title: string;
-        companyName: string;
-        location: string;
-        mode: string;
-        duration: string;
-        startDate: string | null;
-        instructor: { id: string; name: string; email: string } | null;
-      };
-    }
+  id: string;
+  createdAt: string;
+  internship: {
+    id: string;
+    title: string;
+    companyName: string;
+    location: string;
+    mode: string;
+    duration: string;
+    startDate: string | null;
+    instructor: { id: string; name: string; email: string } | null;
+  };
+}
 
 interface DashboardRecentCertificate {
-      id: string;
-      certificateNo: string;
-      issuedAt: string;
-    }
+  id: string;
+  certificateNo: string;
+  issuedAt: string;
+}
 
 interface DashboardRecentNotice {
-      id: string;
-      title: string;
-      description: string;
-      content?: string;
-      category: string;
-      createdAt: string;
-      sender: {
-        id: string;
-        name: string;
-        email: string;
-        role: string;
-      };
-    }
+  id: string;
+  title: string;
+  description: string;
+  content?: string;
+  category: string;
+  createdAt: string;
+  sender: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
 
 interface DashboardRecentSubmission {
-      id: string;
-      projectTitle: string;
-      projectUrl: string;
-      comments: string | null;
-      status: "PENDING" | "GRADED";
-      grade: string | null;
-      feedback: string | null;
-      createdAt: string;
-      enrollment: {
-        internship: {
-          title: string;
-        };
-      };
-      gradedBy: {
-        name: string;
-      } | null;
-    }
+  id: string;
+  projectTitle: string;
+  projectUrl: string;
+  comments: string | null;
+  status: "PENDING" | "GRADED";
+  grade: string | null;
+  feedback: string | null;
+  createdAt: string;
+  enrollment: {
+    internship: {
+      title: string;
+    };
+  };
+  gradedBy: {
+    name: string;
+  } | null;
+}
 
 interface StudentDashboardData {
-      stats: DashboardStats;
-      recentApplications: DashboardRecentApplication[];
-      recentEnrollments: DashboardRecentEnrollment[];
-      recentCertificates: DashboardRecentCertificate[];
-      recentNotices: DashboardRecentNotice[];
-      recentSubmissions: DashboardRecentSubmission[];
-    }
+  stats: DashboardStats;
+  recentApplications: DashboardRecentApplication[];
+  recentEnrollments: DashboardRecentEnrollment[];
+  recentCertificates: DashboardRecentCertificate[];
+  recentNotices: DashboardRecentNotice[];
+  recentSubmissions: DashboardRecentSubmission[];
+}
 
 interface GetStudentDashboardResponse {
-      success: boolean;
-      data: StudentDashboardData;
-    }
+  success: boolean;
+  data: StudentDashboardData;
+}
 
 type TQueryReturnType<TData, TError = Error> = UseQueryResult<
-      TData,
-      TError
-    >;
+  TData,
+  TError
+>;
 
 type InternshipType = "PAID" | "STIPEND" | "FREE";
 
 interface ListInternshipsParams {
-      page?: number;
-      limit?: number;
-      type?: InternshipType;
-      search?: string;
-      category?: string;
-    }
+  page?: number;
+  limit?: number;
+  type?: InternshipType;
+  search?: string;
+  category?: string;
+}
 
 interface InternshipMentor {
-      id: string;
-      name: string;
-      email: string;
-    }
+  id: string;
+  name: string;
+  email: string;
+}
 
 interface InternshipPublic {
-      id: string;
-      title: string;
-      description: string;
-      companyName: string;
-      location: string;
-      type: InternshipType;
-      price: number | null;
-      stipendAmount: number | null;
-      duration: string;
-      isActive: boolean;
-      startDate: string | null;
-      onboardingDetails: string | null;
-      createdAt: string;
-      updatedAt: string;
-      createdById: string;
-      mentorId: string | null;
-      mentor: InternshipMentor | null;
+  id: string;
+  title: string;
+  description: string;
+  companyName: string;
+  location: string;
+  type: InternshipType;
+  price: number | null;
+  stipendAmount: number | null;
+  duration: string;
+  isActive: boolean;
+  startDate: string | null;
+  onboardingDetails: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdById: string;
+  mentorId: string | null;
+  mentor: InternshipMentor | null;
 
-        category: "RUNNING" | "ON_CAMPUS" | "VIRTUAL";
-      department?: string | null;
-      modules?: string[] | string | null;
-      tools?: string[] | string | null;
-      skills?: string[] | string | null;
-      projectFocus?: string | null;
-      credits?: number | string | null;
-      contact?: string | null;
-      mode?: string | null;
-      remoteDetails?: string | null;
-      isApproved?: boolean;
-      approvedAt?: string | null;
-    }
+  category: "RUNNING" | "ON_CAMPUS" | "VIRTUAL";
+  department?: string | null;
+  modules?: string[] | string | null;
+  tools?: string[] | string | null;
+  skills?: string[] | string | null;
+  projectFocus?: string | null;
+  credits?: number | string | null;
+  contact?: string | null;
+  mode?: string | null;
+  remoteDetails?: string | null;
+  isApproved?: boolean;
+  approvedAt?: string | null;
+}
 
 interface ListInternshipsResponse {
-      success: boolean;
-      data: InternshipPublic[];
-      meta?: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      };
-    }
+  success: boolean;
+  data: InternshipPublic[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
 
 interface GetInternshipByIdResponse {
-      success: boolean;
-      data: InternshipPublic;
-    }
+  success: boolean;
+  data: InternshipPublic;
+}
 
 type TMutationOptions<
-      TData,
-      TError = Error,
-      TVariables = void,
-      TContext = unknown,
-    > = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">;
+  TData,
+  TError = Error,
+  TVariables = void,
+  TContext = unknown,
+> = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">;
 
 interface ApplyForInternshipResponse {
-      success: boolean;
-      message: string;
-      data: {
-        id: string;
-        status: ApplicationStatus;
-        appliedAt: string;
-      };
-    }
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    status: ApplicationStatus;
+    appliedAt: string;
+  };
+}
 
 type TMutationReturnType<
-      TData,
-      TVariables,
-      TError = Error,
-      TContext = unknown,
-    > = UseMutationResult<TData, TError, TVariables, TContext>;
+  TData,
+  TVariables,
+  TError = Error,
+  TContext = unknown,
+> = UseMutationResult<TData, TError, TVariables, TContext>;
 
 interface CheckApplicationStatusResponse {
-      success: boolean;
-      data: {
-        id: string;
-        status: ApplicationStatus;
-        reviewNote: string | null;
-      };
-    }
+  success: boolean;
+  data: {
+    id: string;
+    status: ApplicationStatus;
+    reviewNote: string | null;
+  };
+}
 
 interface ApplicationInternshipSummary {
-      id?: string;
-      title: string;
-      companyName: string;
-      type?: InternshipType;
-      mode?: string;
-      location?: string;
-      duration?: string;
-    }
+  id?: string;
+  title: string;
+  companyName: string;
+  type?: InternshipType;
+  mode?: string;
+  location?: string;
+  duration?: string;
+}
 
 interface InternshipApplication {
-      id: string;
-      status: ApplicationStatus;
-      appliedAt: string;
-      reviewNote?: string | null;
-      internship: ApplicationInternshipSummary;
-      studentName?: string;
-      address?: string;
-      student?: {
-        id: string;
-        name?: string | null;
-        email?: string | null;
-        studentRegistration?: {
-          fullName?: string | null;
-          localAddressLocal?: string | null;
-          localAddressBlock?: string | null;
-          localAddressDistrict?: string | null;
-          localAddressState?: string | null;
-          localAddressCountry?: string | null;
-          localAddressPinCode?: string | null;
-        } | null;
-      } | null;
-    }
+  id: string;
+  status: ApplicationStatus;
+  appliedAt: string;
+  reviewNote?: string | null;
+  internship: ApplicationInternshipSummary;
+  studentName?: string;
+  address?: string;
+  student?: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    studentRegistration?: {
+      fullName?: string | null;
+      localAddressLocal?: string | null;
+      localAddressBlock?: string | null;
+      localAddressDistrict?: string | null;
+      localAddressState?: string | null;
+      localAddressCountry?: string | null;
+      localAddressPinCode?: string | null;
+    } | null;
+  } | null;
+}
 
 interface ListMyApplicationsResponse {
-      success: boolean;
-      data: InternshipApplication[];
-    }
+  success: boolean;
+  data: InternshipApplication[];
+}
 
 interface EnrollmentInternshipSummary {
-      id: string;
-      title: string;
-      companyName: string;
-      mentor?: { name: string } | null;
-    }
+  id: string;
+  title: string;
+  companyName: string;
+  mentor?: { name: string } | null;
+}
 
 interface MyEnrollment {
-      id: string;
-      createdAt: string;
-      completedAt: string | null;
-      internship: EnrollmentInternshipSummary;
-    }
+  id: string;
+  createdAt: string;
+  completedAt: string | null;
+  internship: EnrollmentInternshipSummary;
+}
 
 interface ListMyEnrollmentsResponse {
-      success: boolean;
-      data: MyEnrollment[];
-    }
+  success: boolean;
+  data: MyEnrollment[];
+}
 
 interface DirectEnrollResponse {
-      success: boolean;
-      data: {
-        enrollmentId: string;
-        internshipId: string;
-        createdAt: string;
-      };
-    }
+  success: boolean;
+  data: {
+    enrollmentId: string;
+    internshipId: string;
+    createdAt: string;
+  };
+}
 
 interface EnrollmentIDCard {
-      cardNo: string;
-      issuedAt: string;
-      studentId: string;
-      studentName: string;
-      studentEmail: string;
-      studentMobile: string;
-      studentAddress: string;
-      photoUrl?: string;
-      internshipId: string;
-      internshipTitle: string;
-      internshipLocation: string;
-    }
+  cardNo: string;
+  issuedAt: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  studentMobile: string;
+  studentAddress: string;
+  photoUrl?: string;
+  internshipId: string;
+  internshipTitle: string;
+  internshipLocation: string;
+}
 
 interface GetEnrollmentIDCardResponse {
-      success: boolean;
-      data: EnrollmentIDCard;
-    }
+  success: boolean;
+  data: EnrollmentIDCard;
+}
 
 interface MyCertificate {
-      id: string;
-      certificateNo: string;
-      issuedAt: string;
-      signatureUrl?: string | null;
-      studentId?: string | null;
-      grade?: string | null;
-      credits?: string | null;
-      internship: {
-        id: string;
-        title: string;
-        companyName: string;
-        location: string;
-        duration: string;
-        mode: string;
-        credits?: string | null;
-      };
-      issuedBy: {
-        id: string;
-        name: string;
-      };
-    }
+  id: string;
+  certificateNo: string;
+  issuedAt: string;
+  signatureUrl?: string | null;
+  studentId?: string | null;
+  grade?: string | null;
+  credits?: string | null;
+  internship: {
+    id: string;
+    title: string;
+    companyName: string;
+    location: string;
+    duration: string;
+    mode: string;
+    credits?: string | null;
+  };
+  issuedBy: {
+    id: string;
+    name: string;
+  };
+}
 
 interface ListMyCertificatesResponse {
-      success: boolean;
-      data: MyCertificate[];
-    }
+  success: boolean;
+  data: MyCertificate[];
+}
 
 interface AssignGradeResponse {
-      success: boolean;
-      message: string;
-      data: {
-        id: string;
-        certificateNo: string;
-        grade: string;
-        credits: string | null;
-      };
-    }
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    certificateNo: string;
+    grade: string;
+    credits: string | null;
+  };
+}
 
 interface AssignGradeRequest {
-      grade: string;
-    }
+  grade: string;
+}
 
 type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 
 interface ListMyPaymentsParams {
-      page?: number;
-      limit?: number;
-      status?: PaymentStatus;
-      search?: string;
-    }
+  page?: number;
+  limit?: number;
+  status?: PaymentStatus;
+  search?: string;
+}
 
 interface PaymentPublic {
-      id: string;
-      amount: number;
-      currency: string;
-      status: PaymentStatus;
-      razorpayOrderId: string;
-      razorpayPaymentId: string | null;
-      razorpaySignature: string | null;
-      refundId: string | null;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      internshipId: string;
-    }
+  id: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  razorpayOrderId: string;
+  razorpayPaymentId: string | null;
+  razorpaySignature: string | null;
+  refundId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  internshipId: string;
+}
 
 interface ListMyPaymentsResponse {
-      success: boolean;
-      data: PaymentPublic[];
-      meta?: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      };
-    }
+  success: boolean;
+  data: PaymentPublic[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
 
 interface PaymentReceiptData {
-      id: string;
-      amount: number;
-      status: PaymentStatus;
-      createdAt: string;
-      razorpayOrderId: string;
-      razorpayPaymentId: string | null;
-      user?: {
-        id: string;
-        name: string;
-        email: string;
-      };
-      internship?: {
-        id: string;
-        title: string;
-        companyName: string;
-        duration: string;
-      };
-    }
+  id: string;
+  amount: number;
+  status: PaymentStatus;
+  createdAt: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string | null;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  internship?: {
+    id: string;
+    title: string;
+    companyName: string;
+    duration: string;
+  };
+}
 
 interface GetPaymentReceiptResponse {
-      success: boolean;
-      data: PaymentReceiptData;
-    }
+  success: boolean;
+  data: PaymentReceiptData;
+}
 
 interface CreateOrderResponseData {
-      paymentId: string;
-      razorpayOrderId: string;
-      amount: number;
-      currency: string;
-      keyId: string;
-      isMockMode: boolean;
-    }
+  paymentId: string;
+  razorpayOrderId: string;
+  amount: number;
+  currency: string;
+  keyId: string;
+  isMockMode: boolean;
+}
 
 interface CreateOrderResponse {
-      success: boolean;
-      data: CreateOrderResponseData;
-    }
+  success: boolean;
+  data: CreateOrderResponseData;
+}
 
 interface CreateOrderPayload {
-      internshipId: string;
-    }
+  internshipId: string;
+}
 
 interface VerifySignatureResponseData {
-      paymentId: string;
-      enrollmentId: string;
-      status: string;
-    }
+  paymentId: string;
+  enrollmentId: string;
+  status: string;
+}
 
 interface VerifySignatureResponse {
-      success: boolean;
-      data: VerifySignatureResponseData;
-    }
+  success: boolean;
+  data: VerifySignatureResponseData;
+}
 
 interface VerifySignaturePayload {
-      razorpayOrderId: string;
-      razorpayPaymentId: string;
-      razorpaySignature: string;
-    }
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}
 
 interface RefundResponseData {
-      id: string;
-      paymentId: string;
-      amount: number;
-      status: string;
-      createdAt: string;
-    }
+  id: string;
+  paymentId: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+}
 
 interface RefundResponse {
-      success: boolean;
-      data: RefundResponseData;
-    }
+  success: boolean;
+  data: RefundResponseData;
+}
 
 interface RefundPayload {
-      paymentId: string;
-      amount?: number;
-    }
+  paymentId: string;
+  amount?: number;
+}
 
 interface ListAllPaymentsResponse {
-      success: boolean;
-      data: PaymentPublic[];
-    }
+  success: boolean;
+  data: PaymentPublic[];
+}
 
 type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 interface SupportTicket {
-      id: string;
-      ticketNo: string;
-      title: string;
-      description: string;
-      status: TicketStatus;
-      priority: TicketPriority;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      subject?: string;
-      message?: string;
-    }
+  id: string;
+  ticketNo: string;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  subject?: string;
+  message?: string;
+}
 
 interface CreateTicketResponse {
-      success: boolean;
-      data: SupportTicket;
-    }
+  success: boolean;
+  data: SupportTicket;
+}
 
 interface CreateTicketPayload {
-      title: string;
-      description: string;
-      priority?: TicketPriority;
-    }
+  title: string;
+  description: string;
+  priority?: TicketPriority;
+}
 
 interface ListMyTicketsResponse {
-      success: boolean;
-      data: SupportTicket[];
-    }
+  success: boolean;
+  data: SupportTicket[];
+}
 
 interface DeleteTicketResponse {
-      success: boolean;
-      message: string;
-    }
+  success: boolean;
+  message: string;
+}
 
 interface Notice {
-      id: string;
-      noticeNumber: string;
-      date: string;
-      title: string;
-      category: string;
-      description: string;
-      pdfUrl?: string | null;
-      pdfPublicId?: string | null;
-      senderId: string;
-      sender?: {
-        id: string;
-        name: string;
-        email: string;
-        role: string;
-      } | null;
-      createdAt: string;
-      updatedAt: string;
-      content?: string;
-    }
+  id: string;
+  noticeNumber: string;
+  date: string;
+  title: string;
+  category: string;
+  description: string;
+  pdfUrl?: string | null;
+  pdfPublicId?: string | null;
+  senderId: string;
+  sender?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+  content?: string;
+}
 
 interface ListNoticesResponse {
-      success: boolean;
-      data: Notice[];
-    }
+  success: boolean;
+  data: Notice[];
+}
 
 interface CreateNoticeResponse {
-      success: boolean;
-      data: Notice;
-    }
+  success: boolean;
+  data: Notice;
+}
 
 interface CreateNoticePayload {
-      title: string;
-      content: string;
-      category?: string;
-      published?: boolean;
-    }
+  title: string;
+  content: string;
+  category?: string;
+  published?: boolean;
+}
 
 interface Feedback {
-      id: string;
-      enrollmentId: string;
-      senderId: string;
-      receiverId: string;
-      type: "STUDENT_TO_INSTRUCTOR" | "INSTRUCTOR_TO_STUDENT";
-      rating: number;
-      comments: string;
-      createdAt: string;
-      updatedAt: string;
-    }
+  id: string;
+  enrollmentId: string;
+  senderId: string;
+  receiverId: string;
+  type: "STUDENT_TO_INSTRUCTOR" | "INSTRUCTOR_TO_STUDENT";
+  rating: number;
+  comments: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface FeedbackResponse {
-      success: boolean;
-      data: Feedback;
-      message?: string;
-    }
+  success: boolean;
+  data: Feedback;
+  message?: string;
+}
 
 interface FeedbackPayload {
-      enrollmentId: string;
-      rating: number;
-      comments: string;
-    }
+  enrollmentId: string;
+  rating: number;
+  comments: string;
+}
 
 interface MyFeedbacksResponse {
-      success: boolean;
-      data: {
-        sent: Feedback[];
-        received: Feedback[];
-      };
-    }
+  success: boolean;
+  data: {
+    sent: Feedback[];
+    received: Feedback[];
+  };
+}
 
 interface Review {
-      id: string;
-      name: string;
-      email: string;
-      role: string | null;
-      rating: number;
-      comment: string;
-      avatarUrl: string | null;
-      isApproved: boolean;
-      approvedAt: string | null;
-      createdAt: string;
-      updatedAt: string;
-    }
+  id: string;
+  name: string;
+  email: string;
+  role: string | null;
+  rating: number;
+  comment: string;
+  avatarUrl: string | null;
+  isApproved: boolean;
+  approvedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface MyReviewsResponse {
-      success: boolean;
-      data: Review[];
-    }
+  success: boolean;
+  data: Review[];
+}
 
 interface VerifyIDCardResponse {
-      success: boolean;
-      data: {
-        cardNo: string;
-        status: string;
-      };
-    }
+  success: boolean;
+  data: {
+    cardNo: string;
+    status: string;
+  };
+}
 
 interface SubmitProjectPayload {
-      enrollmentId: string;
-      projectTitle: string;
-      projectUrl: string;
-      comments?: string;
-    }
+  enrollmentId: string;
+  projectTitle: string;
+  projectUrl: string;
+  documentBase64?: string;
+  documentName?: string;
+  comments?: string;
+}
 
 interface UpdateSubmissionPayload {
-      projectTitle: string;
-      projectUrl: string;
-      comments?: string;
-    }
+  projectTitle: string;
+  projectUrl: string;
+  comments?: string;
+}
 
 interface DeleteSubmissionResponse {
-      success: boolean;
-      message?: string;
-      data: null;
-    }
+  success: boolean;
+  message?: string;
+  data: null;
+}
 
 const STUDENT_QUERY_KEYS = {
-      ALL: ["students"] as const,
-      DASHBOARD: ["students", "dashboard"] as const,
-      INTERNSHIPS: (params?: ListInternshipsParams) =>
-        ["students", "internships", params] as const,
-      INTERNSHIP: (id: string) => ["students", "internship", id] as const,
-      APPLICATION_STATUS: (id: string) =>
-        ["students", "application-status", id] as const,
-      MY_APPLICATIONS: ["students", "my-applications"] as const,
-      MY_ENROLLMENTS: ["students", "my-enrollments"] as const,
-      ENROLLMENT_ID_CARD: (id: string) => ["students", "id-card", id] as const,
-      MY_CERTIFICATES: ["students", "my-certificates"] as const,
-      MY_PAYMENTS: (params?: ListMyPaymentsParams) =>
-        ["students", "my-payments", params] as const,
-      PAYMENT_RECEIPT: (id: string) => ["students", "payment-receipt", id] as const,
-      ALL_PAYMENTS: ["payments"] as const,
-      MY_TICKETS: ["students", "my-tickets"] as const,
-      NOTICES: ["notices"] as const,
-      FEEDBACKS: ["students", "feedbacks"] as const,
-      MY_REVIEWS: ["students", "my-reviews"] as const,
-      VERIFY_ID_CARD: (id: string) => ["id-card", "verify", id] as const,
-      ENROLLMENT_SUBMISSIONS: (id: string) =>
-        ["students", "enrollment-submissions", id] as const,
-    };
+  ALL: ["students"] as const,
+  DASHBOARD: ["students", "dashboard"] as const,
+  INTERNSHIPS: (params?: ListInternshipsParams) =>
+    ["students", "internships", params] as const,
+  INTERNSHIP: (id: string) => ["students", "internship", id] as const,
+  APPLICATION_STATUS: (id: string) =>
+    ["students", "application-status", id] as const,
+  MY_APPLICATIONS: ["students", "my-applications"] as const,
+  MY_ENROLLMENTS: ["students", "my-enrollments"] as const,
+  ENROLLMENT_ID_CARD: (id: string) => ["students", "id-card", id] as const,
+  MY_CERTIFICATES: ["students", "my-certificates"] as const,
+  MY_PAYMENTS: (params?: ListMyPaymentsParams) =>
+    ["students", "my-payments", params] as const,
+  PAYMENT_RECEIPT: (id: string) => ["students", "payment-receipt", id] as const,
+  ALL_PAYMENTS: ["payments"] as const,
+  MY_TICKETS: ["students", "my-tickets"] as const,
+  NOTICES: ["notices"] as const,
+  FEEDBACKS: ["students", "feedbacks"] as const,
+  MY_REVIEWS: ["students", "my-reviews"] as const,
+  VERIFY_ID_CARD: (id: string) => ["id-card", "verify", id] as const,
+  ENROLLMENT_SUBMISSIONS: (id: string) =>
+    ["students", "enrollment-submissions", id] as const,
+};
 
 const ENDPOINTS = {
-      AUTH: {
-        REGISTER: "/auth/register",
-        LOGIN: "/auth/login",
-        ME: "/auth/me",
-        REFRESH: "/auth/refresh",
-        FORGOT_PASSWORD: "/auth/forgot-password",
-        RESET_PASSWORD: "/auth/reset-password",
-        CHANGE_PASSWORD: "/auth/change-password",
-        LOGOUT: "/auth/logout",
-      },
-      USERS: {
-        BASE: "/users",
-        BY_ID: (id: string) => `/users/${id}`,
-      },
-      HEALTH: {
-        BASE: "/health",
-      },
-        STUDENTS: {
-        DASHBOARD: "/student/dashboard",
-        REGISTER: "/student/register",
-        REGISTER_ME: "/student/register/me",
-        REGISTER_ADMIN: "/student/register/admin",
-        REGISTER_BY_ID: (id: string) => `/student/register/${id}`,
-        REGISTER_DOWNLOAD: (id: string) => `/student/register/${id}/download`,
-      },
-        INTERNSHIPS: {
-        BASE: "/internships",
-        BY_ID: (id: string) => `/internships/${id}`,
-        APPLY: (id: string) => `/internships/${id}/apply`,
-        ENROLL: (id: string) => `/internships/${id}/enroll`,
-        MY_APPLICATIONS: "/internships/applications/my-applications",
-        APPROVE_POSTING: (id: string) => `/internships/${id}/approve-posting`,
-        REJECT_POSTING: (id: string) => `/internships/${id}/reject-posting`,
-        APPLICATIONS: (id: string) => `/internships/${id}/applications`,
-        EXPORT_APPLICATIONS: (id: string) =>
-          `/internships/${id}/applications/export`,
-        PENDING: "/internships/pending",
-      },
-        ENROLLMENTS: {
-        MY_ENROLLMENTS: "/enrollments/my-enrollments",
-        ID_CARD: (id: string) => `/enrollments/${id}/id-card`,
-        COMPLETE: (id: string) => `/enrollments/${id}/complete`,
-        ISSUE_CERTIFICATE: (id: string) => `/enrollments/${id}/issue-certificate`,
-        SUBMISSIONS: (id: string) => `/enrollments/${id}/submissions`,
-        SUBMISSION_BY_ID: (id: string, submissionId: string) =>
-          `/enrollments/${id}/submissions/${submissionId}`,
-      },
-        CERTIFICATES: {
-        MY_CERTIFICATES: "/certificates/my-certificates",
-        DOWNLOAD: (id: string) => `/certificates/${id}/download`,
-        GRADE: (id: string) => `/certificates/${id}/grade`,
-      },
-        PAYMENTS: {
-        MY_PAYMENTS: "/payments/my-payments",
-        RECEIPT: (id: string) => `/payments/${id}`,
-        CREATE_ORDER: "/payments/create-order",
-        VERIFY_SIGNATURE: "/payments/verify-signature",
-        REFUND: "/payments/refund",
-        ADMIN_LIST: "/payments",
-        WEBHOOK: "/payments/webhook",
-      },
-        TICKETS: {
-        BASE: "/tickets",
-        MY_TICKETS: "/tickets/my-tickets",
-        BY_ID: (id: string) => `/tickets/${id}`,
-      },
-        NOTICES: {
-        BASE: "/notices",
-        BY_ID: (id: string) => `/notices/${id}`,
-      },
-        INSTRUCTOR: {
-        REGISTER: "/instructor/register",
-        REGISTER_ME: "/instructor/register/me",
-        REGISTER_ADMIN: "/instructor/register/admin",
-        REGISTER_BY_ID: (id: string) => `/instructor/register/${id}`,
-        IMMERSIONS: "/instructor/immersions",
-        IMMERSION_ACCEPT: (id: string) => `/instructor/immersions/${id}/accept`,
-        IMMERSION_REJECT: (id: string) => `/instructor/immersions/${id}/reject`,
-        SUBMISSIONS: "/instructor/submissions",
-        SUBMISSIONS_GRADE: (id: string) => `/instructor/submissions/${id}/grade`,
-        DASHBOARD: "/instructor/dashboard",
-        PROFILE: "/instructor/profile",
-        PROFILES_PENDING: "/instructor/profiles/pending",
-        PROFILES_APPROVE: (id: string) => `/instructor/profiles/${id}/approve`,
-        PROFILES_REJECT: (id: string) => `/instructor/profiles/${id}/reject`,
-        MY_INTERNSHIPS: "/instructor/my-internships",
-        MY_STUDENTS: "/instructor/my-students",
-        ID_CARD: "/instructor/id-card",
-        DOWNLOAD_ID_CARD: "/instructor/id-card/download",
-        APPROVE_APPLICATION: (id: string, appId: string) =>
-          `/internships/${id}/applications/${appId}/approve`,
-        REJECT_APPLICATION: (id: string, appId: string) =>
-          `/internships/${id}/applications/${appId}/reject`,
-        RUNNING_INTERNSHIPS: "/internships",
-      },
-        EMERSION: {
-        REGISTER: "/immersion/register",
-        DASHBOARD: "/immersion-participant/dashboard",
-        PROFILE: "/immersion-participant/profile",
-        APPLICATION: "/immersion-participant/application",
-        APPLICATION_MY: "/immersion-participant/application/my",
-        APPLICATION_STATUS: "/immersion-participant/application-status",
-        APPLICATION_DOWNLOAD: "/immersion-participant/application/download",
-        CERTIFICATES: {
-          MY: "/immersion/certificates/my",
-          DOWNLOAD: (id: string) => `/immersion/certificates/${id}/download`,
-          GRADE: (id: string) => `/immersion/certificates/${id}/grade`,
-        },
-        ID_CARD: {
-          MY: "/immersion-participant/id-card",
-          BY_APPLICATION_ID: (id: string) =>
-            `/immersion/applications/${id}/id-card`,
-          DOWNLOAD: (id: string) => `/immersion-id-cards/${id}/download`,
-        },
-        PAYMENTS: {
-          MY_PAYMENTS: "/immersion/payments/my-payments",
-          RECEIPT: (id: string) => `/immersion/payments/${id}`,
-          CREATE_ORDER: "/immersion/payments/create-order",
-          VERIFY_SIGNATURE: "/immersion/payments/verify-signature",
-          REFUND: "/immersion/payments/refund",
-        },
-        PROGRAMS: {
-          LIST: "/immersion",
-          APPLY: (id: string) => `/immersion/programs/${id}/apply`,
-        },
-      },
-      RECRUIT: {
-        REGISTER: "/recruit-user/register",
-        PROFILE: "/recruit-user/profile",
-        APPLICATIONS: "/recruit-user/applications",
-        APPLICATION_BY_ID: (id: string) => `/recruit-user/applications/${id}`,
-        APPLICATION_PDF: (id: string) => `/recruit-user/applications/${id}/pdf`,
-        SETTINGS: "/recruit-user/settings",
-        OPENINGS: "/recruit-user/openings",
-        APPLY: (openingId: string) => `/recruit-user/openings/${openingId}/apply`,
-        EDUCATION: "/recruit-user/profile/education",
-        EDUCATION_BY_ID: (id: string) => `/recruit-user/profile/education/${id}`,
-        EXPERIENCE: "/recruit-user/profile/experience",
-        EXPERIENCE_BY_ID: (id: string) => `/recruit-user/profile/experience/${id}`,
-        DOCUMENTS: "/recruit-user/profile/documents",
-        REFERENCES: "/recruit-user/profile/references",
-        REFERENCE_BY_ID: (id: string) => `/recruit-user/profile/references/${id}`,
-        SPECIFIC_INFO: "/recruit-user/profile/specific-info",
-      },
-        SUPER_ADMIN: {
-        RECRUIT_REGISTRATIONS: "/recruit-user/profile/admin",
-        JOB_OPPORTUNITIES: "/job-opportunities",
-        JOB_OPPORTUNITY_BY_ID: (id: string) => `/job-opportunities/${id}`,
-        JOB_OPPORTUNITY_EXPORT_APPLICATIONS: (id: string) =>
-          `/job-opportunities/${id}/applications/export`,
-        JOB_APPLICATIONS: "/job-applications",
-        JOB_APPLICATION_STATUS: (id: string) => `/job-applications/${id}/status`,
-        MEDIA_PHOTOS: "/media/photos",
-        MEDIA_PHOTOS_BY_ID: (id: string) => `/media/photos/${id}`,
-        MEDIA_VIDEOS: "/media/videos",
-        MEDIA_VIDEOS_BY_ID: (id: string) => `/media/videos/${id}`,
-        MEDIA_NEWSPAPERS: "/media/newspapers",
-        MEDIA_NEWSPAPERS_BY_ID: (id: string) => `/media/newspapers/${id}`,
-        MEDIA_ONLINE_LINKS: "/media/online-links",
-        MEDIA_ONLINE_LINKS_BY_ID: (id: string) => `/media/online-links/${id}`,
-        BLOGS: "/blogs",
-        BLOGS_BY_ID: (id: string) => `/blogs/${id}`,
-        REVIEWS_PENDING: "/reviews/pending",
-        REVIEW_APPROVE: (id: string) => `/reviews/${id}/approve`,
-        REVIEW_BY_ID: (id: string) => `/reviews/${id}`,
-        DONATIONS_ADMIN: "/donations/admin",
-        DONATIONS_ADMIN_EXPORT: "/donations/admin/export",
-        TICKETS_ADMIN: "/tickets/admin",
-        IMMERSION_APPLICATIONS: "/immersion/applications",
-        IMMERSION_APPLICATION_BY_ID: (id: string) =>
-          `/immersion/applications/${id}`,
-        IMMERSION_STATUS: (id: string) => `/immersion/applications/${id}/status`,
-        IMMERSION_ASSIGN_MENTOR: (id: string) =>
-          `/immersion/applications/${id}/assign-mentor`,
-        IMMERSION_ISSUE_CERTIFICATE: (id: string) =>
-          `/immersion/applications/${id}/issue-certificate`,
-        IMMERSIONS: "/immersion",
-        IMMERSIONS_BY_ID: (id: string) => `/immersion/${id}`,
-        IMMERSION_EXPORT_APPLICATIONS: (id: string) =>
-          `/immersion/${id}/applications/export`,
-        IMMERSION_CATEGORIES: "/immersion/categories",
-        LEAD_INTERESTS: (id: string) => `/internships/${id}/interests`,
-        RUNNING_INTERNSHIPS: "/internships",
-        RUNNING_INTERNSHIPS_BY_ID: (id: string) => `/internships/${id}`,
-      },
-      REVIEWS: {
-        MY_REVIEWS: "/reviews/my-reviews",
-      },
-      FEEDBACK: {
-        BASE: "/feedback",
-        MY_FEEDBACKS: "/feedback/my-feedbacks",
-      },
-      ID_CARDS: {
-        BY_ID: (id: string) => `/id-cards/${id}`,
-      },
-    };
+  AUTH: {
+    REGISTER: "/auth/register",
+    LOGIN: "/auth/login",
+    ME: "/auth/me",
+    REFRESH: "/auth/refresh",
+    FORGOT_PASSWORD: "/auth/forgot-password",
+    RESET_PASSWORD: "/auth/reset-password",
+    CHANGE_PASSWORD: "/auth/change-password",
+    LOGOUT: "/auth/logout",
+  },
+  USERS: {
+    BASE: "/users",
+    BY_ID: (id: string) => `/users/${id}`,
+  },
+  HEALTH: {
+    BASE: "/health",
+  },
+  STUDENTS: {
+    DASHBOARD: "/student/dashboard",
+    REGISTER: "/student/register",
+    REGISTER_ME: "/student/register/me",
+    REGISTER_ADMIN: "/student/register/admin",
+    REGISTER_BY_ID: (id: string) => `/student/register/${id}`,
+    REGISTER_DOWNLOAD: (id: string) => `/student/register/${id}/download`,
+  },
+  INTERNSHIPS: {
+    BASE: "/internships",
+    BY_ID: (id: string) => `/internships/${id}`,
+    APPLY: (id: string) => `/internships/${id}/apply`,
+    ENROLL: (id: string) => `/internships/${id}/enroll`,
+    MY_APPLICATIONS: "/internships/applications/my-applications",
+    APPROVE_POSTING: (id: string) => `/internships/${id}/approve-posting`,
+    REJECT_POSTING: (id: string) => `/internships/${id}/reject-posting`,
+    APPLICATIONS: (id: string) => `/internships/${id}/applications`,
+    EXPORT_APPLICATIONS: (id: string) =>
+      `/internships/${id}/applications/export`,
+    PENDING: "/internships/pending",
+  },
+  ENROLLMENTS: {
+    MY_ENROLLMENTS: "/enrollments/my-enrollments",
+    ID_CARD: (id: string) => `/enrollments/${id}/id-card`,
+    COMPLETE: (id: string) => `/enrollments/${id}/complete`,
+    ISSUE_CERTIFICATE: (id: string) => `/enrollments/${id}/issue-certificate`,
+    SUBMISSIONS: (id: string) => `/enrollments/${id}/submissions`,
+    SUBMISSION_BY_ID: (id: string, submissionId: string) =>
+      `/enrollments/${id}/submissions/${submissionId}`,
+  },
+  CERTIFICATES: {
+    MY_CERTIFICATES: "/certificates/my-certificates",
+    DOWNLOAD: (id: string) => `/certificates/${id}/download`,
+    GRADE: (id: string) => `/certificates/${id}/grade`,
+  },
+  PAYMENTS: {
+    MY_PAYMENTS: "/payments/my-payments",
+    RECEIPT: (id: string) => `/payments/${id}`,
+    CREATE_ORDER: "/payments/create-order",
+    VERIFY_SIGNATURE: "/payments/verify-signature",
+    REFUND: "/payments/refund",
+    ADMIN_LIST: "/payments",
+    WEBHOOK: "/payments/webhook",
+  },
+  TICKETS: {
+    BASE: "/tickets",
+    MY_TICKETS: "/tickets/my-tickets",
+    BY_ID: (id: string) => `/tickets/${id}`,
+  },
+  NOTICES: {
+    BASE: "/notices",
+    BY_ID: (id: string) => `/notices/${id}`,
+  },
+  INSTRUCTOR: {
+    REGISTER: "/instructor/register",
+    REGISTER_ME: "/instructor/register/me",
+    REGISTER_ADMIN: "/instructor/register/admin",
+    REGISTER_BY_ID: (id: string) => `/instructor/register/${id}`,
+    IMMERSIONS: "/instructor/immersions",
+    IMMERSION_ACCEPT: (id: string) => `/instructor/immersions/${id}/accept`,
+    IMMERSION_REJECT: (id: string) => `/instructor/immersions/${id}/reject`,
+    SUBMISSIONS: "/instructor/submissions",
+    SUBMISSIONS_GRADE: (id: string) => `/instructor/submissions/${id}/grade`,
+    DASHBOARD: "/instructor/dashboard",
+    PROFILE: "/instructor/profile",
+    PROFILES_PENDING: "/instructor/profiles/pending",
+    PROFILES_APPROVE: (id: string) => `/instructor/profiles/${id}/approve`,
+    PROFILES_REJECT: (id: string) => `/instructor/profiles/${id}/reject`,
+    MY_INTERNSHIPS: "/instructor/my-internships",
+    MY_STUDENTS: "/instructor/my-students",
+    ID_CARD: "/instructor/id-card",
+    DOWNLOAD_ID_CARD: "/instructor/id-card/download",
+    APPROVE_APPLICATION: (id: string, appId: string) =>
+      `/internships/${id}/applications/${appId}/approve`,
+    REJECT_APPLICATION: (id: string, appId: string) =>
+      `/internships/${id}/applications/${appId}/reject`,
+    RUNNING_INTERNSHIPS: "/internships",
+  },
+  EMERSION: {
+    REGISTER: "/immersion/register",
+    DASHBOARD: "/immersion-participant/dashboard",
+    PROFILE: "/immersion-participant/profile",
+    APPLICATION: "/immersion-participant/application",
+    APPLICATION_MY: "/immersion-participant/application/my",
+    APPLICATION_STATUS: "/immersion-participant/application-status",
+    APPLICATION_DOWNLOAD: "/immersion-participant/application/download",
+    CERTIFICATES: {
+      MY: "/immersion/certificates/my",
+      DOWNLOAD: (id: string) => `/immersion/certificates/${id}/download`,
+      GRADE: (id: string) => `/immersion/certificates/${id}/grade`,
+    },
+    ID_CARD: {
+      MY: "/immersion-participant/id-card",
+      BY_APPLICATION_ID: (id: string) =>
+        `/immersion/applications/${id}/id-card`,
+      DOWNLOAD: (id: string) => `/immersion-id-cards/${id}/download`,
+    },
+    PAYMENTS: {
+      MY_PAYMENTS: "/immersion/payments/my-payments",
+      RECEIPT: (id: string) => `/immersion/payments/${id}`,
+      CREATE_ORDER: "/immersion/payments/create-order",
+      VERIFY_SIGNATURE: "/immersion/payments/verify-signature",
+      REFUND: "/immersion/payments/refund",
+    },
+    PROGRAMS: {
+      LIST: "/immersion",
+      APPLY: (id: string) => `/immersion/programs/${id}/apply`,
+    },
+  },
+  RECRUIT: {
+    REGISTER: "/recruit-user/register",
+    PROFILE: "/recruit-user/profile",
+    APPLICATIONS: "/recruit-user/applications",
+    APPLICATION_BY_ID: (id: string) => `/recruit-user/applications/${id}`,
+    APPLICATION_PDF: (id: string) => `/recruit-user/applications/${id}/pdf`,
+    SETTINGS: "/recruit-user/settings",
+    OPENINGS: "/recruit-user/openings",
+    APPLY: (openingId: string) => `/recruit-user/openings/${openingId}/apply`,
+    EDUCATION: "/recruit-user/profile/education",
+    EDUCATION_BY_ID: (id: string) => `/recruit-user/profile/education/${id}`,
+    EXPERIENCE: "/recruit-user/profile/experience",
+    EXPERIENCE_BY_ID: (id: string) => `/recruit-user/profile/experience/${id}`,
+    DOCUMENTS: "/recruit-user/profile/documents",
+    REFERENCES: "/recruit-user/profile/references",
+    REFERENCE_BY_ID: (id: string) => `/recruit-user/profile/references/${id}`,
+    SPECIFIC_INFO: "/recruit-user/profile/specific-info",
+  },
+  SUPER_ADMIN: {
+    RECRUIT_REGISTRATIONS: "/recruit-user/profile/admin",
+    JOB_OPPORTUNITIES: "/job-opportunities",
+    JOB_OPPORTUNITY_BY_ID: (id: string) => `/job-opportunities/${id}`,
+    JOB_OPPORTUNITY_EXPORT_APPLICATIONS: (id: string) =>
+      `/job-opportunities/${id}/applications/export`,
+    JOB_APPLICATIONS: "/job-applications",
+    JOB_APPLICATION_STATUS: (id: string) => `/job-applications/${id}/status`,
+    MEDIA_PHOTOS: "/media/photos",
+    MEDIA_PHOTOS_BY_ID: (id: string) => `/media/photos/${id}`,
+    MEDIA_VIDEOS: "/media/videos",
+    MEDIA_VIDEOS_BY_ID: (id: string) => `/media/videos/${id}`,
+    MEDIA_NEWSPAPERS: "/media/newspapers",
+    MEDIA_NEWSPAPERS_BY_ID: (id: string) => `/media/newspapers/${id}`,
+    MEDIA_ONLINE_LINKS: "/media/online-links",
+    MEDIA_ONLINE_LINKS_BY_ID: (id: string) => `/media/online-links/${id}`,
+    BLOGS: "/blogs",
+    BLOGS_BY_ID: (id: string) => `/blogs/${id}`,
+    REVIEWS_PENDING: "/reviews/pending",
+    REVIEW_APPROVE: (id: string) => `/reviews/${id}/approve`,
+    REVIEW_BY_ID: (id: string) => `/reviews/${id}`,
+    DONATIONS_ADMIN: "/donations/admin",
+    DONATIONS_ADMIN_EXPORT: "/donations/admin/export",
+    TICKETS_ADMIN: "/tickets/admin",
+    IMMERSION_APPLICATIONS: "/immersion/applications",
+    IMMERSION_APPLICATION_BY_ID: (id: string) =>
+      `/immersion/applications/${id}`,
+    IMMERSION_STATUS: (id: string) => `/immersion/applications/${id}/status`,
+    IMMERSION_ASSIGN_MENTOR: (id: string) =>
+      `/immersion/applications/${id}/assign-mentor`,
+    IMMERSION_ISSUE_CERTIFICATE: (id: string) =>
+      `/immersion/applications/${id}/issue-certificate`,
+    IMMERSIONS: "/immersion",
+    IMMERSIONS_BY_ID: (id: string) => `/immersion/${id}`,
+    IMMERSION_EXPORT_APPLICATIONS: (id: string) =>
+      `/immersion/${id}/applications/export`,
+    IMMERSION_CATEGORIES: "/immersion/categories",
+    LEAD_INTERESTS: (id: string) => `/internships/${id}/interests`,
+    RUNNING_INTERNSHIPS: "/internships",
+    RUNNING_INTERNSHIPS_BY_ID: (id: string) => `/internships/${id}`,
+  },
+  REVIEWS: {
+    MY_REVIEWS: "/reviews/my-reviews",
+  },
+  FEEDBACK: {
+    BASE: "/feedback",
+    MY_FEEDBACKS: "/feedback/my-feedbacks",
+  },
+  ID_CARDS: {
+    BY_ID: (id: string) => `/id-cards/${id}`,
+  },
+};
 
 interface ApiSuccess<T> {
-      success: boolean;
-      data: T;
-      message?: string;
-    }
+  success: boolean;
+  data: T;
+  message?: string;
+}
 
 interface EmersionRegisterData {
-      id: string;
-      name: string;
-      email: string;
-      role: string;
-      createdAt: string;
-    }
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
 
 type EmersionRegisterResponse = ApiSuccess<EmersionRegisterData>;
 
 interface EmersionRegisterPayload {
-      name: string;
-      email: string;
-      password: string;
-      mobileNo?: string;
-    }
+  name: string;
+  email: string;
+  password: string;
+  mobileNo?: string;
+}
 
 interface EmersionDashboardStats {
-      totalApplications: number;
-      applicationStatus: string;
-      profileCompletion: number;
-      totalImmersionDays: number;
-      totalHoursLogged?: number;
-      totalProjectsSubmitted?: number;
-    }
+  totalApplications: number;
+  applicationStatus: string;
+  profileCompletion: number;
+  totalImmersionDays: number;
+  totalHoursLogged?: number;
+  totalProjectsSubmitted?: number;
+}
 
 interface EmersionDashboardRecentActivity {
-      id: string;
-      type: string;
-      title: string;
-      description?: string;
-      createdAt: string;
-    }
+  id: string;
+  type: string;
+  title: string;
+  description?: string;
+  createdAt: string;
+}
 
 type EmersionRegStatus =
-      "NOT_REGISTERED" | "PENDING" | "APPROVED" | "REJECTED";
+  "NOT_REGISTERED" | "PENDING" | "APPROVED" | "REJECTED";
 
 interface EmersionDashboardApplication {
-      id: string;
-      status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED";
-      remarks?: string | null;
-      preferredDuration?: string | null;
-      preferredLocation?: string | null;
-      preferredStartDate?: string | null;
-      submittedAt?: string | null;
-      approvedAt?: string | null;
-      immersionId?: string | null;
-      immersion?: {
-        id: string;
-        title: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-        status: string;
-      } | null;
-      assignedMentor?: {
-        id: string;
-        name: string;
-        email: string;
-      } | null;
-    }
+  id: string;
+  status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED";
+  remarks?: string | null;
+  preferredDuration?: string | null;
+  preferredLocation?: string | null;
+  preferredStartDate?: string | null;
+  submittedAt?: string | null;
+  approvedAt?: string | null;
+  immersionId?: string | null;
+  immersion?: {
+    id: string;
+    title: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+  } | null;
+  assignedMentor?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+}
 
 interface EmersionDashboardData {
-      stats: EmersionDashboardStats;
-      recentActivities?: EmersionDashboardRecentActivity[];
-      registrationStatus?: EmersionRegStatus;
-      applicationStatus?: EmersionRegStatus;
-      applicationId?: string | null;
-      application?: EmersionDashboardApplication | null;
-    }
+  stats: EmersionDashboardStats;
+  recentActivities?: EmersionDashboardRecentActivity[];
+  registrationStatus?: EmersionRegStatus;
+  applicationStatus?: EmersionRegStatus;
+  applicationId?: string | null;
+  application?: EmersionDashboardApplication | null;
+}
 
 type EmersionDashboardResponse = ApiSuccess<EmersionDashboardData>;
 
 interface EmersionProfileData {
-      id: string;
-      userId: string;
-      emersionId?: string;
+  id: string;
+  userId: string;
+  emersionId?: string;
 
-        fullName: string;
-      fatherSpouseName: string;
-      dob: string;
-      gender: "Male" | "Female" | "Transgender";
-      mobileNo: string;
-      alternateMobileNo?: string | null;
-      emailAddress?: string | null;
-      photoUrl?: string | null;
-      photoName?: string | null;
-      identityProofUrl?: string | null;
-      identityProofName?: string | null;
-      educationCertUrl?: string | null;
-      educationCertName?: string | null;
+  fullName: string;
+  fatherSpouseName: string;
+  dob: string;
+  gender: "Male" | "Female" | "Transgender";
+  mobileNo: string;
+  alternateMobileNo?: string | null;
+  emailAddress?: string | null;
+  photoUrl?: string | null;
+  photoName?: string | null;
+  identityProofUrl?: string | null;
+  identityProofName?: string | null;
+  educationCertUrl?: string | null;
+  educationCertName?: string | null;
 
-        currentAddressLocal: string;
-      currentAddressDistrict: string;
-      currentAddressState: string;
-      currentAddressCountry: string;
-      currentAddressPinCode: string;
-      sameAsCurrentAddress: boolean;
-      permAddressLocal: string;
-      permAddressDistrict: string;
-      permAddressState: string;
-      permAddressCountry: string;
-      permAddressPinCode: string;
+  currentAddressLocal: string;
+  currentAddressDistrict: string;
+  currentAddressState: string;
+  currentAddressCountry: string;
+  currentAddressPinCode: string;
+  sameAsCurrentAddress: boolean;
+  permAddressLocal: string;
+  permAddressDistrict: string;
+  permAddressState: string;
+  permAddressCountry: string;
+  permAddressPinCode: string;
 
-        availability?: string | null;
-      preferredMode?: string[] | null;
-      selfIntroduction?: string | null;
+  availability?: string | null;
+  preferredMode?: string[] | null;
+  selfIntroduction?: string | null;
 
-      createdAt: string;
-      updatedAt: string;
-    }
+  createdAt: string;
+  updatedAt: string;
+}
 
 type EmersionProfileResponse = ApiSuccess<EmersionProfileData>;
 
 type UpdateEmersionProfileResponse = ApiSuccess<EmersionProfileData>;
 
 interface TEmersionAddress_2 {
-      local: string;
-      district: string;
-      state: string;
-      country: string;
-      pinCode: string;
-    }
+  local: string;
+  district: string;
+  state: string;
+  country: string;
+  pinCode: string;
+}
 
 interface UpdateEmersionProfilePayload {
-      fullName?: string;
-      fatherSpouseName?: string;
-      dob?: string;
-      gender?: "Male" | "Female" | "Transgender";
-      mobileNo?: string;
-      alternateMobileNo?: string;
-      emailAddress?: string;
-      photoBase64?: string;
-      photoName?: string;
-      currentAddress?: TEmersionAddress_2;
-      sameAsCurrentAddress?: boolean;
-      permanentAddress?: TEmersionAddress_2;
-      availability?: string;
-      preferredMode?: string[];
-      selfIntroduction?: string;
-    }
+  fullName?: string;
+  fatherSpouseName?: string;
+  dob?: string;
+  gender?: "Male" | "Female" | "Transgender";
+  mobileNo?: string;
+  alternateMobileNo?: string;
+  emailAddress?: string;
+  photoBase64?: string;
+  photoName?: string;
+  currentAddress?: TEmersionAddress_2;
+  sameAsCurrentAddress?: boolean;
+  permanentAddress?: TEmersionAddress_2;
+  availability?: string;
+  preferredMode?: string[];
+  selfIntroduction?: string;
+}
 
 interface EmersionAcademicDetail {
-      id?: string;
-      qualification: string; 
-      stream: string;
-      subject: string;
-      instituteName: string;
-      universityName: string;
-      sessionYear: string;
-      gradeDivision: string;
-      studentStatus: string; 
-    }
+  id?: string;
+  qualification: string;
+  stream: string;
+  subject: string;
+  instituteName: string;
+  universityName: string;
+  sessionYear: string;
+  gradeDivision: string;
+  studentStatus: string;
+}
 
 interface EmersionApplicationData {
-      id: string;
-      userId: string;
-      status: "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT";
-      remarks?: string | null;
+  id: string;
+  userId: string;
+  status: "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT";
+  remarks?: string | null;
 
-        preferredDuration?: string | null;
-      customDuration?: string | null;
-      preferredLocation?: string | null;
-      preferredStartDate?: string | null;
+  preferredDuration?: string | null;
+  customDuration?: string | null;
+  preferredLocation?: string | null;
+  preferredStartDate?: string | null;
 
-        expectedLearning?: string | null;
-      careerGoal?: string | null;
-      specialTalentSkill?: string | null;
-      languagesKnown?: string | null;
+  expectedLearning?: string | null;
+  careerGoal?: string | null;
+  specialTalentSkill?: string | null;
+  languagesKnown?: string | null;
 
-        presenceType?: string | null;
-      fieldVisitsComfort?: boolean | null;
-      workType?: string | null;
+  presenceType?: string | null;
+  fieldVisitsComfort?: boolean | null;
+  workType?: string | null;
 
-        emergencyContactName?: string | null;
-      emergencyRelationship?: string | null;
-      emergencyMobile?: string | null;
+  emergencyContactName?: string | null;
+  emergencyRelationship?: string | null;
+  emergencyMobile?: string | null;
 
-        declarationAccepted: boolean;
-      rulesAccepted: boolean;
+  declarationAccepted: boolean;
+  rulesAccepted: boolean;
 
-        academicDetails: EmersionAcademicDetail[];
+  academicDetails: EmersionAcademicDetail[];
 
-        immersionId?: string | null;
-      immersion?: {
-        id: string;
-        title: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-      } | null;
+  immersionId?: string | null;
+  immersion?: {
+    id: string;
+    title: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+  } | null;
 
-        assignedMentor?: {
-        id: string;
-        name: string;
-        email: string;
-      } | null;
+  assignedMentor?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
 
-      submittedAt?: string | null;
-      approvedAt?: string | null;
-      createdAt: string;
-      updatedAt: string;
-    }
+  submittedAt?: string | null;
+  approvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 type EmersionApplicationResponse = ApiSuccess<EmersionApplicationData>;
 
 const ZEmersionAddress = z.object({
-      local: z
-        .string()
-        .min(3, { message: "Local address must be at least 3 characters." }),
-      district: z.string().min(2, { message: "District is required." }),
-      state: z.string().min(2, { message: "State is required." }),
-      country: z.string().min(2, { message: "Country is required." }),
-      pinCode: z
-        .string()
-        .regex(/^\d{6}$/, { message: "Pin code must be exactly 6 digits." }),
-    });
+  local: z
+    .string()
+    .min(3, { message: "Local address must be at least 3 characters." }),
+  district: z.string().min(2, { message: "District is required." }),
+  state: z.string().min(2, { message: "State is required." }),
+  country: z.string().min(2, { message: "Country is required." }),
+  pinCode: z
+    .string()
+    .regex(/^\d{6}$/, { message: "Pin code must be exactly 6 digits." }),
+});
 
 const ZEmersionQualification = z.object({
-      highestQualification: z
-        .string()
-        .min(1, { message: "Qualification is required." }),
-      specialization: z.string().min(1, { message: "Specialization is required." }),
-      universityName: z
-        .string()
-        .min(2, { message: "University / Institution name is required." }),
-      yearOfCompletion: z
-        .string()
-        .min(4, { message: "Year of completion is required." }),
-      percentage: z.string().min(1, { message: "Percentage / Grade is required." }),
-    });
+  highestQualification: z
+    .string()
+    .min(1, { message: "Qualification is required." }),
+  specialization: z.string().min(1, { message: "Specialization is required." }),
+  universityName: z
+    .string()
+    .min(2, { message: "University / Institution name is required." }),
+  yearOfCompletion: z
+    .string()
+    .min(4, { message: "Year of completion is required." }),
+  percentage: z.string().min(1, { message: "Percentage / Grade is required." }),
+});
 
 const ZEmersionProfessionalExperience = z.object({
-      organization: z
-        .string()
-        .min(2, { message: "Organization name is required." }),
-      designation: z.string().min(2, { message: "Designation is required." }),
-      duration: z.string().min(1, { message: "Duration is required." }),
-      description: z.string().optional().default(""),
-    });
+  organization: z
+    .string()
+    .min(2, { message: "Organization name is required." }),
+  designation: z.string().min(2, { message: "Designation is required." }),
+  duration: z.string().min(1, { message: "Duration is required." }),
+  description: z.string().optional().default(""),
+});
 
 const ZEmersionProjectSample = z.object({
-      title: z.string().min(2, { message: "Project title is required." }),
-      description: z.string().min(10, {
-        message: "Project description must be at least 10 characters.",
-      }),
-      link: z
-        .string()
-        .url({ message: "Please enter a valid URL." })
-        .optional()
-        .or(z.literal(""))
-        .optional(),
-      techStack: z.array(z.string()).optional().default([]),
-    });
+  title: z.string().min(2, { message: "Project title is required." }),
+  description: z.string().min(10, {
+    message: "Project description must be at least 10 characters.",
+  }),
+  link: z
+    .string()
+    .url({ message: "Please enter a valid URL." })
+    .optional()
+    .or(z.literal(""))
+    .optional(),
+  techStack: z.array(z.string()).optional().default([]),
+});
 
 const ZEmersionReference = z.object({
-      name: z.string().min(2, { message: "Reference name is required." }),
-      designation: z.string().min(2, { message: "Designation is required." }),
-      organization: z.string().min(2, { message: "Organization is required." }),
-      contact: z.string().min(5, { message: "Contact info is required." }),
-    });
+  name: z.string().min(2, { message: "Reference name is required." }),
+  designation: z.string().min(2, { message: "Designation is required." }),
+  organization: z.string().min(2, { message: "Organization is required." }),
+  contact: z.string().min(5, { message: "Contact info is required." }),
+});
 
 const ZEmersionApplication = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, { message: "Full name must be at least 2 characters." }),
+    fatherSpouseName: z
+      .string()
+      .min(2, { message: "Father's / Spouse's name is required." }),
+    dob: z.string().min(1, { message: "Date of birth is required." }),
+    gender: z.enum(["Male", "Female", "Transgender"], {
+      message: "Gender is required.",
+    }),
+    mobileNo: z
+      .string()
+      .regex(/^\d{10}$/, { message: "Mobile number must be 10 digits." }),
+    alternateMobileNo: z
+      .string()
+      .regex(/^\d{10}$/, { message: "Alternate mobile must be 10 digits." })
+      .or(z.string().length(0))
+      .optional(),
+    emailAddress: z
+      .string()
+      .email({ message: "Please enter a valid email." })
+      .or(z.string().length(0))
+      .optional(),
+    photoBase64: z.string().optional().default(""),
+    photoName: z.string().optional().default(""),
+
+    currentAddress: ZEmersionAddress,
+    sameAsCurrentAddress: z.boolean().default(false),
+    permanentAddress: z
       .object({
-            fullName: z
-          .string()
-          .min(2, { message: "Full name must be at least 2 characters." }),
-        fatherSpouseName: z
-          .string()
-          .min(2, { message: "Father's / Spouse's name is required." }),
-        dob: z.string().min(1, { message: "Date of birth is required." }),
-        gender: z.enum(["Male", "Female", "Transgender"], {
-          message: "Gender is required.",
-        }),
-        mobileNo: z
-          .string()
-          .regex(/^\d{10}$/, { message: "Mobile number must be 10 digits." }),
-        alternateMobileNo: z
-          .string()
-          .regex(/^\d{10}$/, { message: "Alternate mobile must be 10 digits." })
-          .or(z.string().length(0))
-          .optional(),
-        emailAddress: z
-          .string()
-          .email({ message: "Please enter a valid email." })
-          .or(z.string().length(0))
-          .optional(),
-        photoBase64: z.string().optional().default(""),
-        photoName: z.string().optional().default(""),
-
-            currentAddress: ZEmersionAddress,
-        sameAsCurrentAddress: z.boolean().default(false),
-        permanentAddress: z
-          .object({
-            local: z.string().optional().default(""),
-            district: z.string().optional().default(""),
-            state: z.string().optional().default(""),
-            country: z.string().optional().default("India"),
-            pinCode: z.string().optional().default(""),
-          })
-          .optional()
-          .default({
-            local: "",
-            district: "",
-            state: "",
-            country: "India",
-            pinCode: "",
-          }),
-
-            qualifications: z.array(ZEmersionQualification).min(1, {
-          message: "Please add at least one educational qualification.",
-        }),
-
-            professionalExperiences: z
-          .array(ZEmersionProfessionalExperience)
-          .optional()
-          .default([]),
-        totalWorkExperience: z.string().optional().default(""),
-
-            technicalSkills: z.array(z.string()).optional().default([]),
-        softSkills: z.array(z.string()).optional().default([]),
-        programmingLanguages: z.array(z.string()).optional().default([]),
-        tools: z.array(z.string()).optional().default([]),
-        certifications: z.array(z.string()).optional().default([]),
-
-            projects: z.array(ZEmersionProjectSample).optional().default([]),
-
-            references: z.array(ZEmersionReference).optional().default([]),
-
-                                    preferredMode: z
-          .array(z.enum(["Online", "Offline/On Campus", "Hybrid"]))
-          .min(1, { message: "Select at least one preferred mode." }),
-
-            fieldVisitsComfort: z.boolean().default(true),
-        workType: z
-          .enum([
-            "GOVT_JOB",
-            "NGO_JOB",
-            "SOCIAL_WORK",
-            "STUDENT",
-            "RESEARCHER",
-            "OTHER",
-          ])
-          .default("STUDENT"),
-
-            emergencyContactName: z.string().optional().default(""),
-        emergencyRelationship: z.string().optional().default(""),
-        emergencyMobile: z.string().optional().default(""),
-
-            identityProofBase64: z.string().optional().default(""),
-        identityProofName: z.string().optional().default(""),
-        educationCertBase64: z.string().optional().default(""),
-        educationCertName: z.string().optional().default(""),
-        experienceCertBase64: z.string().optional().default(""),
-        experienceCertName: z.string().optional().default(""),
-        agreeTerms: z.literal(true, {
-          message: "You must agree to the declaration.",
-        }),
+        local: z.string().optional().default(""),
+        district: z.string().optional().default(""),
+        state: z.string().optional().default(""),
+        country: z.string().optional().default("India"),
+        pinCode: z.string().optional().default(""),
       })
-      .superRefine((data, ctx) => {
-        if (!data.sameAsCurrentAddress) {
-          const res = ZEmersionAddress.safeParse(data.permanentAddress);
-          if (!res.success) {
-            res.error.issues.forEach((issue) => {
-              ctx.addIssue({
-                ...issue,
-                path: ["permanentAddress", ...issue.path],
-              });
-            });
-          }
-        }
-      });
+      .optional()
+      .default({
+        local: "",
+        district: "",
+        state: "",
+        country: "India",
+        pinCode: "",
+      }),
+
+    qualifications: z.array(ZEmersionQualification).min(1, {
+      message: "Please add at least one educational qualification.",
+    }),
+
+    professionalExperiences: z
+      .array(ZEmersionProfessionalExperience)
+      .optional()
+      .default([]),
+    totalWorkExperience: z.string().optional().default(""),
+
+    technicalSkills: z.array(z.string()).optional().default([]),
+    softSkills: z.array(z.string()).optional().default([]),
+    programmingLanguages: z.array(z.string()).optional().default([]),
+    tools: z.array(z.string()).optional().default([]),
+    certifications: z.array(z.string()).optional().default([]),
+
+    projects: z.array(ZEmersionProjectSample).optional().default([]),
+
+    references: z.array(ZEmersionReference).optional().default([]),
+
+    preferredMode: z
+      .array(z.enum(["Online", "Offline/On Campus", "Hybrid"]))
+      .min(1, { message: "Select at least one preferred mode." }),
+
+    fieldVisitsComfort: z.boolean().default(true),
+    workType: z
+      .enum([
+        "GOVT_JOB",
+        "NGO_JOB",
+        "SOCIAL_WORK",
+        "STUDENT",
+        "RESEARCHER",
+        "OTHER",
+      ])
+      .default("STUDENT"),
+
+    emergencyContactName: z.string().optional().default(""),
+    emergencyRelationship: z.string().optional().default(""),
+    emergencyMobile: z.string().optional().default(""),
+
+    identityProofBase64: z.string().optional().default(""),
+    identityProofName: z.string().optional().default(""),
+    educationCertBase64: z.string().optional().default(""),
+    educationCertName: z.string().optional().default(""),
+    experienceCertBase64: z.string().optional().default(""),
+    experienceCertName: z.string().optional().default(""),
+    agreeTerms: z.literal(true, {
+      message: "You must agree to the declaration.",
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.sameAsCurrentAddress) {
+      const res = ZEmersionAddress.safeParse(data.permanentAddress);
+      if (!res.success) {
+        res.error.issues.forEach((issue) => {
+          ctx.addIssue({
+            ...issue,
+            path: ["permanentAddress", ...issue.path],
+          });
+        });
+      }
+    }
+  });
 
 type TEmersionApplication = z.infer<typeof ZEmersionApplication>;
 
 type EmersionMyApplicationResponse = ApiSuccess<
-      EmersionApplicationData[]
-    >;
+  EmersionApplicationData[]
+>;
 
 interface EmersionApplicationStatusData {
-      status: EmersionRegStatus;
-      applicationId?: string | null;
-      profileId?: string | null;
-      remarks?: string | null;
-      submittedAt?: string | null;
-      reviewedAt?: string | null;
-      assignedMentor?: { id: string; name: string; email: string } | null;
-      immersion?: {
-        id: string;
-        title: string;
-        location: string;
-        startDate: string;
-        endDate: string;
-      } | null;
-    }
+  status: EmersionRegStatus;
+  applicationId?: string | null;
+  profileId?: string | null;
+  remarks?: string | null;
+  submittedAt?: string | null;
+  reviewedAt?: string | null;
+  assignedMentor?: { id: string; name: string; email: string } | null;
+  immersion?: {
+    id: string;
+    title: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+  } | null;
+}
 
 type EmersionApplicationStatusResponse =
-      ApiSuccess<EmersionApplicationStatusData>;
+  ApiSuccess<EmersionApplicationStatusData>;
 
 interface EmersionNotice {
-      id: string;
-      noticeNumber: string;
-      date: string;
-      title: string;
-      category: string;
-      description: string;
-      pdfUrl?: string | null;
-      pdfPublicId?: string | null;
-      senderId: string;
-      sender?: {
-        id: string;
-        name: string;
-        email: string;
-        role: string;
-      } | null;
-      createdAt: string;
-      updatedAt: string;
-      content?: string;
-    }
+  id: string;
+  noticeNumber: string;
+  date: string;
+  title: string;
+  category: string;
+  description: string;
+  pdfUrl?: string | null;
+  pdfPublicId?: string | null;
+  senderId: string;
+  sender?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+  content?: string;
+}
 
 interface EmersionListNoticesResponse {
-      success: boolean;
-      data: EmersionNotice[];
-    }
+  success: boolean;
+  data: EmersionNotice[];
+}
 
 type EmersionTicketStatus =
-      "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+  "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 
 type EmersionTicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 interface EmersionSupportTicket {
-      id: string;
-      ticketNo: string;
-      title: string;
-      description: string;
-      status: EmersionTicketStatus;
-      priority: EmersionTicketPriority;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      subject?: string;
-      message?: string;
-    }
+  id: string;
+  ticketNo: string;
+  title: string;
+  description: string;
+  status: EmersionTicketStatus;
+  priority: EmersionTicketPriority;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  subject?: string;
+  message?: string;
+}
 
 interface EmersionCreateTicketResponse {
-      success: boolean;
-      data: EmersionSupportTicket;
-    }
+  success: boolean;
+  data: EmersionSupportTicket;
+}
 
 interface EmersionCreateTicketPayload {
-      title: string;
-      description: string;
-      priority?: EmersionTicketPriority;
-    }
+  title: string;
+  description: string;
+  priority?: EmersionTicketPriority;
+}
 
 interface EmersionListMyTicketsResponse {
-      success: boolean;
-      data: EmersionSupportTicket[];
-    }
+  success: boolean;
+  data: EmersionSupportTicket[];
+}
 
 interface EmersionDeleteTicketResponse {
-      success: boolean;
-      message: string;
-    }
+  success: boolean;
+  message: string;
+}
 
 interface EmersionCertificate {
-      id: string;
-      certificateNo: string;
-      studentId?: string;
-      issuedAt: string;
-      grade?: string | null;
-      credits?: string | null;
-      program: {
-        id: string;
-        title: string;
-        location: string;
-        period: string;
-      };
-      issuedBy: {
-        id: string;
-        name: string;
-      };
-    }
+  id: string;
+  certificateNo: string;
+  studentId?: string;
+  issuedAt: string;
+  grade?: string | null;
+  credits?: string | null;
+  program: {
+    id: string;
+    title: string;
+    location: string;
+    period: string;
+  };
+  issuedBy: {
+    id: string;
+    name: string;
+  };
+}
 
 interface ListEmersionCertificatesResponse {
-      success: boolean;
-      data: EmersionCertificate[];
-    }
+  success: boolean;
+  data: EmersionCertificate[];
+}
 
 interface AssignGradeResponse_2 {
-      success: boolean;
-      message: string;
-      data: {
-        id: string;
-        certificateNo: string;
-        grade: string;
-        credits: string | null;
-      };
-    }
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    certificateNo: string;
+    grade: string;
+    credits: string | null;
+  };
+}
 
 interface AssignGradeRequest_2 {
-      grade: string;
-    }
+  grade: string;
+}
 
 interface EmersionIDCard {
-      cardNo: string;
-      issuedAt: string;
-      studentId: string;
-      studentName: string;
-      studentEmail: string;
-      studentMobile: string;
-      studentAddress: string;
-      photoUrl?: string;
-      programId: string;
-      programTitle: string;
-      programLocation: string;
-      programStartDate?: string | null;
-      programEndDate?: string | null;
-      programStatus?: "UPCOMING" | "ACTIVE" | "COMPLETED";
-    }
+  cardNo: string;
+  issuedAt: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  studentMobile: string;
+  studentAddress: string;
+  photoUrl?: string;
+  programId: string;
+  programTitle: string;
+  programLocation: string;
+  programStartDate?: string | null;
+  programEndDate?: string | null;
+  programStatus?: "UPCOMING" | "ACTIVE" | "COMPLETED";
+}
 
 interface GetEmersionIDCardResponse {
-      success: boolean;
-      data: EmersionIDCard;
-    }
+  success: boolean;
+  data: EmersionIDCard;
+}
 
 interface ListMyEmersionPaymentsParams {
-      page?: number;
-      limit?: number;
-      status?: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
-      search?: string;
-    }
+  page?: number;
+  limit?: number;
+  status?: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+  search?: string;
+}
 
 interface EmersionPaymentProgramSummary {
-      id: string;
-      title: string;
-      location: string;
-      period: string;
-    }
+  id: string;
+  title: string;
+  location: string;
+  period: string;
+}
 
 interface EmersionPaymentPublic {
-      id: string;
-      amount: number;
-      currency: string;
-      status: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
-      razorpayOrderId: string;
-      razorpayPaymentId: string | null;
-      razorpaySignature: string | null;
-      refundId: string | null;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      applicationId: string;
-      application?: {
-        id: string;
-        immersion?: EmersionPaymentProgramSummary | null;
-      };
-    }
+  id: string;
+  amount: number;
+  currency: string;
+  status: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+  razorpayOrderId: string;
+  razorpayPaymentId: string | null;
+  razorpaySignature: string | null;
+  refundId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  applicationId: string;
+  application?: {
+    id: string;
+    immersion?: EmersionPaymentProgramSummary | null;
+  };
+}
 
 interface ListMyEmersionPaymentsResponse {
-      success: boolean;
-      data: EmersionPaymentPublic[];
-      meta?: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      };
-    }
+  success: boolean;
+  data: EmersionPaymentPublic[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
 
 interface EmersionPaymentReceiptData {
-      id: string;
-      amount: number;
-      status: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
-      createdAt: string;
-      razorpayOrderId: string;
-      razorpayPaymentId: string | null;
-      user?: {
-        id: string;
-        name: string;
-        email: string;
-      };
-      application?: {
-        id: string;
-        immersion?: EmersionPaymentProgramSummary | null;
-      };
-    }
+  id: string;
+  amount: number;
+  status: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+  createdAt: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string | null;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  application?: {
+    id: string;
+    immersion?: EmersionPaymentProgramSummary | null;
+  };
+}
 
 interface GetEmersionPaymentReceiptResponse {
-      success: boolean;
-      data: EmersionPaymentReceiptData;
-    }
+  success: boolean;
+  data: EmersionPaymentReceiptData;
+}
 
 interface CreateEmersionOrderResponseData {
+  paymentId: string;
+  razorpayOrderId: string;
+  amount: number;
+  currency: string;
+  keyId: string;
+  isMockMode: boolean;
+}
+
+interface CreateEmersionOrderResponse {
+  success: boolean;
+  data: CreateEmersionOrderResponseData;
+}
+
+type CreateEmersionOrderPayload = Record<string, never>;
+
+interface VerifyEmersionSignatureResponseData {
+  paymentId: string;
+  applicationId: string;
+  status: string;
+}
+
+interface VerifyEmersionSignatureResponse {
+  success: boolean;
+  data: VerifyEmersionSignatureResponseData;
+}
+
+interface VerifyEmersionSignaturePayload {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}
+
+interface RefundEmersionPaymentResponseData {
+  paymentId: string;
+  refundId: string;
+  refundedAmount: number;
+  status: string;
+}
+
+interface RefundEmersionPaymentResponse {
+  success: boolean;
+  data: RefundEmersionPaymentResponseData;
+}
+
+interface RefundEmersionPaymentPayload {
+  paymentId: string;
+  amount?: number;
+}
+
+interface EmersionProgramCategory {
+  id: string;
+  name: string;
+}
+
+interface EmersionProgramInstructor {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface EmersionProgram {
+  id: string;
+  code?: string | null;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  period: string;
+  facilities?: string | null;
+  benefits?: string | null;
+  fees: number;
+  categoryId?: string | null;
+  category?: EmersionProgramCategory | null;
+  instructorId?: string | null;
+  instructor?: EmersionProgramInstructor | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ListEmersionProgramsResponse {
+  success: boolean;
+  data: EmersionProgram[];
+}
+
+type ApplyToEmersionProgramResponse =
+  ApiSuccess<EmersionApplicationData>;
+
+interface IEmersionDataHooks {
+  useEmersionRegister: (
+    options?: TMutationOptions<
+      EmersionRegisterResponse,
+      Error,
+      EmersionRegisterPayload
+    >,
+  ) => TMutationReturnType<EmersionRegisterResponse, EmersionRegisterPayload>;
+
+  useEmersionDashboard: (
+    options?: TQueryOptions<EmersionDashboardResponse, Error>,
+  ) => TQueryReturnType<EmersionDashboardResponse, Error>;
+
+  useEmersionProfile: (
+    options?: TQueryOptions<EmersionProfileResponse, Error>,
+  ) => TQueryReturnType<EmersionProfileResponse, Error>;
+
+  useUpdateEmersionProfile: (
+    options?: TMutationOptions<
+      UpdateEmersionProfileResponse,
+      Error,
+      UpdateEmersionProfilePayload
+    >,
+  ) => TMutationReturnType<
+    UpdateEmersionProfileResponse,
+    UpdateEmersionProfilePayload
+  >;
+
+  useSubmitEmersionApplication: (
+    options?: TMutationOptions<
+      EmersionApplicationResponse,
+      Error,
+      TEmersionApplication
+    >,
+  ) => TMutationReturnType<EmersionApplicationResponse, TEmersionApplication>;
+
+  useMyEmersionApplication: (
+    options?: TQueryOptions<EmersionMyApplicationResponse, Error>,
+  ) => TQueryReturnType<EmersionMyApplicationResponse, Error>;
+
+  useEmersionApplicationStatus: (
+    options?: TQueryOptions<EmersionApplicationStatusResponse, Error>,
+  ) => TQueryReturnType<EmersionApplicationStatusResponse, Error>;
+
+  useDownloadEmersionApplication: (
+    options?: TMutationOptions<Blob, Error, void>,
+  ) => TMutationReturnType<Blob, void>;
+
+  useNotices: (
+    options?: TQueryOptions<EmersionListNoticesResponse, Error>,
+  ) => TQueryReturnType<EmersionListNoticesResponse, Error>;
+
+  useCreateSupportTicket: (
+    options?: TMutationOptions<
+      EmersionCreateTicketResponse,
+      Error,
+      EmersionCreateTicketPayload
+    >,
+  ) => TMutationReturnType<
+    EmersionCreateTicketResponse,
+    EmersionCreateTicketPayload
+  >;
+
+  useMySupportTickets: (
+    options?: TQueryOptions<EmersionListMyTicketsResponse, Error>,
+  ) => TQueryReturnType<EmersionListMyTicketsResponse, Error>;
+
+  useDeleteSupportTicket: (
+    options?: TMutationOptions<EmersionDeleteTicketResponse, Error, string>,
+  ) => TMutationReturnType<EmersionDeleteTicketResponse, string>;
+
+  useMyEmersionCertificates: (
+    options?: TQueryOptions<ListEmersionCertificatesResponse, Error>,
+  ) => TQueryReturnType<ListEmersionCertificatesResponse, Error>;
+
+  useDownloadEmersionCertificate: (
+    options?: TMutationOptions<Blob, Error, string>,
+  ) => TMutationReturnType<Blob, string>;
+
+  useAssignEmersionGrade: (
+    options?: TMutationOptions<
+      AssignGradeResponse_2,
+      Error,
+      { id: string; payload: AssignGradeRequest_2 }
+    >,
+  ) => TMutationReturnType<
+    AssignGradeResponse_2,
+    { id: string; payload: AssignGradeRequest_2 }
+  >;
+
+  useEmersionIDCard: (
+    options?: TQueryOptions<GetEmersionIDCardResponse, Error>,
+  ) => TQueryReturnType<GetEmersionIDCardResponse, Error>;
+
+  useApplicationIDCard: (
+    applicationId: string,
+    options?: TQueryOptions<GetEmersionIDCardResponse, Error>,
+  ) => TQueryReturnType<GetEmersionIDCardResponse, Error>;
+
+  useDownloadEmersionIDCard: (
+    options?: TMutationOptions<Blob, Error, string>,
+  ) => TMutationReturnType<Blob, string>;
+
+  useMyEmersionPayments: (
+    params?: ListMyEmersionPaymentsParams,
+    options?: TQueryOptions<ListMyEmersionPaymentsResponse, Error>,
+  ) => TQueryReturnType<ListMyEmersionPaymentsResponse, Error>;
+
+  useEmersionPaymentReceipt: (
+    id: string,
+    options?: TQueryOptions<GetEmersionPaymentReceiptResponse, Error>,
+  ) => TQueryReturnType<GetEmersionPaymentReceiptResponse, Error>;
+
+  useCreateEmersionPaymentOrder: (
+    options?: TMutationOptions<
+      CreateEmersionOrderResponse,
+      Error,
+      CreateEmersionOrderPayload
+    >,
+  ) => TMutationReturnType<
+    CreateEmersionOrderResponse,
+    CreateEmersionOrderPayload
+  >;
+
+  useVerifyEmersionPaymentSignature: (
+    options?: TMutationOptions<
+      VerifyEmersionSignatureResponse,
+      Error,
+      VerifyEmersionSignaturePayload
+    >,
+  ) => TMutationReturnType<
+    VerifyEmersionSignatureResponse,
+    VerifyEmersionSignaturePayload
+  >;
+
+  useRefundEmersionPayment: (
+    options?: TMutationOptions<
+      RefundEmersionPaymentResponse,
+      Error,
+      RefundEmersionPaymentPayload
+    >,
+  ) => TMutationReturnType<
+    RefundEmersionPaymentResponse,
+    RefundEmersionPaymentPayload
+  >;
+
+  usePrograms: (
+    params?: {
+      search?: string;
+      filter?: string;
+      type?: string;
+      categoryId?: string;
+    },
+    options?: TQueryOptions<ListEmersionProgramsResponse, Error>,
+  ) => TQueryReturnType<ListEmersionProgramsResponse, Error>;
+
+  useApplyToProgram: (
+    options?: TMutationOptions<ApplyToEmersionProgramResponse, Error, string>,
+  ) => TMutationReturnType<ApplyToEmersionProgramResponse, string>;
+}
+
+interface IEmersionService {
+  register: (
+    payload: EmersionRegisterPayload,
+  ) => Promise<EmersionRegisterResponse>;
+  getDashboard: () => Promise<EmersionDashboardResponse>;
+  getProfile: () => Promise<EmersionProfileResponse>;
+  updateProfile: (
+    payload: UpdateEmersionProfilePayload,
+  ) => Promise<UpdateEmersionProfileResponse>;
+  submitApplication: (
+    payload: TEmersionApplication,
+  ) => Promise<EmersionApplicationResponse>;
+  getMyApplication: () => Promise<EmersionMyApplicationResponse>;
+  getApplicationStatus: () => Promise<EmersionApplicationStatusResponse>;
+  downloadApplication: () => Promise<Blob>;
+
+  listNotices: () => Promise<EmersionListNoticesResponse>;
+
+  createSupportTicket: (
+    payload: EmersionCreateTicketPayload,
+  ) => Promise<EmersionCreateTicketResponse>;
+  listMySupportTickets: () => Promise<EmersionListMyTicketsResponse>;
+  deleteSupportTicket: (id: string) => Promise<EmersionDeleteTicketResponse>;
+
+  listMyCertificates: () => Promise<ListEmersionCertificatesResponse>;
+  downloadCertificate: (id: string) => Promise<Blob>;
+  assignGrade: (
+    id: string,
+    payload: AssignGradeRequest_2,
+  ) => Promise<AssignGradeResponse_2>;
+
+  getMyIDCard: () => Promise<GetEmersionIDCardResponse>;
+  getApplicationIDCard: (
+    applicationId: string,
+  ) => Promise<GetEmersionIDCardResponse>;
+  downloadIDCard: (id: string) => Promise<Blob>;
+
+  listMyPayments: (
+    params?: ListMyEmersionPaymentsParams,
+  ) => Promise<ListMyEmersionPaymentsResponse>;
+  getPaymentReceipt: (id: string) => Promise<GetEmersionPaymentReceiptResponse>;
+  createPaymentOrder: (
+    payload: CreateEmersionOrderPayload,
+  ) => Promise<CreateEmersionOrderResponse>;
+  verifyPaymentSignature: (
+    payload: VerifyEmersionSignaturePayload,
+  ) => Promise<VerifyEmersionSignatureResponse>;
+  refundPayment: (
+    payload: RefundEmersionPaymentPayload,
+  ) => Promise<RefundEmersionPaymentResponse>;
+
+  listPrograms: (params?: {
+    search?: string;
+    filter?: string;
+    type?: string;
+    categoryId?: string;
+  }) => Promise<ListEmersionProgramsResponse>;
+  applyToProgram: (
+    programId: string,
+  ) => Promise<ApplyToEmersionProgramResponse>;
+}
+
+function mapBackendProfileToFrontend(
+  profile: Record<string, unknown> | null,
+): Record<string, unknown> | null {
+  if (!profile) return null;
+  return {
+    id: profile.id,
+    userId: profile.userId,
+    emersionId:
+      ((profile.user as Record<string, unknown>)?.registrationNo as string) ||
+      (profile.emersionId as string) ||
+      "",
+    fullName: profile.fullName,
+    fatherSpouseName: profile.fatherMotherName,
+    dob: profile.dateOfBirth
+      ? new Date(profile.dateOfBirth as string | number | Date)
+        .toISOString()
+        .split("T")[0]
+      : "",
+    gender:
+      profile.gender === "MALE"
+        ? "Male"
+        : profile.gender === "FEMALE"
+          ? "Female"
+          : "Transgender",
+    mobileNo: profile.mobileNumber,
+    alternateMobileNo: profile.alternateMobileNo ?? null,
+    emailAddress: profile.emailAddress ?? "",
+    photoUrl: profile.passportPhotoUrl,
+    photoName: profile.passportPhotoUrl ? "passport_photo.jpg" : null,
+    signatureUrl: profile.signatureUrl,
+    signatureName: profile.signatureUrl ? "signature.jpg" : null,
+    agreeTerms: profile.agreeTerms ?? false,
+    academicDetails: (profile.academicDetail as Record<string, unknown>)
+      ? [
+        {
+          schoolCollegeName:
+            (profile.academicDetail as Record<string, unknown>)
+              ?.schoolCollegeName || "",
+          boardUniversity:
+            (profile.academicDetail as Record<string, unknown>)
+              ?.boardUniversity || "",
+          yearOfPassing:
+            (profile.academicDetail as Record<string, unknown>)
+              ?.yearOfPassing || "",
+          gradeDivision:
+            (profile.academicDetail as Record<string, unknown>)
+              ?.gradeDivision || "",
+        },
+      ]
+      : [],
+    identityProofUrl: profile.resumeUrl || null,
+    identityProofName: profile.resumeUrl ? "resume.pdf" : null,
+    educationCertUrl: profile.nocUrl || null,
+    educationCertName: profile.nocUrl ? "noc.pdf" : null,
+    currentAddressLocal:
+      (profile.currentAddressSameAsPerm
+        ? profile.permLocalArea
+        : profile.currLocalArea) || "",
+    currentAddressDistrict:
+      (profile.currentAddressSameAsPerm
+        ? profile.permDistrict
+        : profile.currDistrict) || "",
+    currentAddressState:
+      (profile.currentAddressSameAsPerm
+        ? profile.permState
+        : profile.currState) || "",
+    currentAddressCountry:
+      (profile.currentAddressSameAsPerm
+        ? profile.permCountry
+        : profile.currCountry) || "India",
+    currentAddressPinCode:
+      (profile.currentAddressSameAsPerm
+        ? profile.permPinCode
+        : profile.currPinCode) || "",
+    sameAsCurrentAddress: profile.currentAddressSameAsPerm,
+    permAddressLocal: (profile.permLocalArea || "") as string,
+    permAddressDistrict: (profile.permDistrict || "") as string,
+    permAddressState: (profile.permState || "") as string,
+    permAddressCountry: (profile.permCountry || "India") as string,
+    permAddressPinCode: (profile.permPinCode || "") as string,
+  };
+}
+
+const mapQualEnum = (q: string): string => {
+  const val = q.toUpperCase().replace(/\s+/g, "_").replace(/\./g, "");
+  if (val.includes("MATRICULATION")) return "MATRICULATION";
+  if (val.includes("INTERMEDIATE")) return "INTERMEDIATE";
+  if (val.includes("PHD_PASS_OUT")) return "PHD_PASS_OUT";
+  if (val.includes("UNDER_PHD") || val.includes("UNDER_PH_D"))
+    return "UNDER_PHD";
+  if (val.includes("MPHIL_PASS_OUT") || val.includes("M_PHIL_PASS_OUT"))
+    return "MPHIL_PASS_OUT";
+  if (val.includes("UNDER_MPHIL") || val.includes("UNDER_M_PHIL"))
+    return "UNDER_MPHIL";
+  if (val.includes("POST_GRADUATE_PASS_OUT")) return "POST_GRADUATE_PASS_OUT";
+  if (val.includes("UNDER_POST_GRADUATE")) return "UNDER_POST_GRADUATE";
+  if (val.includes("GRADUATE_PASS_OUT")) return "GRADUATE_PASS_OUT";
+  if (val.includes("UNDER_GRADUATE")) return "UNDER_GRADUATE";
+  return "UNDER_GRADUATE";
+};
+
+const EMERSION_QUERY_KEYS = {
+  ALL: ["emersion"] as const,
+  DASHBOARD: () => ["emersion", "dashboard"] as const,
+  PROFILE: () => ["emersion", "profile"] as const,
+  APPLICATION_MY: () => ["emersion", "application", "my"] as const,
+  APPLICATION_STATUS: () => ["emersion", "application-status"] as const,
+  NOTICES: () => ["emersion", "notices"] as const,
+  MY_TICKETS: () => ["emersion", "my-tickets"] as const,
+  MY_CERTIFICATES: () => ["emersion", "my-certificates"] as const,
+  MY_ID_CARD: () => ["emersion", "my-id-card"] as const,
+  APPLICATION_ID_CARD: (applicationId: string) =>
+    ["emersion", "id-card", applicationId] as const,
+  MY_PAYMENTS: (params?: ListMyEmersionPaymentsParams) =>
+    ["emersion", "my-payments", params] as const,
+  PAYMENT_RECEIPT: (id: string) => ["emersion", "payment-receipt", id] as const,
+  PROGRAMS: (params?: {
+    search?: string;
+    filter?: string;
+    type?: string;
+    categoryId?: string;
+  }) => ["emersion", "programs", params] as const,
+};
+
+interface TAcademicDetail {
+  qualification: string;
+  stream: string;
+  subject: string;
+  instituteName: string;
+  universityName: string;
+  sessionYear: string;
+  gradeDivision: string;
+  status: "Pass Out" | "Persuing";
+}
+
+interface StudentRegistrationResponse {
+  id: string;
+  studentId: string;
+  fullName: string;
+  fatherName: string;
+  motherName: string;
+  dob: string;
+  gender: "Male" | "Female" | "Transgender";
+  category: string;
+  localAddressLocal: string;
+  localAddressDistrict: string;
+  localAddressState: string;
+  localAddressCountry: string;
+  localAddressPinCode: string;
+  sameAsLocal: boolean;
+  permAddressLocal: string;
+  permAddressDistrict: string;
+  permAddressState: string;
+  permAddressCountry: string;
+  permAddressPinCode: string;
+  mobileNo: string;
+  internshipGoal:
+  | "Job"
+  | "Freelancing"
+  | "Higher Studies"
+  | "Startup"
+  | "Skill Enhancement"
+  | "Other";
+  aadharNo?: string;
+  photoUrl: string;
+  photoName: string;
+  signatureUrl: string;
+  signatureName: string;
+  agreeTerms: boolean;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  academics: TAcademicDetail[];
+  skills?: any[];
+}
+
+type GetStudentRegistrationResponse =
+  ApiSuccess<StudentRegistrationResponse>;
+
+type SubmitStudentRegistrationResponse =
+  ApiSuccess<StudentRegistrationResponse>;
+
+interface TAddress {
+  local: string;
+  district: string;
+  state: string;
+  country: string;
+  pinCode: string;
+}
+
+interface StudentRegistrationPayload {
+  fullName: string;
+  fatherName: string;
+  motherName: string;
+  dob: string;
+  gender: "Male" | "Female" | "Transgender";
+  category: string;
+  localAddress: TAddress;
+  sameAsLocal: boolean;
+  permanentAddress: TAddress;
+  mobileNo: string;
+  academics: TAcademicDetail[];
+  internshipGoal:
+  | "Job"
+  | "Freelancing"
+  | "Higher Studies"
+  | "Startup"
+  | "Skill Enhancement"
+  | "Other";
+  aadharNo?: string;
+  photoBase64: string;
+  photoName: string;
+  signatureBase64: string;
+  signatureName: string;
+  agreeTerms: boolean;
+}
+
+type ListStudentRegistrationsResponse = ApiSuccess<
+  StudentRegistrationResponse[]
+>;
+
+type UpdateStudentRegistrationResponse =
+  ApiSuccess<StudentRegistrationResponse>;
+
+type StudentRegistrationUpdatePayload =
+  Partial<StudentRegistrationPayload>;
+
+type DeleteStudentRegistrationResponse = ApiSuccess<{ message: string }>;
+
+interface IStudentRegistrationDataHooks {
+  useStudentRegistrationMe: (
+    options?: TQueryOptions<GetStudentRegistrationResponse, Error>,
+  ) => TQueryReturnType<GetStudentRegistrationResponse, Error>;
+
+  useStudentRegistrationSubmit: (
+    options?: TMutationOptions<
+      SubmitStudentRegistrationResponse,
+      Error,
+      StudentRegistrationPayload
+    >,
+  ) => TMutationReturnType<
+    SubmitStudentRegistrationResponse,
+    StudentRegistrationPayload
+  >;
+
+  useStudentRegistrationAdminList: (
+    options?: TQueryOptions<ListStudentRegistrationsResponse, Error>,
+  ) => TQueryReturnType<ListStudentRegistrationsResponse, Error>;
+
+  useStudentRegistrationDetails: (
+    id: string,
+    options?: TQueryOptions<GetStudentRegistrationResponse, Error>,
+  ) => TQueryReturnType<GetStudentRegistrationResponse, Error>;
+
+  useStudentRegistrationUpdate: (
+    options?: TMutationOptions<
+      UpdateStudentRegistrationResponse,
+      Error,
+      { id: string; payload: StudentRegistrationUpdatePayload }
+    >,
+  ) => TMutationReturnType<
+    UpdateStudentRegistrationResponse,
+    { id: string; payload: StudentRegistrationUpdatePayload }
+  >;
+
+  useStudentRegistrationDelete: (
+    options?: TMutationOptions<
+      DeleteStudentRegistrationResponse,
+      Error,
+      string
+    >,
+  ) => TMutationReturnType<DeleteStudentRegistrationResponse, string>;
+}
+
+const STUDENT_REGISTRATION_QUERY_KEYS = {
+  ALL: ["student-registrations"] as const,
+  ME: ["student-registrations", "me"] as const,
+  LIST: ["student-registrations", "list"] as const,
+  DETAILS: (id: string) => ["student-registrations", "details", id] as const,
+};
+
+interface IStudentRegistrationService {
+  submitRegistration: (
+    payload: StudentRegistrationPayload,
+  ) => Promise<SubmitStudentRegistrationResponse>;
+  getMyRegistration: () => Promise<GetStudentRegistrationResponse>;
+  listAllRegistrations: () => Promise<ListStudentRegistrationsResponse>;
+  getRegistrationById: (id: string) => Promise<GetStudentRegistrationResponse>;
+  updateRegistration: (
+    id: string,
+    payload: StudentRegistrationUpdatePayload,
+  ) => Promise<UpdateStudentRegistrationResponse>;
+  deleteRegistration: (
+    id: string,
+  ) => Promise<DeleteStudentRegistrationResponse>;
+}
+
+type TMeta_9 = {
+  total: number;
+  limit: number;
+  page: number;
+};
+
+function formatInternshipCode_6(
+  code?: string | null,
+  companyName?: string | null,
+): string {
+  if (!code) return "IN2026XX10001";
+
+  const trimmed = code.trim();
+  if (/^IN\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+
+  const sourceText = companyName && companyName.trim() ? companyName : trimmed;
+  const words = sourceText
+    .trim()
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  let initials = "HT";
+  if (words.length === 1 && words[0]!.length >= 2) {
+    initials = words[0]!.slice(0, 2).toUpperCase();
+  } else if (words.length >= 2) {
+    initials = (words[0]![0]! + words[1]![0]!).toUpperCase();
+  }
+
+  let hash = 0;
+  for (let i = 0; i < trimmed.length; i++) {
+    hash = (hash * 31 + trimmed.charCodeAt(i)) % 2147483647;
+  }
+  const numericSuffix = (Math.abs(hash) % 90000) + 10000;
+
+  return `IN2026${initials}${numericSuffix}`;
+}
+
+type TAlertFilter_6 = {
+  icon?: React_4.ReactNode;
+  value: string;
+  label: string;
+  count: number | null;
+  type?: string;
+};
+
+const STATUS_FILTERS_2: TAlertFilter_6[] = [
+  { label: "Under Review", value: "UNDER_REVIEW", count: null },
+  { label: "Approved", value: "APPROVED", count: null },
+  { label: "Rejected", value: "REJECTED", count: null },
+];
+
+const ApplicationsSidebarFilters_2 = () => {
+  return (
+    <SidebarFiltersHeader className="mr-0 px-3">
+      <SidebarCheckBoxFilter
+        header="status"
+        filters={STATUS_FILTERS_2}
+        filter_name="Status"
+      />
+    </SidebarFiltersHeader>
+  );
+};
+
+interface ImmersionProgram {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  location: string;
+  period: string;
+  facilities: string[];
+  benefits: string[];
+  fees: string;
+}
+
+const IMMERSION_PROGRAMS: ImmersionProgram[] = [
+  {
+    id: "rural-dev",
+    category: "Rural Development Immersion",
+    title: "Rural Livelihoods & Enterprise Immersion",
+    description:
+      "Work with rural cooperatives, self-help groups, and micro-enterprises to understand village economy structures, supply chains, and grassroots sustainable models.",
+    location: "Rajasthan / Madhya Pradesh",
+    period: "3 Weeks",
+    facilities: [
+      "Shared community homestays",
+      "Traditional home-cooked meals",
+      "Local field coordination support",
+      "Language translators",
+    ],
+    benefits: [
+      "Field experience in rural microfinance",
+      "Understanding agricultural value chains",
+      "Community Development Certificate",
+      "Guidance from senior NGO experts",
+    ],
+    fees: "₹5,000 / $75",
+  },
+  {
+    id: "village-imm",
+    category: "Village Immersion",
+    title: "Village Life & Culture Immersion",
+    description:
+      "Experience authentic rural living, traditional agricultural practices, water harvesting systems, and local community-led resource management in remote areas.",
+    location: "Uttarakhand Himalayan Villages",
+    period: "2 Weeks",
+    facilities: [
+      "Homestays with local families",
+      "Traditional mountain food",
+      "Trekking and field navigation guides",
+      "Emergency medical kit access",
+    ],
+    benefits: [
+      "Cultural adaptation and survival skills",
+      "Insight into mountain agriculture systems",
+      "Himalayan Heritage Certificate",
+      "Opportunities for local volunteer projects",
+    ],
+    fees: "₹4,000 / $60",
+  },
+  {
+    id: "social-work",
+    category: "Social Work Immersion",
+    title: "Community Empowerment & Social Work",
+    description:
+      "Partner with local NGOs and community centers to support welfare campaigns, youth mentoring, educational drives, and women's empowerment initiatives.",
+    location: "Delhi NCR / Maharashtra Urban Slums",
+    period: "4 Weeks",
+    facilities: [
+      "Hostel accommodation",
+      "Co-working space & internet access",
+      "Shared kitchen facilities",
+      "Daily transport to site",
+    ],
+    benefits: [
+      "Social impact documentation skills",
+      "Hands-on experience in advocacy & counseling",
+      "Social Impact Leadership Certificate",
+      "Reference letter from a registered NGO",
+    ],
+    fees: "₹4,500 / $65",
+  },
+  {
+    id: "research",
+    category: "Research Immersion",
+    title: "Socio-Economic Research & Policy Evaluation",
+    description:
+      "Undertake empirical research, conduct field surveys, collect qualitative/quantitative data, and draft case studies on critical socio-economic development topics.",
+    location: "Hybrid / Partner Academic Centers",
+    period: "6 Weeks",
+    facilities: [
+      "Access to academic libraries & archives",
+      "Co-working desk space",
+      "High-speed internet & printer usage",
+      "Mentorship from PhD researchers",
+    ],
+    benefits: [
+      "Potential co-authorship on research papers",
+      "Mastery in research methodology & tools",
+      "Academic Research Certificate",
+      "Access to i3 data repositories",
+    ],
+    fees: "₹6,000 / $90",
+  },
+  {
+    id: "gov-policy",
+    category: "Governance/Policy Immersion",
+    title: "Grassroots Governance & Panchayati Raj Systems",
+    description:
+      "Study grassroots administration, policy execution, and rural governance systems. Observe how Central/State schemes are implemented by Panchayats.",
+    location: "District Headquarters in Uttar Pradesh / Bihar",
+    period: "3 Weeks",
+    facilities: [
+      "Government guest house stay",
+      "Local liaison & administrative permissions",
+      "Transport to block and Panchayat offices",
+      "Briefing materials on local governance",
+    ],
+    benefits: [
+      "Deep understanding of public policy challenges",
+      "Networking with local administrative officers",
+      "Grassroots Governance Certificate",
+      "Recommendation letter from local authorities",
+    ],
+    fees: "₹5,500 / $80",
+  },
+  {
+    id: "education",
+    category: "Education Immersion",
+    title: "Primary Education & Creative Learning Outreach",
+    description:
+      "Teach at underserved or rural primary schools using creative pedagogical tools, design low-cost teaching aids, and run extracurricular learning camps.",
+    location: "Rural Karnataka / Tamil Nadu",
+    period: "4 Weeks",
+    facilities: [
+      "School staff quarters boarding",
+      "School cafeteria meal plan",
+      "Teaching supplies and creative kit",
+      "Pre-immersion teacher training",
+    ],
+    benefits: [
+      "Pedagogy and classroom management skills",
+      "Insights into child psychology & rural education",
+      "Educational Outreach Certificate",
+      "Appreciation certificate from school management",
+    ],
+    fees: "₹4,000 / $60",
+  },
+  {
+    id: "health-med",
+    category: "Health & Medicine Immersion",
+    title: "Public Health & Rural Medical Care Outreach",
+    description:
+      "Assist in rural health camps, participate in public health awareness drives, compile medical registries, and study local community healthcare delivery.",
+    location: "Primary Health Centers in Gujarat / Kerala",
+    period: "4 Weeks",
+    facilities: [
+      "Medical center dormitory stay",
+      "Meals at health center mess",
+      "Clinical mentor and coordinator support",
+      "Safety gear & immunization instructions",
+    ],
+    benefits: [
+      "Exposure to low-resource healthcare delivery",
+      "Understanding of community & preventive medicine",
+      "Public Health Immersion Certificate",
+      "Hands-on health campaign planning",
+    ],
+    fees: "₹6,000 / $90",
+  },
+  {
+    id: "nature-env",
+    category: "Nature & Environment Immersion",
+    title: "Ecology, Forestry & Sustainable Agriculture",
+    description:
+      "Participate in conservation efforts, organic farming workshops, waste management programs, biodiversity mapping, and sustainable forestry projects.",
+    location: "Western Ghats / Eco-farms in Himachal Pradesh",
+    period: "2 Weeks",
+    facilities: [
+      "Eco-cottages / Camping tent stay",
+      "Organic farm-fresh meals",
+      "Outdoor safety gear and boots",
+      "Guided forest hikes",
+    ],
+    benefits: [
+      "Hands-on conservation and organic farming skills",
+      "Understanding biodiversity & sustainable ecosystems",
+      "Environmental Conservation Certificate",
+      "Field training in permaculture",
+    ],
+    fees: "₹5,000 / $75",
+  },
+  {
+    id: "spiritual",
+    category: "Spiritual Immersion",
+    title: "Heritage, Yoga & Spiritual Mindfulness",
+    description:
+      "Discover ancient spiritual heritage, participate in daily yoga & meditation practices, study local traditions, and experience holistic wellness routines.",
+    location: "Rishikesh / Varanasi",
+    period: "1 Week",
+    facilities: [
+      "Ashram accommodation",
+      "Strictly vegetarian Satvik meals",
+      "Yoga mats and instruction guide",
+      "Guided visits to spiritual landmarks",
+    ],
+    benefits: [
+      "Holistic wellness and stress management",
+      "Deep understanding of Indian spiritual heritage",
+      "Spiritual & Mindfulness Certificate",
+      "Daily practice guidelines for post-program",
+    ],
+    fees: "₹7,500 / $110",
+  },
+  {
+    id: "ngo-field",
+    category: "NGO Field Immersion",
+    title: "NGO Operations & Grassroots Project Management",
+    description:
+      "Learn the administrative and execution aspects of non-profits, including fundraising campaigns, donor relations, program design, and field reporting.",
+    location: "Major Indian Cities / NGO Rural Hubs",
+    period: "5 Weeks",
+    facilities: [
+      "Shared NGO accommodation",
+      "Dedicated office desk space",
+      "Daily field coordinator guidance",
+      "Local travel reimbursement for project work",
+    ],
+    benefits: [
+      "Insights into non-profit business models",
+      "Hands-on experience in community organizing",
+      "NGO Operations Certificate",
+      "Letter of Recommendation from NGO Trustees",
+    ],
+    fees: "₹5,000 / $75",
+  },
+  {
+    id: "other",
+    category: "Other",
+    title: "Custom Immersion Projects",
+    description:
+      "Work with our academic and field coordinators to design a custom experiential program that fits your specific learning objectives or research project.",
+    location: "Tailored based on request",
+    period: "Flexible (1-8 Weeks)",
+    facilities: [
+      "Customizable accommodation & food",
+      "Dedicated coordinator and field guide",
+      "Specialized equipment based on project",
+      "Liaison with local authorities",
+    ],
+    benefits: [
+      "Tailored learning outcomes matching your curriculum",
+      "Unique fieldwork exposure in your niche",
+      "Custom Immersion Certificate",
+      "One-on-one professional mentorship",
+    ],
+    fees: "Based on project scope",
+  },
+];
+
+function formatImmersionCode_8(
+  code?: string | null,
+  programTitle?: string | null,
+): string {
+  if (!code) return "IM2026XX10001";
+  const trimmed = code.trim();
+  if (/^IM\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  const sourceText =
+    programTitle && programTitle.trim() ? programTitle : trimmed;
+  const words = sourceText
+    .trim()
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+  let initials = "HT";
+  if (words.length === 1 && words[0]!.length >= 2) {
+    initials = words[0]!.slice(0, 2).toUpperCase();
+  } else if (words.length >= 2) {
+    initials = (words[0]![0]! + words[1]![0]!).toUpperCase();
+  }
+  const numericPart = code.replace(/[^0-9]/g, "");
+  let index = "81251";
+  if (numericPart.length >= 5) {
+    index = numericPart.slice(-5);
+  } else if (numericPart.length > 0) {
+    index = numericPart.padStart(5, "0");
+  } else {
+    let hash = 0;
+    for (let i = 0; i < code.length; i++) {
+      hash = code.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    index = Math.abs((hash % 90000) + 10000).toString();
+  }
+  return `IM2026${initials}${index}`;
+}
+
+function formatHumanReadableDate_13(date?: string | null): string {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+interface IEmersionStatusChipProps {
+  status?: string | null;
+}
+
+const EmersionStatusChip: React_4.FunctionComponent<IEmersionStatusChipProps> = ({
+  status,
+}) => {
+  switch (status) {
+    case "APPROVED":
+      return (
+        <Badge className="gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 font-semibold text-emerald-600 hover:bg-emerald-500/15 dark:text-emerald-400">
+          <CheckCircle2_2 className="size-3" />
+          Approved
+        </Badge>
+      );
+    case "UNDER_REVIEW":
+      return (
+        <Badge className="gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 font-semibold text-blue-600 hover:bg-blue-500/15 dark:text-blue-400">
+          <FileText_2 className="size-3" />
+          Under Review
+        </Badge>
+      );
+    case "SUBMITTED":
+      return (
+        <Badge className="gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 font-semibold text-amber-600 hover:bg-amber-500/15 dark:text-amber-400">
+          <Clock className="size-3" />
+          Submitted
+        </Badge>
+      );
+    case "REJECTED":
+      return (
+        <Badge
+          variant="destructive"
+          className="gap-1 rounded-full font-semibold"
+        >
+          <XCircle_2 className="size-3" />
+          Rejected
+        </Badge>
+      );
+    default:
+      return (
+        <Badge className="gap-1 rounded-full border border-gray-500/20 bg-gray-500/10 font-semibold text-gray-600 hover:bg-gray-500/15 dark:text-gray-400">
+          <AlertCircle_2 className="size-3" />
+          Draft
+        </Badge>
+      );
+  }
+};
+
+const StatusChip_10 = EmersionStatusChip;
+
+interface ApplicationActionsProps {
+  application: EmersionApplicationData;
+}
+
+interface MockSubmission {
+  id: string;
+  projectTitle: string;
+  projectUrl: string;
+  comments?: string;
+  submittedAt: string;
+  status: string;
+}
+
+function DropdownMenu_4({
+  ...props
+}: React_3.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+}
+
+function DropdownMenuTrigger_4({
+  ...props
+}: React_3.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+  return (
+    <DropdownMenuPrimitive.Trigger suppressHydrationWarning
+      data-slot="dropdown-menu-trigger"
+      {...props}
+    />
+  );
+}
+
+interface ApplicationDetailDialogProps {
+  application: EmersionApplicationData | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+function formatHumanReadableDate(date?: string | null): string {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatImmersionCode(
+  code?: string | null,
+  programTitle?: string | null,
+): string {
+  if (!code) return "IM2026XX10001";
+  const trimmed = code.trim();
+  if (/^IM\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  const sourceText =
+    programTitle && programTitle.trim() ? programTitle : trimmed;
+  const words = sourceText
+    .trim()
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+  let initials = "HT";
+  if (words.length === 1 && words[0]!.length >= 2) {
+    initials = words[0]!.slice(0, 2).toUpperCase();
+  } else if (words.length >= 2) {
+    initials = (words[0]![0]! + words[1]![0]!).toUpperCase();
+  }
+  const numericPart = code.replace(/[^0-9]/g, "");
+  let index = "81251";
+  if (numericPart.length >= 5) {
+    index = numericPart.slice(-5);
+  } else if (numericPart.length > 0) {
+    index = numericPart.padStart(5, "0");
+  } else {
+    let hash = 0;
+    for (let i = 0; i < code.length; i++) {
+      hash = code.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    index = Math.abs((hash % 90000) + 10000).toString();
+  }
+  return `IM2026${initials}${index}`;
+}
+
+interface PaymentModalProps {
+  program: EmersionProgram;
+  applicationId: string;
+  open: boolean;
+  onClose: () => void;
+  onCancel: () => void;
+}
+
+function loadRazorpayScript_2(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+function Dialog_11({
+  ...props
+}: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+function formatHumanReadableDate_12(date?: string | null): string {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatHumanReadableDate_14(date?: string | null): string {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+interface IStatusChipProps {
+  status?: string;
+}
+
+const StatusChip_11: React_4.FunctionComponent<IStatusChipProps> = ({ status }) => {
+  switch (status) {
+    case "APPROVED":
+      return (
+        <Badge className="gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 font-semibold text-emerald-600 hover:bg-emerald-500/15 dark:text-emerald-400">
+          <CheckCircle_2 className="size-3" />
+          Approved
+        </Badge>
+      );
+    case "UNDER_REVIEW":
+      return (
+        <Badge className="gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 font-semibold text-amber-600 hover:bg-amber-500/15 dark:text-amber-400">
+          <Clock className="size-3" />
+          Under Review
+        </Badge>
+      );
+    case "REJECTED":
+      return (
+        <Badge
+          variant="destructive"
+          className="gap-1 rounded-full font-semibold"
+        >
+          <XCircle_2 className="size-3" />
+          Rejected
+        </Badge>
+      );
+    case "WAITING":
+      return (
+        <Badge className="gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 font-semibold text-blue-600 hover:bg-blue-500/15 dark:text-blue-400">
+          <Clock className="size-3" />
+          Waiting List
+        </Badge>
+      );
+    default:
+      return (
+        <Badge className="gap-1 rounded-full border border-gray-500/20 bg-gray-500/10 font-semibold text-gray-600 hover:bg-gray-500/15 dark:text-gray-400">
+          <Clock className="size-3" />
+          Pending
+        </Badge>
+      );
+  }
+};
+
+const StatusChip_12 = StatusChip_11;
+
+interface IApplicationActionsProps {
+  application: any;
+}
+
+function DropdownMenu_7({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+}
+
+function DropdownMenuTrigger_7({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+  return (
+    <DropdownMenuPrimitive.Trigger suppressHydrationWarning
+      data-slot="dropdown-menu-trigger"
+      {...props}
+    />
+  );
+}
+
+interface StudentApplicationDetailDialogProps {
+  application: any;
+  open: boolean;
+  onClose: () => void;
+}
+
+function Dialog_6({
+  ...props
+}: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+function formatHumanReadableDate_4(date?: string | null): string {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+interface IReviewNoteDialogProps {
+  note: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+function Dialog_5({
+  ...props
+}: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+const ReviewNoteDialog: React_3.FunctionComponent<
+  IReviewNoteDialogProps
+> = ({ note, open, onClose }) => {
+  return (
+    <Dialog_5 open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <MessageSquare className="text-primary size-4" /> Reviewer Note
+          </DialogTitle>
+          <DialogDescription>
+            Feedback from the internship coordinator.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="bg-muted/50 text-foreground mt-3 rounded-xl p-4 text-sm leading-relaxed">
+          {note}
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button variant="outline" className="font-semibold" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog_5>
+  );
+};
+
+interface ProjectSubmissionDialogProps {
+  enrollmentId: string;
+  internshipTitle: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+const projectSubmissionSchema = z_2
+  .object({
+    projectTitle: z_2
+      .string()
+      .min(3, { message: "Project title must be at least 3 characters long." }),
+    projectUrl: z_2
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || !val.trim() || /^https?:\/\/.+/i.test(val.trim()),
+        {
+          message: "Please enter a valid URL (e.g. GitHub repository link).",
+        },
+      ),
+    documentBase64: z_2.string().optional(),
+    documentName: z_2.string().optional(),
+    comments: z_2.string().optional(),
+  })
+  .refine(
+    (data) => Boolean((data.projectUrl && data.projectUrl.trim()) || data.documentBase64),
+    {
+      message: "Please provide either a Project Link or upload a Project Document.",
+      path: ["projectUrl"],
+    },
+  );
+
+type TProjectSubmissionInput = z_2.infer<typeof projectSubmissionSchema>;
+
+function Dialog_9({
+  ...props
+}: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+interface ReceiptDialogProps_3 {
+  paymentId: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+interface SubmissionDetailDialogProps {
+  enrollmentId: string;
+  internshipTitle: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+interface ProjectSubmission_2 {
+  id: string;
+  enrollmentId: string;
+  projectTitle: string;
+  projectUrl: string;
+  comments: string | null;
+  status: "PENDING" | "GRADED";
+  grade: string | null;
+  feedback: string | null;
+  createdAt: string;
+  updatedAt: string;
+  gradedBy?: {
+    name: string;
+  } | null;
+}
+
+function Dialog_7({
+  ...props
+}: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+function formatHumanReadableDate_5(date?: string | null): string {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+const editSubmissionSchema = z_2.object({
+  projectTitle: z_2
+    .string()
+    .min(3, { message: "Project title must be at least 3 characters long." }),
+  projectUrl: z_2.string().url({
+    message: "Please enter a valid URL (e.g. GitHub repository link).",
+  }),
+  comments: z_2.string().optional(),
+});
+
+type TEditSubmissionInput = z_2.infer<typeof editSubmissionSchema>;
+
+function Dialog_4({
+  ...props
+}: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+}
+
+function AlertDialog({
+  ...props
+}: React_3.ComponentProps<typeof AlertDialogPrimitive.Root>) {
+  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
+}
+
+
+export default function ApplicationsPage() {
+  interface SubmitProjectResponse {
+    success: boolean;
+    message?: string;
+    data: ProjectSubmission;
+  }
+
+  interface ListEnrollmentSubmissionsResponse {
+    success: boolean;
+    message?: string;
+    data: ProjectSubmission[];
+  }
+
+  interface UpdateSubmissionResponse {
+    success: boolean;
+    message?: string;
+    data: ProjectSubmission;
+  }
+
+  interface IStudentDataHook {
+    useStudentDashboard: (
+      options?: TQueryOptions<GetStudentDashboardResponse, Error>,
+    ) => TQueryReturnType<GetStudentDashboardResponse, Error>;
+
+    useInternships: (
+      params?: ListInternshipsParams,
+      options?: TQueryOptions<ListInternshipsResponse, Error>,
+    ) => TQueryReturnType<ListInternshipsResponse, Error>;
+
+    useInternship: (
+      id: string,
+      options?: TQueryOptions<GetInternshipByIdResponse, Error>,
+    ) => TQueryReturnType<GetInternshipByIdResponse, Error>;
+
+    useApplyInternship: (
+      options?: TMutationOptions<ApplyForInternshipResponse, Error, string>,
+    ) => TMutationReturnType<ApplyForInternshipResponse, string>;
+
+    useCheckApplicationStatus: (
+      id: string,
+      options?: TQueryOptions<CheckApplicationStatusResponse, Error>,
+    ) => TQueryReturnType<CheckApplicationStatusResponse, Error>;
+
+    useMyApplications: (
+      options?: TQueryOptions<ListMyApplicationsResponse, Error>,
+    ) => TQueryReturnType<ListMyApplicationsResponse, Error>;
+
+    useMyEnrollments: (
+      options?: TQueryOptions<ListMyEnrollmentsResponse, Error>,
+    ) => TQueryReturnType<ListMyEnrollmentsResponse, Error>;
+
+    useDirectEnroll: (
+      options?: TMutationOptions<DirectEnrollResponse, Error, string>,
+    ) => TMutationReturnType<DirectEnrollResponse, string>;
+
+    useEnrollmentIDCard: (
+      id: string,
+      options?: TQueryOptions<GetEnrollmentIDCardResponse, Error>,
+    ) => TQueryReturnType<GetEnrollmentIDCardResponse, Error>;
+
+    useMyCertificates: (
+      options?: TQueryOptions<ListMyCertificatesResponse, Error>,
+    ) => TQueryReturnType<ListMyCertificatesResponse, Error>;
+
+    useDownloadCertificate: (
+      options?: TMutationOptions<Blob, Error, string>,
+    ) => TMutationReturnType<Blob, string>;
+
+    useAssignGrade: (
+      options?: TMutationOptions<
+        AssignGradeResponse,
+        Error,
+        { id: string; payload: AssignGradeRequest }
+      >,
+    ) => TMutationReturnType<
+      AssignGradeResponse,
+      { id: string; payload: AssignGradeRequest }
+    >;
+
+    useDownloadApplicationPDF: (
+      options?: TMutationOptions<
+        Blob,
+        Error,
+        { internshipId: string; applicationId: string }
+      >,
+    ) => TMutationReturnType<
+      Blob,
+      { internshipId: string; applicationId: string }
+    >;
+
+    useMyPayments: (
+      params?: ListMyPaymentsParams,
+      options?: TQueryOptions<ListMyPaymentsResponse, Error>,
+    ) => TQueryReturnType<ListMyPaymentsResponse, Error>;
+
+    usePaymentReceipt: (
+      id: string,
+      options?: TQueryOptions<GetPaymentReceiptResponse, Error>,
+    ) => TQueryReturnType<GetPaymentReceiptResponse, Error>;
+
+    useCreatePaymentOrder: (
+      options?: TMutationOptions<CreateOrderResponse, Error, CreateOrderPayload>,
+    ) => TMutationReturnType<CreateOrderResponse, CreateOrderPayload>;
+
+    useVerifyPaymentSignature: (
+      options?: TMutationOptions<
+        VerifySignatureResponse,
+        Error,
+        VerifySignaturePayload
+      >,
+    ) => TMutationReturnType<VerifySignatureResponse, VerifySignaturePayload>;
+
+    useRefundPayment: (
+      options?: TMutationOptions<RefundResponse, Error, RefundPayload>,
+    ) => TMutationReturnType<RefundResponse, RefundPayload>;
+
+    useAllPayments: (
+      options?: TQueryOptions<ListAllPaymentsResponse, Error>,
+    ) => TQueryReturnType<ListAllPaymentsResponse, Error>;
+
+    useCreateSupportTicket: (
+      options?: TMutationOptions<
+        CreateTicketResponse,
+        Error,
+        CreateTicketPayload
+      >,
+    ) => TMutationReturnType<CreateTicketResponse, CreateTicketPayload>;
+
+    useMySupportTickets: (
+      options?: TQueryOptions<ListMyTicketsResponse, Error>,
+    ) => TQueryReturnType<ListMyTicketsResponse, Error>;
+
+    useDeleteSupportTicket: (
+      options?: TMutationOptions<DeleteTicketResponse, Error, string>,
+    ) => TMutationReturnType<DeleteTicketResponse, string>;
+
+    useNotices: (
+      options?: TQueryOptions<ListNoticesResponse, Error>,
+    ) => TQueryReturnType<ListNoticesResponse, Error>;
+
+    useCreateNotice: (
+      options?: TMutationOptions<
+        CreateNoticeResponse,
+        Error,
+        CreateNoticePayload
+      >,
+    ) => TMutationReturnType<CreateNoticeResponse, CreateNoticePayload>;
+
+    useSubmitFeedback: (
+      options?: TMutationOptions<FeedbackResponse, Error, FeedbackPayload>,
+    ) => TMutationReturnType<FeedbackResponse, FeedbackPayload>;
+
+    useMyFeedbacks: (
+      options?: TQueryOptions<MyFeedbacksResponse, Error>,
+    ) => TQueryReturnType<MyFeedbacksResponse, Error>;
+
+    useMyReviews: (
+      options?: TQueryOptions<MyReviewsResponse, Error>,
+    ) => TQueryReturnType<MyReviewsResponse, Error>;
+
+    useVerifyIdCard: (
+      id: string,
+      options?: TQueryOptions<VerifyIDCardResponse, Error>,
+    ) => TQueryReturnType<VerifyIDCardResponse, Error>;
+
+    useSubmitProject: (
+      options?: TMutationOptions<
+        SubmitProjectResponse,
+        Error,
+        SubmitProjectPayload
+      >,
+    ) => TMutationReturnType<SubmitProjectResponse, SubmitProjectPayload>;
+
+    useEnrollmentSubmissions: (
+      enrollmentId: string,
+      options?: TQueryOptions<ListEnrollmentSubmissionsResponse, Error>,
+    ) => TQueryReturnType<ListEnrollmentSubmissionsResponse, Error>;
+
+    useUpdateSubmission: (
+      options?: TMutationOptions<
+        UpdateSubmissionResponse,
+        Error,
+        {
+          enrollmentId: string;
+          submissionId: string;
+          payload: UpdateSubmissionPayload;
+        }
+      >,
+    ) => TMutationReturnType<
+      UpdateSubmissionResponse,
+      {
+        enrollmentId: string;
+        submissionId: string;
+        payload: UpdateSubmissionPayload;
+      }
+    >;
+
+    useDeleteSubmission: (
+      options?: TMutationOptions<
+        DeleteSubmissionResponse,
+        Error,
+        { enrollmentId: string; submissionId: string }
+      >,
+    ) => TMutationReturnType<
+      DeleteSubmissionResponse,
+      { enrollmentId: string; submissionId: string }
+    >;
+
+    usePublicNewspapers: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicOnlineLinks: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicPhotos: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicVideos: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicPartners: (
+      type: "educational-institutes" | "job-placement" | "training-support",
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicBlogs: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicDonations: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    usePublicImmersions: (
+      options?: TQueryOptions<Record<string, unknown>[], Error>,
+    ) => TQueryReturnType<Record<string, unknown>[], Error>;
+    useSubmitInternshipInterest: (
+      options?: TMutationOptions<
+        Record<string, unknown>,
+        Error,
+        { id: string; payload: Record<string, unknown> }
+      >,
+    ) => TMutationReturnType<
+      Record<string, unknown>,
+      { id: string; payload: Record<string, unknown> }
+    >;
+    useSubmitPlacementInterest: (
+      options?: TMutationOptions<
+        Record<string, unknown>,
+        Error,
+        { id: string; formData: FormData }
+      >,
+    ) => TMutationReturnType<
+      Record<string, unknown>,
+      { id: string; formData: FormData }
+    >;
+  }
+
+  interface IStudentService {
+    getDashboardSummary: () => Promise<GetStudentDashboardResponse>;
+
+    listInternships: (
+      params?: ListInternshipsParams,
+    ) => Promise<ListInternshipsResponse>;
+    getInternshipById: (id: string) => Promise<GetInternshipByIdResponse>;
+
+    applyForInternship: (id: string) => Promise<ApplyForInternshipResponse>;
+    checkApplicationStatus: (
+      id: string,
+    ) => Promise<CheckApplicationStatusResponse>;
+    listMyApplications: () => Promise<ListMyApplicationsResponse>;
+    downloadApplicationPDF: (
+      internshipId: string,
+      applicationId: string,
+    ) => Promise<Blob>;
+
+    listMyEnrollments: () => Promise<ListMyEnrollmentsResponse>;
+    directEnroll: (id: string) => Promise<DirectEnrollResponse>;
+    getEnrollmentIDCard: (id: string) => Promise<GetEnrollmentIDCardResponse>;
+
+    listMyCertificates: () => Promise<ListMyCertificatesResponse>;
+    downloadCertificate: (id: string) => Promise<Blob>;
+    assignGrade: (
+      id: string,
+      payload: AssignGradeRequest,
+    ) => Promise<AssignGradeResponse>;
+
+    listMyPayments: (
+      params?: ListMyPaymentsParams,
+    ) => Promise<ListMyPaymentsResponse>;
+    getPaymentReceipt: (id: string) => Promise<GetPaymentReceiptResponse>;
+    createPaymentOrder: (
+      payload: CreateOrderPayload,
+    ) => Promise<CreateOrderResponse>;
+    verifyPaymentSignature: (
+      payload: VerifySignaturePayload,
+    ) => Promise<VerifySignatureResponse>;
+    refundPayment: (payload: RefundPayload) => Promise<RefundResponse>;
+    listAllPayments: () => Promise<ListAllPaymentsResponse>;
+
+    createSupportTicket: (
+      payload: CreateTicketPayload,
+    ) => Promise<CreateTicketResponse>;
+    listMySupportTickets: () => Promise<ListMyTicketsResponse>;
+    deleteSupportTicket: (id: string) => Promise<DeleteTicketResponse>;
+
+    listNotices: () => Promise<ListNoticesResponse>;
+    createNotice: (payload: CreateNoticePayload) => Promise<CreateNoticeResponse>;
+
+    submitFeedback: (payload: FeedbackPayload) => Promise<FeedbackResponse>;
+    getMyFeedbacks: () => Promise<MyFeedbacksResponse>;
+    listMyReviews: () => Promise<MyReviewsResponse>;
+    verifyIdCard: (id: string) => Promise<VerifyIDCardResponse>;
+    submitProject: (
+      payload: SubmitProjectPayload,
+    ) => Promise<SubmitProjectResponse>;
+    listEnrollmentSubmissions: (
+      enrollmentId: string,
+    ) => Promise<ListEnrollmentSubmissionsResponse>;
+    updateSubmission: (
+      enrollmentId: string,
+      submissionId: string,
+      payload: UpdateSubmissionPayload,
+    ) => Promise<UpdateSubmissionResponse>;
+    deleteSubmission: (
+      enrollmentId: string,
+      submissionId: string,
+    ) => Promise<DeleteSubmissionResponse>;
+
+    getPublicNewspapers: () => Promise<Record<string, unknown>[]>;
+    getPublicOnlineLinks: () => Promise<Record<string, unknown>[]>;
+    getPublicPhotos: () => Promise<Record<string, unknown>[]>;
+    getPublicVideos: () => Promise<Record<string, unknown>[]>;
+    getPublicPartners: (
+      type: "educational-institutes" | "job-placement" | "training-support",
+    ) => Promise<Record<string, unknown>[]>;
+    getPublicBlogs: () => Promise<Record<string, unknown>[]>;
+    getPublicDonations: () => Promise<Record<string, unknown>[]>;
+    getPublicImmersions: () => Promise<Record<string, unknown>[]>;
+    submitInternshipInterest: (
+      id: string,
+      payload: Record<string, unknown>,
+    ) => Promise<Record<string, unknown>>;
+    submitPlacementInterest: (
+      id: string,
+      formData: FormData,
+    ) => Promise<Record<string, unknown>>;
+  }
+
+  const StudentService: IStudentService = {
+    async getDashboardSummary() {
+      const response = await axiosInstance.get<GetStudentDashboardResponse>(
+        ENDPOINTS.STUDENTS.DASHBOARD,
+      );
+      return response.data;
+    },
+
+    async listInternships(params) {
+      const response = await axiosInstance.get<ListInternshipsResponse>(
+        ENDPOINTS.INTERNSHIPS.BASE,
+        { params },
+      );
+      return response.data;
+    },
+
+    async getInternshipById(id) {
+      const response = await axiosInstance.get<GetInternshipByIdResponse>(
+        ENDPOINTS.INTERNSHIPS.BY_ID(id),
+      );
+      return response.data;
+    },
+
+    async applyForInternship(id) {
+      const response = await axiosInstance.post<ApplyForInternshipResponse>(
+        ENDPOINTS.INTERNSHIPS.APPLY(id),
+      );
+      return response.data;
+    },
+
+    async checkApplicationStatus(id) {
+      const response = await axiosInstance.get<CheckApplicationStatusResponse>(
+        ENDPOINTS.INTERNSHIPS.APPLY(id),
+      );
+      return response.data;
+    },
+
+    async listMyApplications() {
+      const response = await axiosInstance.get<ListMyApplicationsResponse>(
+        ENDPOINTS.INTERNSHIPS.MY_APPLICATIONS,
+      );
+      return response.data;
+    },
+
+    async downloadApplicationPDF(internshipId, applicationId) {
+      const response = await axiosInstance.get<Blob>(
+        `/internships/${internshipId}/applications/${applicationId}/download`,
+        {
+          responseType: "blob",
+        },
+      );
+      return response.data;
+    },
+
+    async listMyEnrollments() {
+      const response = await axiosInstance.get<ListMyEnrollmentsResponse>(
+        ENDPOINTS.ENROLLMENTS.MY_ENROLLMENTS,
+      );
+      return response.data;
+    },
+
+    async directEnroll(id) {
+      const response = await axiosInstance.post<DirectEnrollResponse>(
+        ENDPOINTS.INTERNSHIPS.ENROLL(id),
+      );
+      return response.data;
+    },
+
+    async getEnrollmentIDCard(id) {
+      const response = await axiosInstance.get<GetEnrollmentIDCardResponse>(
+        ENDPOINTS.ENROLLMENTS.ID_CARD(id),
+      );
+      return response.data;
+    },
+
+    async listMyCertificates() {
+      const response = await axiosInstance.get<ListMyCertificatesResponse>(
+        `${ENDPOINTS.CERTIFICATES.MY_CERTIFICATES}?t=${Date.now()}`,
+      );
+      return response.data;
+    },
+
+    async downloadCertificate(id) {
+      const response = await axiosInstance.get<Blob>(
+        ENDPOINTS.CERTIFICATES.DOWNLOAD(id),
+        { responseType: "blob" },
+      );
+      return response.data;
+    },
+
+    async assignGrade(id, payload) {
+      const response = await axiosInstance.patch<AssignGradeResponse>(
+        ENDPOINTS.CERTIFICATES.GRADE(id),
+        payload,
+      );
+      return response.data;
+    },
+
+    async listMyPayments(params) {
+      const response = await axiosInstance.get<ListMyPaymentsResponse>(
+        ENDPOINTS.PAYMENTS.MY_PAYMENTS,
+        { params },
+      );
+      return response.data;
+    },
+
+    async getPaymentReceipt(id) {
+      const response = await axiosInstance.get<GetPaymentReceiptResponse>(
+        ENDPOINTS.PAYMENTS.RECEIPT(id),
+      );
+      return response.data;
+    },
+
+    async createPaymentOrder(payload) {
+      const response = await axiosInstance.post<CreateOrderResponse>(
+        ENDPOINTS.PAYMENTS.CREATE_ORDER,
+        payload,
+      );
+      return response.data;
+    },
+
+    async verifyPaymentSignature(payload) {
+      const response = await axiosInstance.post<VerifySignatureResponse>(
+        ENDPOINTS.PAYMENTS.VERIFY_SIGNATURE,
+        payload,
+      );
+      return response.data;
+    },
+
+    async refundPayment(payload) {
+      const response = await axiosInstance.post<RefundResponse>(
+        ENDPOINTS.PAYMENTS.REFUND,
+        payload,
+      );
+      return response.data;
+    },
+
+    async listAllPayments() {
+      const response = await axiosInstance.get<ListAllPaymentsResponse>(
+        ENDPOINTS.PAYMENTS.ADMIN_LIST,
+      );
+      return response.data;
+    },
+
+    async createSupportTicket(payload) {
+      const response = await axiosInstance.post<CreateTicketResponse>(
+        ENDPOINTS.TICKETS.BASE,
+        payload,
+      );
+      return response.data;
+    },
+
+    async listMySupportTickets() {
+      const response = await axiosInstance.get<ListMyTicketsResponse>(
+        ENDPOINTS.TICKETS.MY_TICKETS,
+      );
+      return response.data;
+    },
+
+    async deleteSupportTicket(id) {
+      const response = await axiosInstance.delete<DeleteTicketResponse>(
+        ENDPOINTS.TICKETS.BY_ID(id),
+      );
+      return response.data;
+    },
+
+    async listNotices() {
+      const response = await axiosInstance.get<ListNoticesResponse>(
+        ENDPOINTS.NOTICES.BASE,
+      );
+      return response.data;
+    },
+
+    async createNotice(payload) {
+      const response = await axiosInstance.post<CreateNoticeResponse>(
+        ENDPOINTS.NOTICES.BASE,
+        payload,
+      );
+      return response.data;
+    },
+
+    async submitFeedback(payload) {
+      const response = await axiosInstance.post<FeedbackResponse>(
+        ENDPOINTS.FEEDBACK.BASE,
+        payload,
+      );
+      return response.data;
+    },
+
+    async getMyFeedbacks() {
+      const response = await axiosInstance.get<MyFeedbacksResponse>(
+        ENDPOINTS.FEEDBACK.MY_FEEDBACKS,
+      );
+      return response.data;
+    },
+
+    async listMyReviews() {
+      const response = await axiosInstance.get<MyReviewsResponse>(
+        ENDPOINTS.REVIEWS.MY_REVIEWS,
+      );
+      return response.data;
+    },
+
+    async verifyIdCard(id) {
+      const response = await axiosInstance.get<VerifyIDCardResponse>(
+        ENDPOINTS.ID_CARDS.BY_ID(id),
+      );
+      return response.data;
+    },
+
+    async submitProject(payload) {
+      const response = await axiosInstance.post<SubmitProjectResponse>(
+        ENDPOINTS.INSTRUCTOR.SUBMISSIONS,
+        payload,
+      );
+      return response.data;
+    },
+
+    async listEnrollmentSubmissions(enrollmentId) {
+      const response = await axiosInstance.get<ListEnrollmentSubmissionsResponse>(
+        ENDPOINTS.ENROLLMENTS.SUBMISSIONS(enrollmentId),
+      );
+      return response.data;
+    },
+
+    async updateSubmission(enrollmentId, submissionId, payload) {
+      const response = await axiosInstance.patch<UpdateSubmissionResponse>(
+        ENDPOINTS.ENROLLMENTS.SUBMISSION_BY_ID(enrollmentId, submissionId),
+        payload,
+      );
+      return response.data;
+    },
+
+    async deleteSubmission(enrollmentId, submissionId) {
+      const response = await axiosInstance.delete<DeleteSubmissionResponse>(
+        ENDPOINTS.ENROLLMENTS.SUBMISSION_BY_ID(enrollmentId, submissionId),
+      );
+      return response.data;
+    },
+
+    async getPublicNewspapers() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/media/newspapers");
+      return response.data?.data || [];
+    },
+
+    async getPublicOnlineLinks() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/media/online-links");
+      return response.data?.data || [];
+    },
+
+    async getPublicPhotos() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/media/photos");
+      return response.data?.data || [];
+    },
+
+    async getPublicVideos() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/media/videos");
+      return response.data?.data || [];
+    },
+
+    async getPublicPartners(type) {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>(`/partners/${type}`);
+      const data = response.data?.data || [];
+      return data.map((item) => ({
+        ...item,
+        logoUrl: item.logo || item.logoUrl,
+        photoUrl: item.photo || item.photoUrl,
+      }));
+    },
+
+    async getPublicBlogs() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/blogs");
+      return response.data?.data || [];
+    },
+
+    async getPublicDonations() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/donations");
+      return response.data?.data || [];
+    },
+
+    async getPublicImmersions() {
+      const response = await axiosInstance.get<{
+        data: Record<string, unknown>[];
+      }>("/immersion");
+      return response.data?.data || [];
+    },
+
+    async submitInternshipInterest(id, payload) {
+      const response = await axiosInstance.post(
+        `/internships/${id}/interest`,
+        payload,
+      );
+      return response.data;
+    },
+
+    async submitPlacementInterest(id, formData) {
+      const response = await axiosInstance.post(
+        `/partners/job-placement/${id}/interest`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      return response.data;
+    },
+  };
+
+  const StudentDataHook: IStudentDataHook = {
+    useStudentDashboard(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+        queryFn: async () => await StudentService.getDashboardSummary(),
+        ...options,
+      });
+    },
+
+    useInternships(params, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.INTERNSHIPS(params),
+        queryFn: async () => await StudentService.listInternships(params),
+        ...options,
+      });
+    },
+
+    useInternship(id, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.INTERNSHIP(id),
+        queryFn: async () => await StudentService.getInternshipById(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useApplyInternship(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (id) => await StudentService.applyForInternship(id),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Application submitted successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to apply for internship.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useCheckApplicationStatus(id, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.APPLICATION_STATUS(id),
+        queryFn: async () => await StudentService.checkApplicationStatus(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useMyApplications(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
+        queryFn: async () => await StudentService.listMyApplications(),
+        ...options,
+      });
+    },
+
+    useMyEnrollments(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
+        queryFn: async () => await StudentService.listMyEnrollments(),
+        ...options,
+      });
+    },
+
+    useDirectEnroll(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (id) => await StudentService.directEnroll(id),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          toast.success(
+            (data as { message?: string })?.message || "Enrolled successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to enroll.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useEnrollmentIDCard(id, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_ID_CARD(id),
+        queryFn: async () => await StudentService.getEnrollmentIDCard(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useMyCertificates(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.MY_CERTIFICATES,
+        queryFn: async () => await StudentService.listMyCertificates(),
+        ...options,
+      });
+    },
+
+    useDownloadCertificate(options) {
+      return useMutation({
+        mutationFn: async (id) => await StudentService.downloadCertificate(id),
+        ...options,
+      });
+    },
+
+    useAssignGrade(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ id, payload }) =>
+          await StudentService.assignGrade(id, payload),
+        onSuccess: async (data, variables, context) => {
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["instructors"] }),
+            queryClient.invalidateQueries({ queryKey: ["students"] }),
+            queryClient.invalidateQueries({ queryKey: ["emersion"] }),
+            queryClient.invalidateQueries({ queryKey: ["super-admin"] }),
+          ]);
+          if (options?.onSuccess) {
+            await (options.onSuccess as any)(data, variables, context);
+          }
+        },
+        ...options,
+      });
+    },
+
+    useDownloadApplicationPDF(options) {
+      return useMutation({
+        mutationFn: async ({ internshipId, applicationId }) =>
+          await StudentService.downloadApplicationPDF(
+            internshipId,
+            applicationId,
+          ),
+        ...options,
+      });
+    },
+
+    useMyPayments(params, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.MY_PAYMENTS(params),
+        queryFn: async () => await StudentService.listMyPayments(params),
+        ...options,
+      });
+    },
+
+    usePaymentReceipt(id, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.PAYMENT_RECEIPT(id),
+        queryFn: async () => await StudentService.getPaymentReceipt(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useCreatePaymentOrder(options) {
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentService.createPaymentOrder(payload),
+        ...options,
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to create payment order.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useVerifyPaymentSignature(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentService.verifyPaymentSignature(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_PAYMENTS(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Payment verified! You are now enrolled.",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to verify payment.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useRefundPayment(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentService.refundPayment(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_PAYMENTS(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.ALL_PAYMENTS,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Refund processed successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to process refund.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useAllPayments(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.ALL_PAYMENTS,
+        queryFn: async () => await StudentService.listAllPayments(),
+        ...options,
+      });
+    },
+
+    useCreateSupportTicket(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentService.createSupportTicket(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_TICKETS,
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Support ticket created successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to create support ticket.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useMySupportTickets(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.MY_TICKETS,
+        queryFn: async () => await StudentService.listMySupportTickets(),
+        ...options,
+      });
+    },
+
+    useDeleteSupportTicket(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (id) => await StudentService.deleteSupportTicket(id),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_TICKETS,
+          });
+          toast.success(
+            (data as { message?: string })?.message || "Support ticket deleted.",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to delete support ticket.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useNotices(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.NOTICES,
+        queryFn: async () => await StudentService.listNotices(),
+        ...options,
+      });
+    },
+
+    useCreateNotice(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) => await StudentService.createNotice(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({ queryKey: STUDENT_QUERY_KEYS.NOTICES });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Notice posted successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to post notice.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useSubmitFeedback(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentService.submitFeedback(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.FEEDBACKS,
+          });
+          toast.success(
+            (data.message as string) || "Feedback submitted successfully.",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to submit feedback.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useMyFeedbacks(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.FEEDBACKS,
+        queryFn: async () => await StudentService.getMyFeedbacks(),
+        ...options,
+      });
+    },
+
+    useMyReviews(options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.MY_REVIEWS,
+        queryFn: async () => await StudentService.listMyReviews(),
+        ...options,
+      });
+    },
+
+    useVerifyIdCard(id, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.VERIFY_ID_CARD(id),
+        queryFn: async () => await StudentService.verifyIdCard(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useSubmitProject(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentService.submitProject(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
+          });
+          toast.success(
+            (data.message as string) || "Project submitted successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to submit project.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useEnrollmentSubmissions(enrollmentId, options) {
+      return useQuery({
+        queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(enrollmentId),
+        queryFn: async () =>
+          await StudentService.listEnrollmentSubmissions(enrollmentId),
+        enabled: !!enrollmentId,
+        ...options,
+      });
+    },
+
+    useUpdateSubmission(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ enrollmentId, submissionId, payload }) =>
+          await StudentService.updateSubmission(
+            enrollmentId,
+            submissionId,
+            payload,
+          ),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(
+              variables.enrollmentId,
+            ),
+          });
+          toast.success(data.message || "Submission updated successfully!");
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to update submission.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useDeleteSubmission(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ enrollmentId, submissionId }) =>
+          await StudentService.deleteSubmission(enrollmentId, submissionId),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(
+              variables.enrollmentId,
+            ),
+          });
+          toast.success(data.message || "Submission deleted successfully!");
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to delete submission.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    usePublicNewspapers(options) {
+      return useQuery({
+        queryKey: ["public", "newspapers"],
+        queryFn: async () => await StudentService.getPublicNewspapers(),
+        ...options,
+      });
+    },
+
+    usePublicOnlineLinks(options) {
+      return useQuery({
+        queryKey: ["public", "online-links"],
+        queryFn: async () => await StudentService.getPublicOnlineLinks(),
+        ...options,
+      });
+    },
+
+    usePublicPhotos(options) {
+      return useQuery({
+        queryKey: ["public", "photos"],
+        queryFn: async () => await StudentService.getPublicPhotos(),
+        ...options,
+      });
+    },
+
+    usePublicVideos(options) {
+      return useQuery({
+        queryKey: ["public", "videos"],
+        queryFn: async () => await StudentService.getPublicVideos(),
+        ...options,
+      });
+    },
+
+    usePublicPartners(type, options) {
+      return useQuery({
+        queryKey: ["public", "partners", type],
+        queryFn: async () => await StudentService.getPublicPartners(type),
+        ...options,
+      });
+    },
+
+    usePublicBlogs(options) {
+      return useQuery({
+        queryKey: ["public", "blogs"],
+        queryFn: async () => await StudentService.getPublicBlogs(),
+        ...options,
+      });
+    },
+
+    usePublicDonations(options) {
+      return useQuery({
+        queryKey: ["public", "donations"],
+        queryFn: async () => await StudentService.getPublicDonations(),
+        ...options,
+      });
+    },
+
+    usePublicImmersions(options) {
+      return useQuery({
+        queryKey: ["public", "immersions"],
+        queryFn: async () => await StudentService.getPublicImmersions(),
+        ...options,
+      });
+    },
+
+    useSubmitInternshipInterest(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ id, payload }) =>
+          await StudentService.submitInternshipInterest(id, payload),
+        ...options,
+        onSuccess: (data, variables, context) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          toast.success(
+            (data.message as string) || "Application submitted successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, undefined as never);
+        },
+        onError: (error, variables, context) => {
+          toast.error(error.message || "Failed to submit application.");
+          options?.onError?.(error, variables, context, undefined as never);
+        },
+      });
+    },
+
+    useSubmitPlacementInterest(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ id, formData }) =>
+          await StudentService.submitPlacementInterest(id, formData),
+        ...options,
+        onSuccess: (data, variables, context) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
+          });
+          toast.success(
+            (data.message as string) || "Interest registered successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, undefined as never);
+        },
+        onError: (error, variables, context) => {
+          toast.error(error.message || "Failed to submit interest.");
+          options?.onError?.(error, variables, context, undefined as never);
+        },
+      });
+    },
+  };
+
+  function useAuth() {
+    return useContext(AuthContext);
+  }
+
+  const EmersionService: IEmersionService = {
+    async register(payload) {
+      const response = await axiosInstance.post<EmersionRegisterResponse>(
+        ENDPOINTS.EMERSION.REGISTER,
+        payload,
+      );
+      return response.data;
+    },
+
+    async getDashboard() {
+      const response = await axiosInstance.get<EmersionDashboardResponse>(
+        ENDPOINTS.EMERSION.DASHBOARD,
+      );
+      return response.data;
+    },
+
+    async getProfile() {
+      const response = await axiosInstance.get<{ data: Record<string, unknown> }>(
+        ENDPOINTS.EMERSION.PROFILE,
+      );
+      return {
+        ...response.data,
+        data: mapBackendProfileToFrontend(
+          response.data.data as Record<string, unknown> | null,
+        ),
+      } as unknown as EmersionProfileResponse;
+    },
+
+    async updateProfile(payload) {
+      const mappedPayload: Record<string, unknown> = {
+        fullName: payload.fullName,
+        fatherMotherName: payload.fatherSpouseName,
+        dateOfBirth: payload.dob
+          ? new Date(payload.dob).toISOString()
+          : undefined,
+        gender:
+          payload.gender === "Male"
+            ? "MALE"
+            : payload.gender === "Female"
+              ? "FEMALE"
+              : "OTHER",
+        mobileNumber: payload.mobileNo,
+        alternateMobileNo: payload.alternateMobileNo ?? undefined,
+        emailAddress: payload.emailAddress ?? undefined,
+        currentAddressSameAsPerm: payload.sameAsCurrentAddress,
+        permLocalArea: payload.permanentAddress?.local,
+        permDistrict: payload.permanentAddress?.district,
+        permState: payload.permanentAddress?.state,
+        permCountry: payload.permanentAddress?.country,
+        permPinCode: payload.permanentAddress?.pinCode,
+        currLocalArea: payload.sameAsCurrentAddress
+          ? undefined
+          : payload.currentAddress?.local,
+        currDistrict: payload.sameAsCurrentAddress
+          ? undefined
+          : payload.currentAddress?.district,
+        currState: payload.sameAsCurrentAddress
+          ? undefined
+          : payload.currentAddress?.state,
+        currCountry: payload.sameAsCurrentAddress
+          ? undefined
+          : payload.currentAddress?.country,
+        currPinCode: payload.sameAsCurrentAddress
+          ? undefined
+          : payload.currentAddress?.pinCode,
+      };
+
+      const response = await axiosInstance.patch<{
+        data: Record<string, unknown>;
+      }>(ENDPOINTS.EMERSION.PROFILE, mappedPayload);
+      return {
+        ...response.data,
+        data: mapBackendProfileToFrontend(response.data.data),
+      } as unknown as UpdateEmersionProfileResponse;
+    },
+
+    async submitApplication(payload: TEmersionApplication) {
+      const hasPhoto = !!payload.photoBase64;
+      const hasIdentityProof = !!payload.identityProofBase64;
+      const hasEducationCert = !!payload.educationCertBase64;
+
+      const base64ToBlob = (dataUrl: string): Blob => {
+        const [meta, b64] = dataUrl.split(",");
+        const mime = meta.match(/:(.*?);/)?.[1] ?? "application/octet-stream";
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        return new Blob([bytes], { type: mime });
+      };
+
+      if (hasPhoto || hasIdentityProof || hasEducationCert) {
+        const formData = new FormData();
+        formData.append("fullName", payload.fullName ?? "");
+        formData.append("fatherMotherName", payload.fatherSpouseName ?? "");
+        if (payload.dob)
+          formData.append("dateOfBirth", new Date(payload.dob).toISOString());
+        formData.append(
+          "gender",
+          payload.gender === "Male"
+            ? "MALE"
+            : payload.gender === "Female"
+              ? "FEMALE"
+              : "OTHER",
+        );
+        formData.append("mobileNumber", payload.mobileNo ?? "");
+        formData.append("alternateMobileNo", payload.alternateMobileNo ?? "");
+        formData.append("emailAddress", payload.emailAddress ?? "");
+        formData.append(
+          "currentAddressSameAsPerm",
+          String(payload.sameAsCurrentAddress ?? false),
+        );
+        formData.append("permLocalArea", payload.permanentAddress?.local ?? "");
+        formData.append("permDistrict", payload.permanentAddress?.district ?? "");
+        formData.append("permState", payload.permanentAddress?.state ?? "");
+        formData.append(
+          "permCountry",
+          payload.permanentAddress?.country ?? "India",
+        );
+        formData.append("permPinCode", payload.permanentAddress?.pinCode ?? "");
+        if (!payload.sameAsCurrentAddress) {
+          formData.append("currLocalArea", payload.currentAddress?.local ?? "");
+          formData.append("currDistrict", payload.currentAddress?.district ?? "");
+          formData.append("currState", payload.currentAddress?.state ?? "");
+          formData.append(
+            "currCountry",
+            payload.currentAddress?.country ?? "India",
+          );
+          formData.append("currPinCode", payload.currentAddress?.pinCode ?? "");
+        }
+        if (hasPhoto) {
+          const blob = base64ToBlob(payload.photoBase64!);
+          formData.append(
+            "passportPhoto",
+            blob,
+            payload.photoName || "photo.jpg",
+          );
+        }
+        if (hasIdentityProof) {
+          const blob = base64ToBlob(payload.identityProofBase64!);
+          formData.append(
+            "resume",
+            blob,
+            payload.identityProofName || "resume.pdf",
+          );
+        }
+        if (hasEducationCert) {
+          const blob = base64ToBlob(payload.educationCertBase64!);
+          formData.append("noc", blob, payload.educationCertName || "noc.pdf");
+        }
+
+        await axiosInstance.patch(ENDPOINTS.EMERSION.PROFILE, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else {
+        await this.updateProfile({
+          fullName: payload.fullName,
+          fatherSpouseName: payload.fatherSpouseName,
+          dob: payload.dob,
+          gender: payload.gender,
+          mobileNo: payload.mobileNo,
+          alternateMobileNo: payload.alternateMobileNo,
+          emailAddress: payload.emailAddress,
+          currentAddress: payload.currentAddress,
+          sameAsCurrentAddress: payload.sameAsCurrentAddress,
+          permanentAddress: payload.permanentAddress,
+        });
+      }
+
+      const academicDetails = (payload.qualifications ?? []).map((q) => ({
+        qualification: mapQualEnum(q.highestQualification),
+        stream: q.specialization || "General",
+        subject: q.specialization || "General",
+        instituteName: q.universityName || "Institution",
+        universityName: q.universityName || "University",
+        sessionYear: q.yearOfCompletion || "2026",
+        gradeDivision: q.percentage || "First Class",
+      }));
+
+      const applicationPayload: Record<string, unknown> = {
+        academicDetails,
+        preferredDuration: "DAYS_30",
+        preferredLocation: payload.currentAddress?.district || "General",
+        expectedLearning: "To be discussed with assigned mentor.",
+        languagesKnown: "English, Hindi",
+        presenceType: (() => {
+          const mode = (payload.preferredMode ?? [])[0];
+          if (mode === "Offline/On Campus") return "FULL_TIME";
+          if (mode === "Hybrid") return "HYBRID";
+          return "PART_TIME";
+        })(),
+        fieldVisitsComfort: payload.fieldVisitsComfort ?? true,
+        workType: payload.workType ?? "STUDENT",
+        emergencyContactName: payload.emergencyContactName ?? "",
+        emergencyRelationship: payload.emergencyRelationship ?? "",
+        emergencyMobile: payload.emergencyMobile ?? "",
+        declarationAccepted: payload.agreeTerms === true,
+        rulesAccepted: payload.agreeTerms === true,
+      };
+
+      const response = await axiosInstance.post<EmersionApplicationResponse>(
+        ENDPOINTS.EMERSION.APPLICATION,
+        applicationPayload,
+      );
+      return response.data;
+    },
+
+    async getMyApplication() {
+      try {
+        const response = await axiosInstance.get<EmersionMyApplicationResponse>(
+          ENDPOINTS.EMERSION.APPLICATION_MY,
+        );
+        return response.data;
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          return {
+            success: true,
+            data: null,
+          } as unknown as EmersionMyApplicationResponse;
+        }
+        throw error;
+      }
+    },
+
+    async getApplicationStatus() {
+      const response = await axiosInstance.get<EmersionApplicationStatusResponse>(
+        ENDPOINTS.EMERSION.APPLICATION_STATUS,
+      );
+      return response.data;
+    },
+
+    async downloadApplication() {
+      const response = await axiosInstance.get<Blob>(
+        ENDPOINTS.EMERSION.APPLICATION_DOWNLOAD,
+        { responseType: "blob" },
+      );
+      return response.data;
+    },
+
+    async listNotices() {
+      const response = await axiosInstance.get<EmersionListNoticesResponse>(
+        ENDPOINTS.NOTICES.BASE,
+      );
+      return response.data;
+    },
+
+    async createSupportTicket(payload) {
+      const response = await axiosInstance.post<EmersionCreateTicketResponse>(
+        ENDPOINTS.TICKETS.BASE,
+        payload,
+      );
+      return response.data;
+    },
+
+    async listMySupportTickets() {
+      const response = await axiosInstance.get<EmersionListMyTicketsResponse>(
+        ENDPOINTS.TICKETS.MY_TICKETS,
+      );
+      return response.data;
+    },
+
+    async deleteSupportTicket(id) {
+      const response = await axiosInstance.delete<EmersionDeleteTicketResponse>(
+        ENDPOINTS.TICKETS.BY_ID(id),
+      );
+      return response.data;
+    },
+
+    async listMyCertificates() {
+      const response = await axiosInstance.get<ListEmersionCertificatesResponse>(
+        ENDPOINTS.EMERSION.CERTIFICATES.MY,
+      );
+      return response.data;
+    },
+
+    async downloadCertificate(id) {
+      const response = await axiosInstance.get<Blob>(
+        ENDPOINTS.EMERSION.CERTIFICATES.DOWNLOAD(id),
+        { responseType: "blob" },
+      );
+      return response.data;
+    },
+
+    async assignGrade(id, payload) {
+      const response = await axiosInstance.patch<AssignGradeResponse_2>(
+        ENDPOINTS.EMERSION.CERTIFICATES.GRADE(id),
+        payload,
+      );
+      return response.data;
+    },
+
+    async getMyIDCard() {
+      const response = await axiosInstance.get<GetEmersionIDCardResponse>(
+        ENDPOINTS.EMERSION.ID_CARD.MY,
+      );
+      return response.data;
+    },
+
+    async getApplicationIDCard(applicationId) {
+      const response = await axiosInstance.get<GetEmersionIDCardResponse>(
+        ENDPOINTS.EMERSION.ID_CARD.BY_APPLICATION_ID(applicationId),
+      );
+      return response.data;
+    },
+
+    async downloadIDCard(id) {
+      const response = await axiosInstance.get<Blob>(
+        ENDPOINTS.EMERSION.ID_CARD.DOWNLOAD(id),
+        { responseType: "blob" },
+      );
+      return response.data;
+    },
+
+    async listMyPayments(params) {
+      const response = await axiosInstance.get<ListMyEmersionPaymentsResponse>(
+        ENDPOINTS.EMERSION.PAYMENTS.MY_PAYMENTS,
+        { params },
+      );
+      return response.data;
+    },
+
+    async getPaymentReceipt(id) {
+      const response = await axiosInstance.get<GetEmersionPaymentReceiptResponse>(
+        ENDPOINTS.EMERSION.PAYMENTS.RECEIPT(id),
+      );
+      return response.data;
+    },
+
+    async createPaymentOrder(payload) {
+      const response = await axiosInstance.post<CreateEmersionOrderResponse>(
+        ENDPOINTS.EMERSION.PAYMENTS.CREATE_ORDER,
+        payload,
+      );
+      return response.data;
+    },
+
+    async verifyPaymentSignature(payload) {
+      const response = await axiosInstance.post<VerifyEmersionSignatureResponse>(
+        ENDPOINTS.EMERSION.PAYMENTS.VERIFY_SIGNATURE,
+        payload,
+      );
+      return response.data;
+    },
+
+    async refundPayment(payload) {
+      const response = await axiosInstance.post<RefundEmersionPaymentResponse>(
+        ENDPOINTS.EMERSION.PAYMENTS.REFUND,
+        payload,
+      );
+      return response.data;
+    },
+
+    async listPrograms(params) {
+      const response = await axiosInstance.get<ListEmersionProgramsResponse>(
+        ENDPOINTS.EMERSION.PROGRAMS.LIST,
+        { params },
+      );
+      return response.data;
+    },
+
+    async applyToProgram(programId) {
+      const response = await axiosInstance.post<ApplyToEmersionProgramResponse>(
+        ENDPOINTS.EMERSION.PROGRAMS.APPLY(programId),
+      );
+      return response.data;
+    },
+  };
+  const EmersionDataHooks: IEmersionDataHooks = {
+    useEmersionRegister(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) => await EmersionService.register(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({ queryKey: EMERSION_QUERY_KEYS.ALL });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Account created successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to create account.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useEmersionDashboard(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
+        queryFn: async () => await EmersionService.getDashboard(),
+        ...options,
+      });
+    },
+
+    useEmersionProfile(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.PROFILE(),
+        queryFn: async () => await EmersionService.getProfile(),
+        ...options,
+      });
+    },
+
+    useUpdateEmersionProfile(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await EmersionService.updateProfile(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.PROFILE(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["auth", "profile"],
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Profile updated successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to update profile.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useSubmitEmersionApplication(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await EmersionService.submitApplication(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.APPLICATION_STATUS(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["auth", "profile"],
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Application submitted successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to submit application.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useMyEmersionApplication(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
+        queryFn: async () => await EmersionService.getMyApplication(),
+        ...options,
+      });
+    },
+
+    useEmersionApplicationStatus(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.APPLICATION_STATUS(),
+        queryFn: async () => await EmersionService.getApplicationStatus(),
+        ...options,
+      });
+    },
+
+    useDownloadEmersionApplication(options) {
+      return useMutation({
+        mutationFn: async () => await EmersionService.downloadApplication(),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          toast.success("Download started!");
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to download application form.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useNotices(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.NOTICES(),
+        queryFn: async () => await EmersionService.listNotices(),
+        ...options,
+      });
+    },
+
+    useCreateSupportTicket(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await EmersionService.createSupportTicket(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.MY_TICKETS(),
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Support ticket created successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to create support ticket.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useMySupportTickets(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.MY_TICKETS(),
+        queryFn: async () => await EmersionService.listMySupportTickets(),
+        ...options,
+      });
+    },
+
+    useDeleteSupportTicket(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (id) => await EmersionService.deleteSupportTicket(id),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.MY_TICKETS(),
+          });
+          toast.success(
+            (data as { message?: string })?.message || "Support ticket deleted.",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to delete support ticket.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useMyEmersionCertificates(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.MY_CERTIFICATES(),
+        queryFn: async () => await EmersionService.listMyCertificates(),
+        ...options,
+      });
+    },
+
+    useDownloadEmersionCertificate(options) {
+      return useMutation({
+        mutationFn: async (id) => await EmersionService.downloadCertificate(id),
+        ...options,
+      });
+    },
+
+    useAssignEmersionGrade(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ id, payload }) =>
+          await EmersionService.assignGrade(id, payload),
+        onSuccess: async (data, variables, context) => {
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["instructors"] }),
+            queryClient.invalidateQueries({ queryKey: ["students"] }),
+            queryClient.invalidateQueries({ queryKey: ["emersion"] }),
+            queryClient.invalidateQueries({ queryKey: ["super-admin"] }),
+          ]);
+          if (options?.onSuccess) {
+            await (options.onSuccess as any)(data, variables, context);
+          }
+        },
+        ...options,
+      });
+    },
+
+    useEmersionIDCard(options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.MY_ID_CARD(),
+        queryFn: async () => await EmersionService.getMyIDCard(),
+        ...options,
+      });
+    },
+
+    useApplicationIDCard(applicationId, options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.APPLICATION_ID_CARD(applicationId),
+        queryFn: async () =>
+          await EmersionService.getApplicationIDCard(applicationId),
+        enabled: !!applicationId,
+        ...options,
+      });
+    },
+
+    useDownloadEmersionIDCard(options) {
+      return useMutation({
+        mutationFn: async (id) => await EmersionService.downloadIDCard(id),
+        ...options,
+      });
+    },
+
+    useMyEmersionPayments(params, options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.MY_PAYMENTS(params),
+        queryFn: async () => await EmersionService.listMyPayments(params),
+        ...options,
+      });
+    },
+
+    useEmersionPaymentReceipt(id, options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.PAYMENT_RECEIPT(id),
+        queryFn: async () => await EmersionService.getPaymentReceipt(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useCreateEmersionPaymentOrder(options) {
+      return useMutation({
+        mutationFn: async (payload) =>
+          await EmersionService.createPaymentOrder(payload),
+        ...options,
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to create payment order.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useVerifyEmersionPaymentSignature(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await EmersionService.verifyPaymentSignature(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.MY_PAYMENTS(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Payment verified successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to verify payment.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useRefundEmersionPayment(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await EmersionService.refundPayment(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.MY_PAYMENTS(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Refund processed successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to process refund.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    usePrograms(params, options) {
+      return useQuery({
+        queryKey: EMERSION_QUERY_KEYS.PROGRAMS(params),
+        queryFn: async () => await EmersionService.listPrograms(params),
+        ...options,
+      });
+    },
+
+    useApplyToProgram(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (programId) =>
+          await EmersionService.applyToProgram(programId),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Applied to program successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to apply to program.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+  };
+  const StudentRegistrationService: IStudentRegistrationService = {
+    async submitRegistration(payload) {
+      const response =
+        await axiosInstance.post<SubmitStudentRegistrationResponse>(
+          ENDPOINTS.STUDENTS.REGISTER,
+          payload,
+        );
+      return response.data;
+    },
+
+    async getMyRegistration() {
+      const response = await axiosInstance.get<GetStudentRegistrationResponse>(
+        ENDPOINTS.STUDENTS.REGISTER_ME,
+      );
+      return response.data;
+    },
+
+    async listAllRegistrations() {
+      const response = await axiosInstance.get<ListStudentRegistrationsResponse>(
+        ENDPOINTS.STUDENTS.REGISTER_ADMIN,
+      );
+      return response.data;
+    },
+
+    async getRegistrationById(id) {
+      const response = await axiosInstance.get<GetStudentRegistrationResponse>(
+        ENDPOINTS.STUDENTS.REGISTER_BY_ID(id),
+      );
+      return response.data;
+    },
+
+    async updateRegistration(id, payload) {
+      const response =
+        await axiosInstance.patch<UpdateStudentRegistrationResponse>(
+          ENDPOINTS.STUDENTS.REGISTER_BY_ID(id),
+          payload,
+        );
+      return response.data;
+    },
+
+    async deleteRegistration(id) {
+      const response =
+        await axiosInstance.delete<DeleteStudentRegistrationResponse>(
+          ENDPOINTS.STUDENTS.REGISTER_BY_ID(id),
+        );
+      return response.data;
+    },
+  };
+
+  const StudentRegistrationDataHooks: IStudentRegistrationDataHooks = {
+    useStudentRegistrationMe(options) {
+      return useQuery({
+        queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
+        queryFn: async () => await StudentRegistrationService.getMyRegistration(),
+        ...options,
+      });
+    },
+
+    useStudentRegistrationSubmit(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (payload) =>
+          await StudentRegistrationService.submitRegistration(payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Profile registration completed successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to submit registration.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useStudentRegistrationAdminList(options) {
+      return useQuery({
+        queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
+        queryFn: async () =>
+          await StudentRegistrationService.listAllRegistrations(),
+        ...options,
+      });
+    },
+
+    useStudentRegistrationDetails(id, options) {
+      return useQuery({
+        queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(id),
+        queryFn: async () =>
+          await StudentRegistrationService.getRegistrationById(id),
+        enabled: !!id,
+        ...options,
+      });
+    },
+
+    useStudentRegistrationUpdate(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async ({ id, payload }) =>
+          await StudentRegistrationService.updateRegistration(id, payload),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(variables.id),
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Registration profile updated successfully!",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to update registration profile.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+
+    useStudentRegistrationDelete(options) {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: async (id) =>
+          await StudentRegistrationService.deleteRegistration(id),
+        ...options,
+        onSuccess: (data, variables, context, mutation) => {
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
+          });
+          queryClient.invalidateQueries({
+            queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(variables),
+          });
+          toast.success(
+            (data as { message?: string })?.message ||
+            "Registration profile deleted successfully.",
+          );
+          options?.onSuccess?.(data, variables, context, mutation);
+        },
+        onError: (error, variables, context, mutation) => {
+          toast.error(error.message || "Failed to delete registration profile.");
+          options?.onError?.(error, variables, context, mutation);
+        },
+      });
+    },
+  };
+
+  function Dialog({
+    ...props
+  }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
+    return <SheetPrimitive.Root data-slot="dialog" {...props} />;
+  }
+
+  function ApplicationDetailDialog_2({
+    application,
+    open,
+    onOpenChange,
+  }: ApplicationDetailDialogProps) {
+    const { user } = useAuth();
+
+    const { data: profileResponse } = EmersionDataHooks.useEmersionProfile({
+      enabled: !!user?.id && open,
+      retry: false,
+    });
+
+    const profile = profileResponse?.success ? profileResponse.data : null;
+
+    const { mutate: downloadPdf, isPending: isDownloading } =
+      EmersionDataHooks.useDownloadEmersionApplication({
+        onSuccess: (blob) => {
+          toast.dismiss();
+          if (blob) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Immersion_Application_${application?.id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            toast.success("Application PDF downloaded successfully!");
+          } else {
+            toast.error("Failed to retrieve PDF download.");
+          }
+        },
+        onError: (err: any) => {
+          toast.dismiss();
+          toast.error(err.message || "Failed to download application PDF.");
+        },
+      });
+
+    const handleGeneratePDF = () => {
+      if (!application) return;
+      toast.loading("Generating application PDF...");
+      downloadPdf();
+    };
+
+    if (!application) return null;
+
+    const matchedStatic = IMMERSION_PROGRAMS.find(
+      (p) => p.id === application.immersionId,
+    );
+
+    const programTitle =
+      application.immersion?.title ||
+      matchedStatic?.title ||
+      "Custom Immersion Projects";
+    const programCategory = matchedStatic?.category || "Immersion Program";
+    const programLocation =
+      application.immersion?.location || matchedStatic?.location || "Remote";
+    const programDuration =
+      application.preferredDuration || matchedStatic?.period || "Flexible";
+    const fees = (application.immersion as any)?.fees ?? matchedStatic?.fees ?? 0;
+    const isPaid = fees > 0;
+
+    const isEnrolled = application.status === "APPROVED";
+
+    console.log("Application Immersion Data:", application.immersion);
+
+    const statusColors: Record<string, string> = {
+      DRAFT: "bg-muted text-muted-foreground border-border",
+      SUBMITTED:
+        "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30",
+      UNDER_REVIEW:
+        "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30",
+      APPROVED:
+        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
+      REJECTED:
+        "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30",
+    };
+
+    const statusLabel: Record<string, string> = {
+      DRAFT: "Draft",
+      SUBMITTED: "Submitted — Pending Review",
+      UNDER_REVIEW: "Under Review",
+      APPROVED: "Approved",
+      REJECTED: "Rejected / Not Selected",
+    };
+
+    const academics = application.academicDetails || [];
+
+    const currentAddress = profile
+      ? [
+        profile.currentAddressLocal,
+        profile.currentAddressDistrict,
+        profile.currentAddressState,
+        profile.currentAddressCountry,
+        profile.currentAddressPinCode,
+      ]
+        .filter(Boolean)
+        .join(", ")
+      : "";
+
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
+          <DialogHeader className="border-muted border-b p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <DialogTitle className="font-heading dark:text-foreground text-xl font-bold text-emerald-950">
+                  Application Details
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground mt-1">
+                  Overview of your immersion application and registration profile.
+                </DialogDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGeneratePDF}
+                disabled={isDownloading}
+                className="w-full shrink-0 gap-2 self-start border-emerald-600 text-emerald-700 hover:bg-emerald-50/50 hover:text-emerald-800 sm:w-auto sm:self-center dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300"
+              >
+                {isDownloading ? (
+                  <Loader2 className="size-4 animate-spin text-emerald-600" />
+                ) : (
+                  <Download className="size-4" />
+                )}
+                Generate PDF
+              </Button>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-6 p-6">
+            { }
+            <div className="grid grid-cols-1 gap-4 rounded-xl border border-emerald-100/50 bg-emerald-50/30 p-4 sm:grid-cols-2 dark:border-emerald-900/30 dark:bg-emerald-950/10">
+              <div className="space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
+                  {isEnrolled ? "Enrollment ID" : "Application ID"}
+                </span>
+                <div className="pt-0.5">
+                  <ApplicationIdChip
+                    id={application.id}
+                    createdAt={application.submittedAt || application.createdAt}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
+                  Applied Date
+                </span>
+                <p className="text-sm font-medium text-emerald-950 dark:text-emerald-100">
+                  {formatHumanReadableDate(
+                    application.submittedAt || application.createdAt,
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center justify-between space-y-1 border-t border-emerald-100/40 pt-3 sm:col-span-2 dark:border-emerald-900/20">
+                <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-300">
+                  Status
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusColors[application.status] || "bg-muted text-foreground"
+                    }`}
+                >
+                  <span
+                    className={`size-1.5 rounded-full ${application.status === "APPROVED"
+                        ? "bg-emerald-600"
+                        : application.status === "REJECTED"
+                          ? "bg-red-600"
+                          : "bg-amber-600"
+                      }`}
+                  />
+                  {statusLabel[application.status] || application.status}
+                </span>
+              </div>
+            </div>
+
+            { }
+            <div className="border-muted space-y-3 rounded-xl border p-4">
+              <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
+                <User className="size-4 text-emerald-600 dark:text-emerald-400" />
+                Immersion Details
+              </h3>
+              <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Immersion ID
+                  </span>
+                  <div className="pt-0.5">
+                    <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-200/70 bg-emerald-50/80 px-2 py-0.5 font-mono text-[11px] font-bold tracking-tight text-emerald-700 transition-colors dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
+                      {formatImmersionCode(application.immersionId, programTitle)}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Duration
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {programDuration || "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Program Name
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {programTitle}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Category / Organization
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {programCategory}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Type / Mode
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {isPaid ? "PAID" : "FREE"} /{" "}
+                    {application.presenceType === "ONLINE" ? "ONLINE" : "OFFLINE"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Location
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {programLocation}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            { }
+            <div className="border-muted space-y-3 rounded-xl border p-4">
+              <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
+                <User className="size-4 text-emerald-600 dark:text-emerald-400" />
+                Candidate Information
+              </h3>
+              <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Full Name
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {profile?.fullName || user?.name || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Immersion ID
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {profile?.emersionId || user?.registrationNo || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">
+                    Father / Spouse Name
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {profile?.fatherSpouseName || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
+                    <Calendar className="text-muted-foreground size-3" />
+                    Date of Birth / Gender
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {profile?.dob ? formatHumanReadableDate(profile.dob) : "—"} /{" "}
+                    {profile?.gender || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
+                    <Mail_2 className="text-muted-foreground size-3" />
+                    Email Address
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {profile?.emailAddress || user?.email || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
+                    <Phone_2 className="text-muted-foreground size-3" />
+                    Mobile / Alternate
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {profile?.mobileNo || "—"}
+                    {profile?.alternateMobileNo
+                      ? ` / ${profile.alternateMobileNo}`
+                      : ""}
+                  </span>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
+                    <MapPin_2 className="text-muted-foreground size-3" />
+                    Current Address
+                  </span>
+                  <span className="text-foreground text-xs font-semibold">
+                    {currentAddress || "—"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            { }
+            <div className="border-muted space-y-3 rounded-xl border p-4">
+              <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
+                <GraduationCap_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                Academics
+              </h3>
+              <div className="max-h-[200px] space-y-3 overflow-y-auto pr-1">
+                {academics && academics.length > 0 ? (
+                  academics.map((acad: any, idx: number) => (
+                    <div
+                      key={acad.id || idx}
+                      className="border-muted border-b pb-2 text-xs last:border-0 last:pb-0"
+                    >
+                      <p className="font-semibold text-emerald-950 dark:text-emerald-100">
+                        {acad.qualification} ({acad.stream || "N/A"})
+                      </p>
+                      <p className="text-muted-foreground mt-0.5 text-[10px]">
+                        {acad.instituteName || "N/A"} |{" "}
+                        {acad.universityName || "N/A"}
+                      </p>
+                      <p className="text-muted-foreground text-[10px]">
+                        Year: {acad.sessionYear || "N/A"} | Grade:{" "}
+                        {acad.gradeDivision || "N/A"}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-xs italic">
+                    No academic records.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="border-muted bg-muted/20 border-t p-6">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  function PaymentModal_3({
+    program,
+    applicationId,
+    open,
+    onClose,
+    onCancel,
+  }: PaymentModalProps) {
+    const [orderData, setOrderData] = useState<{
       paymentId: string;
       razorpayOrderId: string;
       amount: number;
       currency: string;
       keyId: string;
       isMockMode: boolean;
-    }
+    } | null>(null);
+    const [paymentError, setPaymentError] = useState<string | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-interface CreateEmersionOrderResponse {
-      success: boolean;
-      data: CreateEmersionOrderResponseData;
-    }
-
-type CreateEmersionOrderPayload = Record<string, never>;
-
-interface VerifyEmersionSignatureResponseData {
+    const openRazorpayCheckout = async (data: {
       paymentId: string;
-      applicationId: string;
-      status: string;
-    }
-
-interface VerifyEmersionSignatureResponse {
-      success: boolean;
-      data: VerifyEmersionSignatureResponseData;
-    }
-
-interface VerifyEmersionSignaturePayload {
       razorpayOrderId: string;
-      razorpayPaymentId: string;
-      razorpaySignature: string;
-    }
-
-interface RefundEmersionPaymentResponseData {
-      paymentId: string;
-      refundId: string;
-      refundedAmount: number;
-      status: string;
-    }
-
-interface RefundEmersionPaymentResponse {
-      success: boolean;
-      data: RefundEmersionPaymentResponseData;
-    }
-
-interface RefundEmersionPaymentPayload {
-      paymentId: string;
-      amount?: number;
-    }
-
-interface EmersionProgramCategory {
-      id: string;
-      name: string;
-    }
-
-interface EmersionProgramInstructor {
-      id: string;
-      name: string;
-      email: string;
-    }
-
-interface EmersionProgram {
-      id: string;
-      code?: string | null;
-      title: string;
-      description: string;
-      startDate: string;
-      endDate: string;
-      location: string;
-      period: string;
-      facilities?: string | null;
-      benefits?: string | null;
-      fees: number;
-      categoryId?: string | null;
-      category?: EmersionProgramCategory | null;
-      instructorId?: string | null;
-      instructor?: EmersionProgramInstructor | null;
-      createdAt: string;
-      updatedAt: string;
-    }
-
-interface ListEmersionProgramsResponse {
-      success: boolean;
-      data: EmersionProgram[];
-    }
-
-type ApplyToEmersionProgramResponse =
-      ApiSuccess<EmersionApplicationData>;
-
-interface IEmersionDataHooks {
-      useEmersionRegister: (
-        options?: TMutationOptions<
-          EmersionRegisterResponse,
-          Error,
-          EmersionRegisterPayload
-        >,
-      ) => TMutationReturnType<EmersionRegisterResponse, EmersionRegisterPayload>;
-
-      useEmersionDashboard: (
-        options?: TQueryOptions<EmersionDashboardResponse, Error>,
-      ) => TQueryReturnType<EmersionDashboardResponse, Error>;
-
-      useEmersionProfile: (
-        options?: TQueryOptions<EmersionProfileResponse, Error>,
-      ) => TQueryReturnType<EmersionProfileResponse, Error>;
-
-      useUpdateEmersionProfile: (
-        options?: TMutationOptions<
-          UpdateEmersionProfileResponse,
-          Error,
-          UpdateEmersionProfilePayload
-        >,
-      ) => TMutationReturnType<
-        UpdateEmersionProfileResponse,
-        UpdateEmersionProfilePayload
-      >;
-
-        useSubmitEmersionApplication: (
-        options?: TMutationOptions<
-          EmersionApplicationResponse,
-          Error,
-          TEmersionApplication
-        >,
-      ) => TMutationReturnType<EmersionApplicationResponse, TEmersionApplication>;
-
-      useMyEmersionApplication: (
-        options?: TQueryOptions<EmersionMyApplicationResponse, Error>,
-      ) => TQueryReturnType<EmersionMyApplicationResponse, Error>;
-
-      useEmersionApplicationStatus: (
-        options?: TQueryOptions<EmersionApplicationStatusResponse, Error>,
-      ) => TQueryReturnType<EmersionApplicationStatusResponse, Error>;
-
-      useDownloadEmersionApplication: (
-        options?: TMutationOptions<Blob, Error, void>,
-      ) => TMutationReturnType<Blob, void>;
-
-      useNotices: (
-        options?: TQueryOptions<EmersionListNoticesResponse, Error>,
-      ) => TQueryReturnType<EmersionListNoticesResponse, Error>;
-
-      useCreateSupportTicket: (
-        options?: TMutationOptions<
-          EmersionCreateTicketResponse,
-          Error,
-          EmersionCreateTicketPayload
-        >,
-      ) => TMutationReturnType<
-        EmersionCreateTicketResponse,
-        EmersionCreateTicketPayload
-      >;
-
-      useMySupportTickets: (
-        options?: TQueryOptions<EmersionListMyTicketsResponse, Error>,
-      ) => TQueryReturnType<EmersionListMyTicketsResponse, Error>;
-
-      useDeleteSupportTicket: (
-        options?: TMutationOptions<EmersionDeleteTicketResponse, Error, string>,
-      ) => TMutationReturnType<EmersionDeleteTicketResponse, string>;
-
-        useMyEmersionCertificates: (
-        options?: TQueryOptions<ListEmersionCertificatesResponse, Error>,
-      ) => TQueryReturnType<ListEmersionCertificatesResponse, Error>;
-
-      useDownloadEmersionCertificate: (
-        options?: TMutationOptions<Blob, Error, string>,
-      ) => TMutationReturnType<Blob, string>;
-
-      useAssignEmersionGrade: (
-        options?: TMutationOptions<
-          AssignGradeResponse_2,
-          Error,
-          { id: string; payload: AssignGradeRequest_2 }
-        >,
-      ) => TMutationReturnType<
-        AssignGradeResponse_2,
-        { id: string; payload: AssignGradeRequest_2 }
-      >;
-
-        useEmersionIDCard: (
-        options?: TQueryOptions<GetEmersionIDCardResponse, Error>,
-      ) => TQueryReturnType<GetEmersionIDCardResponse, Error>;
-
-        useApplicationIDCard: (
-        applicationId: string,
-        options?: TQueryOptions<GetEmersionIDCardResponse, Error>,
-      ) => TQueryReturnType<GetEmersionIDCardResponse, Error>;
-
-      useDownloadEmersionIDCard: (
-        options?: TMutationOptions<Blob, Error, string>,
-      ) => TMutationReturnType<Blob, string>;
-
-        useMyEmersionPayments: (
-        params?: ListMyEmersionPaymentsParams,
-        options?: TQueryOptions<ListMyEmersionPaymentsResponse, Error>,
-      ) => TQueryReturnType<ListMyEmersionPaymentsResponse, Error>;
-
-      useEmersionPaymentReceipt: (
-        id: string,
-        options?: TQueryOptions<GetEmersionPaymentReceiptResponse, Error>,
-      ) => TQueryReturnType<GetEmersionPaymentReceiptResponse, Error>;
-
-      useCreateEmersionPaymentOrder: (
-        options?: TMutationOptions<
-          CreateEmersionOrderResponse,
-          Error,
-          CreateEmersionOrderPayload
-        >,
-      ) => TMutationReturnType<
-        CreateEmersionOrderResponse,
-        CreateEmersionOrderPayload
-      >;
-
-      useVerifyEmersionPaymentSignature: (
-        options?: TMutationOptions<
-          VerifyEmersionSignatureResponse,
-          Error,
-          VerifyEmersionSignaturePayload
-        >,
-      ) => TMutationReturnType<
-        VerifyEmersionSignatureResponse,
-        VerifyEmersionSignaturePayload
-      >;
-
-      useRefundEmersionPayment: (
-        options?: TMutationOptions<
-          RefundEmersionPaymentResponse,
-          Error,
-          RefundEmersionPaymentPayload
-        >,
-      ) => TMutationReturnType<
-        RefundEmersionPaymentResponse,
-        RefundEmersionPaymentPayload
-      >;
-
-        usePrograms: (
-        params?: {
-          search?: string;
-          filter?: string;
-          type?: string;
-          categoryId?: string;
-        },
-        options?: TQueryOptions<ListEmersionProgramsResponse, Error>,
-      ) => TQueryReturnType<ListEmersionProgramsResponse, Error>;
-
-      useApplyToProgram: (
-        options?: TMutationOptions<ApplyToEmersionProgramResponse, Error, string>,
-      ) => TMutationReturnType<ApplyToEmersionProgramResponse, string>;
-    }
-
-interface IEmersionService {
-      register: (
-        payload: EmersionRegisterPayload,
-      ) => Promise<EmersionRegisterResponse>;
-      getDashboard: () => Promise<EmersionDashboardResponse>;
-      getProfile: () => Promise<EmersionProfileResponse>;
-      updateProfile: (
-        payload: UpdateEmersionProfilePayload,
-      ) => Promise<UpdateEmersionProfileResponse>;
-      submitApplication: (
-        payload: TEmersionApplication,
-      ) => Promise<EmersionApplicationResponse>;
-      getMyApplication: () => Promise<EmersionMyApplicationResponse>;
-      getApplicationStatus: () => Promise<EmersionApplicationStatusResponse>;
-      downloadApplication: () => Promise<Blob>;
-
-        listNotices: () => Promise<EmersionListNoticesResponse>;
-
-        createSupportTicket: (
-        payload: EmersionCreateTicketPayload,
-      ) => Promise<EmersionCreateTicketResponse>;
-      listMySupportTickets: () => Promise<EmersionListMyTicketsResponse>;
-      deleteSupportTicket: (id: string) => Promise<EmersionDeleteTicketResponse>;
-
-        listMyCertificates: () => Promise<ListEmersionCertificatesResponse>;
-      downloadCertificate: (id: string) => Promise<Blob>;
-      assignGrade: (
-        id: string,
-        payload: AssignGradeRequest_2,
-      ) => Promise<AssignGradeResponse_2>;
-
-        getMyIDCard: () => Promise<GetEmersionIDCardResponse>;
-      getApplicationIDCard: (
-        applicationId: string,
-      ) => Promise<GetEmersionIDCardResponse>;
-      downloadIDCard: (id: string) => Promise<Blob>;
-
-        listMyPayments: (
-        params?: ListMyEmersionPaymentsParams,
-      ) => Promise<ListMyEmersionPaymentsResponse>;
-      getPaymentReceipt: (id: string) => Promise<GetEmersionPaymentReceiptResponse>;
-      createPaymentOrder: (
-        payload: CreateEmersionOrderPayload,
-      ) => Promise<CreateEmersionOrderResponse>;
-      verifyPaymentSignature: (
-        payload: VerifyEmersionSignaturePayload,
-      ) => Promise<VerifyEmersionSignatureResponse>;
-      refundPayment: (
-        payload: RefundEmersionPaymentPayload,
-      ) => Promise<RefundEmersionPaymentResponse>;
-
-        listPrograms: (params?: {
-        search?: string;
-        filter?: string;
-        type?: string;
-        categoryId?: string;
-      }) => Promise<ListEmersionProgramsResponse>;
-      applyToProgram: (
-        programId: string,
-      ) => Promise<ApplyToEmersionProgramResponse>;
-    }
-
-function mapBackendProfileToFrontend(
-      profile: Record<string, unknown> | null,
-    ): Record<string, unknown> | null {
-      if (!profile) return null;
-      return {
-        id: profile.id,
-        userId: profile.userId,
-        emersionId:
-          ((profile.user as Record<string, unknown>)?.registrationNo as string) ||
-          (profile.emersionId as string) ||
-          "",
-        fullName: profile.fullName,
-        fatherSpouseName: profile.fatherMotherName,
-        dob: profile.dateOfBirth
-          ? new Date(profile.dateOfBirth as string | number | Date)
-              .toISOString()
-              .split("T")[0]
-          : "",
-        gender:
-          profile.gender === "MALE"
-            ? "Male"
-            : profile.gender === "FEMALE"
-              ? "Female"
-              : "Transgender",
-        mobileNo: profile.mobileNumber,
-        alternateMobileNo: profile.alternateMobileNo ?? null,
-        emailAddress: profile.emailAddress ?? "",
-        photoUrl: profile.passportPhotoUrl,
-        photoName: profile.passportPhotoUrl ? "passport_photo.jpg" : null,
-        signatureUrl: profile.signatureUrl,
-        signatureName: profile.signatureUrl ? "signature.jpg" : null,
-        agreeTerms: profile.agreeTerms ?? false,
-        academicDetails: (profile.academicDetail as Record<string, unknown>)
-          ? [
-              {
-                schoolCollegeName:
-                  (profile.academicDetail as Record<string, unknown>)
-                    ?.schoolCollegeName || "",
-                boardUniversity:
-                  (profile.academicDetail as Record<string, unknown>)
-                    ?.boardUniversity || "",
-                yearOfPassing:
-                  (profile.academicDetail as Record<string, unknown>)
-                    ?.yearOfPassing || "",
-                gradeDivision:
-                  (profile.academicDetail as Record<string, unknown>)
-                    ?.gradeDivision || "",
-              },
-            ]
-          : [],
-        identityProofUrl: profile.resumeUrl || null,
-        identityProofName: profile.resumeUrl ? "resume.pdf" : null,
-        educationCertUrl: profile.nocUrl || null,
-        educationCertName: profile.nocUrl ? "noc.pdf" : null,
-        currentAddressLocal:
-          (profile.currentAddressSameAsPerm
-            ? profile.permLocalArea
-            : profile.currLocalArea) || "",
-        currentAddressDistrict:
-          (profile.currentAddressSameAsPerm
-            ? profile.permDistrict
-            : profile.currDistrict) || "",
-        currentAddressState:
-          (profile.currentAddressSameAsPerm
-            ? profile.permState
-            : profile.currState) || "",
-        currentAddressCountry:
-          (profile.currentAddressSameAsPerm
-            ? profile.permCountry
-            : profile.currCountry) || "India",
-        currentAddressPinCode:
-          (profile.currentAddressSameAsPerm
-            ? profile.permPinCode
-            : profile.currPinCode) || "",
-        sameAsCurrentAddress: profile.currentAddressSameAsPerm,
-        permAddressLocal: (profile.permLocalArea || "") as string,
-        permAddressDistrict: (profile.permDistrict || "") as string,
-        permAddressState: (profile.permState || "") as string,
-        permAddressCountry: (profile.permCountry || "India") as string,
-        permAddressPinCode: (profile.permPinCode || "") as string,
-      };
-    }
-
-const mapQualEnum = (q: string): string => {
-      const val = q.toUpperCase().replace(/\s+/g, "_").replace(/\./g, "");
-      if (val.includes("MATRICULATION")) return "MATRICULATION";
-      if (val.includes("INTERMEDIATE")) return "INTERMEDIATE";
-      if (val.includes("PHD_PASS_OUT")) return "PHD_PASS_OUT";
-      if (val.includes("UNDER_PHD") || val.includes("UNDER_PH_D"))
-        return "UNDER_PHD";
-      if (val.includes("MPHIL_PASS_OUT") || val.includes("M_PHIL_PASS_OUT"))
-        return "MPHIL_PASS_OUT";
-      if (val.includes("UNDER_MPHIL") || val.includes("UNDER_M_PHIL"))
-        return "UNDER_MPHIL";
-      if (val.includes("POST_GRADUATE_PASS_OUT")) return "POST_GRADUATE_PASS_OUT";
-      if (val.includes("UNDER_POST_GRADUATE")) return "UNDER_POST_GRADUATE";
-      if (val.includes("GRADUATE_PASS_OUT")) return "GRADUATE_PASS_OUT";
-      if (val.includes("UNDER_GRADUATE")) return "UNDER_GRADUATE";
-      return "UNDER_GRADUATE";
-    };
-
-const EMERSION_QUERY_KEYS = {
-      ALL: ["emersion"] as const,
-      DASHBOARD: () => ["emersion", "dashboard"] as const,
-      PROFILE: () => ["emersion", "profile"] as const,
-      APPLICATION_MY: () => ["emersion", "application", "my"] as const,
-      APPLICATION_STATUS: () => ["emersion", "application-status"] as const,
-      NOTICES: () => ["emersion", "notices"] as const,
-      MY_TICKETS: () => ["emersion", "my-tickets"] as const,
-      MY_CERTIFICATES: () => ["emersion", "my-certificates"] as const,
-      MY_ID_CARD: () => ["emersion", "my-id-card"] as const,
-      APPLICATION_ID_CARD: (applicationId: string) =>
-        ["emersion", "id-card", applicationId] as const,
-      MY_PAYMENTS: (params?: ListMyEmersionPaymentsParams) =>
-        ["emersion", "my-payments", params] as const,
-      PAYMENT_RECEIPT: (id: string) => ["emersion", "payment-receipt", id] as const,
-      PROGRAMS: (params?: {
-        search?: string;
-        filter?: string;
-        type?: string;
-        categoryId?: string;
-      }) => ["emersion", "programs", params] as const,
-    };
-
-interface TAcademicDetail {
-      qualification: string;
-      stream: string;
-      subject: string;
-      instituteName: string;
-      universityName: string;
-      sessionYear: string;
-      gradeDivision: string;
-      status: "Pass Out" | "Persuing";
-    }
-
-interface StudentRegistrationResponse {
-      id: string;
-      studentId: string;
-      fullName: string;
-      fatherName: string;
-      motherName: string;
-      dob: string;
-      gender: "Male" | "Female" | "Transgender";
-      category: string;
-      localAddressLocal: string;
-      localAddressDistrict: string;
-      localAddressState: string;
-      localAddressCountry: string;
-      localAddressPinCode: string;
-      sameAsLocal: boolean;
-      permAddressLocal: string;
-      permAddressDistrict: string;
-      permAddressState: string;
-      permAddressCountry: string;
-      permAddressPinCode: string;
-      mobileNo: string;
-      internshipGoal:
-        | "Job"
-        | "Freelancing"
-        | "Higher Studies"
-        | "Startup"
-        | "Skill Enhancement"
-        | "Other";
-      aadharNo?: string;
-      photoUrl: string;
-      photoName: string;
-      signatureUrl: string;
-      signatureName: string;
-      agreeTerms: boolean;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      academics: TAcademicDetail[];
-      skills?: any[];
-    }
-
-type GetStudentRegistrationResponse =
-      ApiSuccess<StudentRegistrationResponse>;
-
-type SubmitStudentRegistrationResponse =
-      ApiSuccess<StudentRegistrationResponse>;
-
-interface TAddress {
-      local: string;
-      district: string;
-      state: string;
-      country: string;
-      pinCode: string;
-    }
-
-interface StudentRegistrationPayload {
-      fullName: string;
-      fatherName: string;
-      motherName: string;
-      dob: string;
-      gender: "Male" | "Female" | "Transgender";
-      category: string;
-      localAddress: TAddress;
-      sameAsLocal: boolean;
-      permanentAddress: TAddress;
-      mobileNo: string;
-      academics: TAcademicDetail[];
-      internshipGoal:
-        | "Job"
-        | "Freelancing"
-        | "Higher Studies"
-        | "Startup"
-        | "Skill Enhancement"
-        | "Other";
-      aadharNo?: string;
-      photoBase64: string;
-      photoName: string;
-      signatureBase64: string;
-      signatureName: string;
-      agreeTerms: boolean;
-    }
-
-type ListStudentRegistrationsResponse = ApiSuccess<
-      StudentRegistrationResponse[]
-    >;
-
-type UpdateStudentRegistrationResponse =
-      ApiSuccess<StudentRegistrationResponse>;
-
-type StudentRegistrationUpdatePayload =
-      Partial<StudentRegistrationPayload>;
-
-type DeleteStudentRegistrationResponse = ApiSuccess<{ message: string }>;
-
-interface IStudentRegistrationDataHooks {
-      useStudentRegistrationMe: (
-        options?: TQueryOptions<GetStudentRegistrationResponse, Error>,
-      ) => TQueryReturnType<GetStudentRegistrationResponse, Error>;
-
-      useStudentRegistrationSubmit: (
-        options?: TMutationOptions<
-          SubmitStudentRegistrationResponse,
-          Error,
-          StudentRegistrationPayload
-        >,
-      ) => TMutationReturnType<
-        SubmitStudentRegistrationResponse,
-        StudentRegistrationPayload
-      >;
-
-      useStudentRegistrationAdminList: (
-        options?: TQueryOptions<ListStudentRegistrationsResponse, Error>,
-      ) => TQueryReturnType<ListStudentRegistrationsResponse, Error>;
-
-      useStudentRegistrationDetails: (
-        id: string,
-        options?: TQueryOptions<GetStudentRegistrationResponse, Error>,
-      ) => TQueryReturnType<GetStudentRegistrationResponse, Error>;
-
-      useStudentRegistrationUpdate: (
-        options?: TMutationOptions<
-          UpdateStudentRegistrationResponse,
-          Error,
-          { id: string; payload: StudentRegistrationUpdatePayload }
-        >,
-      ) => TMutationReturnType<
-        UpdateStudentRegistrationResponse,
-        { id: string; payload: StudentRegistrationUpdatePayload }
-      >;
-
-      useStudentRegistrationDelete: (
-        options?: TMutationOptions<
-          DeleteStudentRegistrationResponse,
-          Error,
-          string
-        >,
-      ) => TMutationReturnType<DeleteStudentRegistrationResponse, string>;
-    }
-
-const STUDENT_REGISTRATION_QUERY_KEYS = {
-      ALL: ["student-registrations"] as const,
-      ME: ["student-registrations", "me"] as const,
-      LIST: ["student-registrations", "list"] as const,
-      DETAILS: (id: string) => ["student-registrations", "details", id] as const,
-    };
-
-interface IStudentRegistrationService {
-      submitRegistration: (
-        payload: StudentRegistrationPayload,
-      ) => Promise<SubmitStudentRegistrationResponse>;
-      getMyRegistration: () => Promise<GetStudentRegistrationResponse>;
-      listAllRegistrations: () => Promise<ListStudentRegistrationsResponse>;
-      getRegistrationById: (id: string) => Promise<GetStudentRegistrationResponse>;
-      updateRegistration: (
-        id: string,
-        payload: StudentRegistrationUpdatePayload,
-      ) => Promise<UpdateStudentRegistrationResponse>;
-      deleteRegistration: (
-        id: string,
-      ) => Promise<DeleteStudentRegistrationResponse>;
-    }
-
-type TMeta_9 = {
-      total: number;
-      limit: number;
-      page: number;
-    };
-
-function formatInternshipCode_6(
-      code?: string | null,
-      companyName?: string | null,
-    ): string {
-      if (!code) return "IN2026XX10001";
-
-      const trimmed = code.trim();
-      if (/^IN\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
-        return trimmed.toUpperCase();
-      }
-
-      const sourceText = companyName && companyName.trim() ? companyName : trimmed;
-      const words = sourceText
-        .trim()
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .split(/\s+/)
-        .filter(Boolean);
-
-      let initials = "HT";
-      if (words.length === 1 && words[0]!.length >= 2) {
-        initials = words[0]!.slice(0, 2).toUpperCase();
-      } else if (words.length >= 2) {
-        initials = (words[0]![0]! + words[1]![0]!).toUpperCase();
-      }
-
-      let hash = 0;
-      for (let i = 0; i < trimmed.length; i++) {
-        hash = (hash * 31 + trimmed.charCodeAt(i)) % 2147483647;
-      }
-      const numericSuffix = (Math.abs(hash) % 90000) + 10000;
-
-      return `IN2026${initials}${numericSuffix}`;
-    }
-
-type TAlertFilter_6 = {
-      icon?: React_4.ReactNode;
-      value: string;
-      label: string;
-      count: number | null;
-      type?: string;
-    };
-
-const STATUS_FILTERS_2: TAlertFilter_6[] = [
-      { label: "Under Review", value: "UNDER_REVIEW", count: null },
-      { label: "Approved", value: "APPROVED", count: null },
-      { label: "Rejected", value: "REJECTED", count: null },
-    ];
-
-const ApplicationsSidebarFilters_2 = () => {
-      return (
-        <SidebarFiltersHeader className="mr-0 px-3">
-          <SidebarCheckBoxFilter
-            header="status"
-            filters={STATUS_FILTERS_2}
-            filter_name="Status"
-          />
-        </SidebarFiltersHeader>
-      );
-    };
-
-interface ImmersionProgram {
-      id: string;
-      category: string;
-      title: string;
-      description: string;
-      location: string;
-      period: string;
-      facilities: string[];
-      benefits: string[];
-      fees: string;
-    }
-
-const IMMERSION_PROGRAMS: ImmersionProgram[] = [
-      {
-        id: "rural-dev",
-        category: "Rural Development Immersion",
-        title: "Rural Livelihoods & Enterprise Immersion",
-        description:
-          "Work with rural cooperatives, self-help groups, and micro-enterprises to understand village economy structures, supply chains, and grassroots sustainable models.",
-        location: "Rajasthan / Madhya Pradesh",
-        period: "3 Weeks",
-        facilities: [
-          "Shared community homestays",
-          "Traditional home-cooked meals",
-          "Local field coordination support",
-          "Language translators",
-        ],
-        benefits: [
-          "Field experience in rural microfinance",
-          "Understanding agricultural value chains",
-          "Community Development Certificate",
-          "Guidance from senior NGO experts",
-        ],
-        fees: "₹5,000 / $75",
-      },
-      {
-        id: "village-imm",
-        category: "Village Immersion",
-        title: "Village Life & Culture Immersion",
-        description:
-          "Experience authentic rural living, traditional agricultural practices, water harvesting systems, and local community-led resource management in remote areas.",
-        location: "Uttarakhand Himalayan Villages",
-        period: "2 Weeks",
-        facilities: [
-          "Homestays with local families",
-          "Traditional mountain food",
-          "Trekking and field navigation guides",
-          "Emergency medical kit access",
-        ],
-        benefits: [
-          "Cultural adaptation and survival skills",
-          "Insight into mountain agriculture systems",
-          "Himalayan Heritage Certificate",
-          "Opportunities for local volunteer projects",
-        ],
-        fees: "₹4,000 / $60",
-      },
-      {
-        id: "social-work",
-        category: "Social Work Immersion",
-        title: "Community Empowerment & Social Work",
-        description:
-          "Partner with local NGOs and community centers to support welfare campaigns, youth mentoring, educational drives, and women's empowerment initiatives.",
-        location: "Delhi NCR / Maharashtra Urban Slums",
-        period: "4 Weeks",
-        facilities: [
-          "Hostel accommodation",
-          "Co-working space & internet access",
-          "Shared kitchen facilities",
-          "Daily transport to site",
-        ],
-        benefits: [
-          "Social impact documentation skills",
-          "Hands-on experience in advocacy & counseling",
-          "Social Impact Leadership Certificate",
-          "Reference letter from a registered NGO",
-        ],
-        fees: "₹4,500 / $65",
-      },
-      {
-        id: "research",
-        category: "Research Immersion",
-        title: "Socio-Economic Research & Policy Evaluation",
-        description:
-          "Undertake empirical research, conduct field surveys, collect qualitative/quantitative data, and draft case studies on critical socio-economic development topics.",
-        location: "Hybrid / Partner Academic Centers",
-        period: "6 Weeks",
-        facilities: [
-          "Access to academic libraries & archives",
-          "Co-working desk space",
-          "High-speed internet & printer usage",
-          "Mentorship from PhD researchers",
-        ],
-        benefits: [
-          "Potential co-authorship on research papers",
-          "Mastery in research methodology & tools",
-          "Academic Research Certificate",
-          "Access to i3 data repositories",
-        ],
-        fees: "₹6,000 / $90",
-      },
-      {
-        id: "gov-policy",
-        category: "Governance/Policy Immersion",
-        title: "Grassroots Governance & Panchayati Raj Systems",
-        description:
-          "Study grassroots administration, policy execution, and rural governance systems. Observe how Central/State schemes are implemented by Panchayats.",
-        location: "District Headquarters in Uttar Pradesh / Bihar",
-        period: "3 Weeks",
-        facilities: [
-          "Government guest house stay",
-          "Local liaison & administrative permissions",
-          "Transport to block and Panchayat offices",
-          "Briefing materials on local governance",
-        ],
-        benefits: [
-          "Deep understanding of public policy challenges",
-          "Networking with local administrative officers",
-          "Grassroots Governance Certificate",
-          "Recommendation letter from local authorities",
-        ],
-        fees: "₹5,500 / $80",
-      },
-      {
-        id: "education",
-        category: "Education Immersion",
-        title: "Primary Education & Creative Learning Outreach",
-        description:
-          "Teach at underserved or rural primary schools using creative pedagogical tools, design low-cost teaching aids, and run extracurricular learning camps.",
-        location: "Rural Karnataka / Tamil Nadu",
-        period: "4 Weeks",
-        facilities: [
-          "School staff quarters boarding",
-          "School cafeteria meal plan",
-          "Teaching supplies and creative kit",
-          "Pre-immersion teacher training",
-        ],
-        benefits: [
-          "Pedagogy and classroom management skills",
-          "Insights into child psychology & rural education",
-          "Educational Outreach Certificate",
-          "Appreciation certificate from school management",
-        ],
-        fees: "₹4,000 / $60",
-      },
-      {
-        id: "health-med",
-        category: "Health & Medicine Immersion",
-        title: "Public Health & Rural Medical Care Outreach",
-        description:
-          "Assist in rural health camps, participate in public health awareness drives, compile medical registries, and study local community healthcare delivery.",
-        location: "Primary Health Centers in Gujarat / Kerala",
-        period: "4 Weeks",
-        facilities: [
-          "Medical center dormitory stay",
-          "Meals at health center mess",
-          "Clinical mentor and coordinator support",
-          "Safety gear & immunization instructions",
-        ],
-        benefits: [
-          "Exposure to low-resource healthcare delivery",
-          "Understanding of community & preventive medicine",
-          "Public Health Immersion Certificate",
-          "Hands-on health campaign planning",
-        ],
-        fees: "₹6,000 / $90",
-      },
-      {
-        id: "nature-env",
-        category: "Nature & Environment Immersion",
-        title: "Ecology, Forestry & Sustainable Agriculture",
-        description:
-          "Participate in conservation efforts, organic farming workshops, waste management programs, biodiversity mapping, and sustainable forestry projects.",
-        location: "Western Ghats / Eco-farms in Himachal Pradesh",
-        period: "2 Weeks",
-        facilities: [
-          "Eco-cottages / Camping tent stay",
-          "Organic farm-fresh meals",
-          "Outdoor safety gear and boots",
-          "Guided forest hikes",
-        ],
-        benefits: [
-          "Hands-on conservation and organic farming skills",
-          "Understanding biodiversity & sustainable ecosystems",
-          "Environmental Conservation Certificate",
-          "Field training in permaculture",
-        ],
-        fees: "₹5,000 / $75",
-      },
-      {
-        id: "spiritual",
-        category: "Spiritual Immersion",
-        title: "Heritage, Yoga & Spiritual Mindfulness",
-        description:
-          "Discover ancient spiritual heritage, participate in daily yoga & meditation practices, study local traditions, and experience holistic wellness routines.",
-        location: "Rishikesh / Varanasi",
-        period: "1 Week",
-        facilities: [
-          "Ashram accommodation",
-          "Strictly vegetarian Satvik meals",
-          "Yoga mats and instruction guide",
-          "Guided visits to spiritual landmarks",
-        ],
-        benefits: [
-          "Holistic wellness and stress management",
-          "Deep understanding of Indian spiritual heritage",
-          "Spiritual & Mindfulness Certificate",
-          "Daily practice guidelines for post-program",
-        ],
-        fees: "₹7,500 / $110",
-      },
-      {
-        id: "ngo-field",
-        category: "NGO Field Immersion",
-        title: "NGO Operations & Grassroots Project Management",
-        description:
-          "Learn the administrative and execution aspects of non-profits, including fundraising campaigns, donor relations, program design, and field reporting.",
-        location: "Major Indian Cities / NGO Rural Hubs",
-        period: "5 Weeks",
-        facilities: [
-          "Shared NGO accommodation",
-          "Dedicated office desk space",
-          "Daily field coordinator guidance",
-          "Local travel reimbursement for project work",
-        ],
-        benefits: [
-          "Insights into non-profit business models",
-          "Hands-on experience in community organizing",
-          "NGO Operations Certificate",
-          "Letter of Recommendation from NGO Trustees",
-        ],
-        fees: "₹5,000 / $75",
-      },
-      {
-        id: "other",
-        category: "Other",
-        title: "Custom Immersion Projects",
-        description:
-          "Work with our academic and field coordinators to design a custom experiential program that fits your specific learning objectives or research project.",
-        location: "Tailored based on request",
-        period: "Flexible (1-8 Weeks)",
-        facilities: [
-          "Customizable accommodation & food",
-          "Dedicated coordinator and field guide",
-          "Specialized equipment based on project",
-          "Liaison with local authorities",
-        ],
-        benefits: [
-          "Tailored learning outcomes matching your curriculum",
-          "Unique fieldwork exposure in your niche",
-          "Custom Immersion Certificate",
-          "One-on-one professional mentorship",
-        ],
-        fees: "Based on project scope",
-      },
-    ];
-
-function formatImmersionCode_8(
-      code?: string | null,
-      programTitle?: string | null,
-    ): string {
-      if (!code) return "IM2026XX10001";
-      const trimmed = code.trim();
-      if (/^IM\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
-        return trimmed.toUpperCase();
-      }
-      const sourceText =
-        programTitle && programTitle.trim() ? programTitle : trimmed;
-      const words = sourceText
-        .trim()
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .split(/\s+/)
-        .filter(Boolean);
-      let initials = "HT";
-      if (words.length === 1 && words[0]!.length >= 2) {
-        initials = words[0]!.slice(0, 2).toUpperCase();
-      } else if (words.length >= 2) {
-        initials = (words[0]![0]! + words[1]![0]!).toUpperCase();
-      }
-      const numericPart = code.replace(/[^0-9]/g, "");
-      let index = "81251";
-      if (numericPart.length >= 5) {
-        index = numericPart.slice(-5);
-      } else if (numericPart.length > 0) {
-        index = numericPart.padStart(5, "0");
-      } else {
-        let hash = 0;
-        for (let i = 0; i < code.length; i++) {
-          hash = code.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        index = Math.abs((hash % 90000) + 10000).toString();
-      }
-      return `IM2026${initials}${index}`;
-    }
-
-function formatHumanReadableDate_13(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-
-interface IEmersionStatusChipProps {
-      status?: string | null;
-    }
-
-const EmersionStatusChip: React_4.FunctionComponent<IEmersionStatusChipProps> = ({
-      status,
+      amount: number;
+      currency: string;
+      keyId: string;
+      isMockMode: boolean;
     }) => {
-      switch (status) {
-        case "APPROVED":
-          return (
-            <Badge className="gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 font-semibold text-emerald-600 hover:bg-emerald-500/15 dark:text-emerald-400">
-              <CheckCircle2_2 className="size-3" />
-              Approved
-            </Badge>
-          );
-        case "UNDER_REVIEW":
-          return (
-            <Badge className="gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 font-semibold text-blue-600 hover:bg-blue-500/15 dark:text-blue-400">
-              <FileText_2 className="size-3" />
-              Under Review
-            </Badge>
-          );
-        case "SUBMITTED":
-          return (
-            <Badge className="gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 font-semibold text-amber-600 hover:bg-amber-500/15 dark:text-amber-400">
-              <Clock className="size-3" />
-              Submitted
-            </Badge>
-          );
-        case "REJECTED":
-          return (
-            <Badge
-              variant="destructive"
-              className="gap-1 rounded-full font-semibold"
-            >
-              <XCircle_2 className="size-3" />
-              Rejected
-            </Badge>
-          );
-        default:
-          return (
-            <Badge className="gap-1 rounded-full border border-gray-500/20 bg-gray-500/10 font-semibold text-gray-600 hover:bg-gray-500/15 dark:text-gray-400">
-              <AlertCircle_2 className="size-3" />
-              Draft
-            </Badge>
-          );
+      setIsProcessing(true);
+      setPaymentError(null);
+
+      const loaded = await loadRazorpayScript_2();
+      if (!loaded) {
+        setPaymentError(
+          "Failed to load payment gateway. Please check your connection or ad-blocker.",
+        );
+        setIsProcessing(false);
+        return;
       }
-    };
 
-const StatusChip_10 = EmersionStatusChip;
-
-interface ApplicationActionsProps {
-      application: EmersionApplicationData;
-    }
-
-interface MockSubmission {
-      id: string;
-      projectTitle: string;
-      projectUrl: string;
-      comments?: string;
-      submittedAt: string;
-      status: string;
-    }
-
-function DropdownMenu_4({
-      ...props
-    }: React_3.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-      return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
-    }
-
-function DropdownMenuTrigger_4({
-      ...props
-    }: React_3.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
-      return (
-        <DropdownMenuPrimitive.Trigger suppressHydrationWarning
-          data-slot="dropdown-menu-trigger"
-          {...props}
-        />
-      );
-    }
-
-interface ApplicationDetailDialogProps {
-      application: EmersionApplicationData | null;
-      open: boolean;
-      onOpenChange: (open: boolean) => void;
-    }
-
-function formatHumanReadableDate(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-
-function formatImmersionCode(
-      code?: string | null,
-      programTitle?: string | null,
-    ): string {
-      if (!code) return "IM2026XX10001";
-      const trimmed = code.trim();
-      if (/^IM\d{4}[A-Z]{2}\d{5}$/i.test(trimmed)) {
-        return trimmed.toUpperCase();
-      }
-      const sourceText =
-        programTitle && programTitle.trim() ? programTitle : trimmed;
-      const words = sourceText
-        .trim()
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .split(/\s+/)
-        .filter(Boolean);
-      let initials = "HT";
-      if (words.length === 1 && words[0]!.length >= 2) {
-        initials = words[0]!.slice(0, 2).toUpperCase();
-      } else if (words.length >= 2) {
-        initials = (words[0]![0]! + words[1]![0]!).toUpperCase();
-      }
-      const numericPart = code.replace(/[^0-9]/g, "");
-      let index = "81251";
-      if (numericPart.length >= 5) {
-        index = numericPart.slice(-5);
-      } else if (numericPart.length > 0) {
-        index = numericPart.padStart(5, "0");
-      } else {
-        let hash = 0;
-        for (let i = 0; i < code.length; i++) {
-          hash = code.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        index = Math.abs((hash % 90000) + 10000).toString();
-      }
-      return `IM2026${initials}${index}`;
-    }
-
-interface PaymentModalProps {
-      program: EmersionProgram;
-      applicationId: string;
-      open: boolean;
-      onClose: () => void;
-      onCancel: () => void;
-    }
-
-function loadRazorpayScript_2(): Promise<boolean> {
-      return new Promise((resolve) => {
-        if (window.Razorpay) return resolve(true);
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.onload = () => resolve(true);
-        script.onerror = () => resolve(false);
-        document.body.appendChild(script);
-      });
-    }
-
-interface RazorpayResponse {
-      razorpay_order_id: string;
-      razorpay_payment_id: string;
-      razorpay_signature: string;
-    }
-
-function Dialog_11({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-function formatHumanReadableDate_12(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-
-function formatHumanReadableDate_14(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-
-interface IStatusChipProps {
-      status?: string;
-    }
-
-const StatusChip_11: React_4.FunctionComponent<IStatusChipProps> = ({ status }) => {
-      switch (status) {
-        case "APPROVED":
-          return (
-            <Badge className="gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 font-semibold text-emerald-600 hover:bg-emerald-500/15 dark:text-emerald-400">
-              <CheckCircle_2 className="size-3" />
-              Approved
-            </Badge>
-          );
-        case "UNDER_REVIEW":
-          return (
-            <Badge className="gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 font-semibold text-amber-600 hover:bg-amber-500/15 dark:text-amber-400">
-              <Clock className="size-3" />
-              Under Review
-            </Badge>
-          );
-        case "REJECTED":
-          return (
-            <Badge
-              variant="destructive"
-              className="gap-1 rounded-full font-semibold"
-            >
-              <XCircle_2 className="size-3" />
-              Rejected
-            </Badge>
-          );
-        case "WAITING":
-          return (
-            <Badge className="gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 font-semibold text-blue-600 hover:bg-blue-500/15 dark:text-blue-400">
-              <Clock className="size-3" />
-              Waiting List
-            </Badge>
-          );
-        default:
-          return (
-            <Badge className="gap-1 rounded-full border border-gray-500/20 bg-gray-500/10 font-semibold text-gray-600 hover:bg-gray-500/15 dark:text-gray-400">
-              <Clock className="size-3" />
-              Pending
-            </Badge>
-          );
-      }
-    };
-
-const StatusChip_12 = StatusChip_11;
-
-interface IApplicationActionsProps {
-      application: any;
-    }
-
-function DropdownMenu_7({
-      ...props
-    }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-      return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
-    }
-
-function DropdownMenuTrigger_7({
-      ...props
-    }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
-      return (
-        <DropdownMenuPrimitive.Trigger suppressHydrationWarning
-          data-slot="dropdown-menu-trigger"
-          {...props}
-        />
-      );
-    }
-
-interface StudentApplicationDetailDialogProps {
-      application: any;
-      open: boolean;
-      onClose: () => void;
-    }
-
-function Dialog_6({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-function formatHumanReadableDate_4(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-
-interface IReviewNoteDialogProps {
-      note: string;
-      open: boolean;
-      onClose: () => void;
-    }
-
-function Dialog_5({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-const ReviewNoteDialog: React_3.FunctionComponent<
-      IReviewNoteDialogProps
-    > = ({ note, open, onClose }) => {
-      return (
-        <Dialog_5 open={open} onOpenChange={(o) => !o && onClose()}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <MessageSquare className="text-primary size-4" /> Reviewer Note
-              </DialogTitle>
-              <DialogDescription>
-                Feedback from the internship coordinator.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="bg-muted/50 text-foreground mt-3 rounded-xl p-4 text-sm leading-relaxed">
-              {note}
-            </div>
-            <div className="mt-4 flex justify-end">
-              <Button variant="outline" className="font-semibold" onClick={onClose}>
-                Close
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog_5>
-      );
-    };
-
-interface ProjectSubmissionDialogProps {
-      enrollmentId: string;
-      internshipTitle: string;
-      open: boolean;
-      onClose: () => void;
-    }
-
-const projectSubmissionSchema = z_2.object({
-      projectTitle: z_2
-        .string()
-        .min(3, { message: "Project title must be at least 3 characters long." }),
-      projectUrl: z_2.string().url({
-        message: "Please enter a valid URL (e.g. GitHub repository link).",
-      }),
-      comments: z_2.string().optional(),
-    });
-
-type TProjectSubmissionInput = z_2.infer<typeof projectSubmissionSchema>;
-
-function Dialog_9({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-interface ReceiptDialogProps_3 {
-      paymentId: string;
-      open: boolean;
-      onClose: () => void;
-    }
-
-interface SubmissionDetailDialogProps {
-      enrollmentId: string;
-      internshipTitle: string;
-      open: boolean;
-      onClose: () => void;
-    }
-
-interface ProjectSubmission_2 {
-      id: string;
-      enrollmentId: string;
-      projectTitle: string;
-      projectUrl: string;
-      comments: string | null;
-      status: "PENDING" | "GRADED";
-      grade: string | null;
-      feedback: string | null;
-      createdAt: string;
-      updatedAt: string;
-      gradedBy?: {
-        name: string;
-      } | null;
-    }
-
-function Dialog_7({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-function formatHumanReadableDate_5(date?: string | null): string {
-      if (!date) return "N/A";
-      const parsed = new Date(date);
-      if (isNaN(parsed.getTime())) return "N/A";
-      return parsed.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-
-const editSubmissionSchema = z_2.object({
-      projectTitle: z_2
-        .string()
-        .min(3, { message: "Project title must be at least 3 characters long." }),
-      projectUrl: z_2.string().url({
-        message: "Please enter a valid URL (e.g. GitHub repository link).",
-      }),
-      comments: z_2.string().optional(),
-    });
-
-type TEditSubmissionInput = z_2.infer<typeof editSubmissionSchema>;
-
-function Dialog_4({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-function AlertDialog({
-      ...props
-    }: React_3.ComponentProps<typeof AlertDialogPrimitive.Root>) {
-      return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
-    }
-
-
-export default function ApplicationsPage() {
-    interface SubmitProjectResponse {
-      success: boolean;
-      message?: string;
-      data: ProjectSubmission;
-    }
-
-    interface ListEnrollmentSubmissionsResponse {
-      success: boolean;
-      message?: string;
-      data: ProjectSubmission[];
-    }
-
-    interface UpdateSubmissionResponse {
-      success: boolean;
-      message?: string;
-      data: ProjectSubmission;
-    }
-
-    interface IStudentDataHook {
-        useStudentDashboard: (
-        options?: TQueryOptions<GetStudentDashboardResponse, Error>,
-      ) => TQueryReturnType<GetStudentDashboardResponse, Error>;
-
-        useInternships: (
-        params?: ListInternshipsParams,
-        options?: TQueryOptions<ListInternshipsResponse, Error>,
-      ) => TQueryReturnType<ListInternshipsResponse, Error>;
-
-        useInternship: (
-        id: string,
-        options?: TQueryOptions<GetInternshipByIdResponse, Error>,
-      ) => TQueryReturnType<GetInternshipByIdResponse, Error>;
-
-        useApplyInternship: (
-        options?: TMutationOptions<ApplyForInternshipResponse, Error, string>,
-      ) => TMutationReturnType<ApplyForInternshipResponse, string>;
-
-        useCheckApplicationStatus: (
-        id: string,
-        options?: TQueryOptions<CheckApplicationStatusResponse, Error>,
-      ) => TQueryReturnType<CheckApplicationStatusResponse, Error>;
-
-        useMyApplications: (
-        options?: TQueryOptions<ListMyApplicationsResponse, Error>,
-      ) => TQueryReturnType<ListMyApplicationsResponse, Error>;
-
-        useMyEnrollments: (
-        options?: TQueryOptions<ListMyEnrollmentsResponse, Error>,
-      ) => TQueryReturnType<ListMyEnrollmentsResponse, Error>;
-
-        useDirectEnroll: (
-        options?: TMutationOptions<DirectEnrollResponse, Error, string>,
-      ) => TMutationReturnType<DirectEnrollResponse, string>;
-
-        useEnrollmentIDCard: (
-        id: string,
-        options?: TQueryOptions<GetEnrollmentIDCardResponse, Error>,
-      ) => TQueryReturnType<GetEnrollmentIDCardResponse, Error>;
-
-        useMyCertificates: (
-        options?: TQueryOptions<ListMyCertificatesResponse, Error>,
-      ) => TQueryReturnType<ListMyCertificatesResponse, Error>;
-
-        useDownloadCertificate: (
-        options?: TMutationOptions<Blob, Error, string>,
-      ) => TMutationReturnType<Blob, string>;
-
-        useAssignGrade: (
-        options?: TMutationOptions<
-          AssignGradeResponse,
-          Error,
-          { id: string; payload: AssignGradeRequest }
-        >,
-      ) => TMutationReturnType<
-        AssignGradeResponse,
-        { id: string; payload: AssignGradeRequest }
-      >;
-
-        useDownloadApplicationPDF: (
-        options?: TMutationOptions<
-          Blob,
-          Error,
-          { internshipId: string; applicationId: string }
-        >,
-      ) => TMutationReturnType<
-        Blob,
-        { internshipId: string; applicationId: string }
-      >;
-
-        useMyPayments: (
-        params?: ListMyPaymentsParams,
-        options?: TQueryOptions<ListMyPaymentsResponse, Error>,
-      ) => TQueryReturnType<ListMyPaymentsResponse, Error>;
-
-        usePaymentReceipt: (
-        id: string,
-        options?: TQueryOptions<GetPaymentReceiptResponse, Error>,
-      ) => TQueryReturnType<GetPaymentReceiptResponse, Error>;
-
-        useCreatePaymentOrder: (
-        options?: TMutationOptions<CreateOrderResponse, Error, CreateOrderPayload>,
-      ) => TMutationReturnType<CreateOrderResponse, CreateOrderPayload>;
-
-        useVerifyPaymentSignature: (
-        options?: TMutationOptions<
-          VerifySignatureResponse,
-          Error,
-          VerifySignaturePayload
-        >,
-      ) => TMutationReturnType<VerifySignatureResponse, VerifySignaturePayload>;
-
-        useRefundPayment: (
-        options?: TMutationOptions<RefundResponse, Error, RefundPayload>,
-      ) => TMutationReturnType<RefundResponse, RefundPayload>;
-
-        useAllPayments: (
-        options?: TQueryOptions<ListAllPaymentsResponse, Error>,
-      ) => TQueryReturnType<ListAllPaymentsResponse, Error>;
-
-        useCreateSupportTicket: (
-        options?: TMutationOptions<
-          CreateTicketResponse,
-          Error,
-          CreateTicketPayload
-        >,
-      ) => TMutationReturnType<CreateTicketResponse, CreateTicketPayload>;
-
-        useMySupportTickets: (
-        options?: TQueryOptions<ListMyTicketsResponse, Error>,
-      ) => TQueryReturnType<ListMyTicketsResponse, Error>;
-
-        useDeleteSupportTicket: (
-        options?: TMutationOptions<DeleteTicketResponse, Error, string>,
-      ) => TMutationReturnType<DeleteTicketResponse, string>;
-
-        useNotices: (
-        options?: TQueryOptions<ListNoticesResponse, Error>,
-      ) => TQueryReturnType<ListNoticesResponse, Error>;
-
-        useCreateNotice: (
-        options?: TMutationOptions<
-          CreateNoticeResponse,
-          Error,
-          CreateNoticePayload
-        >,
-      ) => TMutationReturnType<CreateNoticeResponse, CreateNoticePayload>;
-
-        useSubmitFeedback: (
-        options?: TMutationOptions<FeedbackResponse, Error, FeedbackPayload>,
-      ) => TMutationReturnType<FeedbackResponse, FeedbackPayload>;
-
-        useMyFeedbacks: (
-        options?: TQueryOptions<MyFeedbacksResponse, Error>,
-      ) => TQueryReturnType<MyFeedbacksResponse, Error>;
-
-        useMyReviews: (
-        options?: TQueryOptions<MyReviewsResponse, Error>,
-      ) => TQueryReturnType<MyReviewsResponse, Error>;
-
-        useVerifyIdCard: (
-        id: string,
-        options?: TQueryOptions<VerifyIDCardResponse, Error>,
-      ) => TQueryReturnType<VerifyIDCardResponse, Error>;
-
-        useSubmitProject: (
-        options?: TMutationOptions<
-          SubmitProjectResponse,
-          Error,
-          SubmitProjectPayload
-        >,
-      ) => TMutationReturnType<SubmitProjectResponse, SubmitProjectPayload>;
-
-        useEnrollmentSubmissions: (
-        enrollmentId: string,
-        options?: TQueryOptions<ListEnrollmentSubmissionsResponse, Error>,
-      ) => TQueryReturnType<ListEnrollmentSubmissionsResponse, Error>;
-
-        useUpdateSubmission: (
-        options?: TMutationOptions<
-          UpdateSubmissionResponse,
-          Error,
-          {
-            enrollmentId: string;
-            submissionId: string;
-            payload: UpdateSubmissionPayload;
-          }
-        >,
-      ) => TMutationReturnType<
-        UpdateSubmissionResponse,
-        {
-          enrollmentId: string;
-          submissionId: string;
-          payload: UpdateSubmissionPayload;
-        }
-      >;
-
-        useDeleteSubmission: (
-        options?: TMutationOptions<
-          DeleteSubmissionResponse,
-          Error,
-          { enrollmentId: string; submissionId: string }
-        >,
-      ) => TMutationReturnType<
-        DeleteSubmissionResponse,
-        { enrollmentId: string; submissionId: string }
-      >;
-
-        usePublicNewspapers: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicOnlineLinks: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicPhotos: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicVideos: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicPartners: (
-        type: "educational-institutes" | "job-placement" | "training-support",
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicBlogs: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicDonations: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      usePublicImmersions: (
-        options?: TQueryOptions<Record<string, unknown>[], Error>,
-      ) => TQueryReturnType<Record<string, unknown>[], Error>;
-      useSubmitInternshipInterest: (
-        options?: TMutationOptions<
-          Record<string, unknown>,
-          Error,
-          { id: string; payload: Record<string, unknown> }
-        >,
-      ) => TMutationReturnType<
-        Record<string, unknown>,
-        { id: string; payload: Record<string, unknown> }
-      >;
-      useSubmitPlacementInterest: (
-        options?: TMutationOptions<
-          Record<string, unknown>,
-          Error,
-          { id: string; formData: FormData }
-        >,
-      ) => TMutationReturnType<
-        Record<string, unknown>,
-        { id: string; formData: FormData }
-      >;
-    }
-
-    interface IStudentService {
-        getDashboardSummary: () => Promise<GetStudentDashboardResponse>;
-
-        listInternships: (
-        params?: ListInternshipsParams,
-      ) => Promise<ListInternshipsResponse>;
-      getInternshipById: (id: string) => Promise<GetInternshipByIdResponse>;
-
-        applyForInternship: (id: string) => Promise<ApplyForInternshipResponse>;
-      checkApplicationStatus: (
-        id: string,
-      ) => Promise<CheckApplicationStatusResponse>;
-      listMyApplications: () => Promise<ListMyApplicationsResponse>;
-      downloadApplicationPDF: (
-        internshipId: string,
-        applicationId: string,
-      ) => Promise<Blob>;
-
-        listMyEnrollments: () => Promise<ListMyEnrollmentsResponse>;
-      directEnroll: (id: string) => Promise<DirectEnrollResponse>;
-      getEnrollmentIDCard: (id: string) => Promise<GetEnrollmentIDCardResponse>;
-
-        listMyCertificates: () => Promise<ListMyCertificatesResponse>;
-      downloadCertificate: (id: string) => Promise<Blob>;
-      assignGrade: (
-        id: string,
-        payload: AssignGradeRequest,
-      ) => Promise<AssignGradeResponse>;
-
-        listMyPayments: (
-        params?: ListMyPaymentsParams,
-      ) => Promise<ListMyPaymentsResponse>;
-      getPaymentReceipt: (id: string) => Promise<GetPaymentReceiptResponse>;
-      createPaymentOrder: (
-        payload: CreateOrderPayload,
-      ) => Promise<CreateOrderResponse>;
-      verifyPaymentSignature: (
-        payload: VerifySignaturePayload,
-      ) => Promise<VerifySignatureResponse>;
-      refundPayment: (payload: RefundPayload) => Promise<RefundResponse>;
-      listAllPayments: () => Promise<ListAllPaymentsResponse>;
-
-        createSupportTicket: (
-        payload: CreateTicketPayload,
-      ) => Promise<CreateTicketResponse>;
-      listMySupportTickets: () => Promise<ListMyTicketsResponse>;
-      deleteSupportTicket: (id: string) => Promise<DeleteTicketResponse>;
-
-        listNotices: () => Promise<ListNoticesResponse>;
-      createNotice: (payload: CreateNoticePayload) => Promise<CreateNoticeResponse>;
-
-        submitFeedback: (payload: FeedbackPayload) => Promise<FeedbackResponse>;
-      getMyFeedbacks: () => Promise<MyFeedbacksResponse>;
-      listMyReviews: () => Promise<MyReviewsResponse>;
-      verifyIdCard: (id: string) => Promise<VerifyIDCardResponse>;
-      submitProject: (
-        payload: SubmitProjectPayload,
-      ) => Promise<SubmitProjectResponse>;
-      listEnrollmentSubmissions: (
-        enrollmentId: string,
-      ) => Promise<ListEnrollmentSubmissionsResponse>;
-      updateSubmission: (
-        enrollmentId: string,
-        submissionId: string,
-        payload: UpdateSubmissionPayload,
-      ) => Promise<UpdateSubmissionResponse>;
-      deleteSubmission: (
-        enrollmentId: string,
-        submissionId: string,
-      ) => Promise<DeleteSubmissionResponse>;
-
-        getPublicNewspapers: () => Promise<Record<string, unknown>[]>;
-      getPublicOnlineLinks: () => Promise<Record<string, unknown>[]>;
-      getPublicPhotos: () => Promise<Record<string, unknown>[]>;
-      getPublicVideos: () => Promise<Record<string, unknown>[]>;
-      getPublicPartners: (
-        type: "educational-institutes" | "job-placement" | "training-support",
-      ) => Promise<Record<string, unknown>[]>;
-      getPublicBlogs: () => Promise<Record<string, unknown>[]>;
-      getPublicDonations: () => Promise<Record<string, unknown>[]>;
-      getPublicImmersions: () => Promise<Record<string, unknown>[]>;
-      submitInternshipInterest: (
-        id: string,
-        payload: Record<string, unknown>,
-      ) => Promise<Record<string, unknown>>;
-      submitPlacementInterest: (
-        id: string,
-        formData: FormData,
-      ) => Promise<Record<string, unknown>>;
-    }
-
-    const StudentService: IStudentService = {
-        async getDashboardSummary() {
-        const response = await axiosInstance.get<GetStudentDashboardResponse>(
-          ENDPOINTS.STUDENTS.DASHBOARD,
-        );
-        return response.data;
-      },
-
-        async listInternships(params) {
-        const response = await axiosInstance.get<ListInternshipsResponse>(
-          ENDPOINTS.INTERNSHIPS.BASE,
-          { params },
-        );
-        return response.data;
-      },
-
-      async getInternshipById(id) {
-        const response = await axiosInstance.get<GetInternshipByIdResponse>(
-          ENDPOINTS.INTERNSHIPS.BY_ID(id),
-        );
-        return response.data;
-      },
-
-        async applyForInternship(id) {
-        const response = await axiosInstance.post<ApplyForInternshipResponse>(
-          ENDPOINTS.INTERNSHIPS.APPLY(id),
-        );
-        return response.data;
-      },
-
-      async checkApplicationStatus(id) {
-        const response = await axiosInstance.get<CheckApplicationStatusResponse>(
-          ENDPOINTS.INTERNSHIPS.APPLY(id),
-        );
-        return response.data;
-      },
-
-      async listMyApplications() {
-        const response = await axiosInstance.get<ListMyApplicationsResponse>(
-          ENDPOINTS.INTERNSHIPS.MY_APPLICATIONS,
-        );
-        return response.data;
-      },
-
-      async downloadApplicationPDF(internshipId, applicationId) {
-        const response = await axiosInstance.get<Blob>(
-          `/internships/${internshipId}/applications/${applicationId}/download`,
-          {
-            responseType: "blob",
-          },
-        );
-        return response.data;
-      },
-
-        async listMyEnrollments() {
-        const response = await axiosInstance.get<ListMyEnrollmentsResponse>(
-          ENDPOINTS.ENROLLMENTS.MY_ENROLLMENTS,
-        );
-        return response.data;
-      },
-
-      async directEnroll(id) {
-        const response = await axiosInstance.post<DirectEnrollResponse>(
-          ENDPOINTS.INTERNSHIPS.ENROLL(id),
-        );
-        return response.data;
-      },
-
-      async getEnrollmentIDCard(id) {
-        const response = await axiosInstance.get<GetEnrollmentIDCardResponse>(
-          ENDPOINTS.ENROLLMENTS.ID_CARD(id),
-        );
-        return response.data;
-      },
-
-        async listMyCertificates() {
-        const response = await axiosInstance.get<ListMyCertificatesResponse>(
-          `${ENDPOINTS.CERTIFICATES.MY_CERTIFICATES}?t=${Date.now()}`,
-        );
-        return response.data;
-      },
-
-      async downloadCertificate(id) {
-        const response = await axiosInstance.get<Blob>(
-          ENDPOINTS.CERTIFICATES.DOWNLOAD(id),
-          { responseType: "blob" },
-        );
-        return response.data;
-      },
-
-      async assignGrade(id, payload) {
-        const response = await axiosInstance.patch<AssignGradeResponse>(
-          ENDPOINTS.CERTIFICATES.GRADE(id),
-          payload,
-        );
-        return response.data;
-      },
-
-        async listMyPayments(params) {
-        const response = await axiosInstance.get<ListMyPaymentsResponse>(
-          ENDPOINTS.PAYMENTS.MY_PAYMENTS,
-          { params },
-        );
-        return response.data;
-      },
-
-      async getPaymentReceipt(id) {
-        const response = await axiosInstance.get<GetPaymentReceiptResponse>(
-          ENDPOINTS.PAYMENTS.RECEIPT(id),
-        );
-        return response.data;
-      },
-
-      async createPaymentOrder(payload) {
-        const response = await axiosInstance.post<CreateOrderResponse>(
-          ENDPOINTS.PAYMENTS.CREATE_ORDER,
-          payload,
-        );
-        return response.data;
-      },
-
-      async verifyPaymentSignature(payload) {
-        const response = await axiosInstance.post<VerifySignatureResponse>(
-          ENDPOINTS.PAYMENTS.VERIFY_SIGNATURE,
-          payload,
-        );
-        return response.data;
-      },
-
-      async refundPayment(payload) {
-        const response = await axiosInstance.post<RefundResponse>(
-          ENDPOINTS.PAYMENTS.REFUND,
-          payload,
-        );
-        return response.data;
-      },
-
-      async listAllPayments() {
-        const response = await axiosInstance.get<ListAllPaymentsResponse>(
-          ENDPOINTS.PAYMENTS.ADMIN_LIST,
-        );
-        return response.data;
-      },
-
-        async createSupportTicket(payload) {
-        const response = await axiosInstance.post<CreateTicketResponse>(
-          ENDPOINTS.TICKETS.BASE,
-          payload,
-        );
-        return response.data;
-      },
-
-      async listMySupportTickets() {
-        const response = await axiosInstance.get<ListMyTicketsResponse>(
-          ENDPOINTS.TICKETS.MY_TICKETS,
-        );
-        return response.data;
-      },
-
-      async deleteSupportTicket(id) {
-        const response = await axiosInstance.delete<DeleteTicketResponse>(
-          ENDPOINTS.TICKETS.BY_ID(id),
-        );
-        return response.data;
-      },
-
-        async listNotices() {
-        const response = await axiosInstance.get<ListNoticesResponse>(
-          ENDPOINTS.NOTICES.BASE,
-        );
-        return response.data;
-      },
-
-      async createNotice(payload) {
-        const response = await axiosInstance.post<CreateNoticeResponse>(
-          ENDPOINTS.NOTICES.BASE,
-          payload,
-        );
-        return response.data;
-      },
-
-        async submitFeedback(payload) {
-        const response = await axiosInstance.post<FeedbackResponse>(
-          ENDPOINTS.FEEDBACK.BASE,
-          payload,
-        );
-        return response.data;
-      },
-
-      async getMyFeedbacks() {
-        const response = await axiosInstance.get<MyFeedbacksResponse>(
-          ENDPOINTS.FEEDBACK.MY_FEEDBACKS,
-        );
-        return response.data;
-      },
-
-      async listMyReviews() {
-        const response = await axiosInstance.get<MyReviewsResponse>(
-          ENDPOINTS.REVIEWS.MY_REVIEWS,
-        );
-        return response.data;
-      },
-
-      async verifyIdCard(id) {
-        const response = await axiosInstance.get<VerifyIDCardResponse>(
-          ENDPOINTS.ID_CARDS.BY_ID(id),
-        );
-        return response.data;
-      },
-
-      async submitProject(payload) {
-        const response = await axiosInstance.post<SubmitProjectResponse>(
-          ENDPOINTS.INSTRUCTOR.SUBMISSIONS,
-          payload,
-        );
-        return response.data;
-      },
-
-      async listEnrollmentSubmissions(enrollmentId) {
-        const response = await axiosInstance.get<ListEnrollmentSubmissionsResponse>(
-          ENDPOINTS.ENROLLMENTS.SUBMISSIONS(enrollmentId),
-        );
-        return response.data;
-      },
-
-      async updateSubmission(enrollmentId, submissionId, payload) {
-        const response = await axiosInstance.patch<UpdateSubmissionResponse>(
-          ENDPOINTS.ENROLLMENTS.SUBMISSION_BY_ID(enrollmentId, submissionId),
-          payload,
-        );
-        return response.data;
-      },
-
-      async deleteSubmission(enrollmentId, submissionId) {
-        const response = await axiosInstance.delete<DeleteSubmissionResponse>(
-          ENDPOINTS.ENROLLMENTS.SUBMISSION_BY_ID(enrollmentId, submissionId),
-        );
-        return response.data;
-      },
-
-        async getPublicNewspapers() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/media/newspapers");
-        return response.data?.data || [];
-      },
-
-      async getPublicOnlineLinks() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/media/online-links");
-        return response.data?.data || [];
-      },
-
-      async getPublicPhotos() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/media/photos");
-        return response.data?.data || [];
-      },
-
-      async getPublicVideos() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/media/videos");
-        return response.data?.data || [];
-      },
-
-      async getPublicPartners(type) {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>(`/partners/${type}`);
-        const data = response.data?.data || [];
-        return data.map((item) => ({
-          ...item,
-          logoUrl: item.logo || item.logoUrl,
-          photoUrl: item.photo || item.photoUrl,
-        }));
-      },
-
-      async getPublicBlogs() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/blogs");
-        return response.data?.data || [];
-      },
-
-      async getPublicDonations() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/donations");
-        return response.data?.data || [];
-      },
-
-      async getPublicImmersions() {
-        const response = await axiosInstance.get<{
-          data: Record<string, unknown>[];
-        }>("/immersion");
-        return response.data?.data || [];
-      },
-
-      async submitInternshipInterest(id, payload) {
-        const response = await axiosInstance.post(
-          `/internships/${id}/interest`,
-          payload,
-        );
-        return response.data;
-      },
-
-      async submitPlacementInterest(id, formData) {
-        const response = await axiosInstance.post(
-          `/partners/job-placement/${id}/interest`,
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          },
-        );
-        return response.data;
-      },
-    };
-
-    const StudentDataHook: IStudentDataHook = {
-        useStudentDashboard(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-          queryFn: async () => await StudentService.getDashboardSummary(),
-          ...options,
-        });
-      },
-
-        useInternships(params, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.INTERNSHIPS(params),
-          queryFn: async () => await StudentService.listInternships(params),
-          ...options,
-        });
-      },
-
-        useInternship(id, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.INTERNSHIP(id),
-          queryFn: async () => await StudentService.getInternshipById(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-        useApplyInternship(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (id) => await StudentService.applyForInternship(id),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Application submitted successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to apply for internship.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useCheckApplicationStatus(id, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.APPLICATION_STATUS(id),
-          queryFn: async () => await StudentService.checkApplicationStatus(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-        useMyApplications(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
-          queryFn: async () => await StudentService.listMyApplications(),
-          ...options,
-        });
-      },
-
-        useMyEnrollments(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
-          queryFn: async () => await StudentService.listMyEnrollments(),
-          ...options,
-        });
-      },
-
-        useDirectEnroll(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (id) => await StudentService.directEnroll(id),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            toast.success(
-              (data as { message?: string })?.message || "Enrolled successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to enroll.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useEnrollmentIDCard(id, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_ID_CARD(id),
-          queryFn: async () => await StudentService.getEnrollmentIDCard(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-        useMyCertificates(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.MY_CERTIFICATES,
-          queryFn: async () => await StudentService.listMyCertificates(),
-          ...options,
-        });
-      },
-
-        useDownloadCertificate(options) {
-        return useMutation({
-          mutationFn: async (id) => await StudentService.downloadCertificate(id),
-          ...options,
-        });
-      },
-
-        useAssignGrade(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ id, payload }) =>
-            await StudentService.assignGrade(id, payload),
-          onSuccess: async (data, variables, context) => {
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ["instructors"] }),
-              queryClient.invalidateQueries({ queryKey: ["students"] }),
-              queryClient.invalidateQueries({ queryKey: ["emersion"] }),
-              queryClient.invalidateQueries({ queryKey: ["super-admin"] }),
-            ]);
-            if (options?.onSuccess) {
-              await (options.onSuccess as any)(data, variables, context);
-            }
-          },
-          ...options,
-        });
-      },
-
-        useDownloadApplicationPDF(options) {
-        return useMutation({
-          mutationFn: async ({ internshipId, applicationId }) =>
-            await StudentService.downloadApplicationPDF(
-              internshipId,
-              applicationId,
-            ),
-          ...options,
-        });
-      },
-
-        useMyPayments(params, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.MY_PAYMENTS(params),
-          queryFn: async () => await StudentService.listMyPayments(params),
-          ...options,
-        });
-      },
-
-        usePaymentReceipt(id, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.PAYMENT_RECEIPT(id),
-          queryFn: async () => await StudentService.getPaymentReceipt(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-        useCreatePaymentOrder(options) {
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentService.createPaymentOrder(payload),
-          ...options,
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to create payment order.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useVerifyPaymentSignature(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentService.verifyPaymentSignature(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_PAYMENTS(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Payment verified! You are now enrolled.",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to verify payment.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useRefundPayment(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentService.refundPayment(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_PAYMENTS(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.ALL_PAYMENTS,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Refund processed successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to process refund.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useAllPayments(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.ALL_PAYMENTS,
-          queryFn: async () => await StudentService.listAllPayments(),
-          ...options,
-        });
-      },
-
-        useCreateSupportTicket(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentService.createSupportTicket(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_TICKETS,
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Support ticket created successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to create support ticket.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useMySupportTickets(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.MY_TICKETS,
-          queryFn: async () => await StudentService.listMySupportTickets(),
-          ...options,
-        });
-      },
-
-        useDeleteSupportTicket(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (id) => await StudentService.deleteSupportTicket(id),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_TICKETS,
-            });
-            toast.success(
-              (data as { message?: string })?.message || "Support ticket deleted.",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to delete support ticket.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useNotices(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.NOTICES,
-          queryFn: async () => await StudentService.listNotices(),
-          ...options,
-        });
-      },
-
-        useCreateNotice(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) => await StudentService.createNotice(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({ queryKey: STUDENT_QUERY_KEYS.NOTICES });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Notice posted successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to post notice.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useSubmitFeedback(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentService.submitFeedback(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.FEEDBACKS,
-            });
-            toast.success(
-              (data.message as string) || "Feedback submitted successfully.",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to submit feedback.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useMyFeedbacks(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.FEEDBACKS,
-          queryFn: async () => await StudentService.getMyFeedbacks(),
-          ...options,
-        });
-      },
-
-        useMyReviews(options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.MY_REVIEWS,
-          queryFn: async () => await StudentService.listMyReviews(),
-          ...options,
-        });
-      },
-
-        useVerifyIdCard(id, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.VERIFY_ID_CARD(id),
-          queryFn: async () => await StudentService.verifyIdCard(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-        useSubmitProject(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentService.submitProject(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_ENROLLMENTS,
-            });
-            toast.success(
-              (data.message as string) || "Project submitted successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to submit project.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useEnrollmentSubmissions(enrollmentId, options) {
-        return useQuery({
-          queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(enrollmentId),
-          queryFn: async () =>
-            await StudentService.listEnrollmentSubmissions(enrollmentId),
-          enabled: !!enrollmentId,
-          ...options,
-        });
-      },
-
-        useUpdateSubmission(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ enrollmentId, submissionId, payload }) =>
-            await StudentService.updateSubmission(
-              enrollmentId,
-              submissionId,
-              payload,
-            ),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(
-                variables.enrollmentId,
-              ),
-            });
-            toast.success(data.message || "Submission updated successfully!");
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to update submission.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        useDeleteSubmission(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ enrollmentId, submissionId }) =>
-            await StudentService.deleteSubmission(enrollmentId, submissionId),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.ENROLLMENT_SUBMISSIONS(
-                variables.enrollmentId,
-              ),
-            });
-            toast.success(data.message || "Submission deleted successfully!");
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to delete submission.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        usePublicNewspapers(options) {
-        return useQuery({
-          queryKey: ["public", "newspapers"],
-          queryFn: async () => await StudentService.getPublicNewspapers(),
-          ...options,
-        });
-      },
-
-      usePublicOnlineLinks(options) {
-        return useQuery({
-          queryKey: ["public", "online-links"],
-          queryFn: async () => await StudentService.getPublicOnlineLinks(),
-          ...options,
-        });
-      },
-
-      usePublicPhotos(options) {
-        return useQuery({
-          queryKey: ["public", "photos"],
-          queryFn: async () => await StudentService.getPublicPhotos(),
-          ...options,
-        });
-      },
-
-      usePublicVideos(options) {
-        return useQuery({
-          queryKey: ["public", "videos"],
-          queryFn: async () => await StudentService.getPublicVideos(),
-          ...options,
-        });
-      },
-
-      usePublicPartners(type, options) {
-        return useQuery({
-          queryKey: ["public", "partners", type],
-          queryFn: async () => await StudentService.getPublicPartners(type),
-          ...options,
-        });
-      },
-
-      usePublicBlogs(options) {
-        return useQuery({
-          queryKey: ["public", "blogs"],
-          queryFn: async () => await StudentService.getPublicBlogs(),
-          ...options,
-        });
-      },
-
-      usePublicDonations(options) {
-        return useQuery({
-          queryKey: ["public", "donations"],
-          queryFn: async () => await StudentService.getPublicDonations(),
-          ...options,
-        });
-      },
-
-      usePublicImmersions(options) {
-        return useQuery({
-          queryKey: ["public", "immersions"],
-          queryFn: async () => await StudentService.getPublicImmersions(),
-          ...options,
-        });
-      },
-
-      useSubmitInternshipInterest(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ id, payload }) =>
-            await StudentService.submitInternshipInterest(id, payload),
-          ...options,
-          onSuccess: (data, variables, context) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.MY_APPLICATIONS,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            toast.success(
-              (data.message as string) || "Application submitted successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, undefined as never);
-          },
-          onError: (error, variables, context) => {
-            toast.error(error.message || "Failed to submit application.");
-            options?.onError?.(error, variables, context, undefined as never);
-          },
-        });
-      },
-
-      useSubmitPlacementInterest(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ id, formData }) =>
-            await StudentService.submitPlacementInterest(id, formData),
-          ...options,
-          onSuccess: (data, variables, context) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_QUERY_KEYS.DASHBOARD,
-            });
-            toast.success(
-              (data.message as string) || "Interest registered successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, undefined as never);
-          },
-          onError: (error, variables, context) => {
-            toast.error(error.message || "Failed to submit interest.");
-            options?.onError?.(error, variables, context, undefined as never);
-          },
-        });
-      },
-    };
-
-    function useAuth() {
-      return useContext(AuthContext);
-    }
-
-    const EmersionService: IEmersionService = {
-      async register(payload) {
-        const response = await axiosInstance.post<EmersionRegisterResponse>(
-          ENDPOINTS.EMERSION.REGISTER,
-          payload,
-        );
-        return response.data;
-      },
-
-      async getDashboard() {
-        const response = await axiosInstance.get<EmersionDashboardResponse>(
-          ENDPOINTS.EMERSION.DASHBOARD,
-        );
-        return response.data;
-      },
-
-      async getProfile() {
-        const response = await axiosInstance.get<{ data: Record<string, unknown> }>(
-          ENDPOINTS.EMERSION.PROFILE,
-        );
-        return {
-          ...response.data,
-          data: mapBackendProfileToFrontend(
-            response.data.data as Record<string, unknown> | null,
-          ),
-        } as unknown as EmersionProfileResponse;
-      },
-
-      async updateProfile(payload) {
-        const mappedPayload: Record<string, unknown> = {
-          fullName: payload.fullName,
-          fatherMotherName: payload.fatherSpouseName,
-          dateOfBirth: payload.dob
-            ? new Date(payload.dob).toISOString()
-            : undefined,
-          gender:
-            payload.gender === "Male"
-              ? "MALE"
-              : payload.gender === "Female"
-                ? "FEMALE"
-                : "OTHER",
-          mobileNumber: payload.mobileNo,
-          alternateMobileNo: payload.alternateMobileNo ?? undefined,
-          emailAddress: payload.emailAddress ?? undefined,
-          currentAddressSameAsPerm: payload.sameAsCurrentAddress,
-                permLocalArea: payload.permanentAddress?.local,
-          permDistrict: payload.permanentAddress?.district,
-          permState: payload.permanentAddress?.state,
-          permCountry: payload.permanentAddress?.country,
-          permPinCode: payload.permanentAddress?.pinCode,
-                currLocalArea: payload.sameAsCurrentAddress
-            ? undefined
-            : payload.currentAddress?.local,
-          currDistrict: payload.sameAsCurrentAddress
-            ? undefined
-            : payload.currentAddress?.district,
-          currState: payload.sameAsCurrentAddress
-            ? undefined
-            : payload.currentAddress?.state,
-          currCountry: payload.sameAsCurrentAddress
-            ? undefined
-            : payload.currentAddress?.country,
-          currPinCode: payload.sameAsCurrentAddress
-            ? undefined
-            : payload.currentAddress?.pinCode,
-        };
-
-        const response = await axiosInstance.patch<{
-          data: Record<string, unknown>;
-        }>(ENDPOINTS.EMERSION.PROFILE, mappedPayload);
-        return {
-          ...response.data,
-          data: mapBackendProfileToFrontend(response.data.data),
-        } as unknown as UpdateEmersionProfileResponse;
-      },
-
-          async submitApplication(payload: TEmersionApplication) {
-            const hasPhoto = !!payload.photoBase64;
-        const hasIdentityProof = !!payload.identityProofBase64;
-        const hasEducationCert = !!payload.educationCertBase64;
-
-            const base64ToBlob = (dataUrl: string): Blob => {
-          const [meta, b64] = dataUrl.split(",");
-          const mime = meta.match(/:(.*?);/)?.[1] ?? "application/octet-stream";
-          const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-          return new Blob([bytes], { type: mime });
-        };
-
-        if (hasPhoto || hasIdentityProof || hasEducationCert) {
-                const formData = new FormData();
-          formData.append("fullName", payload.fullName ?? "");
-          formData.append("fatherMotherName", payload.fatherSpouseName ?? "");
-          if (payload.dob)
-            formData.append("dateOfBirth", new Date(payload.dob).toISOString());
-          formData.append(
-            "gender",
-            payload.gender === "Male"
-              ? "MALE"
-              : payload.gender === "Female"
-                ? "FEMALE"
-                : "OTHER",
-          );
-          formData.append("mobileNumber", payload.mobileNo ?? "");
-          formData.append("alternateMobileNo", payload.alternateMobileNo ?? "");
-          formData.append("emailAddress", payload.emailAddress ?? "");
-          formData.append(
-            "currentAddressSameAsPerm",
-            String(payload.sameAsCurrentAddress ?? false),
-          );
-                formData.append("permLocalArea", payload.permanentAddress?.local ?? "");
-          formData.append("permDistrict", payload.permanentAddress?.district ?? "");
-          formData.append("permState", payload.permanentAddress?.state ?? "");
-          formData.append(
-            "permCountry",
-            payload.permanentAddress?.country ?? "India",
-          );
-          formData.append("permPinCode", payload.permanentAddress?.pinCode ?? "");
-                if (!payload.sameAsCurrentAddress) {
-            formData.append("currLocalArea", payload.currentAddress?.local ?? "");
-            formData.append("currDistrict", payload.currentAddress?.district ?? "");
-            formData.append("currState", payload.currentAddress?.state ?? "");
-            formData.append(
-              "currCountry",
-              payload.currentAddress?.country ?? "India",
-            );
-            formData.append("currPinCode", payload.currentAddress?.pinCode ?? "");
-          }
-                if (hasPhoto) {
-            const blob = base64ToBlob(payload.photoBase64!);
-            formData.append(
-              "passportPhoto",
-              blob,
-              payload.photoName || "photo.jpg",
-            );
-          }
-          if (hasIdentityProof) {
-            const blob = base64ToBlob(payload.identityProofBase64!);
-            formData.append(
-              "resume",
-              blob,
-              payload.identityProofName || "resume.pdf",
-            );
-          }
-          if (hasEducationCert) {
-            const blob = base64ToBlob(payload.educationCertBase64!);
-            formData.append("noc", blob, payload.educationCertName || "noc.pdf");
-          }
-
-          await axiosInstance.patch(ENDPOINTS.EMERSION.PROFILE, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-        } else {
-                await this.updateProfile({
-            fullName: payload.fullName,
-            fatherSpouseName: payload.fatherSpouseName,
-            dob: payload.dob,
-            gender: payload.gender,
-            mobileNo: payload.mobileNo,
-            alternateMobileNo: payload.alternateMobileNo,
-            emailAddress: payload.emailAddress,
-            currentAddress: payload.currentAddress,
-            sameAsCurrentAddress: payload.sameAsCurrentAddress,
-            permanentAddress: payload.permanentAddress,
-          });
-        }
-
-            const academicDetails = (payload.qualifications ?? []).map((q) => ({
-          qualification: mapQualEnum(q.highestQualification),
-          stream: q.specialization || "General",
-          subject: q.specialization || "General",
-          instituteName: q.universityName || "Institution",
-          universityName: q.universityName || "University",
-          sessionYear: q.yearOfCompletion || "2026",
-          gradeDivision: q.percentage || "First Class",
-        }));
-
-                                        const applicationPayload: Record<string, unknown> = {
-          academicDetails,
-                preferredDuration: "DAYS_30",
-          preferredLocation: payload.currentAddress?.district || "General",
-                expectedLearning: "To be discussed with assigned mentor.",
-          languagesKnown: "English, Hindi",
-                presenceType: (() => {
-            const mode = (payload.preferredMode ?? [])[0];
-            if (mode === "Offline/On Campus") return "FULL_TIME";
-            if (mode === "Hybrid") return "HYBRID";
-            return "PART_TIME"; 
-          })(),
-          fieldVisitsComfort: payload.fieldVisitsComfort ?? true,
-          workType: payload.workType ?? "STUDENT",
-                emergencyContactName: payload.emergencyContactName ?? "",
-          emergencyRelationship: payload.emergencyRelationship ?? "",
-          emergencyMobile: payload.emergencyMobile ?? "",
-                declarationAccepted: payload.agreeTerms === true,
-          rulesAccepted: payload.agreeTerms === true,
-        };
-
-        const response = await axiosInstance.post<EmersionApplicationResponse>(
-          ENDPOINTS.EMERSION.APPLICATION,
-          applicationPayload,
-        );
-        return response.data;
-      },
-
-      async getMyApplication() {
-        try {
-          const response = await axiosInstance.get<EmersionMyApplicationResponse>(
-            ENDPOINTS.EMERSION.APPLICATION_MY,
-          );
-          return response.data;
-        } catch (error: any) {
-          if (error.response?.status === 404) {
-            return {
-              success: true,
-              data: null,
-            } as unknown as EmersionMyApplicationResponse;
-          }
-          throw error;
-        }
-      },
-
-      async getApplicationStatus() {
-        const response = await axiosInstance.get<EmersionApplicationStatusResponse>(
-          ENDPOINTS.EMERSION.APPLICATION_STATUS,
-        );
-        return response.data;
-      },
-
-      async downloadApplication() {
-        const response = await axiosInstance.get<Blob>(
-          ENDPOINTS.EMERSION.APPLICATION_DOWNLOAD,
-          { responseType: "blob" },
-        );
-        return response.data;
-      },
-
-        async listNotices() {
-        const response = await axiosInstance.get<EmersionListNoticesResponse>(
-          ENDPOINTS.NOTICES.BASE,
-        );
-        return response.data;
-      },
-
-        async createSupportTicket(payload) {
-        const response = await axiosInstance.post<EmersionCreateTicketResponse>(
-          ENDPOINTS.TICKETS.BASE,
-          payload,
-        );
-        return response.data;
-      },
-
-      async listMySupportTickets() {
-        const response = await axiosInstance.get<EmersionListMyTicketsResponse>(
-          ENDPOINTS.TICKETS.MY_TICKETS,
-        );
-        return response.data;
-      },
-
-      async deleteSupportTicket(id) {
-        const response = await axiosInstance.delete<EmersionDeleteTicketResponse>(
-          ENDPOINTS.TICKETS.BY_ID(id),
-        );
-        return response.data;
-      },
-
-        async listMyCertificates() {
-        const response = await axiosInstance.get<ListEmersionCertificatesResponse>(
-          ENDPOINTS.EMERSION.CERTIFICATES.MY,
-        );
-        return response.data;
-      },
-
-      async downloadCertificate(id) {
-        const response = await axiosInstance.get<Blob>(
-          ENDPOINTS.EMERSION.CERTIFICATES.DOWNLOAD(id),
-          { responseType: "blob" },
-        );
-        return response.data;
-      },
-
-      async assignGrade(id, payload) {
-        const response = await axiosInstance.patch<AssignGradeResponse_2>(
-          ENDPOINTS.EMERSION.CERTIFICATES.GRADE(id),
-          payload,
-        );
-        return response.data;
-      },
-
-        async getMyIDCard() {
-        const response = await axiosInstance.get<GetEmersionIDCardResponse>(
-          ENDPOINTS.EMERSION.ID_CARD.MY,
-        );
-        return response.data;
-      },
-
-      async getApplicationIDCard(applicationId) {
-        const response = await axiosInstance.get<GetEmersionIDCardResponse>(
-          ENDPOINTS.EMERSION.ID_CARD.BY_APPLICATION_ID(applicationId),
-        );
-        return response.data;
-      },
-
-      async downloadIDCard(id) {
-        const response = await axiosInstance.get<Blob>(
-          ENDPOINTS.EMERSION.ID_CARD.DOWNLOAD(id),
-          { responseType: "blob" },
-        );
-        return response.data;
-      },
-
-        async listMyPayments(params) {
-        const response = await axiosInstance.get<ListMyEmersionPaymentsResponse>(
-          ENDPOINTS.EMERSION.PAYMENTS.MY_PAYMENTS,
-          { params },
-        );
-        return response.data;
-      },
-
-      async getPaymentReceipt(id) {
-        const response = await axiosInstance.get<GetEmersionPaymentReceiptResponse>(
-          ENDPOINTS.EMERSION.PAYMENTS.RECEIPT(id),
-        );
-        return response.data;
-      },
-
-      async createPaymentOrder(payload) {
-        const response = await axiosInstance.post<CreateEmersionOrderResponse>(
-          ENDPOINTS.EMERSION.PAYMENTS.CREATE_ORDER,
-          payload,
-        );
-        return response.data;
-      },
-
-      async verifyPaymentSignature(payload) {
-        const response = await axiosInstance.post<VerifyEmersionSignatureResponse>(
-          ENDPOINTS.EMERSION.PAYMENTS.VERIFY_SIGNATURE,
-          payload,
-        );
-        return response.data;
-      },
-
-      async refundPayment(payload) {
-        const response = await axiosInstance.post<RefundEmersionPaymentResponse>(
-          ENDPOINTS.EMERSION.PAYMENTS.REFUND,
-          payload,
-        );
-        return response.data;
-      },
-
-        async listPrograms(params) {
-        const response = await axiosInstance.get<ListEmersionProgramsResponse>(
-          ENDPOINTS.EMERSION.PROGRAMS.LIST,
-          { params },
-        );
-        return response.data;
-      },
-
-      async applyToProgram(programId) {
-        const response = await axiosInstance.post<ApplyToEmersionProgramResponse>(
-          ENDPOINTS.EMERSION.PROGRAMS.APPLY(programId),
-        );
-        return response.data;
-      },
-    };
-    const EmersionDataHooks: IEmersionDataHooks = {
-      useEmersionRegister(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) => await EmersionService.register(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({ queryKey: EMERSION_QUERY_KEYS.ALL });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Account created successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to create account.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useEmersionDashboard(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
-          queryFn: async () => await EmersionService.getDashboard(),
-          ...options,
-        });
-      },
-
-      useEmersionProfile(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.PROFILE(),
-          queryFn: async () => await EmersionService.getProfile(),
-          ...options,
-        });
-      },
-
-      useUpdateEmersionProfile(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await EmersionService.updateProfile(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.PROFILE(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["auth", "profile"],
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Profile updated successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to update profile.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useSubmitEmersionApplication(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await EmersionService.submitApplication(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.APPLICATION_STATUS(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["auth", "profile"],
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Application submitted successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to submit application.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useMyEmersionApplication(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
-          queryFn: async () => await EmersionService.getMyApplication(),
-          ...options,
-        });
-      },
-
-      useEmersionApplicationStatus(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.APPLICATION_STATUS(),
-          queryFn: async () => await EmersionService.getApplicationStatus(),
-          ...options,
-        });
-      },
-
-      useDownloadEmersionApplication(options) {
-        return useMutation({
-          mutationFn: async () => await EmersionService.downloadApplication(),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            toast.success("Download started!");
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to download application form.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useNotices(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.NOTICES(),
-          queryFn: async () => await EmersionService.listNotices(),
-          ...options,
-        });
-      },
-
-      useCreateSupportTicket(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await EmersionService.createSupportTicket(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.MY_TICKETS(),
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Support ticket created successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to create support ticket.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useMySupportTickets(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.MY_TICKETS(),
-          queryFn: async () => await EmersionService.listMySupportTickets(),
-          ...options,
-        });
-      },
-
-      useDeleteSupportTicket(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (id) => await EmersionService.deleteSupportTicket(id),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.MY_TICKETS(),
-            });
-            toast.success(
-              (data as { message?: string })?.message || "Support ticket deleted.",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to delete support ticket.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useMyEmersionCertificates(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.MY_CERTIFICATES(),
-          queryFn: async () => await EmersionService.listMyCertificates(),
-          ...options,
-        });
-      },
-
-      useDownloadEmersionCertificate(options) {
-        return useMutation({
-          mutationFn: async (id) => await EmersionService.downloadCertificate(id),
-          ...options,
-        });
-      },
-
-      useAssignEmersionGrade(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ id, payload }) =>
-            await EmersionService.assignGrade(id, payload),
-          onSuccess: async (data, variables, context) => {
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ["instructors"] }),
-              queryClient.invalidateQueries({ queryKey: ["students"] }),
-              queryClient.invalidateQueries({ queryKey: ["emersion"] }),
-              queryClient.invalidateQueries({ queryKey: ["super-admin"] }),
-            ]);
-            if (options?.onSuccess) {
-              await (options.onSuccess as any)(data, variables, context);
-            }
-          },
-          ...options,
-        });
-      },
-
-      useEmersionIDCard(options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.MY_ID_CARD(),
-          queryFn: async () => await EmersionService.getMyIDCard(),
-          ...options,
-        });
-      },
-
-      useApplicationIDCard(applicationId, options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.APPLICATION_ID_CARD(applicationId),
-          queryFn: async () =>
-            await EmersionService.getApplicationIDCard(applicationId),
-          enabled: !!applicationId,
-          ...options,
-        });
-      },
-
-      useDownloadEmersionIDCard(options) {
-        return useMutation({
-          mutationFn: async (id) => await EmersionService.downloadIDCard(id),
-          ...options,
-        });
-      },
-
-        useMyEmersionPayments(params, options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.MY_PAYMENTS(params),
-          queryFn: async () => await EmersionService.listMyPayments(params),
-          ...options,
-        });
-      },
-
-      useEmersionPaymentReceipt(id, options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.PAYMENT_RECEIPT(id),
-          queryFn: async () => await EmersionService.getPaymentReceipt(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-      useCreateEmersionPaymentOrder(options) {
-        return useMutation({
-          mutationFn: async (payload) =>
-            await EmersionService.createPaymentOrder(payload),
-          ...options,
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to create payment order.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useVerifyEmersionPaymentSignature(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await EmersionService.verifyPaymentSignature(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.MY_PAYMENTS(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Payment verified successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to verify payment.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useRefundEmersionPayment(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await EmersionService.refundPayment(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.MY_PAYMENTS(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Refund processed successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to process refund.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-        usePrograms(params, options) {
-        return useQuery({
-          queryKey: EMERSION_QUERY_KEYS.PROGRAMS(params),
-          queryFn: async () => await EmersionService.listPrograms(params),
-          ...options,
-        });
-      },
-
-      useApplyToProgram(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (programId) =>
-            await EmersionService.applyToProgram(programId),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.APPLICATION_MY(),
-            });
-            queryClient.invalidateQueries({
-              queryKey: EMERSION_QUERY_KEYS.DASHBOARD(),
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Applied to program successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to apply to program.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-    };
-    const StudentRegistrationService: IStudentRegistrationService = {
-      async submitRegistration(payload) {
-        const response =
-          await axiosInstance.post<SubmitStudentRegistrationResponse>(
-            ENDPOINTS.STUDENTS.REGISTER,
-            payload,
-          );
-        return response.data;
-      },
-
-      async getMyRegistration() {
-        const response = await axiosInstance.get<GetStudentRegistrationResponse>(
-          ENDPOINTS.STUDENTS.REGISTER_ME,
-        );
-        return response.data;
-      },
-
-      async listAllRegistrations() {
-        const response = await axiosInstance.get<ListStudentRegistrationsResponse>(
-          ENDPOINTS.STUDENTS.REGISTER_ADMIN,
-        );
-        return response.data;
-      },
-
-      async getRegistrationById(id) {
-        const response = await axiosInstance.get<GetStudentRegistrationResponse>(
-          ENDPOINTS.STUDENTS.REGISTER_BY_ID(id),
-        );
-        return response.data;
-      },
-
-      async updateRegistration(id, payload) {
-        const response =
-          await axiosInstance.patch<UpdateStudentRegistrationResponse>(
-            ENDPOINTS.STUDENTS.REGISTER_BY_ID(id),
-            payload,
-          );
-        return response.data;
-      },
-
-      async deleteRegistration(id) {
-        const response =
-          await axiosInstance.delete<DeleteStudentRegistrationResponse>(
-            ENDPOINTS.STUDENTS.REGISTER_BY_ID(id),
-          );
-        return response.data;
-      },
-    };
-
-    const StudentRegistrationDataHooks: IStudentRegistrationDataHooks = {
-      useStudentRegistrationMe(options) {
-        return useQuery({
-          queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
-          queryFn: async () => await StudentRegistrationService.getMyRegistration(),
-          ...options,
-        });
-      },
-
-      useStudentRegistrationSubmit(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (payload) =>
-            await StudentRegistrationService.submitRegistration(payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Profile registration completed successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to submit registration.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useStudentRegistrationAdminList(options) {
-        return useQuery({
-          queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
-          queryFn: async () =>
-            await StudentRegistrationService.listAllRegistrations(),
-          ...options,
-        });
-      },
-
-      useStudentRegistrationDetails(id, options) {
-        return useQuery({
-          queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(id),
-          queryFn: async () =>
-            await StudentRegistrationService.getRegistrationById(id),
-          enabled: !!id,
-          ...options,
-        });
-      },
-
-      useStudentRegistrationUpdate(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async ({ id, payload }) =>
-            await StudentRegistrationService.updateRegistration(id, payload),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(variables.id),
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Registration profile updated successfully!",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to update registration profile.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-
-      useStudentRegistrationDelete(options) {
-        const queryClient = useQueryClient();
-        return useMutation({
-          mutationFn: async (id) =>
-            await StudentRegistrationService.deleteRegistration(id),
-          ...options,
-          onSuccess: (data, variables, context, mutation) => {
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.ME,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.LIST,
-            });
-            queryClient.invalidateQueries({
-              queryKey: STUDENT_REGISTRATION_QUERY_KEYS.DETAILS(variables),
-            });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "Registration profile deleted successfully.",
-            );
-            options?.onSuccess?.(data, variables, context, mutation);
-          },
-          onError: (error, variables, context, mutation) => {
-            toast.error(error.message || "Failed to delete registration profile.");
-            options?.onError?.(error, variables, context, mutation);
-          },
-        });
-      },
-    };
-
-    function Dialog({
-      ...props
-    }: React_3.ComponentProps<typeof SheetPrimitive.Root>) {
-      return <SheetPrimitive.Root data-slot="dialog" {...props} />;
-    }
-
-    function ApplicationDetailDialog_2({
-      application,
-      open,
-      onOpenChange,
-    }: ApplicationDetailDialogProps) {
-      const { user } = useAuth();
-
-      const { data: profileResponse } = EmersionDataHooks.useEmersionProfile({
-        enabled: !!user?.id && open,
-        retry: false,
-      });
-
-      const profile = profileResponse?.success ? profileResponse.data : null;
-
-      const { mutate: downloadPdf, isPending: isDownloading } =
-        EmersionDataHooks.useDownloadEmersionApplication({
-          onSuccess: (blob) => {
-            toast.dismiss();
-            if (blob) {
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `Immersion_Application_${application?.id}.pdf`;
-              document.body.appendChild(a);
-              a.click();
-              window.URL.revokeObjectURL(url);
-              document.body.removeChild(a);
-              toast.success("Application PDF downloaded successfully!");
-            } else {
-              toast.error("Failed to retrieve PDF download.");
-            }
-          },
-          onError: (err: any) => {
-            toast.dismiss();
-            toast.error(err.message || "Failed to download application PDF.");
-          },
-        });
-
-      const handleGeneratePDF = () => {
-        if (!application) return;
-        toast.loading("Generating application PDF...");
-        downloadPdf();
-      };
-
-      if (!application) return null;
-
-      const matchedStatic = IMMERSION_PROGRAMS.find(
-        (p) => p.id === application.immersionId,
-      );
-
-      const programTitle =
-        application.immersion?.title ||
-        matchedStatic?.title ||
-        "Custom Immersion Projects";
-      const programCategory = matchedStatic?.category || "Immersion Program";
-      const programLocation =
-        application.immersion?.location || matchedStatic?.location || "Remote";
-      const programDuration =
-        application.preferredDuration || matchedStatic?.period || "Flexible";
-      const fees = (application.immersion as any)?.fees ?? matchedStatic?.fees ?? 0;
-      const isPaid = fees > 0;
-
-      const isEnrolled = application.status === "APPROVED";
-
-      console.log("Application Immersion Data:", application.immersion);
-
-      const statusColors: Record<string, string> = {
-        DRAFT: "bg-muted text-muted-foreground border-border",
-        SUBMITTED:
-          "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30",
-        UNDER_REVIEW:
-          "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30",
-        APPROVED:
-          "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
-        REJECTED:
-          "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30",
-      };
-
-      const statusLabel: Record<string, string> = {
-        DRAFT: "Draft",
-        SUBMITTED: "Submitted — Pending Review",
-        UNDER_REVIEW: "Under Review",
-        APPROVED: "Approved",
-        REJECTED: "Rejected / Not Selected",
-      };
-
-      const academics = application.academicDetails || [];
-
-      const currentAddress = profile
-        ? [
-            profile.currentAddressLocal,
-            profile.currentAddressDistrict,
-            profile.currentAddressState,
-            profile.currentAddressCountry,
-            profile.currentAddressPinCode,
-          ]
-            .filter(Boolean)
-            .join(", ")
-        : "";
-
-      return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
-            <DialogHeader className="border-muted border-b p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <DialogTitle className="font-heading dark:text-foreground text-xl font-bold text-emerald-950">
-                    Application Details
-                  </DialogTitle>
-                  <DialogDescription className="text-muted-foreground mt-1">
-                    Overview of your immersion application and registration profile.
-                  </DialogDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleGeneratePDF}
-                  disabled={isDownloading}
-                  className="w-full shrink-0 gap-2 self-start border-emerald-600 text-emerald-700 hover:bg-emerald-50/50 hover:text-emerald-800 sm:w-auto sm:self-center dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300"
-                >
-                  {isDownloading ? (
-                    <Loader2 className="size-4 animate-spin text-emerald-600" />
-                  ) : (
-                    <Download className="size-4" />
-                  )}
-                  Generate PDF
-                </Button>
-              </div>
-            </DialogHeader>
-
-            <div className="space-y-6 p-6">
-              {}
-              <div className="grid grid-cols-1 gap-4 rounded-xl border border-emerald-100/50 bg-emerald-50/30 p-4 sm:grid-cols-2 dark:border-emerald-900/30 dark:bg-emerald-950/10">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
-                    {isEnrolled ? "Enrollment ID" : "Application ID"}
-                  </span>
-                  <div className="pt-0.5">
-                    <ApplicationIdChip
-                      id={application.id}
-                      createdAt={application.submittedAt || application.createdAt}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
-                    Applied Date
-                  </span>
-                  <p className="text-sm font-medium text-emerald-950 dark:text-emerald-100">
-                    {formatHumanReadableDate(
-                      application.submittedAt || application.createdAt,
-                    )}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between space-y-1 border-t border-emerald-100/40 pt-3 sm:col-span-2 dark:border-emerald-900/20">
-                  <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-300">
-                    Status
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-                      statusColors[application.status] || "bg-muted text-foreground"
-                    }`}
-                  >
-                    <span
-                      className={`size-1.5 rounded-full ${
-                        application.status === "APPROVED"
-                          ? "bg-emerald-600"
-                          : application.status === "REJECTED"
-                            ? "bg-red-600"
-                            : "bg-amber-600"
-                      }`}
-                    />
-                    {statusLabel[application.status] || application.status}
-                  </span>
-                </div>
-              </div>
-
-              {}
-              <div className="border-muted space-y-3 rounded-xl border p-4">
-                <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                  <User className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  Immersion Details
-                </h3>
-                <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Immersion ID
-                    </span>
-                    <div className="pt-0.5">
-                      <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-200/70 bg-emerald-50/80 px-2 py-0.5 font-mono text-[11px] font-bold tracking-tight text-emerald-700 transition-colors dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
-                        {formatImmersionCode(application.immersionId, programTitle)}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Duration
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {programDuration || "N/A"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Program Name
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {programTitle}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Category / Organization
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {programCategory}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Type / Mode
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {isPaid ? "PAID" : "FREE"} /{" "}
-                      {application.presenceType === "ONLINE" ? "ONLINE" : "OFFLINE"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Location
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {programLocation}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {}
-              <div className="border-muted space-y-3 rounded-xl border p-4">
-                <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                  <User className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  Candidate Information
-                </h3>
-                <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Full Name
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {profile?.fullName || user?.name || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Immersion ID
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {profile?.emersionId || user?.registrationNo || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block text-[10px]">
-                      Father / Spouse Name
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {profile?.fatherSpouseName || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
-                      <Calendar className="text-muted-foreground size-3" />
-                      Date of Birth / Gender
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {profile?.dob ? formatHumanReadableDate(profile.dob) : "—"} /{" "}
-                      {profile?.gender || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
-                      <Mail_2 className="text-muted-foreground size-3" />
-                      Email Address
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {profile?.emailAddress || user?.email || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
-                      <Phone_2 className="text-muted-foreground size-3" />
-                      Mobile / Alternate
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {profile?.mobileNo || "—"}
-                      {profile?.alternateMobileNo
-                        ? ` / ${profile.alternateMobileNo}`
-                        : ""}
-                    </span>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
-                      <MapPin_2 className="text-muted-foreground size-3" />
-                      Current Address
-                    </span>
-                    <span className="text-foreground text-xs font-semibold">
-                      {currentAddress || "—"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {}
-              <div className="border-muted space-y-3 rounded-xl border p-4">
-                <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                  <GraduationCap_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  Academics
-                </h3>
-                <div className="max-h-[200px] space-y-3 overflow-y-auto pr-1">
-                  {academics && academics.length > 0 ? (
-                    academics.map((acad: any, idx: number) => (
-                      <div
-                        key={acad.id || idx}
-                        className="border-muted border-b pb-2 text-xs last:border-0 last:pb-0"
-                      >
-                        <p className="font-semibold text-emerald-950 dark:text-emerald-100">
-                          {acad.qualification} ({acad.stream || "N/A"})
-                        </p>
-                        <p className="text-muted-foreground mt-0.5 text-[10px]">
-                          {acad.instituteName || "N/A"} |{" "}
-                          {acad.universityName || "N/A"}
-                        </p>
-                        <p className="text-muted-foreground text-[10px]">
-                          Year: {acad.sessionYear || "N/A"} | Grade:{" "}
-                          {acad.gradeDivision || "N/A"}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-xs italic">
-                      No academic records.
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter className="border-muted bg-muted/20 border-t p-6">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      );
-    }
-
-    function PaymentModal_3({
-      program,
-      applicationId,
-      open,
-      onClose,
-      onCancel,
-    }: PaymentModalProps) {
-      const [orderData, setOrderData] = useState<{
-        paymentId: string;
-        razorpayOrderId: string;
-        amount: number;
-        currency: string;
-        keyId: string;
-        isMockMode: boolean;
-      } | null>(null);
-      const [paymentError, setPaymentError] = useState<string | null>(null);
-      const [isProcessing, setIsProcessing] = useState(false);
-
-      const { mutate: createOrder, isPending: isCreatingOrder } =
-        EmersionDataHooks.useCreateEmersionPaymentOrder({
-          onSuccess: (data) => {
-            if (data.success && data.data) {
-              setOrderData(data.data);
-            }
-          },
-        });
-
-      const { mutate: verifyPayment, isPending: isVerifying } =
-        EmersionDataHooks.useVerifyEmersionPaymentSignature({
-          onSuccess: () => onClose(),
-        });
-
-      const handleCreateOrder = () => {
-        setPaymentError(null);
-        createOrder({ applicationId } as any);
-      };
-
-      const handleOpenRazorpay = async () => {
-        if (!orderData) return;
-        setIsProcessing(true);
-        setPaymentError(null);
-
-        const loaded = await loadRazorpayScript_2();
-        if (!loaded) {
-          setPaymentError(
-            "Failed to load payment gateway. Please try the mock payment option.",
-          );
+      try {
+        const RazorpayConstructor = (window as any).Razorpay || window.Razorpay;
+        if (!RazorpayConstructor) {
+          setPaymentError("Razorpay SDK is not available.");
           setIsProcessing(false);
           return;
         }
 
-        const rzp = new window.Razorpay({
-          key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
+        const rzp = new RazorpayConstructor({
+          key: data.keyId,
+          amount: data.amount,
+          currency: data.currency,
           name: "IIInternship",
           description: program.title,
-          order_id: orderData.razorpayOrderId,
+          order_id: data.razorpayOrderId,
+          modal: {
+            ondismiss: () => {
+              setIsProcessing(false);
+            },
+          },
           handler: (response: RazorpayResponse) => {
             verifyPayment({
-              razorpayOrderId: response.razorpay_order_id,
+              razorpayOrderId:
+                response.razorpay_order_id ||
+                data.razorpayOrderId ||
+                orderData?.razorpayOrderId ||
+                "",
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
             });
@@ -8061,524 +8081,580 @@ export default function ApplicationsPage() {
           theme: { color: "#059669" },
         });
 
-        rzp.open();
-        setIsProcessing(false);
-      };
-
-      const handleMockPayment = () => {
-        if (!orderData) return;
-        verifyPayment({
-          razorpayOrderId: orderData.razorpayOrderId,
-          razorpayPaymentId: `mock_pay_${Date.now()}`,
-          razorpaySignature: `mock_sig_${Date.now()}`,
+        rzp.on("payment.failed", (response: any) => {
+          const description =
+            response.error?.description || "Payment was rejected or failed.";
+          setPaymentError(description);
+          toast.error(description);
+          setIsProcessing(false);
         });
-      };
 
-      const isLoading = isCreatingOrder || isVerifying || isProcessing;
+        rzp.open();
+      } catch (err: any) {
+        console.error("Razorpay initialization error:", err);
+        setPaymentError(
+          err?.message || "Could not open Razorpay checkout window.",
+        );
+        setIsProcessing(false);
+      }
+    };
 
-      return (
-        <ResponsiveDialog
-          isOpen={open}
-          setIsOpen={(o) => !o && onCancel()}
-          title={
-            <div className="flex items-center gap-3">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/20">
-                <CreditCard className="size-5 text-emerald-600" />
+    const { mutate: createOrder, isPending: isCreatingOrder } =
+      EmersionDataHooks.useCreateEmersionPaymentOrder({
+        onSuccess: (data) => {
+          if (data.success && data.data) {
+            setOrderData(data.data);
+            openRazorpayCheckout(data.data);
+          }
+        },
+        onError: (error) => {
+          setPaymentError(error.message || "Failed to create payment order.");
+        },
+      });
+
+    const { mutate: verifyPayment, isPending: isVerifying } =
+      EmersionDataHooks.useVerifyEmersionPaymentSignature({
+        onSuccess: () => {
+          toast.success("Payment verified! You are now enrolled.");
+          onClose();
+          setTimeout(() => {
+            window.location.reload();
+          }, 800);
+        },
+        onError: (error: any) => {
+          const msg =
+            error?.response?.data?.error?.message ||
+            error?.message ||
+            "Payment verification failed.";
+          setPaymentError(msg);
+          toast.error(msg);
+        },
+      });
+
+    const handleCreateOrder = () => {
+      setPaymentError(null);
+      createOrder({ applicationId } as any);
+    };
+
+    const handleOpenRazorpay = () => {
+      if (!orderData) return;
+      openRazorpayCheckout(orderData);
+    };
+
+    const handleMockPayment = () => {
+      if (!orderData) return;
+      verifyPayment({
+        razorpayOrderId: orderData.razorpayOrderId,
+        razorpayPaymentId: `mock_pay_${Date.now()}`,
+        razorpaySignature: `mock_sig_${Date.now()}`,
+      });
+    };
+
+    const isLoading = isCreatingOrder || isVerifying || isProcessing;
+
+    return (
+      <ResponsiveDialog
+        isOpen={open}
+        setIsOpen={(o) => !o && onCancel()}
+        title={
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/20">
+              <CreditCard className="size-5 text-emerald-600" />
+            </div>
+            <div>
+              <span className="text-lg font-bold">Complete Payment</span>
+              <p className="text-muted-foreground mt-0.5 text-xs font-normal">
+                Secure enrollment via Razorpay
+              </p>
+            </div>
+          </div>
+        }
+      >
+        <div className="mt-2 space-y-5">
+          { }
+          <div className="bg-muted/50 space-y-3 rounded-xl p-4">
+            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+              Order Summary
+            </p>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Program</span>
+                <span className="text-foreground font-medium">
+                  {program.title}
+                </span>
               </div>
-              <div>
-                <span className="text-lg font-bold">Complete Payment</span>
-                <p className="text-muted-foreground mt-0.5 text-xs font-normal">
-                  Secure enrollment via Razorpay
+              <Separator />
+              <div className="flex justify-between text-base font-bold">
+                <span>Total</span>
+                <span className="text-emerald-600 dark:text-emerald-400">
+                  ₹{program.fees?.toLocaleString() ?? "0"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          { }
+          {paymentError && (
+            <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600 dark:border-red-700 dark:bg-red-900/10 dark:text-red-400">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+              <p>{paymentError}</p>
+            </div>
+          )}
+
+          { }
+          {!orderData ? (
+            <Button
+              id="create-order-btn"
+              className="h-11 w-full gap-2"
+              onClick={handleCreateOrder}
+              disabled={isLoading}
+            >
+              {isCreatingOrder ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <CreditCard className="size-4" />
+              )}
+              Proceed to Pay
+            </Button>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-700 dark:bg-emerald-900/10">
+                <ShieldCheck className="size-4 shrink-0 text-emerald-600" />
+                <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  Order created! Complete payment to get enrolled.
                 </p>
               </div>
-            </div>
-          }
-        >
-          <div className="mt-2 space-y-5">
-            {}
-            <div className="bg-muted/50 space-y-3 rounded-xl p-4">
-              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                Order Summary
-              </p>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Program</span>
-                  <span className="text-foreground font-medium">
-                    {program.title}
-                  </span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-base font-bold">
-                  <span>Total</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">
-                    ₹{program.fees?.toLocaleString() ?? "0"}
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            {}
-            {paymentError && (
-              <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600 dark:border-red-700 dark:bg-red-900/10 dark:text-red-400">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                <p>{paymentError}</p>
-              </div>
-            )}
-
-            {}
-            {!orderData ? (
               <Button
-                id="create-order-btn"
+                id="razorpay-pay-btn"
                 className="h-11 w-full gap-2"
-                onClick={handleCreateOrder}
+                onClick={handleOpenRazorpay}
                 disabled={isLoading}
               >
-                {isCreatingOrder ? (
+                {isProcessing ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
                   <CreditCard className="size-4" />
                 )}
-                Proceed to Pay
+                Pay with Razorpay
               </Button>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-700 dark:bg-emerald-900/10">
-                  <ShieldCheck className="size-4 shrink-0 text-emerald-600" />
-                  <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                    Order created! Complete payment to get enrolled.
+
+              { }
+              {orderData.isMockMode && (
+                <div className="space-y-2">
+                  <Separator />
+                  <p className="text-muted-foreground text-center text-[11px]">
+                    This is running in{" "}
+                    <span className="font-semibold text-amber-500">
+                      Mock Mode
+                    </span>
+                    .
                   </p>
+                  <Button
+                    id="mock-pay-btn"
+                    variant="outline"
+                    className="h-10 w-full gap-2 border-amber-300 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10"
+                    onClick={handleMockPayment}
+                    disabled={isLoading}
+                  >
+                    {isVerifying ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ShieldCheck className="size-4" />
+                    )}
+                    Simulate Payment (Mock)
+                  </Button>
                 </div>
+              )}
+            </div>
+          )}
+        </div>
+      </ResponsiveDialog>
+    );
+  }
 
-                <Button
-                  id="razorpay-pay-btn"
-                  className="h-11 w-full gap-2"
-                  onClick={handleOpenRazorpay}
-                  disabled={isLoading}
-                >
-                  {isProcessing ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <CreditCard className="size-4" />
-                  )}
-                  Pay with Razorpay
-                </Button>
+  function ApplicationActions({ application }: ApplicationActionsProps) {
+    const [showDetails, setShowDetails] = useState(false);
+    const [showPayment, setShowPayment] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
-                {}
-                {orderData.isMockMode && (
-                  <div className="space-y-2">
-                    <Separator />
-                    <p className="text-muted-foreground text-center text-[11px]">
-                      This is running in{" "}
-                      <span className="font-semibold text-amber-500">
-                        Mock Mode
-                      </span>
-                      .
-                    </p>
-                    <Button
-                      id="mock-pay-btn"
-                      variant="outline"
-                      className="h-10 w-full gap-2 border-amber-300 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10"
-                      onClick={handleMockPayment}
-                      disabled={isLoading}
-                    >
-                      {isVerifying ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <ShieldCheck className="size-4" />
-                      )}
-                      Simulate Payment (Mock)
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </ResponsiveDialog>
-      );
-    }
+    const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+    const [showSubmissionsDialog, setShowSubmissionsDialog] = useState(false);
+    const [submissions, setSubmissions] = useState<MockSubmission[]>([]);
 
-    function ApplicationActions({ application }: ApplicationActionsProps) {
-      const [showDetails, setShowDetails] = useState(false);
-      const [showPayment, setShowPayment] = useState(false);
-      const [isDownloading, setIsDownloading] = useState(false);
+    const localStorageKey = `immersion_projects_${application.id}`;
 
-        const [showSubmitDialog, setShowSubmitDialog] = useState(false);
-      const [showSubmissionsDialog, setShowSubmissionsDialog] = useState(false);
-      const [submissions, setSubmissions] = useState<MockSubmission[]>([]);
-
-        const localStorageKey = `immersion_projects_${application.id}`;
-
-      const loadSubmissions = () => {
-        const saved = localStorage.getItem(localStorageKey);
-        if (saved) {
+    const loadSubmissions = () => {
+      const saved = localStorage.getItem(localStorageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            setSubmissions(parsed);
+          } else if (parsed && typeof parsed === "object") {
+            setSubmissions([{ id: "1", ...parsed }]);
+          }
+        } catch (e) {
+          setSubmissions([]);
+        }
+      } else {
+        const oldSaved = localStorage.getItem(
+          `immersion_project_${application.id}`,
+        );
+        if (oldSaved) {
           try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed)) {
-              setSubmissions(parsed);
-            } else if (parsed && typeof parsed === "object") {
-                        setSubmissions([{ id: "1", ...parsed }]);
+            const parsed = JSON.parse(oldSaved);
+            if (parsed) {
+              const list = [{ id: "1", ...parsed }];
+              localStorage.setItem(localStorageKey, JSON.stringify(list));
+              setSubmissions(list);
             }
           } catch (e) {
             setSubmissions([]);
           }
         } else {
-                const oldSaved = localStorage.getItem(
-            `immersion_project_${application.id}`,
-          );
-          if (oldSaved) {
-            try {
-              const parsed = JSON.parse(oldSaved);
-              if (parsed) {
-                const list = [{ id: "1", ...parsed }];
-                localStorage.setItem(localStorageKey, JSON.stringify(list));
-                setSubmissions(list);
-              }
-            } catch (e) {
-              setSubmissions([]);
-            }
-          } else {
-            setSubmissions([]);
-          }
+          setSubmissions([]);
         }
+      }
+    };
+
+    useEffect(() => {
+      loadSubmissions();
+    }, [localStorageKey, showSubmitDialog, showSubmissionsDialog]);
+
+    const handleDownloadPDF = async () => {
+      setIsDownloading(true);
+      toast.loading("Generating payment invoice / PDF...");
+      try {
+        const response = await axios.get(
+          `/api/v1/immersion-participant/application/download?id=${application.id}`,
+          { responseType: "blob" },
+        );
+        toast.dismiss();
+
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `immersion-invoice-${application.id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+        toast.success("Payment Invoice downloaded successfully!");
+      } catch (err: any) {
+        toast.dismiss();
+        toast.error(err.message || "Failed to download payment invoice.");
+      } finally {
+        setIsDownloading(false);
+      }
+    };
+
+    const matchedStatic = IMMERSION_PROGRAMS.find(
+      (p) => p.id === application.immersionId,
+    );
+    const programSummary = {
+      id: application.immersionId || "",
+      title: application.immersion?.title || matchedStatic?.title || "Program",
+      fees: (matchedStatic as any)?.fees || 0,
+    };
+    const paymentProgramObj = (matchedStatic || application.immersion) as any;
+
+    const isApproved = application.status === "APPROVED";
+
+    const handleProjectSubmit = (e: React_3.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const projectTitle = formData.get("projectTitle") as string;
+      const projectUrl = formData.get("projectUrl") as string;
+      const comments = formData.get("comments") as string;
+
+      if (!projectTitle || !projectUrl) {
+        toast.error("Please fill in all required fields.");
+        return;
+      }
+
+      const newSub: MockSubmission = {
+        id: Math.random().toString(36).substring(7),
+        projectTitle,
+        projectUrl,
+        comments,
+        submittedAt: new Date().toISOString(),
+        status: "WAITING_FOR_ADMIN",
       };
 
-      useEffect(() => {
-        loadSubmissions();
-      }, [localStorageKey, showSubmitDialog, showSubmissionsDialog]);
+      const updated = [...submissions, newSub];
+      localStorage.setItem(localStorageKey, JSON.stringify(updated));
+      setSubmissions(updated);
+      setShowSubmitDialog(false);
+      toast.success("Project submitted successfully (Simulated)!");
+    };
 
-      const handleDownloadPDF = async () => {
-        setIsDownloading(true);
-        toast.loading("Generating payment invoice / PDF...");
-        try {
-          const response = await axios.get(
-            `/api/v1/immersion-participant/application/download?id=${application.id}`,
-            { responseType: "blob" },
-          );
-          toast.dismiss();
+    const handleProjectDelete = (id: string) => {
+      const updated = submissions.filter((sub) => sub.id !== id);
+      localStorage.setItem(localStorageKey, JSON.stringify(updated));
+      setSubmissions(updated);
+      toast.success("Submission deleted successfully (Simulated)!");
+    };
 
-          const blob = new Blob([response.data], { type: "application/pdf" });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `immersion-invoice-${application.id}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(link);
-          toast.success("Payment Invoice downloaded successfully!");
-        } catch (err: any) {
-          toast.dismiss();
-          toast.error(err.message || "Failed to download payment invoice.");
-        } finally {
-          setIsDownloading(false);
-        }
-      };
+    return (
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex items-center justify-end"
+      >
+        <DropdownMenu_4>
+          <DropdownMenuTrigger_4 asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 cursor-pointer p-0"
+            >
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger_4>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={() => setShowDetails(true)}
+              className="cursor-pointer"
+            >
+              <Info className="mr-2 h-3.5 w-3.5" />
+              <span>Application Details</span>
+            </DropdownMenuItem>
 
-      const matchedStatic = IMMERSION_PROGRAMS.find(
-        (p) => p.id === application.immersionId,
-      );
-      const programSummary = {
-        id: application.immersionId || "",
-        title: application.immersion?.title || matchedStatic?.title || "Program",
-        fees: (matchedStatic as any)?.fees || 0,
-      };
-      const paymentProgramObj = (matchedStatic || application.immersion) as any;
+            <DropdownMenuItem
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              className="cursor-pointer"
+            >
+              <Download className="mr-2 h-3.5 w-3.5" />
+              <span>Payment Invoice</span>
+            </DropdownMenuItem>
 
-      const isApproved = application.status === "APPROVED";
-
-        const handleProjectSubmit = (e: React_3.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const projectTitle = formData.get("projectTitle") as string;
-        const projectUrl = formData.get("projectUrl") as string;
-        const comments = formData.get("comments") as string;
-
-        if (!projectTitle || !projectUrl) {
-          toast.error("Please fill in all required fields.");
-          return;
-        }
-
-        const newSub: MockSubmission = {
-          id: Math.random().toString(36).substring(7),
-          projectTitle,
-          projectUrl,
-          comments,
-          submittedAt: new Date().toISOString(),
-          status: "WAITING_FOR_ADMIN",
-        };
-
-        const updated = [...submissions, newSub];
-        localStorage.setItem(localStorageKey, JSON.stringify(updated));
-        setSubmissions(updated);
-        setShowSubmitDialog(false);
-        toast.success("Project submitted successfully (Simulated)!");
-      };
-
-      const handleProjectDelete = (id: string) => {
-        const updated = submissions.filter((sub) => sub.id !== id);
-        localStorage.setItem(localStorageKey, JSON.stringify(updated));
-        setSubmissions(updated);
-        toast.success("Submission deleted successfully (Simulated)!");
-      };
-
-      return (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center justify-end"
-        >
-          <DropdownMenu_4>
-            <DropdownMenuTrigger_4 asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 cursor-pointer p-0"
-              >
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger_4>
-            <DropdownMenuContent align="end" className="w-48">
+            {application.status === "DRAFT" && (
               <DropdownMenuItem
-                onClick={() => setShowDetails(true)}
-                className="cursor-pointer"
+                onClick={() => setShowPayment(true)}
+                className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
               >
-                <Info className="mr-2 h-3.5 w-3.5" />
-                <span>Application Details</span>
+                <CreditCard className="mr-2 h-3.5 w-3.5" />
+                <span>Pay Fees</span>
               </DropdownMenuItem>
+            )}
 
+            {isApproved && (
               <DropdownMenuItem
-                onClick={handleDownloadPDF}
-                disabled={isDownloading}
-                className="cursor-pointer"
+                onClick={() => setShowSubmitDialog(true)}
+                className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
               >
-                <Download className="mr-2 h-3.5 w-3.5" />
-                <span>Payment Invoice</span>
+                <Send className="mr-2 h-3.5 w-3.5" />
+                <span>Submit Project</span>
               </DropdownMenuItem>
+            )}
 
-              {application.status === "DRAFT" && (
-                <DropdownMenuItem
-                  onClick={() => setShowPayment(true)}
-                  className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
-                >
-                  <CreditCard className="mr-2 h-3.5 w-3.5" />
-                  <span>Pay Fees</span>
-                </DropdownMenuItem>
-              )}
+            {isApproved && submissions.length > 0 && (
+              <DropdownMenuItem
+                onClick={() => setShowSubmissionsDialog(true)}
+                className="cursor-pointer font-semibold text-indigo-600 focus:text-indigo-700"
+              >
+                <FolderOpen className="mr-2 h-3.5 w-3.5" />
+                <span>Show Submitted Projects</span>
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu_4>
 
-              {isApproved && (
-                <DropdownMenuItem
-                  onClick={() => setShowSubmitDialog(true)}
-                  className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
-                >
-                  <Send className="mr-2 h-3.5 w-3.5" />
-                  <span>Submit Project</span>
-                </DropdownMenuItem>
-              )}
+        <ApplicationDetailDialog_2
+          application={application}
+          open={showDetails}
+          onOpenChange={setShowDetails}
+        />
 
-              {isApproved && submissions.length > 0 && (
-                <DropdownMenuItem
-                  onClick={() => setShowSubmissionsDialog(true)}
-                  className="cursor-pointer font-semibold text-indigo-600 focus:text-indigo-700"
-                >
-                  <FolderOpen className="mr-2 h-3.5 w-3.5" />
-                  <span>Show Submitted Projects</span>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu_4>
-
-          <ApplicationDetailDialog_2
-            application={application}
-            open={showDetails}
-            onOpenChange={setShowDetails}
+        {showPayment && (
+          <PaymentModal_3
+            program={paymentProgramObj}
+            applicationId={application.id}
+            open={showPayment}
+            onClose={() => setShowPayment(false)}
+            onCancel={() => setShowPayment(false)}
           />
+        )}
 
-          {showPayment && (
-            <PaymentModal_3
-              program={paymentProgramObj}
-              applicationId={application.id}
-              open={showPayment}
-              onClose={() => setShowPayment(false)}
-              onCancel={() => setShowPayment(false)}
-            />
-          )}
+        { }
+        <Dialog_11 open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-foreground text-base font-bold">
+                Submit Immersion Project
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs">
+                Provide your project deliverables for{" "}
+                <span className="text-foreground font-semibold">
+                  {programSummary.title}
+                </span>
+                .
+              </DialogDescription>
+            </DialogHeader>
 
-          {}
-          <Dialog_11 open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
+            <form onSubmit={handleProjectSubmit} className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="projectTitle" className="text-xs">
+                  Project Title *
+                </Label>
+                <Input
+                  id="projectTitle"
+                  name="projectTitle"
+                  required
+                  placeholder="e.g. Rural Water Management Analysis"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="projectUrl" className="text-xs">
+                  Project URL *
+                </Label>
+                <Input
+                  id="projectUrl"
+                  name="projectUrl"
+                  type="url"
+                  required
+                  placeholder="e.g. https://github.com/yourusername/project"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="comments" className="text-xs">
+                  Comments (Optional)
+                </Label>
+                <Textarea
+                  id="comments"
+                  name="comments"
+                  placeholder="Any special notes or instructions for the mentor..."
+                />
+              </div>
+              <DialogFooter className="pt-2">
+                <Button type="submit" className="h-10 w-full gap-2">
+                  <Send className="size-4" />
+                  Submit Project
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog_11>
+
+        { }
+        <Dialog_11
+          open={showSubmissionsDialog}
+          onOpenChange={setShowSubmissionsDialog}
+        >
+          <DialogContent className="max-h-[80vh] max-w-lg overflow-y-auto">
+            <DialogHeader className="flex flex-row items-center justify-between">
+              <div>
                 <DialogTitle className="text-foreground text-base font-bold">
-                  Submit Immersion Project
+                  Submitted Projects
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground text-xs">
-                  Provide your project deliverables for{" "}
+                  All project submissions you have made for{" "}
                   <span className="text-foreground font-semibold">
                     {programSummary.title}
                   </span>
                   .
                 </DialogDescription>
-              </DialogHeader>
+              </div>
+              <Button
+                size="sm"
+                className="gap-1 font-semibold"
+                onClick={() => {
+                  setShowSubmissionsDialog(false);
+                  setShowSubmitDialog(true);
+                }}
+              >
+                <Plus className="size-3.5" />
+                Add Project
+              </Button>
+            </DialogHeader>
 
-              <form onSubmit={handleProjectSubmit} className="space-y-4 pt-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="projectTitle" className="text-xs">
-                    Project Title *
-                  </Label>
-                  <Input
-                    id="projectTitle"
-                    name="projectTitle"
-                    required
-                    placeholder="e.g. Rural Water Management Analysis"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="projectUrl" className="text-xs">
-                    Project URL *
-                  </Label>
-                  <Input
-                    id="projectUrl"
-                    name="projectUrl"
-                    type="url"
-                    required
-                    placeholder="e.g. https://github.com/yourusername/project"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="comments" className="text-xs">
-                    Comments (Optional)
-                  </Label>
-                  <Textarea
-                    id="comments"
-                    name="comments"
-                    placeholder="Any special notes or instructions for the mentor..."
-                  />
-                </div>
-                <DialogFooter className="pt-2">
-                  <Button type="submit" className="h-10 w-full gap-2">
-                    <Send className="size-4" />
-                    Submit Project
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog_11>
-
-          {}
-          <Dialog_11
-            open={showSubmissionsDialog}
-            onOpenChange={setShowSubmissionsDialog}
-          >
-            <DialogContent className="max-h-[80vh] max-w-lg overflow-y-auto">
-              <DialogHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <DialogTitle className="text-foreground text-base font-bold">
-                    Submitted Projects
-                  </DialogTitle>
-                  <DialogDescription className="text-muted-foreground text-xs">
-                    All project submissions you have made for{" "}
-                    <span className="text-foreground font-semibold">
-                      {programSummary.title}
-                    </span>
-                    .
-                  </DialogDescription>
-                </div>
-                <Button
-                  size="sm"
-                  className="gap-1 font-semibold"
-                  onClick={() => {
-                    setShowSubmissionsDialog(false);
-                    setShowSubmitDialog(true);
-                  }}
+            <div className="mt-4 space-y-4">
+              {submissions.map((submission) => (
+                <div
+                  key={submission.id}
+                  className="bg-muted/50 space-y-3 rounded-2xl border p-4"
                 >
-                  <Plus className="size-3.5" />
-                  Add Project
-                </Button>
-              </DialogHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h4 className="text-foreground text-sm font-bold leading-normal">
+                        {submission.projectTitle}
+                      </h4>
+                      <p className="text-muted-foreground mt-0.5 text-[10px]">
+                        Submitted on{" "}
+                        {formatHumanReadableDate_12(submission.submittedAt)}
+                      </p>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="border-amber-200/50 bg-amber-100 font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
+                    >
+                      {submission.status.replace(/_/g, " ")}
+                    </Badge>
+                  </div>
 
-              <div className="mt-4 space-y-4">
-                {submissions.map((submission) => (
-                  <div
-                    key={submission.id}
-                    className="bg-muted/50 space-y-3 rounded-2xl border p-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h4 className="text-foreground text-sm font-bold leading-normal">
-                          {submission.projectTitle}
-                        </h4>
-                        <p className="text-muted-foreground mt-0.5 text-[10px]">
-                          Submitted on{" "}
-                          {formatHumanReadableDate_12(submission.submittedAt)}
-                        </p>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className="border-amber-200/50 bg-amber-100 font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
+                  <div className="space-y-2">
+                    <div className="bg-card flex items-center justify-between rounded-lg border p-2 text-xs">
+                      <span className="text-muted-foreground max-w-[220px] truncate">
+                        {submission.projectUrl}
+                      </span>
+                      <a
+                        href={submission.projectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary flex items-center gap-1 font-semibold hover:underline"
                       >
-                        {submission.status.replace(/_/g, " ")}
-                      </Badge>
+                        Visit Link <ExternalLink className="size-3" />
+                      </a>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="bg-card flex items-center justify-between rounded-lg border p-2 text-xs">
-                        <span className="text-muted-foreground max-w-[220px] truncate">
-                          {submission.projectUrl}
-                        </span>
-                        <a
-                          href={submission.projectUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary flex items-center gap-1 font-semibold hover:underline"
-                        >
-                          Visit Link <ExternalLink className="size-3" />
-                        </a>
-                      </div>
-
-                      {submission.comments && (
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground text-[10px] font-semibold">
-                            Comments
+                    {submission.comments && (
+                      <div className="space-y-1">
+                        <p className="text-muted-foreground text-[10px] font-semibold">
+                          Comments
+                        </p>
+                        <div className="bg-card text-muted-foreground rounded-lg border p-2.5 text-xs">
+                          <p className="flex items-start gap-1.5 leading-relaxed">
+                            <MessageSquare className="mt-0.5 size-3 shrink-0" />
+                            {submission.comments}
                           </p>
-                          <div className="bg-card text-muted-foreground rounded-lg border p-2.5 text-xs">
-                            <p className="flex items-start gap-1.5 leading-relaxed">
-                              <MessageSquare className="mt-0.5 size-3 shrink-0" />
-                              {submission.comments}
-                            </p>
-                          </div>
                         </div>
-                      )}
-
-                      <div className="mt-3 flex items-center gap-2 border-t pt-2">
-                        <div className="flex flex-1 items-center gap-1.5 text-xs">
-                          <Award className="size-4 text-violet-500" />
-                          <span className="text-muted-foreground">Grade:</span>
-                          <span className="font-semibold text-violet-600 dark:text-violet-400">
-                            —
-                          </span>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20"
-                          onClick={() => handleProjectDelete(submission.id)}
-                        >
-                          <Trash2 className="size-3.5" />
-                          Delete
-                        </Button>
                       </div>
+                    )}
+
+                    <div className="mt-3 flex items-center gap-2 border-t pt-2">
+                      <div className="flex flex-1 items-center gap-1.5 text-xs">
+                        <Award className="size-4 text-violet-500" />
+                        <span className="text-muted-foreground">Grade:</span>
+                        <span className="font-semibold text-violet-600 dark:text-violet-400">
+                          —
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20"
+                        onClick={() => handleProjectDelete(submission.id)}
+                      >
+                        <Trash2 className="size-3.5" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </DialogContent>
-          </Dialog_11>
-        </div>
-      );
-    }
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog_11>
+      </div>
+    );
+  }
 
-    const columns = (
-      userName?: string,
-    ): ColumnDef_2<EmersionApplicationData>[] => [
+  const columns = (
+    userName?: string,
+  ): ColumnDef_2<EmersionApplicationData>[] => [
       {
         id: "programId",
         header: "Immersion Program ID",
@@ -8710,85 +8786,159 @@ export default function ApplicationsPage() {
         enableHiding: false,
       },
     ];
-    const StudentApplicationDetailDialog: React_3.FunctionComponent<
-      StudentApplicationDetailDialogProps
-    > = ({ application, open, onClose }) => {
-      const { data: regResponse, isLoading: isRegLoading } =
-        StudentRegistrationDataHooks.useStudentRegistrationMe({
-          enabled: open,
-        });
+  const StudentApplicationDetailDialog: React_3.FunctionComponent<
+    StudentApplicationDetailDialogProps
+  > = ({ application, open, onClose }) => {
+    const { data: regResponse, isLoading: isRegLoading } =
+      StudentRegistrationDataHooks.useStudentRegistrationMe({
+        enabled: open,
+      });
 
-      const { mutate: downloadPDF, isPending: isDownloading } =
-        StudentDataHook.useDownloadApplicationPDF({
-          onSuccess: (data) => {
-            toast.dismiss();
-            if (data) {
-              const url = window.URL.createObjectURL(data);
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = `application-${application.id}.pdf`;
-              document.body.appendChild(link);
-              link.click();
-              window.URL.revokeObjectURL(url);
-              document.body.removeChild(link);
-              toast.success("Application PDF downloaded successfully!");
-            } else {
-              toast.error("Failed to retrieve PDF download.");
-            }
-          },
-          onError: (err: any) => {
-            toast.dismiss();
-            toast.error(err.message || "Failed to download application PDF.");
-          },
-        });
+    const { mutate: downloadPDF, isPending: isDownloading } =
+      StudentDataHook.useDownloadApplicationPDF({
+        onSuccess: (data) => {
+          toast.dismiss();
+          if (data) {
+            const url = window.URL.createObjectURL(data);
+            const link = document.createElement("a");
+            link.href = url;
+            const studentName =
+              regResponse?.data?.fullName ||
+              (application as any).student?.name ||
+              (application as any).student?.fullName ||
+              "Student";
+            const safeName = studentName
+              .trim()
+              .replace(/[/\\?%*:|"<>]/g, "")
+              .replace(/\s+/g, "_");
+            link.download = `${safeName || "Student"}_Application.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+            toast.success("Application PDF downloaded successfully!");
+          } else {
+            toast.error("Failed to retrieve PDF download.");
+          }
+        },
+        onError: (err: any) => {
+          toast.dismiss();
+          toast.error(err.message || "Failed to download application PDF.");
+        },
+      });
 
-      const handleGeneratePDF = () => {
-        toast.loading("Generating application PDF...");
-        downloadPDF({
-          internshipId: application.internship.id,
-          applicationId: application.id,
-        });
-      };
+    const [isDownloadingOffer, setIsDownloadingOffer] = React_3.useState(false);
+    const handleDownloadOfferLetter = async () => {
+      if (application.status === "REJECTED") {
+        toast.error("Reject वाले स्टूडेंट को इंटर्नशिप ऑफर लेटर जारी नहीं किया जाएगा।");
+        return;
+      }
+      if (application.status !== "APPROVED") {
+        toast.error("इंटर्नशिप ऑफर लेटर केवल स्वीकृत (Approved) आवेदनों के लिए जारी किया जाता है।");
+        return;
+      }
+      try {
+        setIsDownloadingOffer(true);
+        toast.loading("Downloading Offer Letter...");
+        const res = await axiosInstance.get(
+          `/api/v1/internships/${application.internship.id}/applications/${application.id}/offer-letter/download`,
+          { responseType: "blob" },
+        );
+        const blob = new Blob([res.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const studentName =
+          regResponse?.data?.fullName ||
+          (application as any).student?.name ||
+          (application as any).student?.fullName ||
+          "Student";
+        const safeName = studentName
+          .trim()
+          .replace(/[/\\?%*:|"<>]/g, "")
+          .replace(/\s+/g, "_");
+        a.download = `${safeName}_Internship_Offer_Letter.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        toast.dismiss();
+        toast.success("Offer Letter downloaded successfully!");
+      } catch (err: any) {
+        toast.dismiss();
+        toast.error(
+          err?.response?.data?.error?.message ||
+            "Failed to download offer letter.",
+        );
+      } finally {
+        setIsDownloadingOffer(false);
+      }
+    };
 
-      const reg = regResponse?.data;
+    const handleGeneratePDF = () => {
+      toast.loading("Generating application PDF...");
+      downloadPDF({
+        internshipId: application.internship.id,
+        applicationId: application.id,
+      });
+    };
 
-        const statusColors: Record<string, string> = {
-        WAITING_FOR_ADMIN:
-          "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30",
-        UNDER_REVIEW:
-          "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30",
-        SHORTLISTED:
-          "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
-        APPROVED:
-          "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
-        REJECTED:
-          "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30",
-      };
+    const reg = regResponse?.data;
 
-      const statusLabel: Record<string, string> = {
-        WAITING_FOR_ADMIN: "Waiting for Admin Approval",
-        UNDER_REVIEW: "Under Review",
-        SHORTLISTED: "Shortlisted",
-        APPROVED: "Approved",
-        REJECTED: "Rejected / Not Selected",
-      };
+    const statusColors: Record<string, string> = {
+      WAITING_FOR_ADMIN:
+        "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30",
+      UNDER_REVIEW:
+        "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30",
+      SHORTLISTED:
+        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
+      APPROVED:
+        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
+      REJECTED:
+        "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30",
+    };
 
-      const isEnrolled = !!application.enrollmentId;
+    const statusLabel: Record<string, string> = {
+      WAITING_FOR_ADMIN: "Waiting for Admin Approval",
+      UNDER_REVIEW: "Under Review",
+      SHORTLISTED: "Shortlisted",
+      APPROVED: "Approved",
+      REJECTED: "Rejected / Not Selected",
+    };
 
-      return (
-        <Dialog_6 open={open} onOpenChange={(val) => !val && onClose()}>
-          <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
-            <DialogHeader className="border-muted border-b p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <DialogTitle className="font-heading dark:text-foreground text-xl font-bold text-emerald-950">
-                    Application Details
-                  </DialogTitle>
-                  <DialogDescription className="text-muted-foreground mt-1">
-                    Overview of your internship application and registration
-                    profile.
-                  </DialogDescription>
-                </div>
+    const isEnrolled = !!application.enrollmentId;
+
+    return (
+      <Dialog_6 open={open} onOpenChange={(val) => !val && onClose()}>
+        <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
+          <DialogHeader className="border-muted border-b p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <DialogTitle className="font-heading dark:text-foreground text-xl font-bold text-emerald-950">
+                  Application Details
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground mt-1">
+                  Overview of your internship application and registration
+                  profile.
+                </DialogDescription>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {application.status === "APPROVED" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleDownloadOfferLetter}
+                    disabled={isDownloadingOffer}
+                    className="w-full shrink-0 gap-2 self-start bg-emerald-600 text-white hover:bg-emerald-700 sm:w-auto sm:self-center"
+                  >
+                    {isDownloadingOffer ? (
+                      <Loader2 className="size-4 animate-spin text-white" />
+                    ) : (
+                      <Download className="size-4" />
+                    )}
+                    Offer Letter
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -8801,504 +8951,735 @@ export default function ApplicationsPage() {
                   ) : (
                     <Download className="size-4" />
                   )}
-                  Generate PDF
+                  Application PDF
                 </Button>
               </div>
-            </DialogHeader>
+            </div>
+          </DialogHeader>
 
-            {isRegLoading ? (
-              <div className="flex items-center justify-center p-12">
-                <Loader2 className="size-8 animate-spin text-emerald-600" />
+          {isRegLoading ? (
+            <div className="flex items-center justify-center p-12">
+              <Loader2 className="size-8 animate-spin text-emerald-600" />
+            </div>
+          ) : (
+            <div className="space-y-6 p-6">
+              { }
+              <div className="grid grid-cols-1 gap-4 rounded-xl border border-emerald-100/50 bg-emerald-50/30 p-4 sm:grid-cols-2 dark:border-emerald-900/30 dark:bg-emerald-950/10">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
+                    {isEnrolled ? "Enrollment ID" : "Application ID"}
+                  </span>
+                  <div className="pt-0.5">
+                    <ApplicationIdChip
+                      id={application.id}
+                      createdAt={application.appliedAt || application.createdAt}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
+                    Applied Date
+                  </span>
+                  <p className="text-sm font-medium text-emerald-950 dark:text-emerald-100">
+                    {formatHumanReadableDate_4(application.appliedAt)}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between space-y-1 border-t border-emerald-100/40 pt-3 sm:col-span-2 dark:border-emerald-900/20">
+                  <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-300">
+                    Status
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusColors[application.status] ||
+                      "bg-muted text-foreground"
+                      }`}
+                  >
+                    <span
+                      className={`size-1.5 rounded-full ${application.status === "APPROVED" ||
+                          application.status === "SHORTLISTED"
+                          ? "bg-emerald-600"
+                          : application.status === "REJECTED"
+                            ? "bg-red-600"
+                            : "bg-amber-600"
+                        }`}
+                    />
+                    {statusLabel[application.status] || application.status}
+                  </span>
+                </div>
+                {application.status === "REJECTED" && (
+                  <div className="sm:col-span-2 rounded-lg border border-red-200 bg-red-50/70 p-3 text-xs text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+                    <p className="font-semibold flex items-center gap-1.5">
+                      <AlertCircle_2 className="size-4 shrink-0 text-red-600" />
+                      Reject वाले स्टूडेंट को इंटर्नशिप ऑफर लेटर जारी नहीं किया जाएगा।
+                    </p>
+                    <p className="text-[11px] text-red-600/90 mt-1 dark:text-red-400/80">
+                      Offer letters are not issued for rejected internship applications.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="space-y-6 p-6">
-                {}
-                <div className="grid grid-cols-1 gap-4 rounded-xl border border-emerald-100/50 bg-emerald-50/30 p-4 sm:grid-cols-2 dark:border-emerald-900/30 dark:bg-emerald-950/10">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
-                      {isEnrolled ? "Enrollment ID" : "Application ID"}
+
+              {/* Official Internship Offer Letter Download (at marked position) */}
+              {application.status === "APPROVED" && (
+                <div className="rounded-xl border border-emerald-300/80 bg-gradient-to-r from-emerald-50 via-teal-50/60 to-emerald-50 p-4 shadow-xs dark:border-emerald-800 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-emerald-950/40">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                        <Award className="size-5" />
+                      </div>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-sm font-bold text-emerald-950 dark:text-emerald-100">
+                            Internship Offer Letter
+                          </h4>
+                          <span className="inline-flex items-center rounded-full bg-emerald-600/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                            Verified &amp; Ready
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-xs text-emerald-800/80 dark:text-emerald-300/80">
+                          Your official, auto-generated internship offer letter with QR verification.
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="default"
+                      size="sm"
+                      onClick={handleDownloadOfferLetter}
+                      disabled={isDownloadingOffer}
+                      className="w-full shrink-0 gap-2 bg-[#0A5C36] font-semibold text-white shadow-xs hover:bg-[#074026] sm:w-auto cursor-pointer"
+                    >
+                      {isDownloadingOffer ? (
+                        <Loader2 className="size-4 animate-spin text-white" />
+                      ) : (
+                        <Download className="size-4" />
+                      )}
+                      <span>Download Offer Letter (PDF)</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              { }
+              <div className="border-muted space-y-3 rounded-xl border p-4">
+                <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
+                  <User className="size-4 text-emerald-600 dark:text-emerald-400" />
+                  Internship Details
+                </h3>
+                <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Internship ID
                     </span>
                     <div className="pt-0.5">
-                      <ApplicationIdChip
-                        id={application.id}
-                        createdAt={application.appliedAt || application.createdAt}
+                      <InternshipIdChip
+                        code={application.internship?.id}
+                        companyName={application.internship?.companyName}
                       />
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-400/80">
-                      Applied Date
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Duration
                     </span>
-                    <p className="text-sm font-medium text-emerald-950 dark:text-emerald-100">
-                      {formatHumanReadableDate_4(application.appliedAt)}
-                    </p>
+                    <span className="text-foreground text-xs font-semibold">
+                      {application.internship?.duration || "N/A"}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between space-y-1 border-t border-emerald-100/40 pt-3 sm:col-span-2 dark:border-emerald-900/20">
-                    <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-300">
-                      Status
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Internship Name
                     </span>
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-                        statusColors[application.status] ||
-                        "bg-muted text-foreground"
-                      }`}
-                    >
-                      <span
-                        className={`size-1.5 rounded-full ${
-                          application.status === "APPROVED" ||
-                          application.status === "SHORTLISTED"
-                            ? "bg-emerald-600"
-                            : application.status === "REJECTED"
-                              ? "bg-red-600"
-                              : "bg-amber-600"
-                        }`}
-                      />
-                      {statusLabel[application.status] || application.status}
+                    <span className="text-foreground text-xs font-semibold">
+                      {application.internship?.title}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Organisation Name
+                    </span>
+                    <span className="text-foreground text-xs font-semibold">
+                      {application.internship?.companyName || "N/A"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Type / Mode
+                    </span>
+                    <span className="text-foreground text-xs font-semibold">
+                      {application.internship?.type || "N/A"} /{" "}
+                      {application.internship?.mode || "N/A"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">
+                      Location
+                    </span>
+                    <span className="text-foreground text-xs font-semibold">
+                      {application.internship?.location || "Remote"}
                     </span>
                   </div>
                 </div>
+              </div>
 
-                {}
-                <div className="border-muted space-y-3 rounded-xl border p-4">
-                  <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                    <User className="size-4 text-emerald-600 dark:text-emerald-400" />
-                    Internship Details
-                  </h3>
+              { }
+              <div className="border-muted space-y-3 rounded-xl border p-4">
+                <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
+                  <User className="size-4 text-emerald-600 dark:text-emerald-400" />
+                  Candidate Information
+                </h3>
+                {reg ? (
                   <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
                     <div>
                       <span className="text-muted-foreground block text-[10px]">
-                        Internship ID
-                      </span>
-                      <div className="pt-0.5">
-                        <InternshipIdChip
-                          code={application.internship?.id}
-                          companyName={application.internship?.companyName}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block text-[10px]">
-                        Duration
+                        Full Name
                       </span>
                       <span className="text-foreground text-xs font-semibold">
-                        {application.internship?.duration || "N/A"}
+                        {reg.fullName}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block text-[10px]">
-                        Internship Name
+                        Student ID
                       </span>
                       <span className="text-foreground text-xs font-semibold">
-                        {application.internship?.title}
+                        {reg.studentId}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block text-[10px]">
-                        Company Name
+                        Date of Birth
                       </span>
                       <span className="text-foreground text-xs font-semibold">
-                        {application.internship?.companyName || "N/A"}
+                        {reg.dob}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block text-[10px]">
-                        Type / Mode
+                        Gender / Category
                       </span>
                       <span className="text-foreground text-xs font-semibold">
-                        {application.internship?.type || "N/A"} /{" "}
-                        {application.internship?.mode || "N/A"}
+                        {reg.gender} / {reg.category}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
+                        <Phone_2 className="text-muted-foreground size-3" />
+                        Mobile Number
+                      </span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {reg.mobileNo}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
+                        <Mail_2 className="text-muted-foreground size-3" />
+                        Email Address
+                      </span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {application.student?.email}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block text-[10px]">
-                        Location
+                        Father's Name
                       </span>
                       <span className="text-foreground text-xs font-semibold">
-                        {application.internship?.location || "Remote"}
+                        {reg.fatherName || "N/A"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block text-[10px]">
+                        Mother's Name
+                      </span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {reg.motherName || "N/A"}
                       </span>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                    <div>
+                      <span className="text-muted-foreground block text-[10px]">
+                        Full Name
+                      </span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {application.student?.name || "N/A"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block text-[10px]">
+                        Email Address
+                      </span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {application.student?.email || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-                {}
+              { }
+              {reg && (
                 <div className="border-muted space-y-3 rounded-xl border p-4">
                   <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                    <User className="size-4 text-emerald-600 dark:text-emerald-400" />
-                    Candidate Information
+                    <MapPin_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                    Address Details
                   </h3>
-                  {reg ? (
-                    <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Full Name
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.fullName}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Student ID
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.studentId}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Date of Birth
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.dob}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Gender / Category
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.gender} / {reg.category}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
-                          <Phone_2 className="text-muted-foreground size-3" />
-                          Mobile Number
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.mobileNo}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block flex items-center gap-1 font-sans text-[10px]">
-                          <Mail_2 className="text-muted-foreground size-3" />
-                          Email Address
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {application.student?.email}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Father's Name
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.fatherName || "N/A"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Mother's Name
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {reg.motherName || "N/A"}
-                        </span>
-                      </div>
+                  <div className="space-y-2 pt-1">
+                    <div>
+                      <span className="text-muted-foreground block text-[10px]">
+                        Local Address
+                      </span>
+                      <span className="text-foreground text-xs font-medium">
+                        {reg.localAddressLocal}, {reg.localAddressDistrict},{" "}
+                        {reg.localAddressState} - {reg.localAddressPinCode}
+                      </span>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Full Name
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {application.student?.name || "N/A"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Email Address
-                        </span>
-                        <span className="text-foreground text-xs font-semibold">
-                          {application.student?.email || "N/A"}
-                        </span>
-                      </div>
+                    <div>
+                      <span className="text-muted-foreground block text-[10px]">
+                        Permanent Address
+                      </span>
+                      <span className="text-foreground text-xs font-medium">
+                        {reg.sameAsLocal
+                          ? "Same as Local Address"
+                          : `${reg.permAddressLocal}, ${reg.permAddressDistrict}, ${reg.permAddressState} - ${reg.permAddressPinCode}`}
+                      </span>
                     </div>
-                  )}
+                  </div>
                 </div>
+              )}
 
-                {}
-                {reg && (
+              { }
+              {reg && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  { }
                   <div className="border-muted space-y-3 rounded-xl border p-4">
                     <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                      <MapPin_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-                      Address Details
+                      <GraduationCap_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                      Academics
                     </h3>
-                    <div className="space-y-2 pt-1">
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Local Address
-                        </span>
-                        <span className="text-foreground text-xs font-medium">
-                          {reg.localAddressLocal}, {reg.localAddressDistrict},{" "}
-                          {reg.localAddressState} - {reg.localAddressPinCode}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block text-[10px]">
-                          Permanent Address
-                        </span>
-                        <span className="text-foreground text-xs font-medium">
-                          {reg.sameAsLocal
-                            ? "Same as Local Address"
-                            : `${reg.permAddressLocal}, ${reg.permAddressDistrict}, ${reg.permAddressState} - ${reg.permAddressPinCode}`}
-                        </span>
-                      </div>
+                    <div className="max-h-[200px] space-y-3 overflow-y-auto pr-1">
+                      {reg.academics && reg.academics.length > 0 ? (
+                        reg.academics.map((acad: any, idx: number) => (
+                          <div
+                            key={acad.id || idx}
+                            className="border-muted border-b pb-2 text-xs last:border-0 last:pb-0"
+                          >
+                            <p className="font-semibold text-emerald-950 dark:text-emerald-100">
+                              {acad.qualification} ({acad.stream || "N/A"})
+                            </p>
+                            <p className="text-muted-foreground mt-0.5 text-[10px]">
+                              {acad.instituteName || "N/A"} |{" "}
+                              {acad.universityName || "N/A"}
+                            </p>
+                            <p className="text-muted-foreground text-[10px]">
+                              Year: {acad.sessionYear || "N/A"} | Grade:{" "}
+                              {acad.gradeDivision || "N/A"}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground text-xs italic">
+                          No academic records.
+                        </p>
+                      )}
                     </div>
                   </div>
-                )}
 
-                {}
-                {reg && (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {}
-                    <div className="border-muted space-y-3 rounded-xl border p-4">
-                      <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                        <GraduationCap_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-                        Academics
-                      </h3>
-                      <div className="max-h-[200px] space-y-3 overflow-y-auto pr-1">
-                        {reg.academics && reg.academics.length > 0 ? (
-                          reg.academics.map((acad: any, idx: number) => (
-                            <div
-                              key={acad.id || idx}
-                              className="border-muted border-b pb-2 text-xs last:border-0 last:pb-0"
-                            >
-                              <p className="font-semibold text-emerald-950 dark:text-emerald-100">
-                                {acad.qualification} ({acad.stream || "N/A"})
-                              </p>
+                  { }
+                  <div className="border-muted space-y-3 rounded-xl border p-4">
+                    <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
+                      <GraduationCap_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                      Skills
+                    </h3>
+                    <div className="flex max-h-[200px] flex-wrap gap-2 overflow-y-auto pr-1">
+                      {reg.skills && reg.skills.length > 0 ? (
+                        reg.skills.map((skill: any, idx: number) => (
+                          <div
+                            key={skill.id || idx}
+                            className="w-full rounded-lg border border-emerald-100 bg-emerald-50 p-2 text-xs dark:border-emerald-900/30 dark:bg-emerald-950/20"
+                          >
+                            <p className="font-semibold text-emerald-950 dark:text-emerald-100">
+                              {skill.skillName}
+                            </p>
+                            {skill.description && (
                               <p className="text-muted-foreground mt-0.5 text-[10px]">
-                                {acad.instituteName || "N/A"} |{" "}
-                                {acad.universityName || "N/A"}
+                                {skill.description}
                               </p>
-                              <p className="text-muted-foreground text-[10px]">
-                                Year: {acad.sessionYear || "N/A"} | Grade:{" "}
-                                {acad.gradeDivision || "N/A"}
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-muted-foreground text-xs italic">
-                            No academic records.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {}
-                    <div className="border-muted space-y-3 rounded-xl border p-4">
-                      <h3 className="flex items-center gap-2 text-xs font-bold text-emerald-950 dark:text-emerald-400">
-                        <GraduationCap_2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-                        Skills
-                      </h3>
-                      <div className="flex max-h-[200px] flex-wrap gap-2 overflow-y-auto pr-1">
-                        {reg.skills && reg.skills.length > 0 ? (
-                          reg.skills.map((skill: any, idx: number) => (
-                            <div
-                              key={skill.id || idx}
-                              className="w-full rounded-lg border border-emerald-100 bg-emerald-50 p-2 text-xs dark:border-emerald-900/30 dark:bg-emerald-950/20"
-                            >
-                              <p className="font-semibold text-emerald-950 dark:text-emerald-100">
-                                {skill.skillName}
-                              </p>
-                              {skill.description && (
-                                <p className="text-muted-foreground mt-0.5 text-[10px]">
-                                  {skill.description}
-                                </p>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-muted-foreground text-xs italic">
-                            No skills listed.
-                          </p>
-                        )}
-                      </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground text-xs italic">
+                          No skills listed.
+                        </p>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+          )}
 
-            <DialogFooter className="border-muted bg-muted/20 border-t p-6">
-              <Button variant="outline" onClick={onClose}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog_6>
-      );
+          <DialogFooter className="border-muted bg-muted/20 border-t p-6">
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog_6>
+    );
+  };
+
+  function ProjectSubmissionDialog_2({
+    enrollmentId,
+    internshipTitle,
+    open,
+    onClose,
+  }: ProjectSubmissionDialogProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isReadingFile, setIsReadingFile] = useState(false);
+    const [fileError, setFileError] = useState<string | null>(null);
+
+    const {
+      register,
+      handleSubmit,
+      reset,
+      setValue,
+      formState: { errors },
+    } = useForm<TProjectSubmissionInput>({
+      resolver: zodResolver(projectSubmissionSchema),
+      defaultValues: {
+        projectTitle: "",
+        projectUrl: "",
+        documentBase64: "",
+        documentName: "",
+        comments: "",
+      },
+    });
+
+    const resetAll = () => {
+      reset();
+      setSelectedFile(null);
+      setFileError(null);
+      setIsReadingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     };
 
-    function ProjectSubmissionDialog_2({
-      enrollmentId,
-      internshipTitle,
-      open,
-      onClose,
-    }: ProjectSubmissionDialogProps) {
-      const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-      } = useForm<TProjectSubmissionInput>({
-        resolver: zodResolver(projectSubmissionSchema),
-        defaultValues: {
-          projectTitle: "",
-          projectUrl: "",
-          comments: "",
-        },
-      });
+    const handleDialogClose = () => {
+      resetAll();
+      onClose();
+    };
 
-      const { mutate: submitProject, isPending } = StudentDataHook.useSubmitProject(
-        {
-          onSuccess: () => {
-            reset();
-            onClose();
-          },
+    const { mutate: submitProject, isPending } = StudentDataHook.useSubmitProject(
+      {
+        onSuccess: () => {
+          resetAll();
+          onClose();
         },
-      );
+      },
+    );
 
-      const onSubmit = (values: TProjectSubmissionInput) => {
-        submitProject({
-          enrollmentId,
-          projectTitle: values.projectTitle,
-          projectUrl: values.projectUrl,
-          comments: values.comments,
-        });
+    const handleProcessFile = (file: File) => {
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+      if (file.size > MAX_FILE_SIZE) {
+        const errorMsg = "File size exceeds 10 MB limit. Please select a smaller file.";
+        setFileError(errorMsg);
+        toast.error(errorMsg);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+
+      setFileError(null);
+      setIsReadingFile(true);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        setSelectedFile(file);
+        setValue("documentBase64", base64, { shouldValidate: true });
+        setValue("documentName", file.name, { shouldValidate: true });
+        setIsReadingFile(false);
       };
+      reader.onerror = () => {
+        const errorMsg = "Failed to read file. Please try again.";
+        setFileError(errorMsg);
+        toast.error(errorMsg);
+        setIsReadingFile(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      };
+      reader.readAsDataURL(file);
+    };
 
-      return (
-        <Dialog_9 open={open} onOpenChange={(o) => !o && onClose()}>
-          <DialogContent className="bg-card max-w-md rounded-2xl p-6">
-            <DialogHeader>
-              <DialogTitle className="text-foreground text-base font-bold">
-                Submit Internship Project
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-xs">
-                Submit your project submission for{" "}
-                <span className="text-foreground font-semibold">
-                  {internshipTitle}
-                </span>
-                .
-              </DialogDescription>
-            </DialogHeader>
+    const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        handleProcessFile(file);
+      }
+    };
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-              {}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="project-title"
-                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
-                >
-                  Project Title
-                </Label>
-                <Input
-                  id="project-title"
-                  placeholder="e.g. E-Commerce Platform API Setup"
-                  className={`h-10 ${errors.projectTitle ? "border-red-400 focus-visible:ring-red-300" : ""}`}
-                  {...register("projectTitle")}
-                />
-                {errors.projectTitle && (
-                  <p className="text-xs text-red-500">
-                    {errors.projectTitle.message}
-                  </p>
-                )}
-              </div>
+    const handleRemoveFile = () => {
+      setSelectedFile(null);
+      setFileError(null);
+      setValue("documentBase64", "", { shouldValidate: true });
+      setValue("documentName", "", { shouldValidate: true });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    };
 
-              {}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="project-url"
-                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
-                >
-                  Project Link (GitHub / Drive URL)
-                </Label>
-                <Input
-                  id="project-url"
-                  placeholder="https://github.com/your-username/repo-name"
-                  className={`h-10 ${errors.projectUrl ? "border-red-400 focus-visible:ring-red-300" : ""}`}
-                  {...register("projectUrl")}
-                />
-                {errors.projectUrl && (
-                  <p className="text-xs text-red-500">
-                    {errors.projectUrl.message}
-                  </p>
-                )}
-              </div>
+    const formatFileSize = (bytes: number) => {
+      if (!bytes) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    };
 
-              {}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="project-comments"
-                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
-                >
-                  Comments (Optional)
-                </Label>
-                <Textarea
-                  id="project-comments"
-                  placeholder="Provide any description or special instructions here..."
-                  rows={4}
-                  className="resize-none"
-                  {...register("comments")}
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onClose}
-                  disabled={isPending}
-                  className="font-semibold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  id="submit-project-btn"
-                  type="submit"
-                  size="sm"
-                  disabled={isPending}
-                  className="gap-1.5 font-semibold"
-                >
-                  {isPending ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <Send className="size-3.5" />
-                  )}
-                  {isPending ? "Submitting..." : "Submit Project"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog_9>
-      );
-    }
-
-    function ReceiptDialog_3({ paymentId, open, onClose }: ReceiptDialogProps_3) {
-      const {
-        data: response,
-        isLoading,
-        isError,
-      } = StudentDataHook.usePaymentReceipt(paymentId, {
-        enabled: open && !!paymentId,
+    const onSubmit = (values: TProjectSubmissionInput) => {
+      if (isReadingFile) {
+        toast.info("Please wait while the document is being processed.");
+        return;
+      }
+      submitProject({
+        enrollmentId,
+        projectTitle: values.projectTitle.trim(),
+        projectUrl: values.projectUrl?.trim() || "",
+        documentBase64: values.documentBase64 || undefined,
+        documentName: values.documentName || undefined,
+        comments: values.comments?.trim() || undefined,
       });
+    };
 
-      const receipt = response?.data;
+    return (
+      <Dialog_9 open={open} onOpenChange={(o) => !o && handleDialogClose()}>
+        <DialogContent className="bg-card max-h-[92vh] max-w-md overflow-y-auto rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-foreground text-base font-bold">
+              Submit Internship Project
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs">
+              Submit your project submission for{" "}
+              <span className="text-foreground font-semibold">
+                {internshipTitle}
+              </span>
+              .
+            </DialogDescription>
+          </DialogHeader>
 
-      const handlePrint = () => {
-        const printContent = document.getElementById("printable-invoice");
-        if (!printContent) return;
-        const windowUrl = "about:blank";
-        const uniqueName = new Date().getTime();
-        const printWindow = window.open(
-          windowUrl,
-          uniqueName.toString(),
-          "left=50000,top=50000,width=0,height=0",
-        );
-        if (!printWindow) return;
-        printWindow.document.write(`
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+            { }
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="project-title"
+                className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+              >
+                Project Title <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="project-title"
+                placeholder="e.g. E-Commerce Platform API Setup"
+                className={`h-10 ${errors.projectTitle ? "border-red-400 focus-visible:ring-red-300" : ""}`}
+                {...register("projectTitle")}
+              />
+              {errors.projectTitle && (
+                <p className="text-xs text-red-500">
+                  {errors.projectTitle.message}
+                </p>
+              )}
+            </div>
+
+            { }
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="project-url"
+                className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+              >
+                Project Link (GitHub / Drive URL)
+              </Label>
+              <Input
+                id="project-url"
+                placeholder="https://github.com/your-username/repo-name"
+                className={`h-10 ${errors.projectUrl ? "border-red-400 focus-visible:ring-red-300" : ""}`}
+                {...register("projectUrl")}
+              />
+              {errors.projectUrl && (
+                <p className="text-xs text-red-500">
+                  {errors.projectUrl.message}
+                </p>
+              )}
+            </div>
+
+            { }
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="project-comments"
+                className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+              >
+                Comments (Optional)
+              </Label>
+              <Textarea
+                id="project-comments"
+                placeholder="Provide any description or special instructions here..."
+                rows={3}
+                className="resize-none"
+                {...register("comments")}
+              />
+            </div>
+
+            { }
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="project-document"
+                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+                >
+                  Upload Project Document
+                </Label>
+                <span className="text-muted-foreground text-[10px] font-medium">
+                  Max. File Size 10 MB
+                </span>
+              </div>
+
+              <input
+                ref={fileInputRef}
+                id="project-document"
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip,application/x-zip-compressed"
+                onChange={handleFileInputChange}
+                className="hidden"
+                disabled={isPending || isReadingFile}
+              />
+
+              {!selectedFile ? (
+                <div
+                  onClick={() => !isPending && !isReadingFile && fileInputRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (isPending || isReadingFile) return;
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) handleProcessFile(file);
+                  }}
+                  className={`border-border/80 hover:border-primary/60 hover:bg-muted/30 group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition-all ${
+                    fileError ? "border-destructive/60 bg-destructive/5" : "bg-muted/10"
+                  }`}
+                >
+                  <div className="bg-primary/10 text-primary group-hover:bg-primary/20 mb-2 flex size-10 items-center justify-center rounded-full transition-colors">
+                    {isReadingFile ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      <Upload className="size-5" />
+                    )}
+                  </div>
+                  <p className="text-foreground text-xs font-semibold">
+                    {isReadingFile
+                      ? "Reading document..."
+                      : "Click to upload or drag & drop"}
+                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-[11px]">
+                    PDF, DOC, DOCX, ZIP, PPT, TXT (Max. 10 MB)
+                  </p>
+                </div>
+              ) : (
+                <div className="border-border/80 bg-muted/20 relative flex items-center justify-between rounded-xl border p-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex size-9 shrink-0 items-center justify-center rounded-lg border border-emerald-500/20">
+                      <FileText className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-foreground truncate text-xs font-semibold">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-muted-foreground text-[10px] font-medium">
+                        {formatFileSize(selectedFile.size)} • Ready to upload
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleRemoveFile}
+                    disabled={isPending}
+                    className="text-muted-foreground hover:text-destructive size-7 shrink-0 rounded-full cursor-pointer"
+                    title="Remove file"
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              )}
+
+              {fileError && (
+                <p className="text-xs text-destructive font-medium">
+                  {fileError}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleDialogClose}
+                disabled={isPending || isReadingFile}
+                className="font-semibold"
+              >
+                Cancel
+              </Button>
+              <Button
+                id="submit-project-btn"
+                type="submit"
+                size="sm"
+                disabled={isPending || isReadingFile}
+                className="gap-1.5 font-semibold"
+              >
+                {isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Send className="size-3.5" />
+                )}
+                {isPending ? "Submitting..." : "Submit Project"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog_9>
+    );
+  }
+
+  function ReceiptDialog_3({ paymentId, open, onClose }: ReceiptDialogProps_3) {
+    const {
+      data: response,
+      isLoading,
+      isError,
+    } = StudentDataHook.usePaymentReceipt(paymentId, {
+      enabled: open && !!paymentId,
+    });
+
+    const receipt = response?.data;
+
+    const handlePrint = () => {
+      const printContent = document.getElementById("printable-invoice");
+      if (!printContent) return;
+      const windowUrl = "about:blank";
+      const uniqueName = new Date().getTime();
+      const printWindow = window.open(
+        windowUrl,
+        uniqueName.toString(),
+        "left=50000,top=50000,width=0,height=0",
+      );
+      if (!printWindow) return;
+      printWindow.document.write(`
       <html>
         <head>
           <title>Receipt - IIInternship</title>
@@ -9314,957 +9695,1013 @@ export default function ApplicationsPage() {
         </body>
       </html>
     `);
-        printWindow.document.close();
-        printWindow.focus();
-      };
+      printWindow.document.close();
+      printWindow.focus();
+    };
 
-      const modalTitle = (
-        <div className="flex items-center justify-between w-full pr-8">
-          <span className="text-foreground text-lg font-bold">Payment Receipt</span>
-          {receipt && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrint}
-              className="border-primary/20 text-primary hover:bg-primary/10 h-8 gap-1.5 text-xs font-semibold"
-            >
-              <Printer className="size-3.5" />
-              Print Receipt
-            </Button>
-          )}
-        </div>
-      );
+    const modalTitle = (
+      <div className="flex items-center justify-between w-full pr-8">
+        <span className="text-foreground text-lg font-bold">Payment Receipt</span>
+        {receipt && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="border-primary/20 text-primary hover:bg-primary/10 h-8 gap-1.5 text-xs font-semibold"
+          >
+            <Printer className="size-3.5" />
+            Print Receipt
+          </Button>
+        )}
+      </div>
+    );
 
-      return (
-        <ResponsiveDialog
-          isOpen={open}
-          setIsOpen={(o) => !o && onClose()}
-          title={modalTitle}
-          className="sm:max-w-3xl"
-        >
+    return (
+      <ResponsiveDialog
+        isOpen={open}
+        setIsOpen={(o) => !o && onClose()}
+        title={modalTitle}
+        className="sm:max-w-3xl"
+      >
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center space-y-3 py-12">
+            <Loader2 className="text-primary size-8 animate-spin" />
+            <p className="text-muted-foreground text-xs font-medium">
+              Loading receipt details...
+            </p>
+          </div>
+        ) : isError || !receipt ? (
+          <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
+            Failed to load receipt details. Please try again.
+          </div>
+        ) : (
+          <div>
+            <div id="printable-invoice" className="bg-white p-6 text-slate-800 dark:bg-zinc-950 dark:text-slate-200">
+              { }
+              <div className="flex items-center justify-between border-b pb-6 mb-6 gap-4">
+                { }
+                <div className="w-1/4 flex justify-start">
+                  <img
+                    src={typeof window !== "undefined" ? window.location.origin + "/logo.png" : "/logo.png"}
+                    alt="Logo"
+                    className="h-14 object-contain"
+                  />
+                </div>
+
+                { }
+                <div className="w-2/4 text-center">
+                  <h1 className="text-2xl font-extrabold tracking-tight text-emerald-600">
+                    IIInternship
+                  </h1>
+                  <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase mt-0.5">
+                    Empowering Global Careers
+                  </p>
+                </div>
+
+                { }
+                <div className="w-1/4 text-right text-xs">
+                  <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider inline-block mb-1">
+                    Receipt
+                  </span>
+                  <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                    No: <span className="font-mono text-slate-900 dark:text-slate-100">{"REC-" + receipt.id.slice(-8).toUpperCase()}</span>
+                  </p>
+                  <p className="text-[9px] text-slate-500 mt-0.5">
+                    Date: <span className="text-slate-800 dark:text-slate-200 font-medium">{new Date(receipt.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric"
+                    })}</span>
+                  </p>
+                </div>
+              </div>
+
+              { }
+              <div className="flex justify-between items-start border-b pb-6 mb-6 text-xs gap-4">
+                <div className="w-1/2 text-left">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Billed To
+                  </h3>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    {receipt.user?.name || "Student"}
+                  </p>
+                  <p className="text-slate-500 mt-1">{receipt.user?.email || "N/A"}</p>
+                </div>
+                <div className="w-1/2 text-right">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Payment Details
+                  </h3>
+                  <p className="text-slate-500">
+                    Order ID: <span className="text-slate-800 dark:text-slate-100 font-mono font-medium">{receipt.razorpayOrderId}</span>
+                  </p>
+                  {receipt.razorpayPaymentId && (
+                    <p className="text-slate-500 mt-1">
+                      Payment ID: <span className="text-slate-800 dark:text-slate-100 font-mono font-medium">{receipt.razorpayPaymentId}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              { }
+              <div className="mb-6">
+                <div className="border rounded-lg overflow-hidden shadow-none">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-zinc-900 border-b">
+                        <th className="px-4 py-3 font-bold text-slate-500">PROGRAM DETAILS</th>
+                        <th className="px-4 py-3 font-bold text-slate-500 text-right">AMOUNT (INR)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="px-4 py-4">
+                          <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">
+                            {receipt.internship?.title || "Internship Enrollment"}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            {receipt.internship?.companyName || "N/A"}
+                          </p>
+                        </td>
+                        <td className="px-4 py-4 text-right font-bold text-slate-800 dark:text-slate-100 text-base">
+                          {receipt.amount.toLocaleString("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                          })}
+                        </td>
+                      </tr>
+                      { }
+                      <tr className="border-t bg-slate-50/50 dark:bg-zinc-900/50">
+                        <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100 text-right text-xs">TOTAL PAID</td>
+                        <td className="px-4 py-3 font-extrabold text-emerald-600 dark:text-emerald-400 text-right text-base">
+                          {receipt.amount.toLocaleString("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                          })}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </ResponsiveDialog>
+    );
+  }
+
+  interface ProjectSubmission {
+    id: string;
+    enrollmentId: string;
+    projectTitle: string;
+    projectUrl: string;
+    comments: string | null;
+    status: "PENDING" | "GRADED";
+    grade: string | null;
+    feedback: string | null;
+    createdAt: string;
+    updatedAt: string;
+    gradedBy?: {
+      name: string;
+    } | null;
+  }
+
+  interface EditSubmissionDialogProps {
+    enrollmentId: string;
+    submission: ProjectSubmission;
+    open: boolean;
+    onClose: () => void;
+  }
+
+  function EditSubmissionDialog_2({
+    enrollmentId,
+    submission,
+    open,
+    onClose,
+  }: EditSubmissionDialogProps) {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+    } = useForm<TEditSubmissionInput>({
+      resolver: zodResolver(editSubmissionSchema),
+      defaultValues: {
+        projectTitle: submission.projectTitle,
+        projectUrl: submission.projectUrl,
+        comments: submission.comments || "",
+      },
+    });
+
+    const { mutate: updateSubmission, isPending } =
+      StudentDataHook.useUpdateSubmission({
+        onSuccess: () => onClose(),
+      });
+
+    const onSubmit = (values: TEditSubmissionInput) => {
+      updateSubmission({
+        enrollmentId,
+        submissionId: submission.id,
+        payload: {
+          projectTitle: values.projectTitle,
+          projectUrl: values.projectUrl,
+          comments: values.comments,
+        },
+      });
+    };
+
+    return (
+      <Dialog_4 open={open} onOpenChange={(o) => !o && onClose()}>
+        <DialogContent className="bg-card max-w-md rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-foreground text-base font-bold">
+              Edit Submission
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs">
+              Update the details of this project submission.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="edit-project-title"
+                className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+              >
+                Project Title
+              </Label>
+              <Input
+                id="edit-project-title"
+                className={`h-10 ${errors.projectTitle ? "border-red-400 focus-visible:ring-red-300" : ""}`}
+                {...register("projectTitle")}
+              />
+              {errors.projectTitle && (
+                <p className="text-xs text-red-500">
+                  {errors.projectTitle.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="edit-project-url"
+                className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+              >
+                Project Link (GitHub / Drive URL)
+              </Label>
+              <Input
+                id="edit-project-url"
+                className={`h-10 ${errors.projectUrl ? "border-red-400 focus-visible:ring-red-300" : ""}`}
+                {...register("projectUrl")}
+              />
+              {errors.projectUrl && (
+                <p className="text-xs text-red-500">
+                  {errors.projectUrl.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="edit-project-comments"
+                className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+              >
+                Comments (Optional)
+              </Label>
+              <Textarea
+                id="edit-project-comments"
+                rows={4}
+                className="resize-none"
+                {...register("comments")}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                disabled={isPending}
+                className="font-semibold"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isPending}
+                className="gap-1.5 font-semibold"
+              >
+                {isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Save className="size-3.5" />
+                )}
+                {isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog_4>
+    );
+  }
+
+  function SubmissionDetailDialog_2({
+    enrollmentId,
+    internshipTitle,
+    open,
+    onClose,
+  }: SubmissionDetailDialogProps) {
+    const {
+      data: response,
+      isLoading,
+      isError,
+    } = StudentDataHook.useEnrollmentSubmissions(enrollmentId, {
+      enabled: open && !!enrollmentId,
+    });
+
+    const submissions = response?.data || [];
+
+    const [editingSubmission, setEditingSubmission] =
+      React_3.useState<ProjectSubmission_2 | null>(null);
+    const [deletingSubmission, setDeletingSubmission] =
+      React_3.useState<ProjectSubmission_2 | null>(null);
+
+    const { mutate: deleteSubmission, isPending: isDeleting } =
+      StudentDataHook.useDeleteSubmission({
+        onSuccess: () => setDeletingSubmission(null),
+      });
+
+    return (
+      <Dialog_7 open={open} onOpenChange={(o) => !o && onClose()}>
+        <DialogContent className="bg-card max-w-lg rounded-2xl p-4">
+          <DialogHeader>
+            <DialogTitle className="text-foreground text-base font-bold">
+              Submitted Projects
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs">
+              All project submissions you've made for{" "}
+              <span className="text-foreground font-semibold">
+                {internshipTitle}
+              </span>
+              .
+            </DialogDescription>
+          </DialogHeader>
+
           {isLoading ? (
             <div className="flex flex-col items-center justify-center space-y-3 py-12">
               <Loader2 className="text-primary size-8 animate-spin" />
               <p className="text-muted-foreground text-xs font-medium">
-                Loading receipt details...
+                Loading submission details...
               </p>
             </div>
-          ) : isError || !receipt ? (
+          ) : isError ? (
             <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
-              Failed to load receipt details. Please try again.
+              Failed to load submission details. Please try again.
+            </div>
+          ) : submissions.length === 0 ? (
+            <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
+              No project has been submitted yet.
             </div>
           ) : (
-            <div>
-              <div id="printable-invoice" className="bg-white p-6 text-slate-800 dark:bg-zinc-950 dark:text-slate-200">
-                {}
-                <div className="flex items-center justify-between border-b pb-6 mb-6 gap-4">
-                  {}
-                  <div className="w-1/4 flex justify-start">
-                    <img
-                      src={typeof window !== "undefined" ? window.location.origin + "/logo.png" : "/logo.png"}
-                      alt="Logo"
-                      className="h-14 object-contain"
-                    />
-                  </div>
-
-                  {}
-                  <div className="w-2/4 text-center">
-                    <h1 className="text-2xl font-extrabold tracking-tight text-emerald-600">
-                      IIInternship
-                    </h1>
-                    <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase mt-0.5">
-                      Empowering Global Careers
-                    </p>
-                  </div>
-
-                  {}
-                  <div className="w-1/4 text-right text-xs">
-                    <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider inline-block mb-1">
-                      Receipt
-                    </span>
-                    <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">
-                      No: <span className="font-mono text-slate-900 dark:text-slate-100">{"REC-" + receipt.id.slice(-8).toUpperCase()}</span>
-                    </p>
-                    <p className="text-[9px] text-slate-500 mt-0.5">
-                      Date: <span className="text-slate-800 dark:text-slate-200 font-medium">{new Date(receipt.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-                      })}</span>
-                    </p>
-                  </div>
-                </div>
-
-                {}
-                <div className="flex justify-between items-start border-b pb-6 mb-6 text-xs gap-4">
-                  <div className="w-1/2 text-left">
-                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Billed To
-                    </h3>
-                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                      {receipt.user?.name || "Student"}
-                    </p>
-                    <p className="text-slate-500 mt-1">{receipt.user?.email || "N/A"}</p>
-                  </div>
-                  <div className="w-1/2 text-right">
-                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Payment Details
-                    </h3>
-                    <p className="text-slate-500">
-                      Order ID: <span className="text-slate-800 dark:text-slate-100 font-mono font-medium">{receipt.razorpayOrderId}</span>
-                    </p>
-                    {receipt.razorpayPaymentId && (
-                      <p className="text-slate-500 mt-1">
-                        Payment ID: <span className="text-slate-800 dark:text-slate-100 font-mono font-medium">{receipt.razorpayPaymentId}</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {}
-                <div className="mb-6">
-                  <div className="border rounded-lg overflow-hidden shadow-none">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="bg-slate-50 dark:bg-zinc-900 border-b">
-                          <th className="px-4 py-3 font-bold text-slate-500">PROGRAM DETAILS</th>
-                          <th className="px-4 py-3 font-bold text-slate-500 text-right">AMOUNT (INR)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="px-4 py-4">
-                            <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">
-                              {receipt.internship?.title || "Internship Enrollment"}
-                            </p>
-                            <p className="text-[10px] text-slate-400 mt-1">
-                              {receipt.internship?.companyName || "N/A"}
-                            </p>
-                          </td>
-                          <td className="px-4 py-4 text-right font-bold text-slate-800 dark:text-slate-100 text-base">
-                            {receipt.amount.toLocaleString("en-IN", {
-                              style: "currency",
-                              currency: "INR",
-                            })}
-                          </td>
-                        </tr>
-                        {}
-                        <tr className="border-t bg-slate-50/50 dark:bg-zinc-900/50">
-                          <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100 text-right text-xs">TOTAL PAID</td>
-                          <td className="px-4 py-3 font-extrabold text-emerald-600 dark:text-emerald-400 text-right text-base">
-                            {receipt.amount.toLocaleString("en-IN", {
-                              style: "currency",
-                              currency: "INR",
-                            })}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </ResponsiveDialog>
-      );
-    }
-
-    interface ProjectSubmission {
-      id: string;
-      enrollmentId: string;
-      projectTitle: string;
-      projectUrl: string;
-      comments: string | null;
-      status: "PENDING" | "GRADED";
-      grade: string | null;
-      feedback: string | null;
-      createdAt: string;
-      updatedAt: string;
-      gradedBy?: {
-        name: string;
-      } | null;
-    }
-
-    interface EditSubmissionDialogProps {
-      enrollmentId: string;
-      submission: ProjectSubmission;
-      open: boolean;
-      onClose: () => void;
-    }
-
-    function EditSubmissionDialog_2({
-      enrollmentId,
-      submission,
-      open,
-      onClose,
-    }: EditSubmissionDialogProps) {
-      const {
-        register,
-        handleSubmit,
-        formState: { errors },
-      } = useForm<TEditSubmissionInput>({
-        resolver: zodResolver(editSubmissionSchema),
-        defaultValues: {
-          projectTitle: submission.projectTitle,
-          projectUrl: submission.projectUrl,
-          comments: submission.comments || "",
-        },
-      });
-
-      const { mutate: updateSubmission, isPending } =
-        StudentDataHook.useUpdateSubmission({
-          onSuccess: () => onClose(),
-        });
-
-      const onSubmit = (values: TEditSubmissionInput) => {
-        updateSubmission({
-          enrollmentId,
-          submissionId: submission.id,
-          payload: {
-            projectTitle: values.projectTitle,
-            projectUrl: values.projectUrl,
-            comments: values.comments,
-          },
-        });
-      };
-
-      return (
-        <Dialog_4 open={open} onOpenChange={(o) => !o && onClose()}>
-          <DialogContent className="bg-card max-w-md rounded-2xl p-6">
-            <DialogHeader>
-              <DialogTitle className="text-foreground text-base font-bold">
-                Edit Submission
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-xs">
-                Update the details of this project submission.
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="edit-project-title"
-                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
+            <div className="max-h-[65vh] space-y-3 overflow-y-auto pr-1 pt-2">
+              {submissions.map((submission, idx) => (
+                <div
+                  key={submission.id}
+                  className="border-border/60 space-y-2 rounded-xl border p-2"
                 >
-                  Project Title
-                </Label>
-                <Input
-                  id="edit-project-title"
-                  className={`h-10 ${errors.projectTitle ? "border-red-400 focus-visible:ring-red-300" : ""}`}
-                  {...register("projectTitle")}
-                />
-                {errors.projectTitle && (
-                  <p className="text-xs text-red-500">
-                    {errors.projectTitle.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="edit-project-url"
-                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
-                >
-                  Project Link (GitHub / Drive URL)
-                </Label>
-                <Input
-                  id="edit-project-url"
-                  className={`h-10 ${errors.projectUrl ? "border-red-400 focus-visible:ring-red-300" : ""}`}
-                  {...register("projectUrl")}
-                />
-                {errors.projectUrl && (
-                  <p className="text-xs text-red-500">
-                    {errors.projectUrl.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="edit-project-comments"
-                  className="text-muted-foreground text-xs font-semibold uppercase tracking-wider"
-                >
-                  Comments (Optional)
-                </Label>
-                <Textarea
-                  id="edit-project-comments"
-                  rows={4}
-                  className="resize-none"
-                  {...register("comments")}
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onClose}
-                  disabled={isPending}
-                  className="font-semibold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isPending}
-                  className="gap-1.5 font-semibold"
-                >
-                  {isPending ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <Save className="size-3.5" />
-                  )}
-                  {isPending ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog_4>
-      );
-    }
-
-    function SubmissionDetailDialog_2({
-      enrollmentId,
-      internshipTitle,
-      open,
-      onClose,
-    }: SubmissionDetailDialogProps) {
-      const {
-        data: response,
-        isLoading,
-        isError,
-      } = StudentDataHook.useEnrollmentSubmissions(enrollmentId, {
-        enabled: open && !!enrollmentId,
-      });
-
-      const submissions = response?.data || [];
-
-      const [editingSubmission, setEditingSubmission] =
-        React_3.useState<ProjectSubmission_2 | null>(null);
-      const [deletingSubmission, setDeletingSubmission] =
-        React_3.useState<ProjectSubmission_2 | null>(null);
-
-      const { mutate: deleteSubmission, isPending: isDeleting } =
-        StudentDataHook.useDeleteSubmission({
-          onSuccess: () => setDeletingSubmission(null),
-        });
-
-      return (
-        <Dialog_7 open={open} onOpenChange={(o) => !o && onClose()}>
-          <DialogContent className="bg-card max-w-lg rounded-2xl p-4">
-            <DialogHeader>
-              <DialogTitle className="text-foreground text-base font-bold">
-                Submitted Projects
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-xs">
-                All project submissions you've made for{" "}
-                <span className="text-foreground font-semibold">
-                  {internshipTitle}
-                </span>
-                .
-              </DialogDescription>
-            </DialogHeader>
-
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center space-y-3 py-12">
-                <Loader2 className="text-primary size-8 animate-spin" />
-                <p className="text-muted-foreground text-xs font-medium">
-                  Loading submission details...
-                </p>
-              </div>
-            ) : isError ? (
-              <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
-                Failed to load submission details. Please try again.
-              </div>
-            ) : submissions.length === 0 ? (
-              <div className="text-muted-foreground py-12 text-center text-sm font-medium italic">
-                No project has been submitted yet.
-              </div>
-            ) : (
-              <div className="max-h-[65vh] space-y-3 overflow-y-auto pr-1 pt-2">
-                {submissions.map((submission, idx) => (
-                  <div
-                    key={submission.id}
-                    className="border-border/60 space-y-2 rounded-xl border p-2"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                          Submission {submissions.length - idx}
-                        </span>
-                        <span className="text-foreground text-sm font-semibold">
-                          {submission.projectTitle}
-                        </span>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1.5">
-                        {submission.status === "GRADED" && (
-                          <Badge
-                            variant="outline"
-                            className="border-emerald-500/20 bg-emerald-500/5 text-[10px] font-bold text-emerald-600"
-                          >
-                            GRADED
-                          </Badge>
-                        )}
-                        {submission.status !== "GRADED" && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 cursor-pointer"
-                              title="Edit submission"
-                              onClick={() => setEditingSubmission(submission)}
-                            >
-                              <Pencil className="size-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive h-7 w-7 cursor-pointer"
-                              title="Delete submission"
-                              onClick={() => setDeletingSubmission(submission)}
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                        Submission {submissions.length - idx}
+                      </span>
+                      <span className="text-foreground text-sm font-semibold">
+                        {submission.projectTitle}
+                      </span>
                     </div>
-
-                    <div className="border-border/50 bg-muted/10 flex items-start gap-2 rounded-lg border p-1.5">
-                      <FileText className="text-muted-foreground mt-0.5 size-4 shrink-0" />
-                      <div className="min-w-0">
-                        <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                          Project Link
-                        </span>
-                        <a
-                          href={submission.projectUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary flex items-center gap-1 truncate text-xs font-semibold hover:underline"
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {submission.status === "GRADED" && (
+                        <Badge
+                          variant="outline"
+                          className="border-emerald-500/20 bg-emerald-500/5 text-[10px] font-bold text-emerald-600"
                         >
-                          {submission.projectUrl}
-                          <ExternalLink className="size-3 shrink-0" />
-                        </a>
+                          GRADED
+                        </Badge>
+                      )}
+                      {submission.status !== "GRADED" && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 cursor-pointer"
+                            title="Edit submission"
+                            onClick={() => setEditingSubmission(submission)}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive h-7 w-7 cursor-pointer"
+                            title="Delete submission"
+                            onClick={() => setDeletingSubmission(submission)}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-border/50 bg-muted/10 flex items-start gap-2 rounded-lg border p-1.5">
+                    <FileText className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                        Project Link
+                      </span>
+                      <a
+                        href={submission.projectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary flex items-center gap-1 truncate text-xs font-semibold hover:underline"
+                      >
+                        {submission.projectUrl}
+                        <ExternalLink className="size-3 shrink-0" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {submission.comments && (
+                    <div className="border-border/50 bg-muted/10 flex items-start gap-2 rounded-lg border p-1.5">
+                      <MessageSquare className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                          Your Comments
+                        </span>
+                        <p className="text-foreground text-xs font-medium leading-relaxed">
+                          {submission.comments}
+                        </p>
                       </div>
                     </div>
+                  )}
 
-                    {submission.comments && (
-                      <div className="border-border/50 bg-muted/10 flex items-start gap-2 rounded-lg border p-1.5">
-                        <MessageSquare className="text-muted-foreground mt-0.5 size-4 shrink-0" />
-                        <div className="min-w-0">
-                          <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                            Your Comments
-                          </span>
-                          <p className="text-foreground text-xs font-medium leading-relaxed">
-                            {submission.comments}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {submission.status === "GRADED" && (
-                      <div className="border-primary/20 bg-primary/5 flex items-start gap-2 rounded-lg border p-1.5">
-                        <Award className="text-primary mt-0.5 size-4 shrink-0" />
-                        <div className="min-w-0 space-y-1">
-                          <div className="flex items-center gap-4">
-                            <div>
-                              <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                                Grade
-                              </span>
-                              <span className="text-foreground text-sm font-bold">
-                                {submission.grade || "N/A"}
-                              </span>
-                            </div>
-                            {submission.gradedBy?.name && (
-                              <div>
-                                <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                                  Graded By
-                                </span>
-                                <span className="text-foreground text-xs font-semibold">
-                                  {submission.gradedBy.name}
-                                </span>
-                              </div>
-                            )}
+                  {submission.status === "GRADED" && (
+                    <div className="border-primary/20 bg-primary/5 flex items-start gap-2 rounded-lg border p-1.5">
+                      <Award className="text-primary mt-0.5 size-4 shrink-0" />
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-4">
+                          <div>
+                            <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                              Grade
+                            </span>
+                            <span className="text-foreground text-sm font-bold">
+                              {submission.grade || "N/A"}
+                            </span>
                           </div>
-                          {submission.feedback && (
+                          {submission.gradedBy?.name && (
                             <div>
                               <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
-                                Instructor Feedback
+                                Graded By
                               </span>
-                              <p className="text-foreground text-xs font-medium leading-relaxed">
-                                {submission.feedback}
-                              </p>
+                              <span className="text-foreground text-xs font-semibold">
+                                {submission.gradedBy.name}
+                              </span>
                             </div>
                           )}
                         </div>
+                        {submission.feedback && (
+                          <div>
+                            <span className="text-muted-foreground block text-[9px] font-bold uppercase tracking-wider">
+                              Instructor Feedback
+                            </span>
+                            <p className="text-foreground text-xs font-medium leading-relaxed">
+                              {submission.feedback}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
-
-                    <p className="text-muted-foreground text-[10px] font-medium">
-                      Submitted on {formatHumanReadableDate_5(submission.createdAt)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </DialogContent>
-
-          {}
-          {editingSubmission && (
-            <EditSubmissionDialog_2
-              enrollmentId={enrollmentId}
-              submission={editingSubmission}
-              open={!!editingSubmission}
-              onClose={() => setEditingSubmission(null)}
-            />
-          )}
-
-          {}
-          <AlertDialog
-            open={!!deletingSubmission}
-            onOpenChange={(o) => !o && setDeletingSubmission(null)}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader className="flex flex-col items-center text-center">
-                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive mx-auto">
-                  <Trash2 className="size-4" />
-                </AlertDialogMedia>
-                <AlertDialogTitle className="w-full text-center sm:col-start-auto sm:text-center">
-                  Delete Submission?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-center">
-                  Are you sure you want to permanently delete{" "}
-                  {deletingSubmission ? (
-                    <>
-                      <span className="text-foreground font-semibold">
-                        {deletingSubmission.projectTitle}
-                      </span>
-                    </>
-                  ) : (
-                    "this submission"
+                    </div>
                   )}
-                  ? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter className="flex w-full flex-row gap-3 sm:justify-stretch">
-                <AlertDialogCancel
-                  disabled={isDeleting}
-                  className="flex-1 cursor-pointer"
-                >
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  disabled={isDeleting}
-                  onClick={() =>
-                    deletingSubmission &&
-                    deleteSubmission({
-                      enrollmentId,
-                      submissionId: deletingSubmission.id,
-                    })
-                  }
-                  className="bg-destructive hover:bg-destructive/90 flex-1 cursor-pointer text-white"
-                >
-                  {isDeleting ? <Spinner className="size-4" /> : "Delete"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </Dialog_7>
-      );
-    }
 
-    const ApplicationActions_2: React.FunctionComponent<
-      IApplicationActionsProps
-    > = ({ application }) => {
-      const [showNote, setShowNote] = React.useState(false);
-      const [showSubmit, setShowSubmit] = React.useState(false);
-      const [showDetails, setShowDetails] = React.useState(false);
-      const [showInvoice, setShowInvoice] = React.useState(false);
-      const [showSubmission, setShowSubmission] = React.useState(false);
+                  <p className="text-muted-foreground text-[10px] font-medium">
+                    Submitted on {formatHumanReadableDate_5(submission.createdAt)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
 
-      const canSubmit = !!application.enrollmentId && !application.isCompleted;
-      const hasInvoice = !!application.paymentId;
-      const hasEnrollment = !!application.enrollmentId;
+        { }
+        {editingSubmission && (
+          <EditSubmissionDialog_2
+            enrollmentId={enrollmentId}
+            submission={editingSubmission}
+            open={!!editingSubmission}
+            onClose={() => setEditingSubmission(null)}
+          />
+        )}
 
-      return (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center justify-end"
+        { }
+        <AlertDialog
+          open={!!deletingSubmission}
+          onOpenChange={(o) => !o && setDeletingSubmission(null)}
         >
-          <DropdownMenu_7>
-            <DropdownMenuTrigger_7 asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 cursor-pointer p-0"
+          <AlertDialogContent>
+            <AlertDialogHeader className="flex flex-col items-center text-center">
+              <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive mx-auto">
+                <Trash2 className="size-4" />
+              </AlertDialogMedia>
+              <AlertDialogTitle className="w-full text-center sm:col-start-auto sm:text-center">
+                Delete Submission?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center">
+                Are you sure you want to permanently delete{" "}
+                {deletingSubmission ? (
+                  <>
+                    <span className="text-foreground font-semibold">
+                      {deletingSubmission.projectTitle}
+                    </span>
+                  </>
+                ) : (
+                  "this submission"
+                )}
+                ? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex w-full flex-row gap-3 sm:justify-stretch">
+              <AlertDialogCancel
+                disabled={isDeleting}
+                className="flex-1 cursor-pointer"
               >
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger_7>
-            <DropdownMenuContent align="end" className="w-48">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isDeleting}
+                onClick={() =>
+                  deletingSubmission &&
+                  deleteSubmission({
+                    enrollmentId,
+                    submissionId: deletingSubmission.id,
+                  })
+                }
+                className="bg-destructive hover:bg-destructive/90 flex-1 cursor-pointer text-white"
+              >
+                {isDeleting ? <Spinner className="size-4" /> : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </Dialog_7>
+    );
+  }
+
+  const ApplicationActions_2: React.FunctionComponent<
+    IApplicationActionsProps
+  > = ({ application }) => {
+    const [showNote, setShowNote] = React.useState(false);
+    const [showSubmit, setShowSubmit] = React.useState(false);
+    const [showDetails, setShowDetails] = React.useState(false);
+    const [showInvoice, setShowInvoice] = React.useState(false);
+    const [showSubmission, setShowSubmission] = React.useState(false);
+
+    const canSubmit = !!application.enrollmentId && !application.isCompleted;
+    const hasInvoice = !!application.paymentId;
+    const hasEnrollment = !!application.enrollmentId;
+    const isApproved = application.status === "APPROVED";
+    const [isDownloadingOffer, setIsDownloadingOffer] = React.useState(false);
+
+    const handleDownloadOfferLetter = async () => {
+      if (application.status === "REJECTED") {
+        toast.error("Reject वाले स्टूडेंट को इंटर्नशिप ऑफर लेटर जारी नहीं किया जाएगा।");
+        return;
+      }
+      if (application.status !== "APPROVED") {
+        toast.error("इंटर्नशिप ऑफर लेटर केवल स्वीकृत (Approved) आवेदनों के लिए जारी किया जाता है।");
+        return;
+      }
+      try {
+        setIsDownloadingOffer(true);
+        toast.loading("Downloading Offer Letter...");
+        const res = await axiosInstance.get(
+          `/api/v1/internships/${application.internship.id}/applications/${application.id}/offer-letter/download`,
+          { responseType: "blob" },
+        );
+        const blob = new Blob([res.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const safeName = (application.studentName || "Student")
+          .replace(/[^a-zA-Z0-9_\-]/g, "_")
+          .trim();
+        a.download = `${safeName}_Internship_Offer_Letter.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        toast.dismiss();
+        toast.success("Offer Letter downloaded successfully!");
+      } catch (err: any) {
+        toast.dismiss();
+        toast.error(
+          err?.response?.data?.error?.message ||
+            "Failed to download offer letter.",
+        );
+      } finally {
+        setIsDownloadingOffer(false);
+      }
+    };
+
+    return (
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex items-center justify-end"
+      >
+        <DropdownMenu_7>
+          <DropdownMenuTrigger_7 asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 cursor-pointer p-0"
+            >
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger_7>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={() => setShowDetails(true)}
+              className="cursor-pointer"
+            >
+              <Info className="mr-2 h-3.5 w-3.5" />
+              <span>Application Details</span>
+            </DropdownMenuItem>
+
+            {isApproved && (
               <DropdownMenuItem
-                onClick={() => setShowDetails(true)}
+                disabled={isDownloadingOffer}
+                onClick={handleDownloadOfferLetter}
+                className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
+              >
+                <Download className="mr-2 h-3.5 w-3.5 text-emerald-600" />
+                <span>
+                  {isDownloadingOffer ? "Downloading..." : "Offer Letter"}
+                </span>
+              </DropdownMenuItem>
+            )}
+
+            {application.reviewNote && (
+              <DropdownMenuItem
+                onClick={() => setShowNote(true)}
                 className="cursor-pointer"
               >
-                <Info className="mr-2 h-3.5 w-3.5" />
-                <span>Application Details</span>
+                <MessageSquare className="mr-2 h-3.5 w-3.5" />
+                <span>Review Feedback</span>
               </DropdownMenuItem>
+            )}
 
-              {application.reviewNote && (
+            {canSubmit && (
+              <DropdownMenuItem
+                onClick={() => setShowSubmit(true)}
+                className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
+              >
+                <Send className="mr-2 h-3.5 w-3.5 text-emerald-600" />
+                <span>Submit Project</span>
+              </DropdownMenuItem>
+            )}
+
+            {hasEnrollment && (
+              <DropdownMenuItem
+                onClick={() => setShowSubmission(true)}
+                className="cursor-pointer"
+              >
+                <FolderOpen className="mr-2 h-3.5 w-3.5" />
+                <span>Show Submitted Projects</span>
+              </DropdownMenuItem>
+            )}
+
+            {hasInvoice && (
+              <>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => setShowNote(true)}
+                  onClick={() => setShowInvoice(true)}
                   className="cursor-pointer"
                 >
-                  <MessageSquare className="mr-2 h-3.5 w-3.5" />
-                  <span>Review Feedback</span>
+                  <FileText className="text-primary mr-2 h-3.5 w-3.5" />
+                  <span>Payment Invoice</span>
                 </DropdownMenuItem>
-              )}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu_7>
 
-              {canSubmit && (
-                <DropdownMenuItem
-                  onClick={() => setShowSubmit(true)}
-                  className="cursor-pointer font-semibold text-emerald-600 focus:text-emerald-700"
-                >
-                  <Send className="mr-2 h-3.5 w-3.5 text-emerald-600" />
-                  <span>Submit Project</span>
-                </DropdownMenuItem>
-              )}
-
-              {hasEnrollment && (
-                <DropdownMenuItem
-                  onClick={() => setShowSubmission(true)}
-                  className="cursor-pointer"
-                >
-                  <FolderOpen className="mr-2 h-3.5 w-3.5" />
-                  <span>Show Submitted Projects</span>
-                </DropdownMenuItem>
-              )}
-
-              {hasInvoice && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => setShowInvoice(true)}
-                    className="cursor-pointer"
-                  >
-                    <FileText className="text-primary mr-2 h-3.5 w-3.5" />
-                    <span>Payment Invoice</span>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu_7>
-
-          {}
-          {showDetails && (
-            <StudentApplicationDetailDialog
-              application={application}
-              open={showDetails}
-              onClose={() => setShowDetails(false)}
-            />
-          )}
-
-          {}
-          {showNote && (
-            <ReviewNoteDialog
-              note={application.reviewNote}
-              open={showNote}
-              onClose={() => setShowNote(false)}
-            />
-          )}
-
-          {}
-          {showSubmit && (
-            <ProjectSubmissionDialog_2
-              enrollmentId={application.enrollmentId}
-              internshipTitle={application.internship.title}
-              open={showSubmit}
-              onClose={() => setShowSubmit(false)}
-            />
-          )}
-
-          {}
-          {showInvoice && (
-            <ReceiptDialog_3
-              paymentId={application.paymentId}
-              open={showInvoice}
-              onClose={() => setShowInvoice(false)}
-            />
-          )}
-
-          {}
-          {showSubmission && (
-            <SubmissionDetailDialog_2
-              enrollmentId={application.enrollmentId}
-              internshipTitle={application.internship.title}
-              open={showSubmission}
-              onClose={() => setShowSubmission(false)}
-            />
-          )}
-        </div>
-      );
-    };
-
-    const columns_3 = (): ColumnDef_2<InternshipApplication>[] => [
-      {
-        id: "internshipId",
-        header: "Internship ID",
-        cell: ({ row }) => (
-          <InternshipIdChip
-            code={row.original.internship.id}
-            companyName={row.original.internship.companyName}
+        { }
+        {showDetails && (
+          <StudentApplicationDetailDialog
+            application={application}
+            open={showDetails}
+            onClose={() => setShowDetails(false)}
           />
-        ),
-      },
-      {
-        id: "applicationCode",
-        header: "Application ID",
-        cell: ({ row }) => {
-          return (
-            <ApplicationIdChip
-              id={row.original.id}
-              createdAt={row.original.appliedAt}
-            />
-          );
-        },
-      },
-      {
-        id: "internshipName",
-        header: "Internship Name",
-        cell: ({ row }) => (
-          <span className="text-foreground font-semibold">
-            {row.original.internship.title}
-          </span>
-        ),
-      },
-      {
-        id: "internshipAddress",
-        header: "Address",
-        cell: ({ row }) => {
-          const app = row.original as any;
-          const reg = app.student?.studentRegistration;
-          const studentAddress = reg
-            ? [
-                reg.localAddressLocal,
-                reg.localAddressDistrict,
-                reg.localAddressState,
-              ]
-                .filter(Boolean)
-                .join(", ")
-            : "";
-          const displayAddress =
-            app.address || studentAddress || app.internship?.location || "Remote";
-          return (
-            <span className="text-muted-foreground text-xs">{displayAddress}</span>
-          );
-        },
-      },
-      {
-        id: "typeMode",
-        header: "Type & Mode",
-        cell: ({ row }) => {
-          const { type, mode } = row.original.internship;
-          if (!type && !mode)
-            return <span className="text-muted-foreground">—</span>;
+        )}
 
-          const typeLabel =
-            type === "PAID" ? "Paid" : type === "STIPEND" ? "Stipend" : "Free";
-          const modeLabel =
-            mode === "ONLINE"
-              ? "Virtual"
-              : mode === "HYBRID"
-                ? "Hybrid"
-                : "In-Office";
+        { }
+        {showNote && (
+          <ReviewNoteDialog
+            note={application.reviewNote}
+            open={showNote}
+            onClose={() => setShowNote(false)}
+          />
+        )}
 
-          return (
-            <div className="flex flex-wrap gap-1">
-              {type && (
-                <span className="inline-block rounded-md border border-emerald-100 bg-emerald-50/50 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:border-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-400">
-                  {typeLabel}
-                </span>
-              )}
-              {mode && (
-                <span className="inline-block rounded-md border border-purple-100 bg-purple-50/50 px-2 py-0.5 text-[10px] font-bold text-purple-600 dark:border-purple-950 dark:bg-purple-950/30 dark:text-purple-400">
-                  {modeLabel}
-                </span>
-              )}
-            </div>
-          );
-        },
+        { }
+        {showSubmit && (
+          <ProjectSubmissionDialog_2
+            enrollmentId={application.enrollmentId}
+            internshipTitle={application.internship.title}
+            open={showSubmit}
+            onClose={() => setShowSubmit(false)}
+          />
+        )}
+
+        { }
+        {showInvoice && (
+          <ReceiptDialog_3
+            paymentId={application.paymentId}
+            open={showInvoice}
+            onClose={() => setShowInvoice(false)}
+          />
+        )}
+
+        { }
+        {showSubmission && (
+          <SubmissionDetailDialog_2
+            enrollmentId={application.enrollmentId}
+            internshipTitle={application.internship.title}
+            open={showSubmission}
+            onClose={() => setShowSubmission(false)}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const columns_3 = (): ColumnDef_2<InternshipApplication>[] => [
+    {
+      id: "internshipId",
+      header: "Internship ID",
+      cell: ({ row }) => (
+        <InternshipIdChip
+          code={row.original.internship.id}
+          companyName={row.original.internship.companyName}
+        />
+      ),
+    },
+    {
+      id: "applicationCode",
+      header: "Application ID",
+      cell: ({ row }) => {
+        return (
+          <ApplicationIdChip
+            id={row.original.id}
+            createdAt={row.original.appliedAt}
+          />
+        );
       },
-      {
-        id: "studentName",
-        header: "Student Name",
-        cell: ({ row }) => (
-          <span className="text-foreground font-semibold">
-            {(row.original as any).studentName || "Student"}
-          </span>
-        ),
+    },
+    {
+      id: "internshipName",
+      header: "Internship Name",
+      cell: ({ row }) => (
+        <span className="text-foreground font-semibold">
+          {row.original.internship.title}
+        </span>
+      ),
+    },
+    {
+      id: "internshipAddress",
+      header: "Address",
+      cell: ({ row }) => {
+        const app = row.original as any;
+        const reg = app.student?.studentRegistration;
+        const studentAddress = reg
+          ? [
+            reg.localAddressLocal,
+            reg.localAddressDistrict,
+            reg.localAddressState,
+          ]
+            .filter(Boolean)
+            .join(", ")
+          : "";
+        const displayAddress =
+          app.address || studentAddress || app.internship?.location || "Remote";
+        return (
+          <span className="text-muted-foreground text-xs">{displayAddress}</span>
+        );
       },
-      {
-        accessorKey: "appliedAt",
-        header: "Applied Date",
-        cell: ({ row }) => (
-          <span className="text-muted-foreground text-xs">
-            {formatHumanReadableDate_14(row.original.appliedAt)}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => <StatusChip_12 status={row.original.status} />,
-      },
-      {
-        id: "actions",
-        header: () => <div className="text-right">Actions</div>,
-        cell: ({ row }) => (
-          <div className="flex justify-end">
-            <ApplicationActions_2 application={row.original} />
+    },
+    {
+      id: "typeMode",
+      header: "Type & Mode",
+      cell: ({ row }) => {
+        const { type, mode } = row.original.internship;
+        if (!type && !mode)
+          return <span className="text-muted-foreground">—</span>;
+
+        const typeLabel =
+          type === "PAID" ? "Paid" : type === "STIPEND" ? "Stipend" : "Free";
+        const modeLabel =
+          mode === "ONLINE"
+            ? "Virtual"
+            : mode === "HYBRID"
+              ? "Hybrid"
+              : "In-Office";
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {type && (
+              <span className="inline-block rounded-md border border-emerald-100 bg-emerald-50/50 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:border-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-400">
+                {typeLabel}
+              </span>
+            )}
+            {mode && (
+              <span className="inline-block rounded-md border border-purple-100 bg-purple-50/50 px-2 py-0.5 text-[10px] font-bold text-purple-600 dark:border-purple-950 dark:bg-purple-950/30 dark:text-purple-400">
+                {modeLabel}
+              </span>
+            )}
           </div>
-        ),
-        enableSorting: false,
-        enableHiding: false,
+        );
       },
-    ];
-
-    const ApplicationsListingTable = () => {
-      const searchParams = useSearchParams();
-
-          const page = Number(searchParams?.get("page")) || 1;
-      const limit = Number(searchParams?.get("size")) || 10;
-      const search = (searchParams?.get("filter") || "").toLowerCase();
-      const status = searchParams?.get("status")?.split(",")[0] || undefined;
-
-      const [meta, setMeta] = useState<TMeta_9>({ total: 0, limit, page });
-
-      const { user } = useAuth();
-      const studentName = user?.name || "Student";
-
-      const { data, isLoading: isLoadingApps } =
-        StudentDataHook.useMyApplications();
-      const { data: internshipsData, isLoading: isLoadingInts } =
-        StudentDataHook.useInternships();
-      const { data: enrollsData, isLoading: isLoadingEnrolls } =
-        StudentDataHook.useMyEnrollments();
-      const { data: paymentsData, isLoading: isLoadingPayments } =
-        StudentDataHook.useMyPayments();
-
-      const isLoading =
-        isLoadingApps || isLoadingInts || isLoadingEnrolls || isLoadingPayments;
-
-      const allApplications = useMemo<InternshipApplication[]>(
-        () => data?.data ?? [],
-        [data],
-      );
-
-      const internships = useMemo(
-        () => internshipsData?.data ?? [],
-        [internshipsData],
-      );
-      const enrollments = useMemo(() => enrollsData?.data ?? [], [enrollsData]);
-      const payments = useMemo(() => paymentsData?.data ?? [], [paymentsData]);
-
-      const enrichedApplications = useMemo(() => {
-        return allApplications.map((app) => {
-          const fullInternship = internships.find(
-            (i) => i.id === app.internship.id,
-          );
-          const enrollment = enrollments.find(
-            (e) => e.internship.id === app.internship.id,
-          );
-          const payment = payments.find(
-            (p) => p.internshipId === app.internship.id && p.status === "COMPLETED",
-          );
-          return {
-            ...app,
-            studentName: app.studentName || studentName,
-            address:
-              app.address ||
-              fullInternship?.location ||
-              app.internship?.location ||
-              "Remote",
-            enrollmentId: enrollment?.id,
-            isCompleted: !!enrollment?.completedAt,
-            paymentId: payment?.id,
-            internship: {
-              ...app.internship,
-              ...fullInternship,
-            },
-          };
-        }) as any[];
-      }, [allApplications, internships, enrollments, payments, studentName]);
-
-      const filteredList = useMemo(() => {
-        return enrichedApplications.filter((app) => {
-          const matchesStatus = !status || app.status === status;
-          const formattedId = formatInternshipCode_6(
-            app.internship.id,
-            app.internship.companyName,
-          );
-          const matchesSearch =
-            !search ||
-            app.internship.id?.toLowerCase().includes(search) ||
-            formattedId.toLowerCase().includes(search) ||
-            app.internship.title?.toLowerCase().includes(search) ||
-            app.internship.companyName?.toLowerCase().includes(search);
-          return matchesStatus && matchesSearch;
-        });
-      }, [enrichedApplications, search, status]);
-
-      const paginatedList = useMemo(
-        () => filteredList.slice((page - 1) * limit, page * limit),
-        [filteredList, page, limit],
-      );
-
-      useEffect(() => {
-        setMeta((prev) => ({ ...prev, page, limit, total: filteredList.length }));
-      }, [filteredList.length, page, limit]);
-
-      const sidebarContent = useMemo(() => <ApplicationsSidebarFilters_2 />, []);
-
-      return (
-        <div>
-          <PageHeaderLayout>
-            <div className="flex w-full flex-col gap-4">
-              <Heading
-                title="My Applications"
-                description="Review the status of all your internship applications."
-              />
-            </div>
-          </PageHeaderLayout>
-
-          <FilterLayout>{sidebarContent}</FilterLayout>
-
-          <div className="w-full min-w-0">
-            <DataTable
-              isLoading={isLoading}
-              columns={columns_3()}
-              data={paginatedList}
-              meta={meta}
-              setMeta={setMeta}
-              toolbar={
-                <div className="flex items-center gap-2">
-                  <SidebarFiltersTrigger />
-                  <DataTableSearch
-                    searchKey="filter"
-                    placeholder="Search by ID, internship or company"
-                    small
-                  />
-                </div>
-              }
-            />
-          </div>
+    },
+    {
+      id: "studentName",
+      header: "Student Name",
+      cell: ({ row }) => (
+        <span className="text-foreground font-semibold">
+          {(row.original as any).studentName || "Student"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "appliedAt",
+      header: "Applied Date",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-xs">
+          {formatHumanReadableDate_14(row.original.appliedAt)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => <StatusChip_12 status={row.original.status} />,
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <ApplicationActions_2 application={row.original} />
         </div>
-      );
-    };
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+  ];
+
+  const ApplicationsListingTable = () => {
+    const searchParams = useSearchParams();
+
+    const page = Number(searchParams?.get("page")) || 1;
+    const limit = Number(searchParams?.get("size")) || 10;
+    const search = (searchParams?.get("filter") || "").toLowerCase();
+    const status = searchParams?.get("status")?.split(",")[0] || undefined;
+
+    const [meta, setMeta] = useState<TMeta_9>({ total: 0, limit, page });
+
+    const { user } = useAuth();
+    const studentName = user?.name || "Student";
+
+    const { data, isLoading: isLoadingApps } =
+      StudentDataHook.useMyApplications();
+    const { data: internshipsData, isLoading: isLoadingInts } =
+      StudentDataHook.useInternships();
+    const { data: enrollsData, isLoading: isLoadingEnrolls } =
+      StudentDataHook.useMyEnrollments();
+    const { data: paymentsData, isLoading: isLoadingPayments } =
+      StudentDataHook.useMyPayments();
+
+    const isLoading =
+      isLoadingApps || isLoadingInts || isLoadingEnrolls || isLoadingPayments;
+
+    const allApplications = useMemo<InternshipApplication[]>(
+      () => data?.data ?? [],
+      [data],
+    );
+
+    const internships = useMemo(
+      () => internshipsData?.data ?? [],
+      [internshipsData],
+    );
+    const enrollments = useMemo(() => enrollsData?.data ?? [], [enrollsData]);
+    const payments = useMemo(() => paymentsData?.data ?? [], [paymentsData]);
+
+    const enrichedApplications = useMemo(() => {
+      return allApplications.map((app) => {
+        const fullInternship = internships.find(
+          (i) => i.id === app.internship.id,
+        );
+        const enrollment = enrollments.find(
+          (e) => e.internship.id === app.internship.id,
+        );
+        const payment = payments.find(
+          (p) => p.internshipId === app.internship.id && p.status === "COMPLETED",
+        );
+        return {
+          ...app,
+          studentName: app.studentName || studentName,
+          address:
+            app.address ||
+            fullInternship?.location ||
+            app.internship?.location ||
+            "Remote",
+          enrollmentId: enrollment?.id,
+          isCompleted: !!enrollment?.completedAt,
+          paymentId: payment?.id,
+          internship: {
+            ...app.internship,
+            ...fullInternship,
+          },
+        };
+      }) as any[];
+    }, [allApplications, internships, enrollments, payments, studentName]);
+
+    const filteredList = useMemo(() => {
+      return enrichedApplications.filter((app) => {
+        const matchesStatus = !status || app.status === status;
+        const formattedId = formatInternshipCode_6(
+          app.internship.id,
+          app.internship.companyName,
+        );
+        const matchesSearch =
+          !search ||
+          app.internship.id?.toLowerCase().includes(search) ||
+          formattedId.toLowerCase().includes(search) ||
+          app.internship.title?.toLowerCase().includes(search) ||
+          app.internship.companyName?.toLowerCase().includes(search);
+        return matchesStatus && matchesSearch;
+      });
+    }, [enrichedApplications, search, status]);
+
+    const paginatedList = useMemo(
+      () => filteredList.slice((page - 1) * limit, page * limit),
+      [filteredList, page, limit],
+    );
+
+    useEffect(() => {
+      setMeta((prev) => ({ ...prev, page, limit, total: filteredList.length }));
+    }, [filteredList.length, page, limit]);
+
+    const sidebarContent = useMemo(() => <ApplicationsSidebarFilters_2 />, []);
+
+    return (
+      <div>
+        <PageHeaderLayout>
+          <div className="flex w-full flex-col gap-4">
+            <Heading
+              title="My Applications"
+              description="Review the status of all your internship applications."
+            />
+          </div>
+        </PageHeaderLayout>
+
+        <FilterLayout>{sidebarContent}</FilterLayout>
+
+        <div className="w-full min-w-0">
+          <DataTable
+            isLoading={isLoading}
+            columns={columns_3()}
+            data={paginatedList}
+            meta={meta}
+            setMeta={setMeta}
+            toolbar={
+              <div className="flex items-center gap-2">
+                <SidebarFiltersTrigger />
+                <DataTableSearch
+                  searchKey="filter"
+                  placeholder="Search by ID, internship or company"
+                  small
+                />
+              </div>
+            }
+          />
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto space-y-6 p-4 px-0">
-      {}
+      { }
       <Suspense fallback={null}>
         <ApplicationsListingTable />
       </Suspense>

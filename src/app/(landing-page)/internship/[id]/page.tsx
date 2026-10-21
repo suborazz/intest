@@ -4,7 +4,7 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React_2, { useState } from "react";
-import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Coffee, GraduationCap as GraduationCap_2, HelpCircle, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Shield, Sparkles as Sparkles_2, Terminal, User, Check, Maximize2, Eye, Download, X, ExternalLink } from "lucide-react";
+import { Award, BookOpen, Briefcase as Briefcase_2, Building as Building_2, Calendar, CheckCircle2, Clock as Clock_2, Clock, Coffee, GraduationCap as GraduationCap_2, HelpCircle, Key, Layers, MapPin as MapPin_2, Phone as Phone_2, Send, Share2, Shield, Sparkles as Sparkles_2, Terminal, User, Check, Maximize2, Eye, Download, X, ExternalLink } from "lucide-react";
 import * as React from "react";
 import { clsx, ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -27,6 +27,7 @@ import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useF
 import { Drawer as DrawerPrimitive } from "vaul";
 import { FormFieldContext, FormItemContext } from "@/x/cd5a8b8f";
 import { axiosInstance } from "@/x/acfb3dca";
+import { isDateExpired } from "@/x/a85a9c0c";
 const Form = FormProvider;
 
 const useFormField = () => {
@@ -3262,7 +3263,12 @@ export default function InternshipDetailPage() {
 
               {/* Call-to-action buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                {internship.type === "Running" ? (
+                {internship.isExpired ? (
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-6 py-3 text-sm font-bold text-amber-700 dark:text-amber-400">
+                    <Clock className="size-4" />
+                    <span>Applications Closed (Archived)</span>
+                  </div>
+                ) : internship.type === "Running" ? (
                   <Link
                     href="/sign-up?role=STUDENT"
                     className="bg-linear-to-r from-emerald-600 via-teal-600 to-primary hover:opacity-95 flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-center font-bold text-white shadow-md shadow-emerald-500/20 transition-all duration-200 hover:scale-[1.02]"
@@ -3513,7 +3519,12 @@ export default function InternshipDetailPage() {
             </div>
 
             {}
-            {internship.type === "Running" ? (
+            {internship.isExpired ? (
+              <div className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 py-3 text-center text-xs font-bold text-amber-700 dark:text-amber-400">
+                <Clock className="size-4" />
+                <span>Applications Closed (Archived)</span>
+              </div>
+            ) : internship.type === "Running" ? (
               <Link
                 href="/sign-up?role=STUDENT"
                 className="bg-linear-to-r from-primary hover:from-primary/95 mt-4 flex w-full items-center justify-center gap-2 rounded-xl to-emerald-500 py-3 text-center font-bold text-white transition-all duration-300 hover:scale-[1.01] hover:to-emerald-500/95"
@@ -3726,6 +3737,7 @@ export default function InternshipDetailPage() {
     qualification:
       (foundRaw as unknown as Record<string, string>).qualification ||
       "B.Tech/M.Tech (CS/IT) or equivalent",
+    isExpired: isDateExpired((foundRaw as any).lastDate) || (foundRaw as any).isActive === false,
   };
 
   return (

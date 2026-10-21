@@ -154,6 +154,52 @@ export async function GET(
     });
 
     if (!enrollment) {
+      const interest = await prisma.internshipInterest.findFirst({
+        where: { id: enrollmentId },
+        include: { internship: { select: { instructorId: true } } },
+      });
+
+      if (interest) {
+        const isAssignedInstructor =
+          requesterRole === "INSTRUCTOR" &&
+          interest.internship.instructorId === requesterId;
+        const isAdmin = requesterRole === "SUPER_ADMIN";
+
+        if (!isAssignedInstructor && !isAdmin) {
+          return errorResponse(
+            "FORBIDDEN",
+            "Access denied. You do not have permission to view these submissions.",
+            { status: HTTP_2.FORBIDDEN },
+          );
+        }
+
+        const user = await prisma.user.findFirst({
+          where: { email: { equals: interest.email, mode: "insensitive" } },
+        });
+        if (user) {
+          const linkedEnrollment = await prisma.enrollment.findUnique({
+            where: {
+              userId_internshipId: {
+                userId: user.id,
+                internshipId: interest.internshipId,
+              },
+            },
+          });
+          if (linkedEnrollment) {
+            const submissions = await prisma.projectSubmission.findMany({
+              where: { enrollmentId: linkedEnrollment.id },
+              include: {
+                gradedBy: { select: { id: true, name: true } },
+              },
+              orderBy: { createdAt: "desc" },
+            });
+            return successResponse(submissions);
+          }
+        }
+
+        return successResponse([]);
+      }
+
       return errorResponse("NOT_FOUND", "Enrollment not found.", {
         status: HTTP_2.NOT_FOUND,
       });

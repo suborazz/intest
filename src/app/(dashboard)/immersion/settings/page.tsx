@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { Eye, EyeOff, Loader2, Lock, Save, ShieldCheck, User } from "lucide-react";
 import React_3 from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z_3 from "zod";
@@ -88,13 +88,23 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
+function Input({ className, type, icon: Icon, onFocus, ...props }: InputProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      try {
+        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch {}
+    }, 180);
+    onFocus?.(e);
+  };
+
   const input = (
     <input
       type={type}
       data-slot="input"
+      onFocus={handleFocus}
       className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         Icon && "pl-8",
         className,
       )}
@@ -669,6 +679,28 @@ interface IUserService {
 
 
 export default function ImmersionSettingsPage() {
+  // Auto-scroll focused inputs into view on mobile keyboard appearance
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.getAttribute("role") === "combobox")
+      ) {
+        setTimeout(() => {
+          try {
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+          } catch {}
+        }, 200);
+      }
+    };
+    window.addEventListener("focusin", handleFocusIn);
+    return () => window.removeEventListener("focusin", handleFocusIn);
+  }, []);
+
     const AuthService: IAuthService = {
         async login(payload) {
         const response = await axiosInstance.post<LoginResponse>(
@@ -960,10 +992,27 @@ export default function ImmersionSettingsPage() {
             queryClient.invalidateQueries({
               queryKey: USERS_QUERY_KEYS.DETAIL(variables.id),
             });
-            toast.success(
-              (data as { message?: string })?.message ||
-                "User profile updated successfully!",
-            );
+            queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.PROFILE });
+            queryClient.invalidateQueries({
+              queryKey: ["immersion-participant", "profile"],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["immersion", "profile"],
+            });
+
+            if (typeof window !== "undefined" && data?.data?.user) {
+              try {
+                const stored = localStorage.getItem(AUTH_KEYS.USER_DATA);
+                if (stored) {
+                  const parsed = JSON.parse(stored);
+                  localStorage.setItem(
+                    AUTH_KEYS.USER_DATA,
+                    JSON.stringify({ ...parsed, ...data.data.user }),
+                  );
+                }
+              } catch {}
+            }
+
             options?.onSuccess?.(data, variables, context, mutation);
           },
           onError: (error, variables, context, mutation) => {
@@ -1046,21 +1095,35 @@ export default function ImmersionSettingsPage() {
       const {
         register,
         handleSubmit,
+        reset,
         formState: { errors, isDirty },
       } = useForm<TStudentProfileUpdate>({
         resolver: zodResolver(ZStudentProfileUpdate),
         defaultValues: { name: user?.name ?? "" },
       });
 
+      // Synchronize form field whenever user auth profile loads or updates
+      useEffect(() => {
+        if (user?.name !== undefined && user?.name !== null) {
+          reset({ name: user.name });
+        }
+      }, [user?.name, reset]);
+
       const onSubmit = (values: TStudentProfileUpdate) => {
-        if (!user?.id) return;
+        if (!user?.id) {
+          toast.error("User ID not found. Please log in again.");
+          return;
+        }
+        const trimmedName = values.name.trim();
         updateUser(
           {
             id: user.id,
-            payload: { name: values.name },
+            payload: { name: trimmedName },
           },
           {
-            onSuccess: () => {
+            onSuccess: (data) => {
+              const updatedName = data?.data?.user?.name || trimmedName;
+              reset({ name: updatedName });
               toast.success("Profile details updated successfully!");
             },
           },

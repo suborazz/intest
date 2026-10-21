@@ -239,6 +239,43 @@ export async function GET(
                 drawBorder();
           doc.on("pageAdded", () => {
             drawBorder();
+            try {
+              const logoPath = join(process.cwd(), "public", "logo.png");
+              if (fs.existsSync(logoPath)) {
+                doc.image(logoPath, 35, 20, { width: 35 });
+              }
+            } catch {}
+            doc
+              .fontSize(11)
+              .font("Helvetica-Bold")
+              .fillColor("#065f46")
+              .text("International Institute of Internship [i3]", 35, 22, {
+                align: "center",
+                width: 525,
+              });
+            doc
+              .fontSize(8)
+              .font("Helvetica-Bold")
+              .fillColor("#1f2937")
+              .text("OFFICIAL IMMERSION APPLICATION RECORD (CONTINUED)", 35, 36, {
+                align: "center",
+                width: 525,
+              });
+            doc
+              .fontSize(7)
+              .font("Helvetica")
+              .fillColor("#64748b")
+              .text(
+                `Application ID: ${appCode}  |  Candidate: ${profile?.fullName || application.user?.name || ""}`,
+                35,
+                48,
+                { align: "center", width: 525 },
+              );
+            doc
+              .moveTo(35, 59)
+              .lineTo(doc.page.width - 35, 59)
+              .lineWidth(0.6)
+              .stroke("#cbd5e1");
           });
 
           const profile = application.profile;
@@ -258,16 +295,16 @@ export async function GET(
           try {
             const host = request.headers.get("host") || "www.iiinternship.in";
             const protocol = host.includes("localhost") ? "http" : "https";
-            const verifyUrl = `${protocol}://${host}/immersion`;
+            const verifyUrl = `${protocol}://${host}/verify/id-card/${appCode}`;
 
             const qr = qrcode(0, "M");
             qr.addData(verifyUrl);
             qr.make();
             const moduleCount = qr.getModuleCount();
-            const qrSize = 42;
+            const qrSize = 39;
             const cellSize = qrSize / moduleCount;
             const qrX = doc.page.width - 35 - qrSize;
-            const qrY = headerY - 1;
+            const qrY = 22;
 
             // White background
             doc.rect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4).fill("#ffffff");
@@ -293,7 +330,7 @@ export async function GET(
               .fontSize(5)
               .font("Helvetica-Bold")
               .fillColor("#059669")
-              .text("SCAN TO VERIFY", qrX - 10, qrY + qrSize + 2, {
+              .text("SCAN TO VERIFY", qrX - 10, qrY + qrSize + 3, {
                 width: qrSize + 20,
                 align: "center",
               });
@@ -333,7 +370,7 @@ export async function GET(
                 doc
             .moveTo(35, 76)
             .lineTo(doc.page.width - 35, 76)
-            .lineWidth(0.5)
+            .lineWidth(0.6)
             .stroke("#cbd5e1");
 
           let currentY = 84;
@@ -471,7 +508,7 @@ export async function GET(
           const checkPageBreak = (neededHeight: number) => {
             if (currentY + neededHeight > 760) {
               doc.addPage();
-              currentY = 35;
+              currentY = 70;
             }
           };
 
@@ -698,8 +735,26 @@ export async function GET(
 
             academics.forEach((acad) => {
               let rowX = 35;
+              const formatQual = (val?: string | null) => {
+                if (!val) return "N/A";
+                const map: Record<string, string> = {
+                  GRADUATE_PASS_OUT: "Graduate (Passed Out)",
+                  POST_GRADUATE_PASS_OUT: "Postgraduate (Passed Out)",
+                  UNDER_GRADUATE: "Undergraduate (Pursuing)",
+                  DIPLOMA_PASS_OUT: "Diploma (Passed Out)",
+                  HIGH_SCHOOL_10TH: "10th / Secondary",
+                  INTERMEDIATE_12TH: "12th / Senior Secondary",
+                  PURSUING_GRADUATION: "Graduation (Pursuing)",
+                  PURSUING_POST_GRADUATION: "Post Graduation (Pursuing)",
+                };
+                return (
+                  map[val] ||
+                  val.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                );
+              };
+
               const cells = [
-                acad.qualification,
+                formatQual(acad.qualification),
                 acad.stream || acad.subject || "N/A",
                 acad.instituteName || "N/A",
                 acad.universityName || "N/A",
@@ -833,18 +888,99 @@ export async function GET(
               },
             ],
           ]);
-          currentY += 15;
+          currentY += 12;
 
-                doc
+          // Section: Declaration & Official Verification
+          checkPageBreak(85);
+          drawSectionHeader("DECLARATION & OFFICIAL VERIFICATION", currentY);
+          currentY += 18;
+
+          doc
+            .fontSize(6.8)
+            .font("Helvetica")
+            .fillColor("#4b5563")
+            .text(
+              "I hereby declare that all particulars and details furnished in this Immersion Application Form are true, correct, and complete to the best of my knowledge and belief. I undertake to abide by the rules, code of conduct, and regulations of International Institute of Internship [i3].",
+              35,
+              currentY,
+              { width: usableWidth, align: "justify", lineGap: 1.2 },
+            );
+          currentY += 18;
+
+          const signBoxWidth = 185;
+          const signBoxHeight = 44;
+
+          checkPageBreak(signBoxHeight + 6);
+
+          // Left Box: Candidate Digital Signature
+          doc
+            .rect(35, currentY, signBoxWidth, signBoxHeight)
+            .lineWidth(0.6)
+            .stroke("#94a3b8");
+          doc
+            .fontSize(7.5)
+            .font("Helvetica-Bold")
+            .fillColor("#111827")
+            .text(
+              profile?.fullName || application.user?.name || "Applicant",
+              42,
+              currentY + 9,
+            );
+          doc
             .fontSize(6.5)
             .font("Helvetica-Oblique")
             .fillColor("#64748b")
+            .text("Digitally Submitted", 42, currentY + 21);
+          doc
+            .fontSize(6)
+            .font("Helvetica")
+            .fillColor("#94a3b8")
+            .text("Candidate's Signature & Date", 42, currentY + 31);
+
+          // Right Box: Authorized Signatory & Official Seal
+          const sealX = doc.page.width - 35 - signBoxWidth;
+          doc
+            .rect(sealX, currentY, signBoxWidth, signBoxHeight)
+            .lineWidth(0.8)
+            .stroke("#059669");
+          doc
+            .fontSize(7.5)
+            .font("Helvetica-Bold")
+            .fillColor("#065f46")
+            .text("Authorized Signatory & Seal", sealX + 10, currentY + 9);
+          doc
+            .fontSize(6.5)
+            .font("Helvetica")
+            .fillColor("#4b5563")
             .text(
-              "This is an auto-generated application form receipt. Remaining details must be uploaded post-login.",
-              35,
-              currentY,
-              { align: "center", width: usableWidth },
+              "International Institute of Internship [i3]",
+              sealX + 10,
+              currentY + 21,
             );
+          doc
+            .fontSize(5.8)
+            .font("Helvetica-Bold")
+            .fillColor("#059669")
+            .text("VERIFIED & AUTHENTICATED", sealX + 10, currentY + 31);
+
+          currentY += signBoxHeight + 10;
+
+          // Official Running Footers across all buffered pages
+          const range = doc.bufferedPageRange();
+          for (let i = range.start; i < range.start + range.count; i++) {
+            doc.switchToPage(i);
+            doc.page.margins.bottom = 0;
+            doc
+              .fontSize(7)
+              .font("Helvetica")
+              .fillColor("#9ca3af")
+              .text(
+                `Page ${i + 1} of ${range.count}  |  Immersion Application Record: ${appCode}  |  www.iiinternship.in`,
+                35,
+                doc.page.height - 25,
+                { align: "center", width: usableWidth, lineBreak: false },
+              );
+          }
 
           doc.end();
         } catch (error) {

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { create } from "zustand";
 import { axiosInstance } from "@/x/acfb3dca";
+import { formatJobOpportunityId, isJobClosingDateExpired } from "@/x/a85a9c0c";
 
 interface JobOpportunityPublic {
   id: string;
@@ -25,6 +26,7 @@ interface JobOpportunityPublic {
   advtNo?: string;
   advtDate?: string;
   closingDate?: string;
+  salary?: string | null;
   jdDocUrl?: string;
   jdDescription?: string | null;
   createdAt: string;
@@ -580,7 +582,16 @@ interface Opening {
       slNo: number;
       advtNoAndDate: string;
       postName: string;
-      jobDescriptionText: string;
+      salary?: string | null;
+      isExpired?: boolean;
+      jobDescriptionText?: string | null;
+      jobLocation?: string | null;
+      totalSeatVacant?: string | null;
+      skillsRequired?: string | null;
+      minQualification?: string | null;
+      jobNature?: string | null;
+      fieldOfEmployment?: string | null;
+      website?: string | null;
       jobDescriptionPdfUrl?: string;
       closingDate: string;
       applyUrl: string;
@@ -3228,6 +3239,7 @@ export default function RecruitmentPage() {
       advtNo?: string;
       advtDate?: string;
       closingDate?: string;
+      salary?: string | null;
       jdDocUrl?: string;
       jdDescription?: string | null;
       createdAt: string;
@@ -3235,8 +3247,117 @@ export default function RecruitmentPage() {
       createdById: string;
     }
 
+    function renderJobDescriptionDetails(opening: Opening) {
+      const hasWebsite = Boolean(opening.website && opening.website.trim());
+      const rawUrl = hasWebsite ? opening.website!.trim() : "";
+      const cleanWebsiteUrl = hasWebsite
+        ? rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+          ? rawUrl
+          : `https://${rawUrl.replace(/^\/+/, "")}`
+        : "";
+      const displayWebsiteText = hasWebsite
+        ? rawUrl.replace(/^https?:\/\//, "").replace(/^\/+/, "")
+        : "";
+
+      return (
+        <div className="flex flex-col gap-2.5 py-1">
+          {/* Admin Job Description Text Message (if present) */}
+          {opening.jobDescriptionText && (
+            <p className="text-foreground/90 rounded-md border border-white/60 bg-white/40 p-2.5 text-xs font-medium leading-relaxed dark:border-white/10 dark:bg-white/5 md:text-[13px]">
+              {opening.jobDescriptionText}
+            </p>
+          )}
+
+          {/* Structured Bullet Points: Vacant Seats, Location, Skills, Qualification, Nature, Link */}
+          <ul className="space-y-1.5 text-xs leading-relaxed text-muted-foreground/90 md:text-[12.5px]">
+            {opening.totalSeatVacant && (
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground/85">Total Seat Vacant:</strong>{" "}
+                  <span className="font-bold text-primary">{opening.totalSeatVacant}</span>
+                </span>
+              </li>
+            )}
+
+            {opening.jobLocation && (
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground/85">Job Location:</strong>{" "}
+                  <span className="font-medium text-foreground/90">{opening.jobLocation}</span>
+                </span>
+              </li>
+            )}
+
+            {opening.skillsRequired && (
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground/85">Required Skills:</strong>{" "}
+                  <span className="font-medium text-foreground/90">{opening.skillsRequired}</span>
+                </span>
+              </li>
+            )}
+
+            {opening.minQualification && (
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground/85">Qualification:</strong>{" "}
+                  <span className="font-medium text-foreground/90">{opening.minQualification}</span>
+                </span>
+              </li>
+            )}
+
+            {opening.jobNature && (
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground/85">Job Nature:</strong>{" "}
+                  <span className="font-medium text-foreground/90">{opening.jobNature}</span>
+                </span>
+              </li>
+            )}
+
+            {hasWebsite && (
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span className="break-all">
+                  <strong className="font-semibold text-foreground/85">Website / Link:</strong>{" "}
+                  <a
+                    href={cleanWebsiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-primary/80 inline-flex items-center gap-1 font-semibold underline decoration-primary/40 underline-offset-2 transition-colors"
+                  >
+                    <span>{displayWebsiteText}</span>
+                    <ExternalLink size={12} className="inline shrink-0" />
+                  </a>
+                </span>
+              </li>
+            )}
+          </ul>
+
+          {/* Download JD Document Link */}
+          <div className="pt-1">
+            <a
+              href={`/api/v1/job-opportunities/${opening.id}/jd`}
+              download={`Job_Description_${formatJobOpportunityId(opening.id)}.pdf`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-[11px] font-bold transition-colors md:text-xs"
+            >
+              <Download size={14} strokeWidth={2.5} />
+              Download JD
+            </a>
+          </div>
+        </div>
+      );
+    }
+
     function CurrentOpenings() {
-      const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+      const [isArchiveOpen, setIsArchiveOpen] = useState(true);
       const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
       useEffect(() => {
@@ -3285,17 +3406,29 @@ export default function RecruitmentPage() {
       const jobs = jobsResponse?.data || [];
 
       const mappedOpenings: Opening[] = jobs.map(
-        (job: JobOpportunityPublic, index: number) => ({
-          id: job.id,
-          slNo: index + 1,
-          advtNoAndDate: `${job.advtNo || "Advt. No. N/A"}\n${job.advtDate || "Date N/A"}`,
-          postName: job.postOpportunity,
-          jobDescriptionText: `Required Skills: ${job.skillsRequired || "N/A"}. Qualification: ${job.minQualification}. Nature: ${job.jobNature}.`,
-          jobDescriptionPdfUrl: job.jdDocUrl,
-          closingDate: job.closingDate || "N/A",
-          applyUrl: `/sign-up?role=RECRUIT_USER`,
-          status: job.isActive ? "active" : "archived",
-        }),
+        (job: JobOpportunityPublic, index: number) => {
+          const isExpired = isJobClosingDateExpired(job.closingDate);
+          return {
+            id: job.id,
+            slNo: index + 1,
+            advtNoAndDate: `${job.advtNo || "Advt. No. N/A"}\n${job.advtDate || "Date N/A"}`,
+            postName: job.postOpportunity,
+            salary: job.salary,
+            isExpired,
+            jobDescriptionText: job.jdDescription?.trim() || null,
+            jobLocation: job.address?.trim() || null,
+            totalSeatVacant: job.totalStaffStrength?.trim() || null,
+            skillsRequired: job.skillsRequired?.trim() || null,
+            minQualification: job.minQualification?.trim() || null,
+            jobNature: job.jobNature?.trim() || null,
+            fieldOfEmployment: job.fieldOfEmployment?.trim() || null,
+            website: job.website?.trim() || null,
+            jobDescriptionPdfUrl: `/api/v1/job-opportunities/${job.id}/jd`,
+            closingDate: job.closingDate || "N/A",
+            applyUrl: `/sign-up?role=RECRUIT_USER`,
+            status: job.isActive && !isExpired ? "active" : "archived",
+          };
+        },
       );
 
       const activeOpenings = mappedOpenings.filter((o) => o.status === "active");
@@ -3348,8 +3481,11 @@ export default function RecruitmentPage() {
                       <th className="text-muted-foreground/80 min-w-[200px] px-4 py-4 text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
                         Name of the Post
                       </th>
-                      <th className="text-muted-foreground/80 min-w-[280px] px-4 py-4 text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
+                      <th className="text-muted-foreground/80 min-w-[320px] px-4 py-4 text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
                         Job Description
+                      </th>
+                      <th className="text-muted-foreground/80 whitespace-nowrap px-4 py-4 text-center text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
+                        Salary
                       </th>
                       <th className="text-muted-foreground/80 whitespace-nowrap px-4 py-4 text-center text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
                         Closing Date
@@ -3384,23 +3520,27 @@ export default function RecruitmentPage() {
                           </div>
                         </td>
                         <td className="text-foreground/90 px-4 py-4 text-sm font-bold md:px-6 md:py-5 md:text-[15px]">
-                          {opening.postName}
+                          <div className="flex flex-col gap-1.5">
+                            <span className="font-bold">{opening.postName}</span>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="inline-flex w-fit items-center rounded-md border border-indigo-200/80 bg-indigo-50/90 px-2 py-0.5 font-mono text-[11px] font-bold tracking-tight text-indigo-700 shadow-xs dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
+                                Job ID: {formatJobOpportunityId(opening.id)}
+                              </span>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-4 py-4 md:px-6 md:py-5">
-                          <p className="text-muted-foreground/90 mb-3 text-sm leading-relaxed md:text-[14px]">
-                            {opening.jobDescriptionText}
-                          </p>
-                          {opening.jobDescriptionPdfUrl && (
-                            <a
-                              href={opening.jobDescriptionPdfUrl}
-                              download
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-[11px] font-bold transition-colors md:text-xs"
-                            >
-                              <Download size={14} strokeWidth={2.5} />
-                              Download JD
-                            </a>
+                          {renderJobDescriptionDetails(opening)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 text-center md:px-6 md:py-5">
+                          {opening.salary ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-3 py-1 font-sans text-xs font-bold tracking-tight text-emerald-800 shadow-xs dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-300">
+                              💰 {opening.salary}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-xs italic font-medium">
+                              Best in Industry
+                            </span>
                           )}
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-center text-xs font-semibold text-red-600/90 md:px-6 md:py-5 md:text-sm">
@@ -3511,8 +3651,11 @@ export default function RecruitmentPage() {
                             <th className="text-muted-foreground/60 min-w-[200px] px-4 py-4 text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
                               Name of the Post
                             </th>
-                            <th className="text-muted-foreground/60 min-w-[280px] px-4 py-4 text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
+                            <th className="text-muted-foreground/60 min-w-[320px] px-4 py-4 text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
                               Job Description
+                            </th>
+                            <th className="text-muted-foreground/60 whitespace-nowrap px-4 py-4 text-center text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
+                              Salary
                             </th>
                             <th className="text-muted-foreground/60 whitespace-nowrap px-4 py-4 text-center text-[11px] font-bold uppercase tracking-widest md:px-6 md:text-xs">
                               Closing Date
@@ -3541,23 +3684,27 @@ export default function RecruitmentPage() {
                                 </div>
                               </td>
                               <td className="text-foreground/90 px-4 py-4 text-sm font-bold md:px-6 md:py-5 md:text-[15px]">
-                                {opening.postName}
+                                <div className="flex flex-col gap-1.5">
+                                  <span className="font-bold">{opening.postName}</span>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    <span className="inline-flex w-fit items-center rounded-md border border-indigo-200/80 bg-indigo-50/90 px-2 py-0.5 font-mono text-[11px] font-bold tracking-tight text-indigo-700 shadow-xs dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
+                                      Job ID: {formatJobOpportunityId(opening.id)}
+                                    </span>
+                                  </div>
+                                </div>
                               </td>
                               <td className="px-4 py-4 md:px-6 md:py-5">
-                                <p className="text-muted-foreground/90 mb-3 text-xs leading-relaxed md:text-[13px]">
-                                  {opening.jobDescriptionText}
-                                </p>
-                                {opening.jobDescriptionPdfUrl && (
-                                  <a
-                                    href={opening.jobDescriptionPdfUrl}
-                                    download
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-[11px] font-bold transition-colors md:text-xs"
-                                  >
-                                    <Download size={14} strokeWidth={2.5} />
-                                    Download JD
-                                  </a>
+                                {renderJobDescriptionDetails(opening)}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-4 text-center md:px-6 md:py-5">
+                                {opening.salary ? (
+                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                    💰 {opening.salary}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground text-xs italic">
+                                    N/A
+                                  </span>
                                 )}
                               </td>
                               <td className="whitespace-nowrap px-4 py-4 text-center text-xs font-semibold text-red-600/90 md:px-6 md:py-5 md:text-sm">
@@ -3623,17 +3770,14 @@ export default function RecruitmentPage() {
                           </svg>
                         </div>
 
-                        {}
+                        {/* Main Heading */}
                         <h1 className="text-primary-foreground font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-[clamp(2.3rem,6vw,5rem)] leading-[1.1]">
-                          Internship Recruitment
+                          Recruitment
                         </h1>
 
-                        {}
-                        <p className="text-primary-foreground/85 mx-auto mt-[12px] max-w-[500px] text-left text-[0.9rem] leading-[1.6] sm:text-[1.1rem] lg:mx-0">
-                          Aapke career ki shuruaat yahan se hoti hai! Join our Industrial
-                          Internship program to get hands-on experience, learn from industry
-                          experts, and work on real-world projects. Be a part of our next
-                          batch of interns.
+                        {/* Official Description */}
+                        <p className="text-primary-foreground/90 mx-auto mt-[14px] max-w-[560px] text-left text-[0.95rem] font-medium leading-[1.65] sm:text-[1.1rem] lg:mx-0">
+                          Apply for diverse prestigious and rewarding positions across the International Institute of Internship™ [i3], various units of DPKHRC Trust, and its affiliated institutions—Free of Cost.
                         </p>
                       </div>
 
@@ -3641,9 +3785,9 @@ export default function RecruitmentPage() {
                       <div className="relative mt-[20px] flex justify-center lg:mt-0 lg:translate-y-[60px] lg:justify-end xl:translate-y-[80px]">
 
                         <img
-                          src="/images/hero-recruitment.jpg"
+                          src="/images/hero-recruitment-job-seeker.jpg"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/images/hero-recruitment.jpg";
+                            (e.target as HTMLImageElement).src = "/images/hero-recruitment-job-seeker.jpg";
                           }}
                           alt="Recruitment and Careers"
                           className="relative z-10 aspect-[4/3] w-full max-w-[500px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[550px]"

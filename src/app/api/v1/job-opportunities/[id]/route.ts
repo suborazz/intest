@@ -162,7 +162,8 @@ const createJobOpportunitySchema = z.object({
   advtNo: z.string().optional(),
   advtDate: z.string().optional(),
   closingDate: z.string().optional(),
-        jdDescription: z.string().nullish().or(z.literal("")),
+  salary: z.string().nullish().or(z.literal("")),
+  jdDescription: z.string().nullish().or(z.literal("")),
 });
 
 const updateJobOpportunitySchema = createJobOpportunitySchema.partial();
@@ -282,6 +283,7 @@ export async function PATCH(
       "advtNo",
       "advtDate",
       "closingDate",
+      "salary",
       "jdDescription",
     ];
 

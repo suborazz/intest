@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -366,6 +367,7 @@ model JobOpportunity {
   advtNo             String?          // e.g. "II/2026/01"
   advtDate           String?          // e.g. "15-May-2026"
   closingDate        String?          // e.g. "30-June-2026"
+  salary             String?          // e.g. "₹25,000 - ₹35,000 / Month" or "₹4.5 LPA"
   jdDocUrl           String?          // URL to uploaded JD PDF/Doc
   jdDocPublicId      String?          // Cloudinary publicId for JD raw file
   jdDescription      String?          // Rich-text (HTML) JD, alternative to the PDF
@@ -716,6 +718,13 @@ model InstructorRegistration {
   availability         String
   selfIntroduction     String
 
+  // Bank Account Details
+  accountHolderName    String
+  accountNo            String
+  ifscCode             String
+  bankName             String
+  bankBranchAddress    String
+
   // Document Upload paths (saved on local disk)
   photoUrl             String
   photoPublicId        String?
@@ -806,6 +815,8 @@ model SupportTicket {
   userId      String
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  replies     TicketReply[]
+
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?      // Soft delete support
@@ -813,6 +824,27 @@ model SupportTicket {
   @@index([userId])
   @@index([ticketNo])
   @@map("support_tickets")
+}
+
+// ── Support Ticket Reply History ────────────────────────────────
+// Persists every reply sent by an admin (or user) on a support ticket
+// so the full conversation history can be reviewed in the admin panel.
+model TicketReply {
+  id         String        @id @default(cuid())
+  message    String        @db.Text
+
+  ticketId   String
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  authorId   String?       // id of the user/admin who wrote the reply
+  authorName String?       // snapshot of the author's display name
+  authorRole String?       @default("SUPER_ADMIN") // SUPER_ADMIN | STUDENT | INSTRUCTOR
+
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([ticketId])
+  @@map("ticket_replies")
 }
 
 // ── Immersion Program Models ───────────────────────────────────
@@ -889,6 +921,7 @@ model Notice {
   description        String    @db.Text
   pdfUrl             String?
   pdfPublicId        String?
+  linkUrl            String?
   
   senderId    String
   sender      User      @relation("SentNotices", fields: [senderId], references: [id], onDelete: Cascade)
@@ -1249,6 +1282,7 @@ model JobPlacementCompany {
   minQualification  String
   skillsRequired    String[]
   staffStrength     String
+  salaryRange       String?            // Salary Range (e.g. ₹20,000 - ₹35,000 / month)
   website           String
   logo              String?            // Logo URL
   logoPublicId      String?            // Cloudinary publicId
@@ -1297,7 +1331,7 @@ model JobPlacementLead {
   @@map("job_placement_leads")
 }
 
-// ── Recruit User Profile & Details ────────────────────────────
+// ── Job Applicant User Profile & Details ────────────────────────────
 
 enum MaritalStatus {
   Married
@@ -1472,4 +1506,21 @@ model ContactEnquiry {
   @@index([email])
   @@index([createdAt])
   @@map("contact_enquiries")
+}
+
+model InstitutionOfficial {
+  id              String   @id @default(cuid())
+  slNo            Int      @default(1)
+  name            String
+  designation     String
+  workingLocation String
+  mobile          String   @default("")
+  email           String   @default("")
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slNo])
+  @@index([isActive])
+  @@map("institution_officials")
 }

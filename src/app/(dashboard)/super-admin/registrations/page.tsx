@@ -35,6 +35,7 @@ import { AuthContext } from "@/x/8789d6dc";
 import { axiosInstance } from "@/x/acfb3dca";
 import { LayoutContext } from "@/x/72be5b4f";
 import { SidebarFiltersContext } from "@/x/d50b23c8";
+import { TopInstructorsModal } from "@/components/TopInstructorsModal";
 
 enum ESlotName {
   APP_SIDEBAR = "app-sidebar",
@@ -655,13 +656,22 @@ function ResponsiveDialog({
             "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]",
             className,
           )}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
           <div className="shrink-0 p-4 pb-2">
             <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
+              {React.isValidElement(title) ? (
+                <DialogTitle asChild>{title}</DialogTitle>
+              ) : (
+                <DialogTitle>{title}</DialogTitle>
               )}
+              {description &&
+                (React.isValidElement(description) ? (
+                  <DialogDescription asChild>{description}</DialogDescription>
+                ) : (
+                  <DialogDescription>{description}</DialogDescription>
+                ))}
             </DialogHeader>
           </div>
           <div className="overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
@@ -673,11 +683,24 @@ function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className={cn("max-h-[90vh]", className)}>
+    <Drawer dismissible={false} open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerContent
+        className={cn("max-h-[90vh]", className)}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DrawerHeader className="relative pr-10 text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
+          {React.isValidElement(title) ? (
+            <DrawerTitle asChild>{title}</DrawerTitle>
+          ) : (
+            <DrawerTitle>{title}</DrawerTitle>
+          )}
+          {description &&
+            (React.isValidElement(description) ? (
+              <DrawerDescription asChild>{description}</DrawerDescription>
+            ) : (
+              <DrawerDescription>{description}</DrawerDescription>
+            ))}
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
           {children}
@@ -4102,6 +4125,11 @@ interface InstructorRegistrationResponse {
       mentorshipMode: string[];
       availability: string;
       selfIntroduction: string;
+      accountHolderName: string;
+      accountNo: string;
+      ifscCode: string;
+      bankName: string;
+      bankBranchAddress: string;
       photoUrl: string;
       photoName: string;
       identityProofUrl: string | null;
@@ -11836,6 +11864,24 @@ function Cell({
             )}
 
             {}
+            <div className="border-border/50 bg-background space-y-3 rounded-xl border p-4">
+              <h4 className="text-muted-foreground flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+                <CreditCard className="size-3.5" /> Bank Account Details
+              </h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <Cell label="Account Holder Name" value={reg.accountHolderName} />
+                <Cell label="Account No." value={reg.accountNo} />
+                <Cell label="IFSC Code" value={reg.ifscCode} />
+                <Cell label="Bank Name" value={reg.bankName} />
+                <Cell
+                  label="Bank Branch Address"
+                  value={reg.bankBranchAddress}
+                  className="col-span-2"
+                />
+              </div>
+            </div>
+
+            {}
             {reg.qualifications && reg.qualifications.length > 0 && (
               <div className="border-border/50 bg-background space-y-3 rounded-xl border p-4">
                 <h4 className="text-muted-foreground flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
@@ -12227,6 +12273,7 @@ function Cell({
 
       const [meta, setMeta] = useState<TMeta_20>({ total: 0, limit, page });
       const [isExporting, setIsExporting] = useState(false);
+      const [topInstructorsOpen, setTopInstructorsOpen] = useState(false);
 
       const { data: response, isLoading } =
         SuperAdminDataHooks.useInstructorRegistrations({
@@ -12350,9 +12397,24 @@ function Cell({
                     )}
                     Export Excel
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTopInstructorsOpen(true)}
+                    className="h-8 gap-1.5 text-xs font-semibold border-amber-600/30 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50 cursor-pointer"
+                  >
+                    <Award className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                    List of Our Top Instructors
+                  </Button>
                 </div>
               }
             />
+            {topInstructorsOpen && (
+              <TopInstructorsModal
+                isOpen={topInstructorsOpen}
+                onClose={() => setTopInstructorsOpen(false)}
+              />
+            )}
           </div>
         </div>
       );
@@ -12704,7 +12766,13 @@ const RecruitRegActions: React_3.FunctionComponent<
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `student_registration_${reg.studentId || reg.id}.pdf`;
+            const safeName = (reg.fullName || "Student")
+              .trim()
+              .replace(/[/\\?%*:|"<>]/g, "")
+              .replace(/\s+/g, "_");
+            a.download = safeName
+              ? `${safeName}_Application.pdf`
+              : `student_registration_${reg.studentId || reg.id}.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();

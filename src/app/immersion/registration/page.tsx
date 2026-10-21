@@ -257,13 +257,23 @@ interface InputProps extends React.ComponentProps<"input"> {
   icon?: LucideIcon;
 }
 
-function Input({ className, type, icon: Icon, ...props }: InputProps) {
+function Input({ className, type, icon: Icon, onFocus, ...props }: InputProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      try {
+        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch {}
+    }, 180);
+    onFocus?.(e);
+  };
+
   const input = (
     <input
       type={type}
       data-slot="input"
+      onFocus={handleFocus}
       className={cn(
-        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed",
+        "border-input bg-input/20 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-md border px-3 py-1.5 text-sm outline-none transition-colors file:inline-flex file:h-8 file:border-0 file:bg-transparent file:text-xs/relaxed file:font-medium focus-visible:ring-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-xs/relaxed scroll-my-28",
         Icon && "pl-8",
         className,
       )}
@@ -2372,7 +2382,14 @@ const StepProfessional: React_3.FC<StepProfessionalProps> = ({
                 <FormItem>
                   <FormLabel>Emergency Mobile Number</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="10-digit number" />
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
+                      {...field}
+                      placeholder="10-digit number"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -3673,6 +3690,7 @@ export default function ImmersionRegistrationPage() {
                   Session / Year <span className="text-destructive">*</span>
                 </FormLabel>
                 <Input
+                  inputMode="numeric"
                   placeholder="e.g. 2024"
                   value={tempAcademic.yearOfCompletion}
                   onChange={(e) =>
@@ -3939,7 +3957,14 @@ export default function ImmersionRegistrationPage() {
                     Mobile Number <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="10-digit mobile number" {...field} />
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
+                      placeholder="10-digit mobile number"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -3953,7 +3978,14 @@ export default function ImmersionRegistrationPage() {
                 <FormItem>
                   <FormLabel>Alternate Mobile Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="10-digit alternate mobile" {...field} />
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
+                      placeholder="10-digit alternate mobile"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -4081,7 +4113,14 @@ export default function ImmersionRegistrationPage() {
                           Pin Code <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Pin Code" maxLength={6} {...field} />
+                          <Input
+                            type="tel"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="Pin Code"
+                            maxLength={6}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -4205,6 +4244,9 @@ export default function ImmersionRegistrationPage() {
                           </FormLabel>
                           <FormControl>
                             <Input
+                              type="tel"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               placeholder="Pin Code"
                               maxLength={6}
                               {...field}
@@ -4306,6 +4348,27 @@ export default function ImmersionRegistrationPage() {
     });
 
   const submitMutation = EmersionDataHooks.useSubmitEmersionApplication();
+
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.getAttribute("role") === "combobox")
+      ) {
+        setTimeout(() => {
+          try {
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+          } catch {}
+        }, 200);
+      }
+    };
+    window.addEventListener("focusin", handleFocusIn);
+    return () => window.removeEventListener("focusin", handleFocusIn);
+  }, []);
 
   useEffect(() => {
     if (isAppLoading || isProfileLoading || !userId) return;
@@ -4426,11 +4489,12 @@ export default function ImmersionRegistrationPage() {
       });
             setResetKey((k) => k + 1);
 
-      if (prof?.photoUrl) setPhotoPreview(prof.photoUrl);
-      if (prof?.identityProofUrl)
-        setResumePreview(prof.identityProofUrl as string);
-      if (prof?.educationCertUrl)
-        setNocPreview(prof.educationCertUrl as string);
+      const photo = prof?.photoUrl || (prof as any)?.passportPhotoUrl;
+      if (photo) setPhotoPreview(photo);
+      const resume = prof?.identityProofUrl || (prof as any)?.resumeUrl;
+      if (resume) setResumePreview(resume as string);
+      const noc = prof?.educationCertUrl || (prof as any)?.nocUrl;
+      if (noc) setNocPreview(noc as string);
       if (isEditMode) {
         setIsFinalSubmitted(false);
         setCurrentStep(1);
@@ -4487,10 +4551,12 @@ export default function ImmersionRegistrationPage() {
         emergencyMobile: "",
       });
       setResetKey((k) => k + 1);
-      if (prof.photoUrl) setPhotoPreview(prof.photoUrl);
-      if (prof.identityProofUrl)
-        setResumePreview(prof.identityProofUrl as string);
-      if (prof.educationCertUrl) setNocPreview(prof.educationCertUrl as string);
+      const photo = prof.photoUrl || (prof as any).passportPhotoUrl;
+      if (photo) setPhotoPreview(photo);
+      const resume = prof.identityProofUrl || (prof as any).resumeUrl;
+      if (resume) setResumePreview(resume as string);
+      const noc = prof.educationCertUrl || (prof as any).nocUrl;
+      if (noc) setNocPreview(noc as string);
     } else {
       if (user?.name) {
         form.setValue("fullName", user.name);

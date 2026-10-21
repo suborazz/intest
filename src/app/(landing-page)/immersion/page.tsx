@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Activity as Activity_2, BookOpen, Building2, CalendarDays, Clock as Clock_2, Compass, GraduationCap as GraduationCap_2, Heart, HelpCircle, Home, Landmark as Landmark_2, Leaf, LucideIcon, MapPin as MapPin_2, Send, Share2, Sparkles as Sparkles_2, ArrowRight, Check, Rocket as Rocket_2, Star as Star_2 } from "lucide-react";
+import { Archive, Activity as Activity_2, BookOpen, Building2, CalendarDays, Clock as Clock_2, Compass, GraduationCap as GraduationCap_2, Heart, HelpCircle, Home, Landmark as Landmark_2, Leaf, LucideIcon, MapPin as MapPin_2, Send, Share2, Sparkles as Sparkles_2, ArrowRight, Check, Rocket as Rocket_2, Star as Star_2 } from "lucide-react";
 import Link from "next/link";
 import Link_2 from "next/link";
 import * as z from "zod";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import { create } from "zustand";
 import { axiosInstance } from "@/x/acfb3dca";
+import { isDateExpired } from "@/x/a85a9c0c";
 type TQueryOptions<TData, TError = Error> = Omit<
       UseQueryOptions<TData, TError, TData, readonly unknown[]>,
       "queryKey" | "queryFn"
@@ -2205,7 +2206,17 @@ export default function ImmersionPage() {
     const ImmersionCard = () => {
       const { data: programsRaw = [], isLoading } =
         StudentDataHook.usePublicImmersions();
-      const programs = programsRaw as unknown as ImmersionProgram_2[];
+      const programs = (programsRaw as unknown as ImmersionProgram_2[]) || [];
+
+      const activePrograms = React.useMemo(
+        () => programs.filter((p) => !isDateExpired(p.endDate) && p.status !== "COMPLETED"),
+        [programs],
+      );
+
+      const archivedPrograms = React.useMemo(
+        () => programs.filter((p) => isDateExpired(p.endDate) || p.status === "COMPLETED"),
+        [programs],
+      );
 
       if (isLoading) {
         return (
@@ -2214,6 +2225,142 @@ export default function ImmersionPage() {
           </div>
         );
       }
+
+      const renderProgramCard = (prog: ImmersionProgram_2, isArchived: boolean) => {
+        const categoryName = prog.category?.name || "Other";
+        const theme =
+          PROGRAM_THEMES[categoryName] ?? PROGRAM_THEMES["Other"];
+        const ThemeIcon = theme.icon;
+
+        const formattedFees =
+          prog.fees === 0
+            ? "Free / Project Scope"
+            : `₹${(prog.fees ?? 0).toLocaleString()}`;
+
+        return (
+          <div
+            key={prog.id}
+            id={prog.id}
+            className={`flex flex-col gap-5 rounded-2xl border border-white/40 bg-white/60 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 sm:p-6 dark:border-white/10 dark:bg-black/40 ${theme.hoverClass}`}
+          >
+            {/* Header */}
+            <div className="flex items-start gap-4">
+              <div
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${theme.bgClass}`}
+              >
+                <ThemeIcon className="h-6 w-6" />
+              </div>
+              <div className="min-w-0 space-y-1">
+                <span className="text-primary block truncate text-[10px] font-bold uppercase tracking-widest">
+                  {categoryName}
+                </span>
+                <h3 className="text-foreground truncate-2-lines text-base font-bold leading-snug sm:text-lg">
+                  {prog.title}
+                </h3>
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-400">
+                <MapPin_2 className="h-3 w-3" />
+                {prog.location}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-400">
+                <Clock_2 className="h-3 w-3" />
+                {prog.period}
+              </span>
+              {prog.instructor?.name && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-600 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-400">
+                  <Building2 className="h-3 w-3" />
+                  {prog.instructor.name}
+                </span>
+              )}
+              {isArchived && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-rose-300 bg-rose-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-400">
+                  Cohort Ended (Archived)
+                </span>
+              )}
+            </div>
+
+            {/* Description */}
+            <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
+              {prog.description?.replace(/<[^>]*>/g, "")}
+            </p>
+
+            {/* Timeline */}
+            <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+              <CalendarDays className="h-3.5 w-3.5" />
+              {formatDate_2(prog.startDate)} — {formatDate_2(prog.endDate)}
+            </div>
+
+            {/* Fees */}
+            <div className="flex items-center gap-2 rounded-lg border border-amber-500/10 bg-amber-500/[0.04] p-2">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-amber-500/20 bg-amber-500/10">
+                <Sparkles_2 className="h-3 w-3 text-amber-600" />
+              </span>
+              <span className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
+                Program Fees:
+              </span>
+              <span className="text-foreground text-sm font-extrabold text-amber-600 dark:text-amber-500">
+                {formattedFees}
+              </span>
+            </div>
+
+            {/* Action buttons */}
+            <div className="mt-auto flex items-center gap-2">
+              <Link
+                href={`/immersion/${prog.id}`}
+                className="border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/30 flex flex-1 cursor-pointer items-center justify-center rounded-lg border py-1.5 text-xs font-semibold transition-all duration-300 sm:text-sm"
+              >
+                View Detail
+              </Link>
+
+              {isArchived ? (
+                <div className="flex-2 flex items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 py-1.5 px-3 text-center text-xs font-semibold text-amber-700 dark:text-amber-400">
+                  <span>Cohort Ended (Archived)</span>
+                </div>
+              ) : (
+                <Link
+                  href="/sign-up?role=IMMERSION_USER"
+                  className="bg-linear-to-r from-primary hover:from-primary/90 text-primary-foreground group/btn flex-2 flex cursor-pointer items-center justify-between whitespace-nowrap rounded-lg border-0 to-emerald-500 py-1.5 pl-4 pr-1.5 text-xs font-semibold transition-all duration-300 hover:to-emerald-500/90 sm:text-sm"
+                >
+                  <span className="flex-1 pr-2 text-center">Apply Now</span>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20 transition-colors group-hover/btn:bg-white/30">
+                    <Send className="h-3 w-3 text-white" />
+                  </div>
+                </Link>
+              )}
+
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/immersion/${prog.id}`;
+                  const instructorText = prog.instructor?.name
+                    ? `\n👤 Instructor: ${prog.instructor.name}`
+                    : "";
+                  const shareText = `Check out this Immersion Program: "${prog.title}"\n📍 Location: ${prog.location}\n⏳ Duration: ${prog.period}${instructorText}\n\nApply Link: ${url}`;
+                  if (navigator.share) {
+                    navigator
+                      .share({
+                        title: prog.title,
+                        text: shareText,
+                        url: url,
+                      })
+                      .catch(console.error);
+                  } else {
+                    navigator.clipboard.writeText(shareText);
+                    toast.success("Program details & apply link copied!");
+                  }
+                }}
+                className="text-muted-foreground hover:text-foreground flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 transition-all duration-200 hover:bg-zinc-200 dark:border-zinc-700/60 dark:bg-zinc-800/80 dark:hover:bg-zinc-700"
+                title="Share Program"
+              >
+                <Share2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        );
+      };
 
       return (
         <section className="mx-auto mt-12 max-w-[1400px] px-4 pb-16 sm:px-6 md:mt-16 lg:px-8">
@@ -2227,144 +2374,41 @@ export default function ImmersionPage() {
             </p>
           </div>
 
-          {programs.length === 0 ? (
+          {activePrograms.length === 0 ? (
             <div className="text-muted-foreground py-12 text-center font-semibold">
-              No immersion programs are currently listed.
+              No active immersion cohorts are currently enrolling.
             </div>
           ) : (
             <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-              {programs.map((prog) => {
-                const categoryName = prog.category?.name || "Other";
-                const theme =
-                  PROGRAM_THEMES[categoryName] ?? PROGRAM_THEMES["Other"];
-                const ThemeIcon = theme.icon;
+              {activePrograms.map((prog) => renderProgramCard(prog, false))}
+            </div>
+          )}
 
-                            const facilities: string[] =
-                  typeof prog.facilities === "string"
-                    ? prog.facilities.split(",").map((f: string) => f.trim())
-                    : [];
-
-                const benefits: string[] =
-                  typeof prog.benefits === "string"
-                    ? prog.benefits.split(",").map((b: string) => b.trim())
-                    : [];
-
-                const formattedFees =
-                  prog.fees === 0
-                    ? "Free / Project Scope"
-                    : `₹${(prog.fees ?? 0).toLocaleString()}`;
-
-                return (
-                  <div
-                    key={prog.id}
-                    id={prog.id}
-                    className={`flex flex-col gap-5 rounded-2xl border border-white/40 bg-white/60 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 sm:p-6 dark:border-white/10 dark:bg-black/40 ${theme.hoverClass}`}
-                  >
-                    {}
-                    <div className="flex items-start gap-4">
-                      <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${theme.bgClass}`}
-                      >
-                        <ThemeIcon className="h-6 w-6" />
-                      </div>
-                      <div className="min-w-0 space-y-1">
-                        <span className="text-primary block truncate text-[10px] font-bold uppercase tracking-widest">
-                          {categoryName}
-                        </span>
-                        <h3 className="text-foreground truncate-2-lines text-base font-bold leading-snug sm:text-lg">
-                          {prog.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {}
-                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-400">
-                        <MapPin_2 className="h-3 w-3" />
-                        {prog.location}
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-400">
-                        <Clock_2 className="h-3 w-3" />
-                        {prog.period}
-                      </span>
-                      {prog.instructor?.name && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-600 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-400">
-                          <Building2 className="h-3 w-3" />
-                          {prog.instructor.name}
-                        </span>
-                      )}
-                    </div>
-
-                    {}
-                    <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
-                      {prog.description?.replace(/<[^>]*>/g, "")}
-                    </p>
-
-                    {}
-                    <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-                      <CalendarDays className="h-3.5 w-3.5" />
-                      {formatDate_2(prog.startDate)} — {formatDate_2(prog.endDate)}
-                    </div>
-
-                    {}
-                    <div className="flex items-center gap-2 rounded-lg border border-amber-500/10 bg-amber-500/[0.04] p-2">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-amber-500/20 bg-amber-500/10">
-                        <Sparkles_2 className="h-3 w-3 text-amber-600" />
-                      </span>
-                      <span className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
-                        Program Fees:
-                      </span>
-                      <span className="text-foreground text-sm font-extrabold text-amber-600 dark:text-amber-500">
-                        {formattedFees}
-                      </span>
-                    </div>
-
-                    {}
-                    <div className="mt-auto flex items-center gap-2">
-                      <Link
-                        href={`/immersion/${prog.id}`}
-                        className="border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/30 flex flex-1 cursor-pointer items-center justify-center rounded-lg border py-1.5 text-xs font-semibold transition-all duration-300 sm:text-sm"
-                      >
-                        View Detail
-                      </Link>
-                      <Link
-                        href="/sign-up?role=IMMERSION_USER"
-                        className="bg-linear-to-r from-primary hover:from-primary/90 text-primary-foreground group/btn flex-2 flex cursor-pointer items-center justify-between whitespace-nowrap rounded-lg border-0 to-emerald-500 py-1.5 pl-4 pr-1.5 text-xs font-semibold transition-all duration-300 hover:to-emerald-500/90 sm:text-sm"
-                      >
-                        <span className="flex-1 pr-2 text-center">Apply Now</span>
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20 transition-colors group-hover/btn:bg-white/30">
-                          <Send className="h-3 w-3 text-white" />
-                        </div>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          const url = `${window.location.origin}/immersion/${prog.id}`;
-                          const instructorText = prog.instructor?.name
-                            ? `\n👤 Instructor: ${prog.instructor.name}`
-                            : "";
-                          const shareText = `Check out this Immersion Program: "${prog.title}"\n📍 Location: ${prog.location}\n⏳ Duration: ${prog.period}${instructorText}\n\nApply Link: ${url}`;
-                          if (navigator.share) {
-                            navigator
-                              .share({
-                                title: prog.title,
-                                text: shareText,
-                                url: url,
-                              })
-                              .catch(console.error);
-                          } else {
-                            navigator.clipboard.writeText(shareText);
-                            toast.success("Program details & apply link copied!");
-                          }
-                        }}
-                        className="text-muted-foreground hover:text-foreground flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 transition-all duration-200 hover:bg-zinc-200 dark:border-zinc-700/60 dark:bg-zinc-800/80 dark:hover:bg-zinc-700"
-                        title="Share Program"
-                      >
-                        <Share2 className="h-4 w-4" />
-                      </button>
-                    </div>
+          {/* Archived Immersion Programs */}
+          {archivedPrograms.length > 0 && (
+            <div className="mt-16 space-y-6 rounded-3xl border border-amber-500/20 bg-linear-to-b from-amber-500/5 to-transparent p-6 sm:p-8 backdrop-blur-xl">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-amber-500/15 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <Archive className="h-5 w-5" />
                   </div>
-                );
-              })}
+                  <div>
+                    <h3 className="text-foreground text-xl font-bold">
+                      Archived Immersion Cohorts ({archivedPrograms.length})
+                    </h3>
+                    <p className="text-muted-foreground text-xs font-medium">
+                      These immersion cohort dates have concluded. Program details remain visible for informational purposes.
+                    </p>
+                  </div>
+                </div>
+                <span className="self-start rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+                  Concluded & Archived
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 items-stretch gap-6 opacity-90 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+                {archivedPrograms.map((prog) => renderProgramCard(prog, true))}
+              </div>
             </div>
           )}
         </section>

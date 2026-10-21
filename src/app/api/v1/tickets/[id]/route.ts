@@ -128,13 +128,85 @@ const HTTP_2 = {
   INTERNAL_SERVER_ERROR: 500,
 } as const;
 
-const updateTicketStatusSchema = z.object({
-  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
-  message: z.string().optional(),
-});
+const updateTicketStatusSchema = z
+  .object({
+    status: z
+      .preprocess((val) => {
+        if (typeof val === "string") {
+          const normalized = val.trim().toUpperCase().replace(/[\s-]+/g, "_");
+          if (normalized === "PENDING") return "IN_PROGRESS";
+          return normalized;
+        }
+        return val;
+      }, z.enum(["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"]).optional())
+      .transform((val) => (val === "PENDING" ? ("IN_PROGRESS" as const) : val)),
+    priority: z.preprocess(
+      (val) => (typeof val === "string" ? val.trim().toUpperCase() : val),
+      z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
+    ),
+    message: z.string().optional(),
+    reply: z.string().optional(),
+    response: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .passthrough();
 
 export const dynamic = "force-dynamic";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  try {
+    const userId = request.headers.get("X-User-Id");
+    const userRole = request.headers.get("X-User-Role");
+
+    if (!userId) {
+      return errorResponse("UNAUTHORIZED", "Authentication required.", {
+        status: HTTP_2.UNAUTHORIZED,
+      });
+    }
+
+    const { id } = await params;
+
+    const ticket = await prisma.supportTicket.findFirst({
+      where: {
+        OR: [{ id }, { ticketNo: id }],
+        deletedAt: null,
+      },
+      include: {
+        user: { select: { id: true, name: true, email: true, role: true } },
+        replies: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            message: true,
+            authorId: true,
+            authorName: true,
+            authorRole: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    if (!ticket) {
+      return errorResponse("NOT_FOUND", "Ticket not found.", {
+        status: HTTP_2.NOT_FOUND,
+      });
+    }
+
+    if (userRole !== "SUPER_ADMIN" && ticket.userId !== userId) {
+      return errorResponse("FORBIDDEN", "Access denied.", {
+        status: HTTP_2.FORBIDDEN,
+      });
+    }
+
+    return successResponse(ticket);
+  } catch (error) {
+    return handleError(error);
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -158,7 +230,7 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
 
     const result = updateTicketStatusSchema.safeParse(body);
     if (!result.success) {
@@ -168,48 +240,77 @@ export async function PATCH(
       });
     }
 
-    const existing = await prisma.supportTicket.findUnique({
-      where: { id },
+    const existing = await prisma.supportTicket.findFirst({
+      where: {
+        OR: [{ id }, { ticketNo: id }],
+        deletedAt: null,
+      },
     });
 
-    if (!existing || existing.deletedAt) {
+    if (!existing) {
       return errorResponse("NOT_FOUND", "Ticket not found.", {
         status: HTTP_2.NOT_FOUND,
       });
     }
 
-    const { status, priority, message } = result.data;
+    const { status, priority, message, reply, response, comment } = result.data;
+    const replyText = (message || reply || response || comment)?.trim();
 
     let targetStatus = status;
-    if (message && !status && existing.status === "OPEN") {
+    if (replyText && !status && existing.status === "OPEN") {
       targetStatus = "IN_PROGRESS";
     }
 
     const updated = await prisma.supportTicket.update({
-      where: { id },
+      where: { id: existing.id },
       data: {
         ...(targetStatus && { status: targetStatus }),
         ...(priority && { priority }),
       },
     });
 
-        (async () => {
+    // Persist the admin reply so the full conversation history is saved
+    // and can be reviewed in the admin panel (in addition to the email).
+    if (replyText) {
+      try {
+        const admin = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true, email: true },
+        });
+        await prisma.ticketReply.create({
+          data: {
+            ticketId: existing.id,
+            authorId: userId,
+            authorName: admin?.name || admin?.email || "Support Team",
+            authorRole: userRole || "SUPER_ADMIN",
+            message: replyText,
+          },
+        });
+      } catch (replyErr) {
+        console.error(
+          "[TICKET REPLY ERROR] Failed to persist reply:",
+          replyErr,
+        );
+      }
+    }
+
+    (async () => {
       try {
         const user = await prisma.user.findUnique({
           where: { id: existing.userId },
           select: { email: true, name: true },
         });
         if (user) {
-          if (message) {
+          if (replyText) {
             const { sendSupportTicketReplyEmail } = await import("@/x/b7e0f2d7");
             await sendSupportTicketReplyEmail(
               user.email,
               user.name || "User",
               existing.ticketNo,
               existing.title,
-              message,
+              replyText,
             );
-          } else if (targetStatus) {
+          } else if (targetStatus && targetStatus !== existing.status) {
             const { sendSupportTicketStatusUpdateEmail } =
               await import("@/x/b7e0f2d7");
             await sendSupportTicketStatusUpdateEmail(
@@ -253,17 +354,20 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const existing = await prisma.supportTicket.findUnique({
-      where: { id },
+    const existing = await prisma.supportTicket.findFirst({
+      where: {
+        OR: [{ id }, { ticketNo: id }],
+        deletedAt: null,
+      },
     });
 
-    if (!existing || existing.deletedAt) {
+    if (!existing) {
       return errorResponse("NOT_FOUND", "Ticket not found.", {
         status: HTTP_2.NOT_FOUND,
       });
     }
 
-        if (userRole !== "SUPER_ADMIN" && existing.userId !== userId) {
+    if (userRole !== "SUPER_ADMIN" && existing.userId !== userId) {
       return errorResponse(
         "FORBIDDEN",
         "Access denied to delete this ticket.",
@@ -272,7 +376,7 @@ export async function DELETE(
     }
 
     await prisma.supportTicket.update({
-      where: { id },
+      where: { id: existing.id },
       data: { deletedAt: new Date() },
     });
 

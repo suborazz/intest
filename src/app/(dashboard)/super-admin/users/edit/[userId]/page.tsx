@@ -1931,7 +1931,7 @@ const ROLE_ITEMS: TSearchComboboxItem_2[] = [
   { id: "STUDENT", name: "Student" },
   { id: "INSTRUCTOR", name: "Instructor" },
   { id: "IMMERSION_USER", name: "Immersion User" },
-  { id: "RECRUIT_USER", name: "Job Applicant User" },
+  { id: "RECRUIT_USER", name: "Job Applicant" },
   { id: "SUPER_ADMIN", name: "Super Admin" },
 ];
 

@@ -103,12 +103,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         registeredOn = user.createdAt.toISOString().split("T")[0] || "—";
       }
 
+      const ROLE_LABEL_MAP: Record<string, string> = {
+        SUPER_ADMIN: "Super Admin",
+        STUDENT: "Student",
+        INSTRUCTOR: "Instructor",
+        IMMERSION_USER: "Immersion User",
+        RECRUIT_USER: "Job Applicant",
+      };
+
       sheet.addRow({
         serialNumber: index + 1,
         name: user.name || "",
         email: user.email,
         mobile: resolvedMobile,
-        role: user.role,
+        role: ROLE_LABEL_MAP[user.role] || user.role,
         profileStatus: profileStatus,
         registeredOn: registeredOn,
         status: user.isActive ? "Active" : "Inactive",
