@@ -330,8 +330,26 @@ export async function PATCH(
       }
     })();
 
-    return successResponse(updated, {
-      message: "Ticket updated successfully.",
+    const fullUpdated = await prisma.supportTicket.findUnique({
+      where: { id: existing.id },
+      include: {
+        user: { select: { id: true, name: true, email: true, role: true } },
+        replies: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            message: true,
+            authorId: true,
+            authorName: true,
+            authorRole: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    return successResponse(fullUpdated ?? updated, {
+      message: "Ticket updated and reply saved successfully.",
     });
   } catch (error) {
     return handleError(error);

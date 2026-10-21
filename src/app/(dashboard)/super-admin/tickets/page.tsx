@@ -9158,10 +9158,30 @@ export default function SuperAdminTicketsPage() {
       }
     }, [ticket]);
 
+    // Live query single ticket details to ensure complete reply history is always up to date
+    const {
+      data: ticketDetailRes,
+      isLoading: isLoadingDetails,
+      refetch: refetchTicket,
+    } = useQuery({
+      queryKey: ["super-admin", "ticket-detail", ticket?.id],
+      queryFn: async () => {
+        if (!ticket?.id) return null;
+        const res = await axiosInstance.get(`/api/v1/tickets/${ticket.id}`);
+        return res.data;
+      },
+      enabled: isOpen && !!ticket?.id,
+    });
+
     const { mutate: updateTicket, isPending } =
       SuperAdminDataHooks.useUpdateTicket();
 
     if (!ticket) return null;
+
+    const liveTicket = (ticketDetailRes?.data ?? ticket) as Ticket;
+    const ticketDescription = liveTicket.description || liveTicket.message;
+    const replyHistory: TicketReplyItem[] =
+      (liveTicket as { replies?: TicketReplyItem[] }).replies ?? [];
 
     const handleReply = (e: React_3.FormEvent) => {
       e.preventDefault();
@@ -9177,22 +9197,18 @@ export default function SuperAdminTicketsPage() {
         {
           onSuccess: () => {
             setReplyMsg("");
-            onClose();
+            refetchTicket();
+            toast.success("Reply saved to history and sent to user!");
           },
         },
       );
     };
 
-    const ticketDescription = ticket.description || ticket.message;
-
-    const replyHistory: TicketReplyItem[] =
-      (ticket as { replies?: TicketReplyItem[] }).replies ?? [];
-
     return (
       <ResponsiveDialog
         isOpen={isOpen}
         setIsOpen={(o) => !o && onClose()}
-        title={`Ticket: ${ticket.subject || ticket.title || "Support Request"}`}
+        title={`Ticket: ${liveTicket.subject || liveTicket.title || "Support Request"}`}
       >
         <div className="space-y-4 pb-2 pt-2">
           <div className="grid grid-cols-2 gap-3">
@@ -9201,10 +9217,10 @@ export default function SuperAdminTicketsPage() {
                 <User className="size-3" /> From
               </span>
               <span className="text-foreground block text-xs font-semibold">
-                {ticket.name || ticket.user?.name || "Unknown"}
+                {liveTicket.name || liveTicket.user?.name || "Unknown"}
               </span>
               <span className="text-muted-foreground text-[10px]">
-                {ticket.email || ticket.user?.email}
+                {liveTicket.email || liveTicket.user?.email}
               </span>
             </div>
             <div className="border-border/50 bg-muted/10 space-y-1.5 rounded-xl border p-3">
@@ -9255,33 +9271,61 @@ export default function SuperAdminTicketsPage() {
             </div>
           )}
 
-          {replyHistory.length > 0 && (
+          {isLoadingDetails ? (
+            <div className="border-border/40 bg-muted/10 flex items-center justify-center gap-2 rounded-xl border p-4 text-xs text-muted-foreground">
+              <Loader2 className="size-3.5 animate-spin" /> Loading reply history...
+            </div>
+          ) : replyHistory.length > 0 ? (
             <div className="space-y-2">
-              <span className="text-muted-foreground flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider">
-                <MessageSquare className="size-3" /> Reply History (
-                {replyHistory.length})
-              </span>
-              <div className="max-h-52 space-y-2 overflow-y-auto pr-1">
-                {replyHistory.map((r: TicketReplyItem) => (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider">
+                  <MessageSquare className="size-3" /> Reply History (
+                  {replyHistory.length})
+                </span>
+                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  Saved in database
+                </span>
+              </div>
+              <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
+                {replyHistory.map((r: TicketReplyItem, idx: number) => (
                   <div
-                    key={r.id}
-                    className="border-border/50 bg-muted/10 rounded-xl border p-3"
+                    key={r.id || idx}
+                    className="border-border/50 bg-muted/10 space-y-1.5 rounded-xl border p-3"
                   >
-                    <div className="mb-1 flex items-center justify-between gap-2">
-                      <span className="text-foreground flex items-center gap-1.5 text-[10px] font-bold">
-                        <ShieldCheck className="text-primary size-3" />
-                        {r.authorName || "Support Team"}
-                      </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground text-[10px] font-bold">
+                          #{idx + 1}
+                        </span>
+                        <span className="text-foreground flex items-center gap-1 text-[10px] font-bold">
+                          <ShieldCheck className="text-primary size-3" />
+                          {r.authorName || "Support Team"}
+                        </span>
+                        {r.authorRole && (
+                          <Badge
+                            variant="secondary"
+                            className="h-4 px-1.5 py-0 text-[8px] font-semibold"
+                          >
+                            {r.authorRole}
+                          </Badge>
+                        )}
+                      </div>
                       <span className="text-muted-foreground shrink-0 text-[9px] font-medium">
                         {formatHumanReadableDate_28(r.createdAt)}
                       </span>
                     </div>
-                    <p className="text-foreground whitespace-pre-wrap text-xs font-medium leading-relaxed">
+                    <p className="text-foreground border-border/40 bg-background/60 rounded-lg border p-2.5 whitespace-pre-wrap text-xs font-medium leading-relaxed">
                       {r.message}
                     </p>
                   </div>
                 ))}
               </div>
+            </div>
+          ) : (
+            <div className="border-border/40 bg-muted/5 rounded-xl border p-3 text-center">
+              <span className="text-muted-foreground text-[11px] font-medium">
+                No replies have been recorded yet. Write your response below to reply to the user.
+              </span>
             </div>
           )}
 
@@ -9316,7 +9360,7 @@ export default function SuperAdminTicketsPage() {
                 {isPending ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" />
-                    Sending...
+                    Sending & Saving...
                   </>
                 ) : (
                   <>
@@ -9336,6 +9380,8 @@ export default function SuperAdminTicketsPage() {
     ticket,
   }) => {
     const [replyOpen, setReplyOpen] = React.useState(false);
+    const replyCount =
+      (ticket as { replies?: TicketReplyItem[] }).replies?.length ?? 0;
 
     return (
       <div onClick={(e) => e.stopPropagation()}>
@@ -9346,6 +9392,14 @@ export default function SuperAdminTicketsPage() {
           className="text-primary hover:bg-primary hover:text-primary-foreground h-8 cursor-pointer gap-1.5 rounded-lg px-3 text-xs font-bold"
         >
           <MessageCircle_2 className="size-3.5" /> Reply
+          {replyCount > 0 && (
+            <Badge
+              variant="secondary"
+              className="bg-primary/15 text-primary ml-0.5 h-4 border-0 px-1.5 py-0 text-[9px] font-bold"
+            >
+              {replyCount}
+            </Badge>
+          )}
         </Button>
 
         <ReplyDialog
@@ -9360,9 +9414,13 @@ export default function SuperAdminTicketsPage() {
   const columns_14 = (currentPage = 1, itemsPerPage = 10): ColumnDef_2<Ticket>[] => [
     {
       id: "serialNumber",
-      header: "S.No.",
+      header: () => (
+        <span className="text-foreground whitespace-nowrap font-bold">
+          S.No.
+        </span>
+      ),
       cell: ({ row }) => (
-        <div className="text-muted-foreground text-xs font-medium">
+        <div className="text-muted-foreground whitespace-nowrap text-xs font-semibold">
           {(currentPage - 1) * itemsPerPage + row.index + 1}
         </div>
       ),
@@ -9401,6 +9459,43 @@ export default function SuperAdminTicketsPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => <StatusChip_22 status={row.original.status} />,
+    },
+    {
+      id: "replies",
+      header: "Admin Replies",
+      cell: ({ row }) => {
+        const replies =
+          (row.original as { replies?: TicketReplyItem[] }).replies ?? [];
+        if (replies.length === 0) {
+          return (
+            <span className="text-muted-foreground text-[10px] italic">
+              No replies
+            </span>
+          );
+        }
+        const lastReply = replies[replies.length - 1];
+        return (
+          <div className="max-w-[200px]">
+            <Badge
+              variant="secondary"
+              className="border-primary/20 bg-primary/10 gap-1 px-1.5 py-0.5 text-[10px] font-bold text-primary"
+            >
+              <MessageSquare className="size-3" />
+              {replies.length} {replies.length === 1 ? "Reply" : "Replies"}
+            </Badge>
+            {lastReply?.message && (
+              <div
+                className="text-muted-foreground mt-1 line-clamp-1 text-[10px]"
+                title={lastReply.message}
+              >
+                <span className="text-foreground/80 font-semibold">Latest: </span>
+                {lastReply.message}
+              </div>
+            )}
+          </div>
+        );
+      },
+      enableSorting: false,
     },
     {
       id: "update-status",

@@ -247,6 +247,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         where: { deletedAt: null },
         include: {
           user: { select: { id: true, name: true, email: true, role: true } },
+          replies: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              message: true,
+              authorId: true,
+              authorName: true,
+              authorRole: true,
+              createdAt: true,
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
       });
@@ -255,6 +266,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const tickets = await prisma.supportTicket.findMany({
       where: { userId, deletedAt: null },
+      include: {
+        replies: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            message: true,
+            authorId: true,
+            authorName: true,
+            authorRole: true,
+            createdAt: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 
