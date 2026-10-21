@@ -2417,6 +2417,7 @@ export default function StudentDashboardPage() {
       const router = useRouter();
       const { user } = useAuth();
       const { data, isLoading, isError } = StudentDataHook.useStudentDashboard();
+      const [expandedNoticeId, setExpandedNoticeId] = React.useState<string | null>(null);
 
       if (isLoading) return (<div className="animate-pulse space-y-8">
                 <Skeleton className="h-32 w-full rounded-3xl" />
@@ -2462,8 +2463,6 @@ export default function StudentDashboardPage() {
       const notices: DashboardRecentNotice[] = data?.data?.recentNotices ?? [];
       const recentSubmissions: DashboardRecentSubmission[] =
         data?.data?.recentSubmissions ?? [];
-
-      const [expandedNoticeId, setExpandedNoticeId] = React.useState<string | null>(null);
 
       return (
         <div className="animate-in fade-in space-y-8 duration-300">

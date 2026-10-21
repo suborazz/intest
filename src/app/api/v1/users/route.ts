@@ -69,7 +69,7 @@ function requireEnv(key: string): string {
   if (!value) {
     throw new Error(
       `[Config] Missing required environment variable: ${key}\n` +
-        `Copy .env.example to .env and fill in the values.`,
+      `Copy .env.example to .env and fill in the values.`,
     );
   }
   return value;
@@ -217,7 +217,7 @@ interface SendEmailPayload {
 const transporter = nodemailer.createTransport({
   host: config.smtpHost,
   port: config.smtpPort,
-  secure: config.smtpPort === 465, 
+  secure: config.smtpPort === 465,
   auth: {
     user: config.smtpUser,
     pass: config.smtpPass,
@@ -227,7 +227,7 @@ const transporter = nodemailer.createTransport({
 async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
   const { nodeEnv, smtpSenderEmail, smtpSenderName } = config;
 
-    if (
+  if (
     !config.smtpUser ||
     config.smtpUser === "mock-user" ||
     nodeEnv === "test"
@@ -264,9 +264,9 @@ async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
       html: payload.htmlContent,
       attachments: payload.attachment
         ? payload.attachment.map((att) => ({
-            filename: att.name,
-            content: Buffer.from(att.content, "base64"),
-          }))
+          filename: att.name,
+          content: Buffer.from(att.content, "base64"),
+        }))
         : [],
     };
 
@@ -387,7 +387,7 @@ function handleError(error: unknown): NextResponse<ApiErrorResponse> {
   }
 
   if (error instanceof Error) {
-        const message =
+    const message =
       process.env["NODE_ENV"] === "production"
         ? "An internal server error occurred"
         : error.message;
@@ -506,7 +506,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const requesterRole = request.headers.get("X-User-Role");
 
-        if (requesterRole !== "SUPER_ADMIN") {
+    if (requesterRole !== "SUPER_ADMIN") {
       return errorResponse(
         "FORBIDDEN",
         "Access denied. Administrator privileges required.",
@@ -518,7 +518,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const { searchParams } = request.nextUrl;
 
-        const parsed = listUsersQuerySchema.safeParse({
+    const parsed = listUsersQuerySchema.safeParse({
       page: searchParams.get("page") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
       role: searchParams.get("role") ?? undefined,
@@ -535,7 +535,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { page, limit, role, search } = parsed.data;
     const skip = (page - 1) * limit;
 
-        const where: Prisma.UserWhereInput = {
+    const where: Prisma.UserWhereInput = {
       deletedAt: null,
     };
 
@@ -550,7 +550,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ];
     }
 
-        const [users, total] = await Promise.all([
+    const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
         select: {
@@ -590,10 +590,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         (u.mobile && u.mobile.trim() !== "")
           ? u.mobile
           : u.studentRegistration?.mobileNo ||
-            u.instructorRegistration?.mobileNo ||
-            u.immersionParticipantProfile?.mobileNumber ||
-            u.recruitProfile?.mobileNo ||
-            "—";
+          u.instructorRegistration?.mobileNo ||
+          u.immersionParticipantProfile?.mobileNumber ||
+          u.recruitProfile?.mobileNo ||
+          "—";
 
       return {
         ...u,
@@ -613,7 +613,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const requesterRole = request.headers.get("X-User-Role");
 
-        if (requesterRole !== "SUPER_ADMIN") {
+    if (requesterRole !== "SUPER_ADMIN") {
       return errorResponse(
         "FORBIDDEN",
         "Access denied. Administrator privileges required.",
@@ -635,22 +635,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { email, mobile, name, role, password } = parsed.data;
 
-            const randomHex = Math.random().toString(36).substring(2, 10);
+    const randomHex = Math.random().toString(36).substring(2, 10);
     const tempPassword = `Temp!${randomHex}A1`;
     const actualPassword = password || tempPassword;
 
     const passwordHash = await bcrypt.hash(actualPassword, 10);
 
-        const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.user.findFirst({
       where: { email },
     });
 
     if (existingUser) {
       if (existingUser.deletedAt) {
-                const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.user.update({
           where: { id: existingUser.id },
           data: {
-            deletedAt: null, 
+            deletedAt: null,
             name: name || existingUser.name,
             mobile,
             role,
@@ -669,7 +669,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           },
         });
 
-                await sendAdminCreatedUserEmail(
+        await sendAdminCreatedUserEmail(
           email,
           name ?? "",
           actualPassword,
@@ -690,7 +690,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const newUser = await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         mobile,
@@ -711,7 +711,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-        await sendAdminCreatedUserEmail(email, name ?? "", actualPassword, role);
+    await sendAdminCreatedUserEmail(email, name ?? "", actualPassword, role);
 
     return successResponse(newUser, {
       status: HTTP_2.CREATED,

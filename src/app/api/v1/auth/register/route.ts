@@ -51,7 +51,7 @@ function requireEnv(key: string): string {
   if (!value) {
     throw new Error(
       `[Config] Missing required environment variable: ${key}\n` +
-        `Copy .env.example to .env and fill in the values.`,
+      `Copy .env.example to .env and fill in the values.`,
     );
   }
   return value;
@@ -114,85 +114,85 @@ axiosInstance.interceptors.request.use(
 );
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-    type UserRole_2 =
-      "STUDENT" | "INSTRUCTOR" | "IMMERSION_USER" | "SUPER_ADMIN" | "RECRUIT_USER";
+  type UserRole_2 =
+    "STUDENT" | "INSTRUCTOR" | "IMMERSION_USER" | "SUPER_ADMIN" | "RECRUIT_USER";
 
-    interface AuthTokens_2 {
-      accessToken: string;
-      refreshToken: string;
-      expiresIn: number;
+  interface AuthTokens_2 {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  }
+
+  interface JwtPayload {
+    sub: string;
+    email: string;
+    role: UserRole_2;
+    iat?: number;
+    exp?: number;
+  }
+
+  const getSecret = (secret: string): Uint8Array =>
+    new TextEncoder().encode(secret);
+
+  async function signAccessToken(
+    payload: Omit<JwtPayload, "iat" | "exp">,
+  ): Promise<string> {
+    const secret = process.env["JWT_SECRET"];
+    if (!secret) throw new Error("[Auth] JWT_SECRET is not set");
+
+    return new SignJWT({ ...payload })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setSubject(payload.sub)
+      .setExpirationTime(process.env["JWT_EXPIRES_IN"] ?? "7d")
+      .sign(getSecret(secret));
+  }
+
+  async function signRefreshToken(userId: string): Promise<string> {
+    const secret = process.env["JWT_REFRESH_SECRET"];
+    if (!secret) throw new Error("[Auth] JWT_REFRESH_SECRET is not set");
+
+    return new SignJWT({ sub: userId })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setSubject(userId)
+      .setExpirationTime(process.env["JWT_REFRESH_EXPIRES_IN"] ?? "30d")
+      .sign(getSecret(secret));
+  }
+
+  async function generateTokens(
+    userId: string,
+    email: string,
+    role: UserRole_2,
+  ): Promise<AuthTokens_2> {
+    const [accessToken, refreshToken] = await Promise.all([
+      signAccessToken({ sub: userId, email, role }),
+      signRefreshToken(userId),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+      expiresIn: 7 * 24 * 60 * 60,
+    };
+  }
+
+  function formatRoleName(role: string): string {
+    switch (role) {
+      case "STUDENT":
+        return "Student / Trainee";
+      case "INSTRUCTOR":
+        return "Instructor / Mentor";
+      case "IMMERSION_USER":
+        return "Immersion Participant";
+      case "SUPER_ADMIN":
+        return "Super Admin";
+      default:
+        return role;
     }
+  }
 
-    interface JwtPayload {
-      sub: string; 
-      email: string;
-      role: UserRole_2;
-      iat?: number;
-      exp?: number;
-    }
-
-    const getSecret = (secret: string): Uint8Array =>
-      new TextEncoder().encode(secret);
-
-    async function signAccessToken(
-      payload: Omit<JwtPayload, "iat" | "exp">,
-    ): Promise<string> {
-      const secret = process.env["JWT_SECRET"];
-      if (!secret) throw new Error("[Auth] JWT_SECRET is not set");
-
-      return new SignJWT({ ...payload })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setSubject(payload.sub)
-        .setExpirationTime(process.env["JWT_EXPIRES_IN"] ?? "7d")
-        .sign(getSecret(secret));
-    }
-
-    async function signRefreshToken(userId: string): Promise<string> {
-      const secret = process.env["JWT_REFRESH_SECRET"];
-      if (!secret) throw new Error("[Auth] JWT_REFRESH_SECRET is not set");
-
-      return new SignJWT({ sub: userId })
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setSubject(userId)
-        .setExpirationTime(process.env["JWT_REFRESH_EXPIRES_IN"] ?? "30d")
-        .sign(getSecret(secret));
-    }
-
-    async function generateTokens(
-      userId: string,
-      email: string,
-      role: UserRole_2,
-    ): Promise<AuthTokens_2> {
-      const [accessToken, refreshToken] = await Promise.all([
-        signAccessToken({ sub: userId, email, role }),
-        signRefreshToken(userId),
-      ]);
-
-      return {
-        accessToken,
-        refreshToken,
-            expiresIn: 7 * 24 * 60 * 60,
-      };
-    }
-
-    function formatRoleName(role: string): string {
-      switch (role) {
-        case "STUDENT":
-          return "Student / Trainee";
-        case "INSTRUCTOR":
-          return "Instructor / Mentor";
-        case "IMMERSION_USER":
-          return "Immersion Participant";
-        case "SUPER_ADMIN":
-          return "Super Admin";
-        default:
-          return role;
-      }
-    }
-
-    const emailStyleHeader = `
+  const emailStyleHeader = `
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -219,8 +219,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   </style>
 `;
 
-    function getBaseTemplate(title: string, content: string): string {
-      return `
+  function getBaseTemplate(title: string, content: string): string {
+    return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -240,13 +240,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     </body>
     </html>
   `;
-    }
+  }
 
-    function getWelcomeEmailTemplate(name: string, role: string): string {
-      const roleDisplay = formatRoleName(role);
-      return getBaseTemplate(
-        "Welcome to IIInternship",
-        `
+  function getWelcomeEmailTemplate(name: string, role: string): string {
+    const roleDisplay = formatRoleName(role);
+    return getBaseTemplate(
+      "Welcome to IIInternship",
+      `
       <h2 class="title">Welcome to IIInternship, ${name}! 🎉</h2>
       <p>Thank you for registering on our platform. Your account has been created successfully with the role of <span class="highlight">${roleDisplay}</span>.</p>
       <p>You can now log in and access your portal to explore internships, courses, and opportunities tailored just for you.</p>
@@ -254,273 +254,273 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         <a href="${config.clientUrl}/login" class="button">Access Your Portal</a>
       </div>
     `,
+    );
+  }
+
+  interface SendEmailPayload {
+    to: { email: string; name?: string }[];
+    subject: string;
+    htmlContent: string;
+    attachment?: { content: string; name: string }[] | undefined;
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: config.smtpHost,
+    port: config.smtpPort,
+    secure: config.smtpPort === 465,
+    auth: {
+      user: config.smtpUser,
+      pass: config.smtpPass,
+    },
+  });
+
+  async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
+    const { nodeEnv, smtpSenderEmail, smtpSenderName } = config;
+
+    if (
+      !config.smtpUser ||
+      config.smtpUser === "mock-user" ||
+      nodeEnv === "test"
+    ) {
+      console.log("\n======================================================");
+      console.log(
+        "[MOCK EMAIL] Simulating email dispatch (SMTP not configured or Test Env):",
       );
+      console.log(
+        `[MOCK EMAIL] Sender: "${smtpSenderName}" <${smtpSenderEmail}>`,
+      );
+      console.log(
+        `[MOCK EMAIL] Recipient: ${payload.to.map((t) => t.email).join(", ")}`,
+      );
+      console.log(`[MOCK EMAIL] Subject: ${payload.subject}`);
+      if (payload.attachment) {
+        console.log(
+          `[MOCK EMAIL] Attachments: ${payload.attachment.map((a) => a.name).join(", ")}`,
+        );
+      }
+      console.log("------------------------------------------------------");
+      console.log(payload.htmlContent);
+      console.log("======================================================\n");
+      return true;
     }
 
-    interface SendEmailPayload {
-      to: { email: string; name?: string }[];
-      subject: string;
-      htmlContent: string;
-      attachment?: { content: string; name: string }[] | undefined;
-    }
+    try {
+      const mailOptions = {
+        from: `"${smtpSenderName}" <${smtpSenderEmail}>`,
+        to: payload.to
+          .map((t) => (t.name ? `"${t.name}" <${t.email}>` : t.email))
+          .join(", "),
+        subject: payload.subject,
+        html: payload.htmlContent,
+        attachments: payload.attachment
+          ? payload.attachment.map((att) => ({
+            filename: att.name,
+            content: Buffer.from(att.content, "base64"),
+          }))
+          : [],
+      };
 
-    const transporter = nodemailer.createTransport({
-      host: config.smtpHost,
-      port: config.smtpPort,
-      secure: config.smtpPort === 465, 
-      auth: {
-        user: config.smtpUser,
-        pass: config.smtpPass,
-      },
+      await transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error(
+        "[Email Service] Failed to send email via SMTP/Nodemailer:",
+        error,
+      );
+      return false;
+    }
+  }
+
+  async function sendWelcomeEmail(
+    email: string,
+    name: string,
+    role: string,
+  ): Promise<boolean> {
+    const htmlContent = getWelcomeEmailTemplate(name, role);
+    return sendEmail({
+      to: [{ email, name }],
+      subject: "Welcome to IIInternship! 🎉",
+      htmlContent,
     });
+  }
 
-    async function sendEmail(payload: SendEmailPayload): Promise<boolean> {
-      const { nodeEnv, smtpSenderEmail, smtpSenderName } = config;
+  interface ApiErrorResponse {
+    success: false;
+    error: {
+      code: string;
+      message: string;
+      details?: unknown;
+    };
+  }
 
-        if (
-        !config.smtpUser ||
-        config.smtpUser === "mock-user" ||
-        nodeEnv === "test"
-      ) {
-        console.log("\n======================================================");
-        console.log(
-          "[MOCK EMAIL] Simulating email dispatch (SMTP not configured or Test Env):",
-        );
-        console.log(
-          `[MOCK EMAIL] Sender: "${smtpSenderName}" <${smtpSenderEmail}>`,
-        );
-        console.log(
-          `[MOCK EMAIL] Recipient: ${payload.to.map((t) => t.email).join(", ")}`,
-        );
-        console.log(`[MOCK EMAIL] Subject: ${payload.subject}`);
-        if (payload.attachment) {
-          console.log(
-            `[MOCK EMAIL] Attachments: ${payload.attachment.map((a) => a.name).join(", ")}`,
-          );
-        }
-        console.log("------------------------------------------------------");
-        console.log(payload.htmlContent);
-        console.log("======================================================\n");
-        return true;
-      }
+  const HTTP = {
+    OK: 200,
+    CREATED: 201,
+    NO_CONTENT: 204,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    CONFLICT: 409,
+    UNPROCESSABLE: 422,
+    TOO_MANY_REQUESTS: 429,
+    INTERNAL_SERVER_ERROR: 500,
+  } as const;
 
-      try {
-        const mailOptions = {
-          from: `"${smtpSenderName}" <${smtpSenderEmail}>`,
-          to: payload.to
-            .map((t) => (t.name ? `"${t.name}" <${t.email}>` : t.email))
-            .join(", "),
-          subject: payload.subject,
-          html: payload.htmlContent,
-          attachments: payload.attachment
-            ? payload.attachment.map((att) => ({
-                filename: att.name,
-                content: Buffer.from(att.content, "base64"),
-              }))
-            : [],
-        };
-
-        await transporter.sendMail(mailOptions);
-        return true;
-      } catch (error) {
-        console.error(
-          "[Email Service] Failed to send email via SMTP/Nodemailer:",
-          error,
-        );
-        return false;
-      }
-    }
-
-    async function sendWelcomeEmail(
-      email: string,
-      name: string,
-      role: string,
-    ): Promise<boolean> {
-      const htmlContent = getWelcomeEmailTemplate(name, role);
-      return sendEmail({
-        to: [{ email, name }],
-        subject: "Welcome to IIInternship! 🎉",
-        htmlContent,
-      });
-    }
-
-    interface ApiErrorResponse {
-      success: false;
+  function errorResponse(
+    code: string,
+    message: string,
+    options?: {
+      status?: number;
+      details?: unknown;
+    },
+  ): NextResponse<ApiErrorResponse> {
+    const body: ApiErrorResponse = {
+      success: false,
       error: {
-        code: string;
-        message: string;
-        details?: unknown;
-      };
-    }
-
-    const HTTP = {
-      OK: 200,
-      CREATED: 201,
-      NO_CONTENT: 204,
-      BAD_REQUEST: 400,
-      UNAUTHORIZED: 401,
-      FORBIDDEN: 403,
-      NOT_FOUND: 404,
-      CONFLICT: 409,
-      UNPROCESSABLE: 422,
-      TOO_MANY_REQUESTS: 429,
-      INTERNAL_SERVER_ERROR: 500,
-    } as const;
-
-    function errorResponse(
-      code: string,
-      message: string,
-      options?: {
-        status?: number;
-        details?: unknown;
+        code,
+        message,
+        ...(options?.details !== undefined && { details: options.details }),
       },
-    ): NextResponse<ApiErrorResponse> {
-      const body: ApiErrorResponse = {
-        success: false,
-        error: {
-          code,
-          message,
-          ...(options?.details !== undefined && { details: options.details }),
-        },
-      };
+    };
 
-      return NextResponse.json(body, {
-        status: options?.status ?? HTTP.INTERNAL_SERVER_ERROR,
-      });
+    return NextResponse.json(body, {
+      status: options?.status ?? HTTP.INTERNAL_SERVER_ERROR,
+    });
+  }
+
+  function validationErrorResponse(
+    error: ZodError,
+  ): NextResponse<ApiErrorResponse> {
+    const firstIssue = error.issues[0];
+    const message = firstIssue?.message || "Request validation failed";
+    return errorResponse("VALIDATION_ERROR", message, {
+      status: HTTP.UNPROCESSABLE,
+      details: error.flatten().fieldErrors,
+    });
+  }
+
+  function handleError(error: unknown): NextResponse<ApiErrorResponse> {
+    console.error("[API Error]", error);
+
+    if (error instanceof ZodError) {
+      return validationErrorResponse(error);
     }
 
-    function validationErrorResponse(
-      error: ZodError,
-    ): NextResponse<ApiErrorResponse> {
-      const firstIssue = error.issues[0];
-      const message = firstIssue?.message || "Request validation failed";
-      return errorResponse("VALIDATION_ERROR", message, {
-        status: HTTP.UNPROCESSABLE,
-        details: error.flatten().fieldErrors,
-      });
-    }
+    if (error instanceof Error) {
+      const message =
+        process.env["NODE_ENV"] === "production"
+          ? "An internal server error occurred"
+          : error.message;
 
-    function handleError(error: unknown): NextResponse<ApiErrorResponse> {
-      console.error("[API Error]", error);
-
-      if (error instanceof ZodError) {
-        return validationErrorResponse(error);
-      }
-
-      if (error instanceof Error) {
-            const message =
-          process.env["NODE_ENV"] === "production"
-            ? "An internal server error occurred"
-            : error.message;
-
-        return errorResponse("INTERNAL_SERVER_ERROR", message, {
-          status: HTTP.INTERNAL_SERVER_ERROR,
-        });
-      }
-
-      return errorResponse("UNKNOWN_ERROR", "An unexpected error occurred", {
+      return errorResponse("INTERNAL_SERVER_ERROR", message, {
         status: HTTP.INTERNAL_SERVER_ERROR,
       });
     }
 
-    interface PaginationMeta {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    }
-
-    interface ApiSuccessResponse<T = unknown> {
-      success: true;
-      data: T;
-      message?: string;
-      meta?: PaginationMeta;
-    }
-
-    function successResponse<T>(
-      data: T,
-      options?: {
-        message?: string;
-        status?: number;
-        meta?: PaginationMeta;
-      },
-    ): NextResponse<ApiSuccessResponse<T>> {
-      const body: ApiSuccessResponse<T> = {
-        success: true,
-        data,
-        ...(options?.message && { message: options.message }),
-        ...(options?.meta && { meta: options.meta }),
-      };
-
-      return NextResponse.json(body, { status: options?.status ?? HTTP.OK });
-    }
-
-    const emailSchema = z
-      .string({ error: "Email is required" })
-      .email("Invalid email address")
-      .toLowerCase()
-      .trim();
-
-    const passwordSchema = z
-      .string({ error: "Password is required" })
-      .min(8, "Password must be at least 8 characters")
-      .max(128, "Password must be at most 128 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number");
-
-    const nameSchema = z
-      .string()
-      .min(1, "Name cannot be empty")
-      .max(100, "Name must be at most 100 characters")
-      .trim();
-
-    const mobileSchema = z.preprocess(
-      (val) => {
-        if (typeof val !== "string") return val;
-        let cleaned = val.replace(/[\s-]/g, "");
-        if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
-        else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
-        else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
-        return cleaned;
-      },
-      z
-        .string({ error: "Mobile number is required" })
-        .min(1, "Mobile number is required")
-        .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
-    );
-
-    const registerSchema = z.object({
-      email: emailSchema,
-      mobile: mobileSchema,
-      password: passwordSchema,
-      name: nameSchema.optional(),
-      role: z
-        .enum([
-          "STUDENT",
-          "INSTRUCTOR",
-          "IMMERSION_USER",
-          "SUPER_ADMIN",
-          "RECRUIT_USER",
-        ])
-        .default("STUDENT"),
+    return errorResponse("UNKNOWN_ERROR", "An unexpected error occurred", {
+      status: HTTP.INTERNAL_SERVER_ERROR,
     });
+  }
 
-    const HTTP_2 = {
-      OK: 200,
-      CREATED: 201,
-      NO_CONTENT: 204,
-      BAD_REQUEST: 400,
-      UNAUTHORIZED: 401,
-      FORBIDDEN: 403,
-      NOT_FOUND: 404,
-      CONFLICT: 409,
-      UNPROCESSABLE: 422,
-      TOO_MANY_REQUESTS: 429,
-      INTERNAL_SERVER_ERROR: 500,
-    } as const;
+  interface PaginationMeta {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  }
+
+  interface ApiSuccessResponse<T = unknown> {
+    success: true;
+    data: T;
+    message?: string;
+    meta?: PaginationMeta;
+  }
+
+  function successResponse<T>(
+    data: T,
+    options?: {
+      message?: string;
+      status?: number;
+      meta?: PaginationMeta;
+    },
+  ): NextResponse<ApiSuccessResponse<T>> {
+    const body: ApiSuccessResponse<T> = {
+      success: true,
+      data,
+      ...(options?.message && { message: options.message }),
+      ...(options?.meta && { meta: options.meta }),
+    };
+
+    return NextResponse.json(body, { status: options?.status ?? HTTP.OK });
+  }
+
+  const emailSchema = z
+    .string({ error: "Email is required" })
+    .email("Invalid email address")
+    .toLowerCase()
+    .trim();
+
+  const passwordSchema = z
+    .string({ error: "Password is required" })
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must be at most 128 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number");
+
+  const nameSchema = z
+    .string()
+    .min(1, "Name cannot be empty")
+    .max(100, "Name must be at most 100 characters")
+    .trim();
+
+  const mobileSchema = z.preprocess(
+    (val) => {
+      if (typeof val !== "string") return val;
+      let cleaned = val.replace(/[\s-]/g, "");
+      if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+      else if (cleaned.startsWith("91") && cleaned.length === 12) cleaned = cleaned.slice(2);
+      else if (cleaned.startsWith("0") && cleaned.length === 11) cleaned = cleaned.slice(1);
+      return cleaned;
+    },
+    z
+      .string({ error: "Mobile number is required" })
+      .min(1, "Mobile number is required")
+      .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+  );
+
+  const registerSchema = z.object({
+    email: emailSchema,
+    mobile: mobileSchema,
+    password: passwordSchema,
+    name: nameSchema.optional(),
+    role: z
+      .enum([
+        "STUDENT",
+        "INSTRUCTOR",
+        "IMMERSION_USER",
+        "SUPER_ADMIN",
+        "RECRUIT_USER",
+      ])
+      .default("STUDENT"),
+  });
+
+  const HTTP_2 = {
+    OK: 200,
+    CREATED: 201,
+    NO_CONTENT: 204,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    CONFLICT: 409,
+    UNPROCESSABLE: 422,
+    TOO_MANY_REQUESTS: 429,
+    INTERNAL_SERVER_ERROR: 500,
+  } as const;
 
   try {
     const body: unknown = await request.json();
@@ -536,7 +536,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { email, mobile, password, name, role } = parsed.data;
 
-        const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return errorResponse(
         "EMAIL_TAKEN",
@@ -547,10 +547,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const rounds = parseInt(process.env["BCRYPT_ROUNDS"] ?? "12", 10);
+    const rounds = parseInt(process.env["BCRYPT_ROUNDS"] ?? "12", 10);
     const passwordHash = await bcrypt.hash(password, rounds);
 
-        let user;
+    let user;
     if (role === "RECRUIT_USER") {
       const currentYear = new Date().getFullYear();
       user = await prisma.$transaction(async (tx) => {
@@ -600,9 +600,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-        const tokens = await generateTokens(user.id, user.email, user.role);
+    const tokens = await generateTokens(user.id, user.email, user.role);
 
-        sendWelcomeEmail(user.email, user.name || "User", user.role).catch(
+    sendWelcomeEmail(user.email, user.name || "User", user.role).catch(
       (err) => {
         console.error(
           "[Welcome Email] Failed to send welcome email asynchronously:",

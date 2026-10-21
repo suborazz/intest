@@ -15,7 +15,7 @@ interface AuthTokens_2 {
 }
 
 interface JwtPayload {
-  sub: string; 
+  sub: string;
   email: string;
   role: UserRole_2;
   iat?: number;
@@ -64,7 +64,7 @@ async function generateTokens(
   return {
     accessToken,
     refreshToken,
-        expiresIn: 7 * 24 * 60 * 60,
+    expiresIn: 7 * 24 * 60 * 60,
   };
 }
 
@@ -130,7 +130,7 @@ function handleError(error: unknown): NextResponse<ApiErrorResponse> {
   }
 
   if (error instanceof Error) {
-        const message =
+    const message =
       process.env["NODE_ENV"] === "production"
         ? "An internal server error occurred"
         : error.message;
@@ -229,11 +229,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { email, password } = parsed.data;
 
-        const user = await prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: { email, deletedAt: null },
     });
 
-        const dummyHash =
+    const dummyHash =
       "$2a$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234";
     const passwordHash = user?.passwordHash ?? dummyHash;
     const isValid = await bcrypt.compare(password, passwordHash);
@@ -254,7 +254,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-        const tokens = await generateTokens(user.id, user.email, user.role);
+    const tokens = await generateTokens(user.id, user.email, user.role);
 
     return successResponse(
       {

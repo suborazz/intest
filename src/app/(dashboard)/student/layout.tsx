@@ -29,9 +29,9 @@ export default function StudentDashboardLayout({
 }: {
   children: React_2.ReactNode;
 }) {
-    function useAuth() {
-      return useContext(AuthContext);
-    }
+  function useAuth() {
+    return useContext(AuthContext);
+  }
 
   const router = useRouter();
   const { user, isLoading } = useAuth();
@@ -57,7 +57,7 @@ export default function StudentDashboardLayout({
   }
 
   if (!hasProfile) {
-        return null;
+    return null;
   }
 
   return <>{children}</>;
