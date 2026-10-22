@@ -888,6 +888,8 @@ model Immersion {
   benefits     String          @db.Text @default("")
   fees         Float           @default(0.0)
   credits      String?         // e.g. "6 Credits", "3 ECTS"
+  imageUrl     String?
+  imagePublicId String?
 
   categoryId   String?
   category     ImmersionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)

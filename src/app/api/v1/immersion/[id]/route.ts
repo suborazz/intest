@@ -128,6 +128,8 @@ const HTTP_2 = {
   INTERNAL_SERVER_ERROR: 500,
 } as const;
 
+import { cloudinary } from "@/x/cloudinary";
+
 const createImmersionSchema = z.object({
   title: z.string().min(3, "Title is required").trim(),
   description: z.string().min(10, "Description is required").trim(),
@@ -140,6 +142,8 @@ const createImmersionSchema = z.object({
   fees: z.number().nonnegative("Fees must be a positive number or zero"),
   categoryId: z.string().optional().nullable(),
   instructorId: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  imageBase64: z.string().optional().nullable(),
 });
 
 export const dynamic = "force-dynamic";
@@ -269,6 +273,34 @@ export async function PATCH(
       computedStatus = "ACTIVE";
     }
 
+    const existingAny = existing as unknown as { imagePublicId?: string | null };
+
+    let finalImageUrl: string | null | undefined = parsed.data.imageUrl;
+    let finalImagePublicId: string | null | undefined = undefined;
+
+    if (parsed.data.imageBase64 && parsed.data.imageBase64.startsWith("data:")) {
+      try {
+        const uploadRes = await cloudinary.uploader.upload(parsed.data.imageBase64, {
+          folder: "immersions",
+          resource_type: "image",
+        });
+        finalImageUrl = uploadRes.secure_url;
+        finalImagePublicId = uploadRes.public_id;
+
+        if (existingAny.imagePublicId) {
+          cloudinary.uploader.destroy(existingAny.imagePublicId).catch(() => {});
+        }
+      } catch (uploadErr) {
+        console.error("[Cloudinary Immersion Update Error]", uploadErr);
+      }
+    } else if (parsed.data.imageUrl === null) {
+      finalImageUrl = null;
+      finalImagePublicId = null;
+      if (existingAny.imagePublicId) {
+        cloudinary.uploader.destroy(existingAny.imagePublicId).catch(() => {});
+      }
+    }
+
     const updated = await prisma.immersion.update({
       where: { id },
       data: {
@@ -284,6 +316,8 @@ export async function PATCH(
         status: computedStatus,
         categoryId: categoryId || null,
         instructorId: currentInstructorId,
+        ...(finalImageUrl !== undefined ? { imageUrl: finalImageUrl } : {}),
+        ...(finalImagePublicId !== undefined ? { imagePublicId: finalImagePublicId } : {}),
         ...(isInstructorChanged
           ? {
               instructorApprovalStatus: "PENDING",
@@ -291,7 +325,7 @@ export async function PATCH(
               instructorRemarks: null,
             }
           : {}),
-      },
+      } as any,
       include: {
         category: true,
         instructor: { select: { id: true, name: true, email: true } },
@@ -333,13 +367,18 @@ export async function DELETE(
 
     const { id } = await params;
 
-        const existing = await prisma.immersion.findUnique({
+    const existing = await prisma.immersion.findUnique({
       where: { id },
     });
     if (!existing) {
       return errorResponse("NOT_FOUND", "Immersion program not found.", {
         status: HTTP_2.NOT_FOUND,
       });
+    }
+
+    const existingAny = existing as unknown as { imagePublicId?: string | null };
+    if (existingAny.imagePublicId) {
+      cloudinary.uploader.destroy(existingAny.imagePublicId).catch(() => {});
     }
 
     await prisma.immersion.delete({

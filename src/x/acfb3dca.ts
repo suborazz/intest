@@ -6,8 +6,14 @@ export const AUTH_KEYS = {
   USER_DATA: "userData",
 };
 
+const getBaseURL = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!url) return "/api/v1";
+  return url.endsWith("/api/v1") ? url : `${url.replace(/\/+$/, "")}/api/v1`;
+};
+
 export const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getBaseURL(),
   timeout: 120000,
   headers: {
     "Content-Type": "application/json",
@@ -43,6 +49,9 @@ axiosInstance.interceptors.request.use(
       }
       if (typeof FormData !== "undefined" && config.data instanceof FormData && config.headers) {
         delete config.headers["Content-Type"];
+      }
+      if (config.url?.startsWith("/api/v1")) {
+        config.url = config.url.replace(/^\/api\/v1/, "");
       }
     } catch (e) {
       console.warn("Axios Interceptor: Could not fetch auth token", e);

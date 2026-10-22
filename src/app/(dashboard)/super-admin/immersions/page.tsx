@@ -9959,13 +9959,22 @@ export default function SuperAdminImmersionsPage() {
         accessorKey: "title",
         header: "Program Title",
         cell: ({ row }) => (
-          <div className="flex flex-col">
-            <span className="text-foreground max-w-[200px] truncate text-xs font-bold leading-snug">
-              {row.getValue("title")}
-            </span>
-            <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
-              {row.original.category?.name || "Other"}
-            </span>
+          <div className="flex items-center gap-2.5">
+            {(row.original as any).imageUrl ? (
+              <img
+                src={(row.original as any).imageUrl}
+                alt={row.getValue("title")}
+                className="border-border/50 h-8 w-8 shrink-0 rounded-lg border object-cover shadow-2xs"
+              />
+            ) : null}
+            <div className="flex min-w-0 flex-col">
+              <span className="text-foreground max-w-[200px] truncate text-xs font-bold leading-snug">
+                {row.getValue("title")}
+              </span>
+              <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
+                {row.original.category?.name || "Other"}
+              </span>
+            </div>
           </div>
         ),
       },
@@ -10111,6 +10120,7 @@ export default function SuperAdminImmersionsPage() {
         benefits?: string;
         categoryId?: string;
         instructorId?: string | null;
+        imageUrl?: string | null;
         category?: {
           id: string;
           name?: string;

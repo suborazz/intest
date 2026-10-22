@@ -222,9 +222,16 @@ export async function GET(
                 doc.rect(5, 5, 390, 240).lineWidth(1.5).stroke("#10b981");
           doc.rect(5, 5, 390, 4).fill("#022c22");
 
-                      const logoPath = join(process.cwd(), "public", "logo.png");
+          const studentLogoPath = join(process.cwd(), "public", "student-id-logo.png");
+          const logoPath = fs.existsSync(studentLogoPath)
+            ? studentLogoPath
+            : join(process.cwd(), "public", "logo.png");
           if (fs.existsSync(logoPath)) {
-            doc.image(logoPath, 176, 8, { width: 48 });
+            if (logoPath === studentLogoPath) {
+              doc.image(logoPath, 190, 8, { width: 20 });
+            } else {
+              doc.image(logoPath, 176, 8, { width: 48 });
+            }
           }
 
                 doc

@@ -2469,9 +2469,12 @@ export default function IDCardsPage() {
                   <div className="flex flex-col items-center justify-center border-b border-zinc-100 pb-2 pt-2.5">
                     {}
                     <img
-                      src="/logo.png"
+                      src="/student-id-logo.png"
                       alt="iiInternship Logo"
                       className="mb-0.5 h-10 w-auto object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/logo.png";
+                      }}
                     />
                     {}
                     <h1 className="mt-0.5 text-[8.5px] font-bold uppercase leading-none tracking-wide text-[#022c22]">

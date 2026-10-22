@@ -39,7 +39,7 @@ import { Select as SelectPrimitive } from "radix-ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z_2 from "zod";
-import { LucideIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon, XIcon } from "lucide-react";
+import { LucideIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon, XIcon, Upload } from "lucide-react";
 import * as React from "react";
 import { ReactNode, useContext } from "react";
 import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
@@ -3957,6 +3957,8 @@ const createImmersionSchema_2 = z_2.object({
   fees: z_2.number().nonnegative("Fees must be a positive number or zero"),
   categoryId: z_2.string().optional().nullable(),
   instructorId: z_2.string().optional().nullable(),
+  imageUrl: z_2.string().optional().nullable(),
+  imageBase64: z_2.string().optional().nullable(),
 });
 
 function Select_17({
@@ -4707,6 +4709,36 @@ const EditForm_5: React_3.FC<EditFormProps> = ({ program }) => {
     },
   });
 
+  const [imagePreview, setImagePreview] = React_3.useState<string | null>(
+    program.imageUrl || null,
+  );
+  const [imageBase64, setImageBase64] = React_3.useState<string | null>(null);
+  const [isImageRemoved, setIsImageRemoved] = React_3.useState(false);
+
+  const handleImageChange = (e: React_3.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size exceeds 5MB limit");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = reader.result as string;
+        setImagePreview(res);
+        setImageBase64(res);
+        setIsImageRemoved(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setImageBase64(null);
+    setIsImageRemoved(true);
+  };
+
   const { mutate: updateImmersion, isPending } =
     SuperAdminDataHooks.useUpdateImmersion({
       onSuccess: () => {
@@ -4727,8 +4759,13 @@ const EditForm_5: React_3.FC<EditFormProps> = ({ program }) => {
       id: program.id,
       payload: {
         ...values,
-                        instructorId: values.instructorId || null,
+        instructorId: values.instructorId || null,
         categoryId: values.categoryId || null,
+        ...(imageBase64
+          ? { imageBase64 }
+          : isImageRemoved
+            ? { imageUrl: null }
+            : {}),
       },
     });
   };
@@ -4742,6 +4779,49 @@ const EditForm_5: React_3.FC<EditFormProps> = ({ program }) => {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
+          {/* Program Thumbnail Image */}
+          <div className="space-y-2">
+            <FormLabel>Program Thumbnail / Cover Image</FormLabel>
+            <div className="flex items-center gap-4">
+              {imagePreview ? (
+                <div className="relative h-20 w-28 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors cursor-pointer"
+                  >
+                    <XIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex h-20 w-28 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:bg-zinc-800/50 transition-colors">
+                  <Upload className="h-5 w-5 text-zinc-500 mb-1" />
+                  <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
+                    Upload Image
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </label>
+              )}
+              <div className="text-xs text-muted-foreground">
+                <p className="font-semibold text-foreground">Program cover image</p>
+                <p>
+                  Supports PNG, JPG, WebP up to 5MB. Displayed on participant Browse
+                  Programs cards and details dialog.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <FormField
             control={form.control}
             name="title"

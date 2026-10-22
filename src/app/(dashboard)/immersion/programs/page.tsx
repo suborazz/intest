@@ -2081,6 +2081,8 @@ interface EmersionProgram {
       category?: EmersionProgramCategory | null;
       instructorId?: string | null;
       instructor?: EmersionProgramInstructor | null;
+      imageUrl?: string | null;
+      imagePublicId?: string | null;
       createdAt: string;
       updatedAt: string;
     }
@@ -2826,8 +2828,16 @@ function ProgramCard({
       return (
         <div className="shadow-xs hover:border-primary/30 group flex h-fit flex-col gap-3.5 rounded-2xl border border-zinc-200/80 bg-white/70 p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-zinc-800/80 dark:bg-zinc-900/60">
           <div className="flex items-center gap-3">
-            <div className="bg-primary/5 border-primary/10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border">
-              <Sparkles_2 className="h-5.5 w-5.5 text-primary" />
+            <div className="bg-primary/5 border-primary/10 relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+              {program.imageUrl ? (
+                <img
+                  src={program.imageUrl}
+                  alt={program.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Sparkles_2 className="h-5.5 w-5.5 text-primary" />
+              )}
             </div>
             <div className="flex min-w-0 flex-1 flex-col justify-center">
               <h3 className="text-foreground group-hover:text-primary truncate text-base font-extrabold leading-tight tracking-tight transition-colors">
@@ -3097,8 +3107,16 @@ function ProgramListItem({
         <div className="shadow-xs hover:border-primary/30 group flex flex-col justify-between gap-5 rounded-2xl border border-zinc-200/80 bg-white/70 p-5 backdrop-blur-xl transition-all duration-300 hover:shadow-md md:flex-row dark:border-zinc-800/80 dark:bg-zinc-900/60">
           {}
           <div className="flex flex-1 items-start gap-4">
-            <div className="bg-primary/5 border-primary/10 mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border">
-              <Sparkles_2 className="text-primary h-6 w-6" />
+            <div className="bg-primary/5 border-primary/10 relative mt-1 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+              {program.imageUrl ? (
+                <img
+                  src={program.imageUrl}
+                  alt={program.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Sparkles_2 className="text-primary h-6 w-6" />
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
@@ -3345,8 +3363,16 @@ function ProgramDetailDialog_2({
           <DialogContent className="max-h-[90vh] w-[92vw] overflow-y-auto sm:max-w-2xl">
             <DialogHeader>
               <div className="flex items-start gap-4">
-                <div className="bg-primary/10 text-primary border-primary/20 flex size-12 shrink-0 items-center justify-center rounded-2xl border">
-                  <Compass className="size-6" />
+                <div className="bg-primary/10 text-primary border-primary/20 relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border">
+                  {program.imageUrl ? (
+                    <img
+                      src={program.imageUrl}
+                      alt={program.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Compass className="size-6" />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <DialogTitle className="text-2xl font-extrabold leading-tight tracking-tight">
@@ -3364,6 +3390,15 @@ function ProgramDetailDialog_2({
             </DialogHeader>
 
             <div className="mt-3 space-y-6">
+              {program.imageUrl && (
+                <div className="relative h-48 w-full overflow-hidden rounded-2xl border border-zinc-200/80 shadow-xs dark:border-zinc-800/80">
+                  <img
+                    src={program.imageUrl}
+                    alt={program.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
               {}
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 font-mono text-xs font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">

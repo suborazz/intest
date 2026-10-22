@@ -3100,7 +3100,7 @@ export default function EmersionProfilePage() {
       }
 
       const handleEditSubmission = () => {
-        router.push("/immersion/registration?edit=true");
+        router.push("/immersion/profile/edit");
       };
 
       const rawId = profile.emersionId ?? profile.userId;

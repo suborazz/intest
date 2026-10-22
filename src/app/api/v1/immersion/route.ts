@@ -166,6 +166,8 @@ function formatImmersionCode(
   return `IM2026${initials}${index}`;
 }
 
+import { cloudinary } from "@/x/cloudinary";
+
 const createImmersionSchema = z.object({
   title: z.string().min(3, "Title is required").trim(),
   description: z.string().min(10, "Description is required").trim(),
@@ -178,6 +180,8 @@ const createImmersionSchema = z.object({
   fees: z.number().nonnegative("Fees must be a positive number or zero"),
   categoryId: z.string().optional().nullable(),
   instructorId: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  imageBase64: z.string().optional().nullable(),
 });
 
 export const dynamic = "force-dynamic";
@@ -312,6 +316,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       computedStatus = "ACTIVE";
     }
 
+    let finalImageUrl: string | null = parsed.data.imageUrl ?? null;
+    let finalImagePublicId: string | null = null;
+
+    if (parsed.data.imageBase64 && parsed.data.imageBase64.startsWith("data:")) {
+      try {
+        const uploadRes = await cloudinary.uploader.upload(parsed.data.imageBase64, {
+          folder: "immersions",
+          resource_type: "image",
+        });
+        finalImageUrl = uploadRes.secure_url;
+        finalImagePublicId = uploadRes.public_id;
+      } catch (uploadErr) {
+        console.error("[Cloudinary Immersion Upload Error]", uploadErr);
+      }
+    }
+
     const immersion = await prisma.immersion.create({
       data: {
         title,
@@ -326,7 +346,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         status: computedStatus,
         categoryId: categoryId || null,
         instructorId: instructorId || null,
-      },
+        imageUrl: finalImageUrl,
+        imagePublicId: finalImagePublicId,
+      } as any,
       include: {
         category: true,
         instructor: { select: { id: true, name: true, email: true } },
