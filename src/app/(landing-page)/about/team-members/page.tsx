@@ -177,25 +177,25 @@ export default async function TeamMembersPage() {
     dbOfficials.length > 0
       ? dbOfficials
       : [
-          {
-            id: "sample_1",
-            slNo: 1,
-            name: "Dr. Avishek Kumar",
-            designation: "CMD & Founder",
-            workingLocation: "Patna / Varanasi",
-            mobile: "+91 6204956366",
-            email: "info@iiinternship.in",
-          },
-          {
-            id: "sample_2",
-            slNo: 2,
-            name: "Mr. Tapas Kumar",
-            designation: "Strategic Advisor & CEO",
-            workingLocation: "Lucknow, Uttar Pradesh",
-            mobile: "+91 6204956366",
-            email: "tapas@learnifyconsultancy.com",
-          },
-        ];
+        {
+          id: "sample_1",
+          slNo: 1,
+          name: "Dr. Avishek Kumar",
+          designation: "CMD & Founder",
+          workingLocation: "Patna / Varanasi",
+          mobile: "+91 9911439898",
+          email: "info@iiinternship.in",
+        },
+        {
+          id: "sample_2",
+          slNo: 2,
+          name: "Mr. Tapas Kumar",
+          designation: "CEO",
+          workingLocation: "Lucknow, Uttar Pradesh",
+          mobile: "+91 9911439898",
+          email: "tapas@learnifyconsultancy.com",
+        },
+      ];
 
   return (
     <main className="bg-background min-h-screen">
@@ -415,7 +415,7 @@ export default async function TeamMembersPage() {
         {/* Core Philosophy Banner */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#063B27] via-[#0A5C36] to-[#04281A] p-8 sm:p-10 text-white shadow-2xl">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#34d399_1px,transparent_1px)] opacity-10 [background-size:20px_20px]" />
-          
+
           <div className="relative z-10 max-w-3xl mx-auto text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-bold text-emerald-200 backdrop-blur-md mb-4 border border-white/10">
               <Award className="size-3.5" />
