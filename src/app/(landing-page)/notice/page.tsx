@@ -1614,7 +1614,7 @@ export default function NoticesPage() {
 
         async listNotices() {
         const response = await axiosInstance.get<ListNoticesResponse>(
-          ENDPOINTS.NOTICES.BASE,
+          `${ENDPOINTS.NOTICES.BASE}?public=true`,
         );
         return response.data;
       },
@@ -2349,7 +2349,44 @@ export default function NoticesPage() {
   };
 
   const { data: res, isLoading } = StudentDataHook.useNotices();
-  const notices = useMemo(() => res?.data || [], [res]);
+  const notices = useMemo(() => {
+    const rawList: Notice[] = res?.data || [];
+    const map = new Map<string, Notice>();
+
+    for (const item of rawList) {
+      // 1. Clean base notice number by stripping any trailing "-<userId>" or cuid suffix
+      const rawNum = (item.noticeNumber || "").trim();
+      const baseNoticeNumber = rawNum.replace(/-[a-z0-9]{20,}$/i, "").trim();
+
+      // 2. Compute reliable deduplication key
+      const normalizedTitle = (item.title || "").trim().toLowerCase();
+      const normalizedDate = item.date || item.createdAt || "";
+      const dedupKey = baseNoticeNumber
+        ? baseNoticeNumber.toUpperCase()
+        : `${normalizedTitle}::${normalizedDate}`;
+
+      if (!map.has(dedupKey)) {
+        map.set(dedupKey, {
+          ...item,
+          noticeNumber: baseNoticeNumber || item.noticeNumber,
+        });
+      } else {
+        const existing = map.get(dedupKey)!;
+        if (!existing.pdfUrl && item.pdfUrl) {
+          existing.pdfUrl = item.pdfUrl;
+          existing.pdfPublicId = item.pdfPublicId;
+        }
+        if (!existing.linkUrl && item.linkUrl) {
+          existing.linkUrl = item.linkUrl;
+        }
+        if (existing.noticeNumber.includes("-cmu") && !item.noticeNumber.includes("-cmu")) {
+          existing.noticeNumber = baseNoticeNumber || item.noticeNumber;
+        }
+      }
+    }
+
+    return Array.from(map.values());
+  }, [res]);
     const processedNotices = useMemo(() => {
     const filtered = (notices || []).filter((notice) => {
       const titleMatch = notice.title
@@ -2555,6 +2592,39 @@ export default function NoticesPage() {
                                 >
                                   {notice.title}
                                 </Link>
+                                {(notice.pdfUrl || notice.linkUrl) && (
+                                  <div className="flex items-center gap-2 pt-0.5 pb-1 flex-wrap">
+                                    {notice.pdfUrl && (
+                                      <a
+                                        href={notice.pdfUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        download
+                                        className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                                        title="Download Attached Document / PDF"
+                                      >
+                                        <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Attachment
+                                      </a>
+                                    )}
+                                    {notice.linkUrl && (
+                                      <a
+                                        href={notice.linkUrl.startsWith("http://") || notice.linkUrl.startsWith("https://") ? notice.linkUrl : `https://${notice.linkUrl}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800"
+                                        title="Open Attached Link"
+                                      >
+                                        <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        Link ↗
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
                                 {(() => {
                                   const rawText = notice.description || (notice as any).content || "";
                                   if (!rawText) return null;
@@ -2699,7 +2769,7 @@ export default function NoticesPage() {
                                 {/* External Link Button */}
                                 {notice.linkUrl && (
                                   <a
-                                    href={notice.linkUrl}
+                                    href={notice.linkUrl.startsWith("http://") || notice.linkUrl.startsWith("https://") ? notice.linkUrl : `https://${notice.linkUrl}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     title="Open Link in New Tab"

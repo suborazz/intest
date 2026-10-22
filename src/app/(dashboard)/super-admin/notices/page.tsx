@@ -1,7 +1,7 @@
 "use client";
 
 import React_4, { Suspense } from "react";
-import { Bell, CalendarDays, Check, Download, Edit, ExternalLink, Filter, Info, Loader2, Mail as Mail_2, Paperclip, Search, Send, Tag, Target as Target_2, Trash2, User, Target, X } from "lucide-react";
+import { Bell, CalendarDays, Check, Download, Edit, ExternalLink, Filter, Globe, Info, Loader2, Mail as Mail_2, Paperclip, Search, Send, Tag, Target as Target_2, Trash2, User, Target, X } from "lucide-react";
 import React_3 from "react";
 import { useState } from "react";
 import { Select as SelectPrimitive } from "radix-ui";
@@ -535,6 +535,7 @@ interface NoticePayload {
   immersionIds?: string[];
   pdfUrl?: string | null;
   linkUrl?: string | null;
+  publishToNoticeBoard?: boolean;
   file?: File | null;
 }
 
@@ -1201,6 +1202,7 @@ const NoticeSchema = z.object({
       linkUrl: z.string().optional(),
       internshipIds: z.array(z.string()).optional(),
       immersionIds: z.array(z.string()).optional(),
+      publishToNoticeBoard: z.boolean().optional(),
     });
 
 type NoticeFormValues = z.infer<typeof NoticeSchema>;
@@ -3916,6 +3918,7 @@ export default function SuperAdminNoticesPage() {
       immersionIds?: string[];
       pdfUrl?: string | null;
       linkUrl?: string | null;
+      publishToNoticeBoard?: boolean;
       file?: File | null;
     }
 
@@ -4222,6 +4225,7 @@ export default function SuperAdminNoticesPage() {
           linkUrl: "",
           internshipIds: [],
           immersionIds: [],
+          publishToNoticeBoard: false,
         },
       });
 
@@ -4316,12 +4320,14 @@ export default function SuperAdminNoticesPage() {
               return;
             }
             formData.append("internshipIds", JSON.stringify(values.internshipIds));
+            formData.append("publishToNoticeBoard", String(!!values.publishToNoticeBoard));
           } else if (targetType === "immersion") {
             if (!values.immersionIds?.length) {
               toast.error("Select at least one immersion program to target.");
               return;
             }
             formData.append("immersionIds", JSON.stringify(values.immersionIds));
+            formData.append("publishToNoticeBoard", String(!!values.publishToNoticeBoard));
           } else {
             if (values.targetRole) formData.append("targetRole", values.targetRole);
             if (values.receiverId?.trim()) formData.append("receiverId", values.receiverId.trim());
@@ -4359,12 +4365,14 @@ export default function SuperAdminNoticesPage() {
               return;
             }
             payload.internshipIds = values.internshipIds;
+            payload.publishToNoticeBoard = !!values.publishToNoticeBoard;
           } else if (targetType === "immersion") {
             if (!values.immersionIds?.length) {
               toast.error("Select at least one immersion program to target.");
               return;
             }
             payload.immersionIds = values.immersionIds;
+            payload.publishToNoticeBoard = !!values.publishToNoticeBoard;
           } else {
             if (values.targetRole) {
               payload.targetRole = values.targetRole;
@@ -4739,6 +4747,65 @@ export default function SuperAdminNoticesPage() {
                         })}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {(targetType === "internship" || targetType === "immersion") && (
+                  <div className="animate-in fade-in rounded-xl border border-border/80 bg-muted/20 p-3.5 space-y-2.5 duration-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <label className="text-foreground flex items-center gap-1.5 text-xs font-bold">
+                          <Globe className="size-3.5 text-emerald-600" />
+                          क्या यह नोटिस वेबसाइट के मेन पेज के नोटिस पेज पर पब्लिश होगा?
+                        </label>
+                        <p className="text-muted-foreground text-[10px]">
+                          Publish announcement on main website Notice Board (/notice)?
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 rounded-lg border border-border/80 bg-background p-1 text-xs self-start sm:self-auto">
+                        <button
+                          type="button"
+                          onClick={() => form.setValue("publishToNoticeBoard", false)}
+                          className={`px-3 py-1 rounded-md font-semibold text-xs cursor-pointer transition-all ${
+                            !form.watch("publishToNoticeBoard")
+                              ? "bg-zinc-800 text-white shadow-xs dark:bg-zinc-200 dark:text-zinc-900"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          नहीं (No)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => form.setValue("publishToNoticeBoard", true)}
+                          className={`px-3 py-1 rounded-md font-semibold text-xs cursor-pointer transition-all ${
+                            form.watch("publishToNoticeBoard")
+                              ? "bg-emerald-600 text-white shadow-xs"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          हाँ (Yes)
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-medium leading-relaxed rounded-lg border border-border/40 bg-background/60 p-2.5">
+                      {!form.watch("publishToNoticeBoard") ? (
+                        <div className="text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                          <span className="text-xs">🔒</span>
+                          <span>
+                            <b>नहीं (No):</b> यह नोटिस केवल विद्यार्थियों को <b>ईमेल</b> जाएगा तथा उनके <b>लॉगिन डैशबोर्ड</b> के नोटिस सेक्शन में प्रदर्शित होगा (वेबसाइट के मुख्य पेज पर नहीं दिखेगा).
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-emerald-800 dark:text-emerald-300 flex items-start gap-1.5">
+                          <span className="text-xs">🌐</span>
+                          <span>
+                            <b>हाँ (Yes):</b> यह नोटिस तीनों जगह शो होगा: विद्यार्थियों को <b>ईमेल</b>, उनके <b>लॉगिन डैशबोर्ड</b>, तथा वेबसाइट के <b>मेन नोटिस पेज</b> पर.
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 

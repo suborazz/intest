@@ -2,7 +2,7 @@
 
 import { Metadata } from "next";
 import React_4 from "react";
-import { CalendarDays, Info, Megaphone, Monitor, Search, Target } from "lucide-react";
+import { CalendarDays, Globe, Info, Megaphone, Monitor, Search, Target } from "lucide-react";
 import React_3 from "react";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -1379,6 +1379,7 @@ const ZPostNoticeForm = z
         targetRole: z.string().default("STUDENT"),
         internshipIds: z.array(z.string()).optional(),
         immersionIds: z.array(z.string()).optional(),
+        publishToNoticeBoard: z.boolean().optional(),
       })
       .refine(
         (data) => {
@@ -2301,6 +2302,7 @@ export default function InstructorNoticesPage() {
               targetRole: "STUDENT",
               internshipIds: [],
               immersionIds: [],
+              publishToNoticeBoard: false,
             },
           });
     const selectedInternshipIds = watch("internshipIds") || [];
@@ -2687,6 +2689,65 @@ export default function InstructorNoticesPage() {
                                             <p className="text-[10px] font-bold text-red-500">
                                               {errors.internshipIds.message}
                                             </p>
+                                          )}
+
+                                          {(targetType === "internship" || targetType === "immersion") && (
+                                            <div className="animate-in fade-in rounded-xl border border-border/80 bg-muted/20 p-3.5 space-y-2.5 duration-200">
+                                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div className="space-y-0.5">
+                                                  <label className="text-foreground flex items-center gap-1.5 text-xs font-bold">
+                                                    <Globe className="size-3.5 text-emerald-600" />
+                                                    क्या यह नोटिस वेबसाइट के मेन पेज के नोटिस पेज पर पब्लिश होगा?
+                                                  </label>
+                                                  <p className="text-muted-foreground text-[10px]">
+                                                    Publish announcement on main website Notice Board (/notice)?
+                                                  </p>
+                                                </div>
+
+                                                <div className="flex items-center gap-1.5 rounded-lg border border-border/80 bg-background p-1 text-xs self-start sm:self-auto">
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => setValue("publishToNoticeBoard", false, { shouldValidate: true })}
+                                                    className={`px-3 py-1 rounded-md font-semibold text-xs cursor-pointer transition-all ${
+                                                      !watch("publishToNoticeBoard")
+                                                        ? "bg-zinc-800 text-white shadow-xs dark:bg-zinc-200 dark:text-zinc-900"
+                                                        : "text-muted-foreground hover:text-foreground"
+                                                    }`}
+                                                  >
+                                                    नहीं (No)
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => setValue("publishToNoticeBoard", true, { shouldValidate: true })}
+                                                    className={`px-3 py-1 rounded-md font-semibold text-xs cursor-pointer transition-all ${
+                                                      watch("publishToNoticeBoard")
+                                                        ? "bg-emerald-600 text-white shadow-xs"
+                                                        : "text-muted-foreground hover:text-foreground"
+                                                    }`}
+                                                  >
+                                                    हाँ (Yes)
+                                                  </button>
+                                                </div>
+                                              </div>
+
+                                              <div className="text-[10px] font-medium leading-relaxed rounded-lg border border-border/40 bg-background/60 p-2.5">
+                                                {!watch("publishToNoticeBoard") ? (
+                                                  <div className="text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                                                    <span className="text-xs">🔒</span>
+                                                    <span>
+                                                      <b>नहीं (No):</b> यह नोटिस केवल विद्यार्थियों को <b>ईमेल</b> जाएगा तथा उनके <b>लॉगिन डैशबोर्ड</b> के नोटिस सेक्शन में प्रदर्शित होगा (वेबसाइट के मुख्य पेज पर नहीं दिखेगा).
+                                                    </span>
+                                                  </div>
+                                                ) : (
+                                                  <div className="text-emerald-800 dark:text-emerald-300 flex items-start gap-1.5">
+                                                    <span className="text-xs">🌐</span>
+                                                    <span>
+                                                      <b>हाँ (Yes):</b> यह नोटिस तीनों जगह शो होगा: विद्यार्थियों को <b>ईमेल</b>, उनके <b>लॉगिन डैशबोर्ड</b>, तथा वेबसाइट के <b>मेन नोटिस पेज</b> पर.
+                                                    </span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
                                           )}
 
                                           <div className="space-y-1.5">

@@ -1,8 +1,9 @@
 "use client";
 
 import { Metadata } from "next";
+import { useRouter } from "next/navigation";
 import React_2 from "react";
-import { Activity as Activity_2, Award, Bell, CalendarDays, CheckCircle2, ClipboardList, CreditCard, FileText, Layers, Megaphone, RefreshCw, Activity } from "lucide-react";
+import { Activity as Activity_2, Award, Bell, CalendarDays, CheckCircle2, ChevronRight, ClipboardList, Compass, CreditCard, FileText, Layers, Megaphone, RefreshCw, Activity } from "lucide-react";
 import React_3 from "react";
 import * as z_2 from "zod";
 import * as React from "react";
@@ -2400,6 +2401,7 @@ export default function EmersionDashboardPage() {
     }
 
     function EmersionDashboardOverview_2() {
+      const router = useRouter();
       const { user } = useAuth();
 
       const {
@@ -2470,14 +2472,13 @@ export default function EmersionDashboardPage() {
             </div>
             <div className="z-10 flex w-full shrink-0 items-center gap-3 sm:w-auto">
               <Button
-                id="btn-refresh-emersion-dashboard"
-                onClick={() => refetch()}
-                variant="outline"
-                size="sm"
-                className="h-9 w-full cursor-pointer justify-center gap-1.5 font-semibold shadow-sm active:scale-[0.98] sm:w-auto"
+                id="btn-browse-immersion-programs"
+                onClick={() => router.push("/immersion/programs")}
+                className="h-9 w-full cursor-pointer justify-center gap-1.5 bg-emerald-600 px-4 font-semibold text-white shadow-sm hover:bg-emerald-700 active:scale-[0.98] sm:w-auto"
               >
-                <RefreshCw className="size-4" />
-                Refresh
+                <Compass className="size-4" />
+                Browse Immersion Programs
+                <ChevronRight className="size-4" />
               </Button>
             </div>
           </div>

@@ -2254,7 +2254,7 @@ export default function ViewNoticePage() {
                     )}
                     {(notice as any).linkUrl && (
                       <a
-                        href={(notice as any).linkUrl}
+                        href={(notice as any).linkUrl.startsWith("http://") || (notice as any).linkUrl.startsWith("https://") ? (notice as any).linkUrl : `https://${(notice as any).linkUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-blue-700 hover:shadow"
@@ -2308,7 +2308,7 @@ export default function ViewNoticePage() {
               )}
               {(notice as any).linkUrl && (
                 <a
-                  href={(notice as any).linkUrl}
+                  href={(notice as any).linkUrl.startsWith("http://") || (notice as any).linkUrl.startsWith("https://") ? (notice as any).linkUrl : `https://${(notice as any).linkUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-blue-600 hover:bg-blue-700 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:shadow sm:w-auto"

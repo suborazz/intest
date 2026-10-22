@@ -220,13 +220,24 @@ async function syncLegacyNoticeNumbers() {
   try {
     const all = await prisma.notice.findMany({
       orderBy: { createdAt: "asc" },
-      select: { id: true, createdAt: true, date: true, noticeNumber: true },
+      select: { id: true, createdAt: true, date: true, noticeNumber: true, title: true, pdfUrl: true, linkUrl: true },
     });
 
     if (!all || all.length === 0) return;
 
-    // Track the highest sequence already present for each 2-digit year token so
-    // that re-numbered notices never collide with existing official numbers.
+    // 1. Strip any suffixed student IDs (e.g. NOT-KV15TL-cmugs20jg...)
+    for (const n of all) {
+      if (/-[a-z0-9]{20,}$/i.test(n.noticeNumber || "")) {
+        const cleaned = n.noticeNumber.replace(/-[a-z0-9]{20,}$/i, "").trim();
+        await prisma.notice.update({
+          where: { id: n.id },
+          data: { noticeNumber: cleaned },
+        });
+        n.noticeNumber = cleaned;
+      }
+    }
+
+    // Track the highest sequence already present for each 2-digit year token
     const maxSeqByYY: Record<string, number> = {};
     for (const n of all) {
       const m = (n.noticeNumber || "").trim().match(NOTICE_NUMBER_REGEX);
@@ -253,14 +264,25 @@ async function syncLegacyNoticeNumbers() {
       const year = parseInt(yearStr, 10);
       const yy = yearToYY(year);
       let currentMax = maxSeqByYY[yy] || 0;
+
+      // Group identical notices so duplicates receive the exact same official notice number
+      const groupMap = new Map<string, typeof all>();
       for (const n of byYear[year]) {
+        const key = `${(n.title || "").trim().toLowerCase()}::${(n.noticeNumber || "").trim().toUpperCase()}`;
+        if (!groupMap.has(key)) groupMap.set(key, []);
+        groupMap.get(key)!.push(n);
+      }
+
+      for (const [_, items] of groupMap) {
         currentMax++;
         const formattedSeq = String(currentMax).padStart(2, "0");
         const newNum = `NTC/${yy}${formattedSeq}`;
-        await prisma.notice.update({
-          where: { id: n.id },
-          data: { noticeNumber: newNum },
-        });
+        for (const n of items) {
+          await prisma.notice.update({
+            where: { id: n.id },
+            data: { noticeNumber: newNum },
+          });
+        }
       }
       maxSeqByYY[yy] = currentMax;
     }
@@ -304,6 +326,7 @@ const createNoticeSchema = z.object({
   pdfUrl: z.string().optional().nullable(),
   pdfPublicId: z.string().optional().nullable(),
   linkUrl: z.string().optional().nullable(),
+  publishToNoticeBoard: z.union([z.boolean(), z.string()]).optional().nullable(),
 });
 
 const paginationSchema = z.object({
@@ -336,13 +359,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const userId = request.headers.get("X-User-Id");
     const userRole = request.headers.get("X-User-Role") as UserRole;
+    const isPublic = searchParams.get("public") === "true";
 
     let where: any = {
-      targetRole: null,
       receiverId: null,
     };
 
-    if (userId && userRole) {
+    if (!isPublic && userId && userRole) {
       if (userRole === "SUPER_ADMIN") {
         where = {};
       } else if (userRole === "INSTRUCTOR") {
@@ -409,9 +432,36 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.notice.count({ where }),
     ]);
 
-    const meta = buildPaginationMeta(total, page, limit);
+    // Deduplicate notices so each official notice only appears ONCE
+    const uniqueMap = new Map<string, (typeof notices)[0]>();
+    for (const n of notices) {
+      const baseNum = (n.noticeNumber || "").replace(/-[a-z0-9]{20,}$/i, "").trim();
+      const normTitle = (n.title || "").trim().toLowerCase();
+      const normDate = n.date || (n.createdAt ? new Date(n.createdAt).toISOString().split("T")[0] : "");
+      const key = baseNum ? baseNum.toUpperCase() : `${normTitle}::${normDate}`;
 
-    return successResponse(notices, { meta });
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, {
+          ...n,
+          noticeNumber: baseNum || n.noticeNumber,
+        });
+      } else {
+        const existing = uniqueMap.get(key)!;
+        if (!existing.pdfUrl && n.pdfUrl) {
+          existing.pdfUrl = n.pdfUrl;
+          existing.pdfPublicId = n.pdfPublicId;
+        }
+        if (!existing.linkUrl && n.linkUrl) {
+          existing.linkUrl = n.linkUrl;
+        }
+      }
+    }
+    const deduplicatedNotices = Array.from(uniqueMap.values());
+    const totalCount = isPublic ? deduplicatedNotices.length : total;
+
+    const meta = buildPaginationMeta(totalCount, page, limit);
+
+    return successResponse(deduplicatedNotices, { meta });
   } catch (error) {
     return handleError(error);
   }
@@ -449,6 +499,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       linkUrl?: string | null;
       internshipIds?: string[];
       immersionIds?: string[];
+      publishToNoticeBoard?: boolean | string;
     } = {};
     let pdfFile: File | null = null;
 
@@ -486,6 +537,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         receiverId: (formData.get("receiverId") as string) || null,
         pdfUrl: (formData.get("pdfUrl") as string) || null,
         linkUrl: (formData.get("linkUrl") as string) || null,
+        publishToNoticeBoard:
+          formData.get("publishToNoticeBoard") === "true" ||
+          formData.get("publishToNoticeBoard") === "on",
         internshipIds: parsedInternshipIds,
         immersionIds: parsedImmersionIds,
       };
@@ -625,6 +679,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       userRole === "SUPER_ADMIN" && hasProgramTargets;
     const isProgramScoped = isTargetedInstructorNotice || isTargetedAdminNotice;
 
+    const publishToNoticeBoard =
+      body.publishToNoticeBoard === true ||
+      body.publishToNoticeBoard === "true" ||
+      body.publishToNoticeBoard === "on";
+
     const notice = await prisma.notice.create({
       data: {
         noticeNumber: result.data.noticeNumber,
@@ -634,7 +693,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         description: result.data.description,
         senderId: userId,
         targetRole: isProgramScoped ? null : result.data.targetRole || null,
-        receiverId: isProgramScoped ? null : resolvedReceiverId,
+        receiverId: isProgramScoped
+          ? (publishToNoticeBoard ? null : userId)
+          : resolvedReceiverId,
         pdfUrl,
         pdfPublicId,
         linkUrl: result.data.linkUrl ? result.data.linkUrl.trim() : null,
@@ -730,6 +791,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                       receiverId: rec.id,
                       pdfUrl,
                       pdfPublicId,
+                      linkUrl: result.data.linkUrl ? result.data.linkUrl.trim() : null,
                     },
                   }),
                 ),
@@ -809,6 +871,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     receiverId: rec.id,
                     pdfUrl,
                     pdfPublicId,
+                    linkUrl: result.data.linkUrl ? result.data.linkUrl.trim() : null,
                   },
                 }),
               ),
