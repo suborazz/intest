@@ -485,6 +485,16 @@ export async function middleware(request: NextRequest) {
       if (!isAllowedRole) {
         return createRedirectResponse("/login", request.url, requestHeaders);
       }
+
+      if (pathname === "/student" || pathname === "/student/") {
+        return createRedirectResponse("/student/dashboard", request.url, requestHeaders);
+      }
+      if (pathname === "/instructor" || pathname === "/instructor/") {
+        return createRedirectResponse("/instructor/dashboard", request.url, requestHeaders);
+      }
+      if (pathname === "/super-admin" || pathname === "/super-admin/") {
+        return createRedirectResponse("/super-admin/dashboard", request.url, requestHeaders);
+      }
     }
 
         return applySecurityHeaders(

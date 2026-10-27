@@ -444,6 +444,9 @@ interface ReviewPublic {
   approvedAt?: string;
   createdAt: string;
   updatedAt: string;
+  district?: string;
+  state?: string;
+  location?: string;
 }
 
 interface ApplicationIdChipProps extends React_2.HTMLAttributes<HTMLSpanElement> {
@@ -4120,6 +4123,9 @@ interface ReviewPublic_2 {
       approvedAt?: string;
       createdAt: string;
       updatedAt: string;
+      district?: string;
+      state?: string;
+      location?: string;
     }
 
 interface IRatingStarsProps {
@@ -8730,6 +8736,9 @@ export default function SuperAdminReviewsPage() {
       approvedAt?: string;
       createdAt: string;
       updatedAt: string;
+      district?: string;
+      state?: string;
+      location?: string;
     }
 
     interface IReviewActionsProps {
@@ -8780,6 +8789,22 @@ export default function SuperAdminReviewsPage() {
               </div>
               <Row label="Author Name" value={review.name} />
               <Row label="Email" value={review.email} />
+              {(review.location || review.district || review.state) && (
+                <Row
+                  label="District & State"
+                  value={
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
+                      <MapPin_2 className="h-3 w-3 shrink-0" />
+                      <span>
+                        {review.location ||
+                          (review.district && review.state
+                            ? `${review.district}, ${review.state}`
+                            : review.district || review.state)}
+                      </span>
+                    </span>
+                  }
+                />
+              )}
               <Row label="Role / Designation" value={review.role || "Visitor"} />
               <Row
                 label="Rating"
@@ -8792,7 +8817,6 @@ export default function SuperAdminReviewsPage() {
                   </span>
                 }
               />
-              <Row label="Comment / Review" value={review.comment} />
               <Row
                 label="Submitted"
                 value={
@@ -8807,6 +8831,16 @@ export default function SuperAdminReviewsPage() {
                   value={formatHumanReadableDate_13(review.approvedAt)}
                 />
               )}
+
+              {/* Full Review Text Box */}
+              <div className="mt-3.5 rounded-xl border border-border/80 bg-muted/40 p-3.5">
+                <span className="text-muted-foreground block text-[11px] font-bold uppercase tracking-wider mb-1.5">
+                  Full Review Comment (पूरा रिव्यू)
+                </span>
+                <p className="text-foreground text-xs sm:text-sm leading-relaxed whitespace-pre-wrap break-words font-medium">
+                  {review.comment}
+                </p>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -9050,16 +9084,73 @@ export default function SuperAdminReviewsPage() {
       );
     };
 
+    const ReviewCommentCell: React.FC<{ review: ReviewPublic_2 }> = ({ review }) => {
+      const [expanded, setExpanded] = useState(false);
+      const [detailOpen, setDetailOpen] = useState(false);
+      const comment = review.comment || "";
+      const isLong = comment.length > 80;
+
+      return (
+        <div className="min-w-[240px] max-w-lg py-1 text-xs">
+          <p
+            onClick={() => setExpanded((prev) => !prev)}
+            className={`text-foreground font-medium leading-relaxed whitespace-pre-wrap break-words cursor-pointer select-text ${
+              expanded ? "" : "line-clamp-3 sm:line-clamp-4"
+            }`}
+            title="Click to toggle full review text"
+          >
+            {comment}
+          </p>
+          {isLong && (
+            <div className="mt-1 flex items-center gap-2 pt-0.5">
+              <button
+                type="button"
+                onClick={() => setExpanded((prev) => !prev)}
+                className="text-primary hover:underline text-[11px] font-bold cursor-pointer inline-flex items-center gap-0.5"
+              >
+                {expanded ? "Show Less (कम करें)" : "Read Full (पूरा पढ़ें)"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDetailOpen(true)}
+                className="text-muted-foreground hover:text-foreground text-[10px] font-medium underline cursor-pointer"
+              >
+                Full Details
+              </button>
+            </div>
+          )}
+          {detailOpen && (
+            <ReviewDetailDialog
+              review={review}
+              open={detailOpen}
+              onClose={() => setDetailOpen(false)}
+            />
+          )}
+        </div>
+      );
+    };
+
     const columns_13 = (): ColumnDef_2<ReviewPublic_2>[] => [
       {
         accessorKey: "name",
-        header: "Author Name",
+        header: "Author / Location",
         cell: ({ row }) => (
-          <div>
+          <div className="min-w-[150px]">
             <div className="text-foreground font-semibold">{row.original.name}</div>
             <div className="text-muted-foreground mt-0.5 text-[10px] font-medium">
               {row.original.email}
             </div>
+            {(row.original.location || row.original.district || row.original.state) && (
+              <div className="text-emerald-700 dark:text-emerald-400 mt-1 inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 text-[10.5px] font-bold border border-emerald-200/50">
+                <MapPin_2 className="h-2.5 w-2.5 shrink-0" />
+                <span>
+                  {row.original.location ||
+                    (row.original.district && row.original.state
+                      ? `${row.original.district}, ${row.original.state}`
+                      : row.original.district || row.original.state)}
+                </span>
+              </div>
+            )}
           </div>
         ),
       },
@@ -9083,11 +9174,7 @@ export default function SuperAdminReviewsPage() {
       {
         accessorKey: "comment",
         header: "Comment / Review",
-        cell: ({ row }) => (
-          <div className="text-foreground line-clamp-3 max-w-sm text-xs font-medium leading-relaxed">
-            {row.original.comment}
-          </div>
-        ),
+        cell: ({ row }) => <ReviewCommentCell review={row.original} />,
       },
       {
         accessorKey: "isApproved",

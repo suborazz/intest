@@ -214,9 +214,76 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.review.count({ where }),
     ]);
 
+    const emails = Array.from(new Set(reviews.map((r) => r.email).filter(Boolean)));
+    const users =
+      emails.length > 0
+        ? await prisma.user.findMany({
+            where: { email: { in: emails, mode: "insensitive" } },
+            select: {
+              email: true,
+              studentRegistration: {
+                select: {
+                  localAddressDistrict: true,
+                  localAddressState: true,
+                  permAddressDistrict: true,
+                  permAddressState: true,
+                },
+              },
+              instructorRegistration: {
+                select: {
+                  currentAddressDistrict: true,
+                  currentAddressState: true,
+                  permAddressDistrict: true,
+                  permAddressState: true,
+                },
+              },
+            },
+          })
+        : [];
+
+    const userMap = new Map(users.map((u) => [(u.email || "").toLowerCase(), u]));
+
+    const formatTitleCase = (str?: string | null): string => {
+      if (!str) return "";
+      return str
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    };
+
+    const enrichedReviews = reviews.map((r) => {
+      const u = userMap.get((r.email || "").toLowerCase());
+      const rawDistrict =
+        u?.studentRegistration?.localAddressDistrict ||
+        u?.studentRegistration?.permAddressDistrict ||
+        u?.instructorRegistration?.currentAddressDistrict ||
+        u?.instructorRegistration?.permAddressDistrict ||
+        null;
+      const rawState =
+        u?.studentRegistration?.localAddressState ||
+        u?.studentRegistration?.permAddressState ||
+        u?.instructorRegistration?.currentAddressState ||
+        u?.instructorRegistration?.permAddressState ||
+        null;
+
+      const district = formatTitleCase(rawDistrict);
+      const state = formatTitleCase(rawState);
+      const location =
+        district && state ? `${district}, ${state}` : district || state || null;
+
+      return {
+        ...r,
+        district: district || null,
+        state: state || null,
+        location: location || null,
+      };
+    });
+
     const meta = buildPaginationMeta(total, page, limit);
 
-    return successResponse(reviews, { meta });
+    return successResponse(enrichedReviews, { meta });
   } catch (error) {
     return handleError(error);
   }

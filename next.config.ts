@@ -36,6 +36,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/student",
+        destination: "/student/dashboard",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

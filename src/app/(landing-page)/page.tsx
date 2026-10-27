@@ -449,27 +449,36 @@ const MentorsData = [
 
 const DUMMY_TESTIMONIALS = [
   {
-    id: 1,
+    id: "1",
     name: "Ananya Mishra",
-    role: "B.Tech CSE Intern, Cohort '24",
+    role: "B.Tech CSE Intern",
+    district: "Patna",
+    state: "Bihar",
+    location: "Patna, Bihar",
     stars: 5,
     text: "The mentorship provided here is unparalleled. I completed my mandatory 8th semester college credit requirements smoothly while building a real full-stack web application.",
     image:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
   },
   {
-    id: 2,
-    name: "Rohan Patel",
-    role: "Data Analytics Intern",
+    id: "2",
+    name: "Avishek Kumar",
+    role: "Management Intern",
+    district: "Aurangabad",
+    state: "Bihar",
+    location: "Aurangabad, Bihar",
     stars: 5,
     text: "Amazing structure and guidance. The hands-on project reviews and verifiable digital certificate helped me land my job at a top tech firm within weeks.",
     image:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
   },
   {
-    id: 3,
+    id: "3",
     name: "Pooja Hegde",
-    role: "Business Management Trainee",
+    role: "Business Trainee",
+    district: "Ranchi",
+    state: "Jharkhand",
+    location: "Ranchi, Jharkhand",
     stars: 5,
     text: "A truly transformative experience. The feedback on my weekly case studies was detailed and gave me the confidence to ace corporate interviews.",
     image:
@@ -965,23 +974,57 @@ export default function HomePage() {
     });
   }, [prospectusCategoryFilter, prospectusSearch]);
 
+  const [testimonials, setTestimonials] = useState(DUMMY_TESTIMONIALS);
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonialIndex((prev) => (prev + 1) % DUMMY_TESTIMONIALS.length);
-    }, 4500);
-    return () => clearInterval(interval);
+    fetch("/api/v1/reviews?limit=50")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json?.data) && json.data.length > 0) {
+          const fallbackAvatars = [
+            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+          ];
+          const live = json.data.map((r: any, idx: number) => ({
+            id: r.id || String(idx),
+            name: r.name,
+            role: r.role || "Student",
+            district: r.district || "",
+            state: r.state || "",
+            location:
+              r.location ||
+              (r.district && r.state
+                ? `${r.district}, ${r.state}`
+                : r.district || r.state || ""),
+            stars: typeof r.rating === "number" ? r.rating : 5,
+            text: r.comment,
+            image: r.avatarUrl || fallbackAvatars[idx % fallbackAvatars.length],
+          }));
+          setTestimonials(live);
+        }
+      })
+      .catch((err) => console.error("Error loading testimonials:", err));
   }, []);
+
+  useEffect(() => {
+    if (testimonials.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   const handlePrevTestimonial = () => {
     setCurrentTestimonialIndex(
-      (prev) => (prev - 1 + DUMMY_TESTIMONIALS.length) % DUMMY_TESTIMONIALS.length,
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length,
     );
   };
 
   const handleNextTestimonial = () => {
-    setCurrentTestimonialIndex((prev) => (prev + 1) % DUMMY_TESTIMONIALS.length);
+    setCurrentTestimonialIndex((prev) => (prev + 1) % testimonials.length);
   };
 
   return (
@@ -2162,53 +2205,77 @@ export default function HomePage() {
 
             {/* Right Testimonial Card */}
             <div className="lg:col-span-6">
-              <div className="rounded-3xl border border-gray-200/80 bg-white p-5 sm:p-8 shadow-md">
-                <div className="flex items-center gap-1 text-amber-500 mb-3 sm:mb-4">
-                  {[...Array(DUMMY_TESTIMONIALS[currentTestimonialIndex].stars)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-current" />
-                  ))}
-                  <span className="text-xs font-bold text-slate-700 ml-2">5.0 Star Feedback</span>
-                </div>
+              {testimonials.length > 0 && (() => {
+                const current = testimonials[currentTestimonialIndex] || testimonials[0];
+                return (
+                  <div className="rounded-3xl border border-gray-200/80 bg-white p-5 sm:p-8 shadow-md">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="flex items-center gap-1 text-amber-500">
+                        {[...Array(Math.max(1, Math.min(5, current.stars || 5)))].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-current" />
+                        ))}
+                        <span className="text-xs font-bold text-slate-700 ml-2">
+                          {(current.stars || 5).toFixed(1)} Star Feedback
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-400">
+                        {currentTestimonialIndex + 1} of {testimonials.length}
+                      </span>
+                    </div>
 
-                <p className="text-xs sm:text-sm md:text-base font-medium leading-relaxed text-slate-700 italic">
-                  &ldquo;{DUMMY_TESTIMONIALS[currentTestimonialIndex].text}&rdquo;
-                </p>
+                    <p className="text-xs sm:text-sm md:text-base font-medium leading-relaxed text-slate-700 italic max-h-52 overflow-y-auto pr-1">
+                      &ldquo;{current.text}&rdquo;
+                    </p>
 
-                <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={DUMMY_TESTIMONIALS[currentTestimonialIndex].image}
-                      alt={DUMMY_TESTIMONIALS[currentTestimonialIndex].name}
-                      className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-emerald-100 shrink-0"
-                    />
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-                        {DUMMY_TESTIMONIALS[currentTestimonialIndex].name}
-                      </h4>
-                      <p className="text-[11px] sm:text-xs text-slate-500">
-                        {DUMMY_TESTIMONIALS[currentTestimonialIndex].role}
-                      </p>
+                    <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={current.image}
+                          alt={current.name}
+                          className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-emerald-100 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80";
+                          }}
+                        />
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                            {current.name}
+                          </h4>
+                          {/* Short address with ONLY district and state */}
+                          {(current.location || current.district || current.state) ? (
+                            <p className="text-[11px] sm:text-xs text-[#0A5C36] font-semibold flex items-center gap-1 mt-0.5">
+                              <MapPin className="h-3 w-3 shrink-0 text-[#0A5C36]" />
+                              <span>{current.location || `${current.district}${current.district && current.state ? ', ' : ''}${current.state}`}</span>
+                            </p>
+                          ) : (
+                            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                              {current.role || "Verified Student"}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-center">
+                        <button
+                          onClick={handlePrevTestimonial}
+                          className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] hover:bg-[#0A5C36] hover:text-white transition-colors cursor-pointer"
+                          aria-label="Previous testimonial"
+                        >
+                          <ArrowLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={handleNextTestimonial}
+                          className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] hover:bg-[#0A5C36] hover:text-white transition-colors cursor-pointer"
+                          aria-label="Next testimonial"
+                        >
+                          <ArrowRight className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2 self-end sm:self-center">
-                    <button
-                      onClick={handlePrevTestimonial}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] hover:bg-[#0A5C36] hover:text-white transition-colors"
-                      aria-label="Previous testimonial"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={handleNextTestimonial}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-[#0A5C36] hover:bg-[#0A5C36] hover:text-white transition-colors"
-                      aria-label="Next testimonial"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           </div>
         </div>

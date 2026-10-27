@@ -1,7 +1,8 @@
 "use client";
 
-import { Calendar, ExternalLink, LayoutGrid, List, Filter, Newspaper, Maximize2, X, ZoomIn, ZoomOut } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { Calendar, ExternalLink, LayoutGrid, List, Filter, Newspaper, Maximize2, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { MediaNav } from "../media-nav";
 import * as z from "zod";
@@ -2115,26 +2116,15 @@ export default function NewspaperPage() {
       selectedYear: string[];
       selectedCategory: string[];
     }) {
+      const [mounted, setMounted] = useState<boolean>(false);
       const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-      const [selectedArticle, setSelectedArticle] = useState<PublicArticle | null>(null);
+      const [selectedArticleIndex, setSelectedArticleIndex] = useState<number | null>(null);
       const [isZoomed, setIsZoomed] = useState<boolean>(false);
 
       useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-          if (e.key === "Escape") {
-            setSelectedArticle(null);
-            setIsZoomed(false);
-          }
-        };
-        if (selectedArticle) {
-          window.addEventListener("keydown", handleKeyDown);
-          document.body.style.overflow = "hidden";
-        }
-        return () => {
-          window.removeEventListener("keydown", handleKeyDown);
-          document.body.style.overflow = "unset";
-        };
-      }, [selectedArticle]);
+        setMounted(true);
+      }, []);
+
       const { data: articlesRaw = [], isLoading } =
         StudentDataHook.usePublicNewspapers();
 
@@ -2154,6 +2144,46 @@ export default function NewspaperPage() {
           return true;
         });
       }, [articlesRaw, selectedYear, selectedCategory]);
+
+      const handlePrevArticle = useCallback(() => {
+        setSelectedArticleIndex((prev) => {
+          if (prev === null) return null;
+          return prev > 0 ? prev - 1 : articles.length - 1;
+        });
+        setIsZoomed(false);
+      }, [articles.length]);
+
+      const handleNextArticle = useCallback(() => {
+        setSelectedArticleIndex((prev) => {
+          if (prev === null) return null;
+          return prev < articles.length - 1 ? prev + 1 : 0;
+        });
+        setIsZoomed(false);
+      }, [articles.length]);
+
+      useEffect(() => {
+        if (selectedArticleIndex === null) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === "Escape") {
+            setSelectedArticleIndex(null);
+            setIsZoomed(false);
+          } else if (e.key === "ArrowLeft") {
+            handlePrevArticle();
+          } else if (e.key === "ArrowRight") {
+            handleNextArticle();
+          }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+          window.removeEventListener("keydown", handleKeyDown);
+          document.body.style.overflow = prevOverflow;
+        };
+      }, [selectedArticleIndex, handlePrevArticle, handleNextArticle]);
 
       if (isLoading) {
         return (
@@ -2176,14 +2206,14 @@ export default function NewspaperPage() {
               <div className="bg-white border border-gray-200 flex items-center rounded-xl p-1 shadow-sm">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-lg p-1.5 transition-all duration-200 ${viewMode === "grid" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
+                  className={`rounded-lg p-1.5 transition-all duration-200 cursor-pointer ${viewMode === "grid" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
                   title="Grid View"
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-lg p-1.5 transition-all duration-200 ${viewMode === "list" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
+                  className={`rounded-lg p-1.5 transition-all duration-200 cursor-pointer ${viewMode === "list" ? "bg-emerald-50 text-[#0A5C36] font-bold" : "text-slate-500 hover:text-slate-900"}`}
                   title="List View"
                 >
                   <List className="h-4 w-4" />
@@ -2210,16 +2240,16 @@ export default function NewspaperPage() {
             >
               {articles.map((article, index) => (
                 <motion.div
-                  key={article.id}
+                  key={article.id || index}
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.35, delay: index * 0.05 }}
                   onClick={() => {
-                    setSelectedArticle(article);
+                    setSelectedArticleIndex(index);
                     setIsZoomed(false);
                   }}
-                  className={`group flex ${viewMode === "grid" ? "flex-col" : "flex-col sm:flex-row items-stretch"} bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-lg hover:border-emerald-400 transition-all duration-300 overflow-hidden cursor-pointer`}
+                  className={`group flex ${viewMode === "grid" ? "flex-col" : "flex-col sm:flex-row items-stretch"} bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-lg hover:border-emerald-400 transition-all duration-300 overflow-hidden cursor-pointer active:scale-[0.99]`}
                 >
                   <div
                     className={`relative shrink-0 overflow-hidden bg-slate-900 ${viewMode === "grid" ? "aspect-[4/3] w-full" : "w-full sm:w-72 min-h-[190px]"}`}
@@ -2229,14 +2259,24 @@ export default function NewspaperPage() {
                       alt={article.title}
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-3 left-3 bg-[#0A5C36] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
-                      {article.publication || "Press"}
+                    {article.publication && (
+                      <div className="absolute top-3 left-3 bg-[#0A5C36] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm z-10">
+                        {article.publication}
+                      </div>
+                    )}
+
+                    {/* Mobile/Touch hint pill (always visible on mobile touch screens, like photo) */}
+                    <div className="absolute bottom-2.5 right-2.5 bg-black/65 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-1 rounded-md flex items-center gap-1 group-hover:bg-[#0A5C36]/90 transition-colors shadow-sm z-10">
+                      <Maximize2 className="size-3" />
+                      <span>Full Size</span>
                     </div>
 
-                    {/* Touch / Click Hint Overlay */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-1.5 text-white text-xs font-bold backdrop-blur-[1.5px]">
-                      <Maximize2 className="h-4 w-4" />
-                      <span>टच करके बड़ा देखें (Full Size)</span>
+                    {/* Desktop hover badge */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
+                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#0A5C36]/95 backdrop-blur-xs px-3.5 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+                        <Maximize2 className="size-3.5" />
+                        <span>Touch / Click for Full Size</span>
+                      </span>
                     </div>
                   </div>
                   <div
@@ -2266,12 +2306,12 @@ export default function NewspaperPage() {
                       )}
                     </div>
                     <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400 font-medium">Source: {article.publication}</span>
+                      <span className="text-slate-400 font-medium">Source: {article.publication || "Press"}</span>
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedArticle(article);
+                          setSelectedArticleIndex(index);
                           setIsZoomed(false);
                         }}
                         className="text-[#0A5C36] font-bold hover:underline flex items-center gap-1 cursor-pointer"
@@ -2285,126 +2325,197 @@ export default function NewspaperPage() {
             </div>
           )}
 
-          {/* Full Screen Image Lightbox Modal */}
-          {selectedArticle && (
-            <div
-              className="fixed inset-0 z-[100] flex flex-col bg-black/92 backdrop-blur-md animate-in fade-in duration-200 select-none"
-              onClick={() => {
-                setSelectedArticle(null);
-                setIsZoomed(false);
-              }}
-            >
-              {/* Header Bar */}
+          {/* Full Screen Image Lightbox Modal via Portal */}
+          {mounted &&
+            typeof document !== "undefined" &&
+            selectedArticleIndex !== null &&
+            articles[selectedArticleIndex] &&
+            createPortal(
               <div
-                className="flex items-center justify-between border-b border-white/10 bg-black/70 px-4 py-3 text-white backdrop-blur-sm z-10 shrink-0"
-                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label={articles[selectedArticleIndex].title}
+                className="fixed inset-0 z-[99999] flex flex-col justify-between bg-black/95 backdrop-blur-md animate-in fade-in duration-200 select-none overflow-y-auto"
+                onClick={() => {
+                  setSelectedArticleIndex(null);
+                  setIsZoomed(false);
+                }}
               >
-                <div className="flex items-center gap-3 min-w-0 pr-3">
-                  {selectedArticle.publication && (
-                    <span className="bg-[#0A5C36] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-md shrink-0 shadow-sm">
-                      {selectedArticle.publication}
+                {/* Header Bar */}
+                <div
+                  className="relative z-10 flex items-center justify-between px-4 py-3 sm:px-6 bg-gradient-to-b from-black/80 to-transparent text-white shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 pr-3">
+                    {articles[selectedArticleIndex].publication && (
+                      <span className="bg-[#0A5C36] text-white text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full shrink-0 shadow-sm">
+                        {articles[selectedArticleIndex].publication}
+                      </span>
+                    )}
+                    {articles[selectedArticleIndex].category && (
+                      <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full hidden sm:inline">
+                        {articles[selectedArticleIndex].category}
+                      </span>
+                    )}
+                    <span className="text-white/70 text-xs sm:text-sm font-medium shrink-0">
+                      {selectedArticleIndex + 1} of {articles.length}
                     </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    {/* Zoom Toggle */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsZoomed((prev) => !prev);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md transition-colors cursor-pointer"
+                      title={isZoomed ? "Reset Zoom" : "Zoom In (Enlarge Text)"}
+                    >
+                      {isZoomed ? (
+                        <>
+                          <ZoomOut className="size-3.5" />
+                          <span className="hidden sm:inline">Reset</span>
+                        </>
+                      ) : (
+                        <>
+                          <ZoomIn className="size-3.5" />
+                          <span className="hidden sm:inline">Zoom In</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Download / Open Original Image */}
+                    {articles[selectedArticleIndex].imageUrl && (
+                      <a
+                        href={articles[selectedArticleIndex].imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md transition-colors"
+                        title="Download / Open Original Image"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Download className="size-3.5" />
+                        <span className="hidden sm:inline">Download</span>
+                      </a>
+                    )}
+
+                    {/* Close Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedArticleIndex(null);
+                        setIsZoomed(false);
+                      }}
+                      className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 sm:p-2.5 rounded-full backdrop-blur-md transition-colors focus:outline-none cursor-pointer"
+                      aria-label="Close full size newspaper clipping"
+                    >
+                      <X className="size-5 sm:size-6" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Center Image Container with Navigation Arrows */}
+                <div
+                  className={`relative flex-1 flex items-center justify-center p-2 sm:p-6 min-h-[40vh] ${
+                    isZoomed ? "overflow-auto" : "overflow-hidden"
+                  }`}
+                  onClick={() => {
+                    setSelectedArticleIndex(null);
+                    setIsZoomed(false);
+                  }}
+                >
+                  {/* Prev Button */}
+                  {articles.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePrevArticle();
+                      }}
+                      className="absolute left-2 sm:left-6 z-20 text-white bg-black/50 hover:bg-emerald-600/90 p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-lg border border-white/10 active:scale-95"
+                      title="Previous Clipping (Left Arrow)"
+                      aria-label="Previous Clipping"
+                    >
+                      <ChevronLeft className="size-5 sm:size-7" />
+                    </button>
                   )}
-                  <div className="min-w-0">
-                    <h4 className="text-xs sm:text-sm font-bold text-white truncate max-w-[240px] sm:max-w-md lg:max-w-xl">
-                      {selectedArticle.title}
-                    </h4>
-                    {selectedArticle.date && (
-                      <p className="text-[10px] text-white/60 flex items-center gap-1 mt-0.5">
-                        <Calendar className="h-2.5 w-2.5" /> {selectedArticle.date}
+
+                  {/* Main High-Res Image with optional zoom */}
+                  <div
+                    className={`relative flex items-center justify-center transition-all duration-300 ${
+                      isZoomed
+                        ? "max-w-none my-10"
+                        : "max-h-[62vh] sm:max-h-[68vh] max-w-[94vw] sm:max-w-[85vw]"
+                    }`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <img
+                      src={articles[selectedArticleIndex].imageUrl || "/images/hero-media-room.jpg"}
+                      alt={articles[selectedArticleIndex].title}
+                      onClick={() => setIsZoomed((prev) => !prev)}
+                      title="Click/Tap to zoom"
+                      className={`rounded-xl sm:rounded-2xl object-contain shadow-2xl ring-1 ring-white/15 cursor-pointer transition-transform duration-300 ${
+                        isZoomed
+                          ? "max-h-none max-w-none scale-125 sm:scale-150"
+                          : "max-h-[62vh] sm:max-h-[68vh] w-auto max-w-[94vw] sm:max-w-[85vw]"
+                      }`}
+                    />
+                  </div>
+
+                  {/* Next Button */}
+                  {articles.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNextArticle();
+                      }}
+                      className="absolute right-2 sm:right-6 z-20 text-white bg-black/50 hover:bg-emerald-600/90 p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-lg border border-white/10 active:scale-95"
+                      title="Next Clipping (Right Arrow)"
+                      aria-label="Next Clipping"
+                    >
+                      <ChevronRight className="size-5 sm:size-7" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Bottom Details Drawer */}
+                <div
+                  className="relative z-10 w-full max-w-4xl mx-auto px-4 pb-4 sm:pb-6 text-white shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="bg-slate-900/95 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-xl shadow-2xl space-y-2.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-white leading-snug">
+                        {articles[selectedArticleIndex].title}
+                      </h3>
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                        {articles[selectedArticleIndex].publication && (
+                          <span className="bg-[#0A5C36] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs">
+                            {articles[selectedArticleIndex].publication}
+                          </span>
+                        )}
+                        {articles[selectedArticleIndex].date && (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold shrink-0">
+                            <Calendar className="size-3.5" />
+                            <span>{articles[selectedArticleIndex].date}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {articles[selectedArticleIndex].description && (
+                      <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-h-28 sm:max-h-36 overflow-y-auto pr-2">
+                        {articles[selectedArticleIndex].description}
                       </p>
                     )}
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                  {/* Zoom Toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setIsZoomed((prev) => !prev)}
-                    className="flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-white/20 transition-colors cursor-pointer"
-                    title={isZoomed ? "Zoom Out" : "Zoom In"}
-                  >
-                    {isZoomed ? (
-                      <>
-                        <ZoomOut className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">100%</span>
-                      </>
-                    ) : (
-                      <>
-                        <ZoomIn className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Zoom In</span>
-                      </>
-                    )}
-                  </button>
-
-                  {/* Open Original Image */}
-                  <a
-                    href={selectedArticle.imageUrl || "/images/hero-media-room.jpg"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
-                    title="Open in new tab"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Full Image</span>
-                  </a>
-
-                  {/* Close Button */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedArticle(null);
-                      setIsZoomed(false);
-                    }}
-                    className="rounded-lg bg-white/15 p-1.5 text-white hover:bg-red-600 transition-colors cursor-pointer ml-1"
-                    title="Close (Esc)"
-                    aria-label="Close"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Main Image Viewport */}
-              <div
-                className="flex-1 overflow-auto flex items-center justify-center p-2 sm:p-6"
-                onClick={() => {
-                  setSelectedArticle(null);
-                  setIsZoomed(false);
-                }}
-              >
-                <div
-                  className="relative max-w-full max-h-full flex items-center justify-center"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img
-                    src={selectedArticle.imageUrl || "/images/hero-media-room.jpg"}
-                    alt={selectedArticle.title}
-                    onClick={() => setIsZoomed((prev) => !prev)}
-                    title="Click/Tap to zoom"
-                    className={`rounded-lg object-contain transition-all duration-300 shadow-2xl cursor-pointer ${
-                      isZoomed
-                        ? "max-w-none w-auto scale-150 sm:scale-175 my-16"
-                        : "max-h-[80vh] max-w-[96vw] w-auto h-auto"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Bottom Caption Bar */}
-              {selectedArticle.description && (
-                <div
-                  className="border-t border-white/10 bg-black/70 px-4 py-2.5 text-center text-white/80 text-xs backdrop-blur-sm z-10 shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <p className="max-w-3xl mx-auto line-clamp-2 text-white/90 font-medium">
-                    {selectedArticle.description}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+              </div>,
+              document.body
+            )}
         </section>
       );
     }
