@@ -201,20 +201,49 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     ]);
 
     let displayStudentId = "S2026TS45901";
+    let studentPhotoUrl: string | null = null;
+
     if (userRec?.role === "IMMERSION_USER") {
       displayStudentId = userRec.registrationNo || displayStudentId;
+      const immProfile = await prisma.immersionParticipantProfile.findUnique({
+        where: { userId },
+        select: { passportPhotoUrl: true },
+      });
+      studentPhotoUrl = immProfile?.passportPhotoUrl || null;
     } else {
       const reg = await prisma.studentRegistration.findUnique({
         where: { userId },
-        select: { studentId: true },
+        select: { studentId: true, photoUrl: true },
       });
       displayStudentId =
         reg?.studentId || userRec?.registrationNo || displayStudentId;
+      studentPhotoUrl = reg?.photoUrl || null;
+    }
+
+    if (!studentPhotoUrl) {
+      const immFallback = await prisma.immersionParticipantProfile.findUnique({
+        where: { userId },
+        select: { passportPhotoUrl: true },
+      });
+      if (immFallback?.passportPhotoUrl) {
+        studentPhotoUrl = immFallback.passportPhotoUrl;
+      }
+    }
+
+    if (!studentPhotoUrl) {
+      const regFallback = await prisma.studentRegistration.findUnique({
+        where: { userId },
+        select: { photoUrl: true },
+      });
+      if (regFallback?.photoUrl) {
+        studentPhotoUrl = regFallback.photoUrl;
+      }
     }
 
     const formattedCertificates = certificates.map((c) => ({
       ...c,
       studentId: displayStudentId,
+      photoUrl: studentPhotoUrl,
     }));
 
     const meta = buildPaginationMeta(total, page, limit);

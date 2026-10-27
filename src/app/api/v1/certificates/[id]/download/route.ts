@@ -530,12 +530,15 @@ export async function GET(
           const lineY = 498;
           const textY = 502;
 
-                const tapasSigPath = join(
+                const tapasCleanSigPath = join(
             process.cwd(),
             "public",
             "signature",
-            "tapas.jpeg",
+            "tapas_clean.png",
           );
+          const tapasSigPath = fs.existsSync(tapasCleanSigPath)
+            ? tapasCleanSigPath
+            : join(process.cwd(), "public", "signature", "tapas.jpeg");
           if (fs.existsSync(tapasSigPath)) {
             try {
               doc.image(tapasSigPath, 80, sigY, {
@@ -669,12 +672,15 @@ export async function GET(
             });
 
                 const rightX = PAGE_W - 200;
-          const avishekSigPath = join(
+          const avishekCleanSigPath = join(
             process.cwd(),
             "public",
             "signature",
-            "avishek.jpeg",
+            "avishek_clean.png",
           );
+          const avishekSigPath = fs.existsSync(avishekCleanSigPath)
+            ? avishekCleanSigPath
+            : join(process.cwd(), "public", "signature", "avishek.jpeg");
           if (fs.existsSync(avishekSigPath)) {
             try {
               doc.image(avishekSigPath, rightX, sigY, {

@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AlertTriangle, Award, Calendar, CreditCard, Download, ExternalLink, Eye, FolderOpen, GraduationCap as GraduationCap_2, Info, Loader2, Mail as Mail_2, MapPin as MapPin_2, MessageSquare, MoreHorizontal, Phone as Phone_2, Plus, Printer, School, Send, ShieldCheck, Trash2, User, AlertCircle as AlertCircle_2, Award as Award_2, CheckCircle2 as CheckCircle2_2, Clock, FileText as FileText_2, Globe, Mail, Search, XCircle as XCircle_2, QrCode } from "lucide-react";
+import qrcode from "qrcode-generator";
 import Link from "next/link";
 import * as React_4 from "react";
 import React_3 from "react";
@@ -3558,6 +3559,24 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
             certificate.internship?.companyName,
           );
 
+      const qrCodeSrc = useMemo(() => {
+        try {
+          const qr = qrcode(0, "M");
+          const host =
+            typeof window !== "undefined"
+              ? window.location.host
+              : "www.iiinternship.in";
+          const protocol = host.includes("localhost") ? "http" : "https";
+          qr.addData(
+            `${protocol}://${host}/verify?cert=${encodeURIComponent(certificate.certificateNo)}`,
+          );
+          qr.make();
+          return qr.createDataURL(2, 0);
+        } catch {
+          return null;
+        }
+      }, [certificate.certificateNo]);
+
       return (
         <div
           className="relative mx-auto flex h-[565px] w-[800px] flex-col justify-between overflow-hidden rounded-sm border-[14px] border-double border-amber-800/40 bg-slate-50 p-6 text-slate-800 shadow-inner"
@@ -3596,15 +3615,23 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
           </div>
 
           {/* Top-Left Verification Barcode / QR Code (below Certificate No) */}
-          <div className="absolute left-8 top-11 z-10 flex flex-col items-center rounded border border-slate-300/80 bg-white p-1 shadow-sm">
-            <QrCode className="h-10 w-10 text-slate-900" />
+          <div className="absolute left-10 top-[52px] z-10 flex flex-col items-center rounded border border-slate-300/80 bg-white p-1 shadow-sm">
+            {qrCodeSrc ? (
+              <img
+                src={qrCodeSrc}
+                alt="QR Code"
+                className="h-10 w-10 object-contain"
+              />
+            ) : (
+              <QrCode className="h-10 w-10 text-slate-900" />
+            )}
             <span className="mt-0.5 text-[6.5px] font-bold tracking-wider text-emerald-700">
               SCAN TO VERIFY
             </span>
           </div>
 
-          {/* Right-Hand Student Photo (Red marked area) */}
-          <div className="absolute right-8 top-[170px] z-10 flex h-[100px] w-[78px] flex-col items-center justify-center overflow-hidden rounded-[2px] border-[1.5px] border-amber-800 bg-white p-[2px] shadow-sm">
+          {/* Right-Hand Student Photo */}
+          <div className="absolute right-10 top-[170px] z-10 flex h-[100px] w-[78px] flex-col items-center justify-center overflow-hidden rounded-[2px] border-[1.5px] border-amber-800 bg-white p-[2px] shadow-sm">
             {certificate.photoUrl ? (
               <img
                 src={certificate.photoUrl}
@@ -3754,13 +3781,16 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
 
           {}
           <div className="z-10 grid grid-cols-3 items-center gap-2 px-2 pb-1">
-            {}
+            {/* Left Signature: Tapas Kumar */}
             <div className="flex flex-col items-center text-center">
               <div className="mb-0.5 flex h-10 w-28 items-end justify-center">
                 <img
-                  src="/signature/tapas.jpeg"
+                  src="/signature/tapas_clean.png"
                   alt="Tapas Kumar Signature"
-                  className="max-h-10 max-w-[110px] object-contain"
+                  className="max-h-10 max-w-[110px] object-contain mix-blend-multiply"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/signature/tapas.jpeg";
+                  }}
                 />
               </div>
               <div className="mb-0.5 h-[1px] w-28 bg-amber-800/40" />
@@ -3803,9 +3833,12 @@ const PrintableCertificate: React_2.FC<PrintableCertificateProps> = ({
             <div className="flex flex-col items-center self-start text-center">
               <div className="mb-0.5 flex h-10 w-28 items-end justify-center">
                 <img
-                  src="/signature/avishek.jpeg"
+                  src="/signature/avishek_clean.png"
                   alt="Dr. Avishek Kumar Signature"
-                  className="max-h-10 max-w-[110px] object-contain"
+                  className="max-h-10 max-w-[110px] object-contain mix-blend-multiply"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/signature/avishek.jpeg";
+                  }}
                 />
               </div>
               <div className="mb-0.5 h-[1px] w-28 bg-amber-800/40" />
