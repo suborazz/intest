@@ -719,11 +719,11 @@ model InstructorRegistration {
   selfIntroduction     String
 
   // Bank Account Details
-  accountHolderName    String
-  accountNo            String
-  ifscCode             String
-  bankName             String
-  bankBranchAddress    String
+  accountHolderName    String   @default("")
+  accountNo            String   @default("")
+  ifscCode             String   @default("")
+  bankName             String   @default("")
+  bankBranchAddress    String   @default("")
 
   // Document Upload paths (saved on local disk)
   photoUrl             String
