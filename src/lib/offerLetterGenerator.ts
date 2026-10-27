@@ -381,7 +381,7 @@ export async function generateInternshipOfferLetterPDF(
         .font("Helvetica-Bold")
         .fontSize(7.5)
         .fillColor(accentEmerald)
-        .text("An ISO 2600:2018 Certified Institution", brandX, headerY + 29, {
+        .text("An ISO 21001:2018 Certified Institution", brandX, headerY + 29, {
           width: brandW,
         });
 
