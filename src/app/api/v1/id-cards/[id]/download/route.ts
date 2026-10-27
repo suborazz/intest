@@ -228,9 +228,9 @@ export async function GET(
             : join(process.cwd(), "public", "logo.png");
           if (fs.existsSync(logoPath)) {
             if (logoPath === studentLogoPath) {
-              doc.image(logoPath, 190, 8, { width: 20 });
+              doc.image(logoPath, 191, 10, { width: 18 });
             } else {
-              doc.image(logoPath, 176, 8, { width: 48 });
+              doc.image(logoPath, 176, 10, { width: 48 });
             }
           }
 
