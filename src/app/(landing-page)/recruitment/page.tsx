@@ -3367,7 +3367,9 @@ export default function RecruitmentPage() {
           if (jobParam) {
             setHighlightedId(jobParam);
             setTimeout(() => {
-              const el = document.getElementById(`job-row-${jobParam}`);
+              const el =
+                document.getElementById(`job-row-${jobParam}`) ||
+                document.getElementById(`mobile-job-row-${jobParam}`);
               if (el) {
                 el.scrollIntoView({ behavior: "smooth", block: "center" });
               }
@@ -3460,13 +3462,118 @@ export default function RecruitmentPage() {
             </p>
           </div>
 
-          <div className="mb-16 w-full max-w-full overflow-hidden rounded-[20px] border border-white/60 bg-white/40 p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-2xl transition-shadow duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] md:rounded-[32px] md:p-2">
-            <div className="relative w-full rounded-[16px] bg-white/50 md:rounded-[24px]">
-              {}
-              <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-8 rounded-r-[16px] bg-gradient-to-l from-white/80 to-transparent md:hidden" />
+          {/* Tablet horizontal scroll tip */}
+          <p className="text-muted-foreground/75 mb-3 hidden text-xs font-medium md:block lg:hidden">
+            💡 Tip: Scroll the table horizontally to view full job description and actions.
+          </p>
 
+          <div className="mb-12 w-full max-w-full overflow-hidden rounded-[20px] border border-white/60 bg-white/40 p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-2xl transition-shadow duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] md:mb-16 md:rounded-[32px] md:p-2">
+            <div className="relative w-full rounded-[16px] bg-white/50 md:rounded-[24px]">
+              {/* Mobile Cards View (Visible on mobile/tablet screens < md) */}
+              <div className="flex flex-col gap-3.5 p-2 sm:p-3 md:hidden">
+                {activeOpenings.map((opening) => (
+                  <div
+                    key={opening.id}
+                    id={`mobile-job-row-${opening.id}`}
+                    className={`group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-white/80 bg-white/80 p-4 shadow-xs backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-black/40 ${
+                      highlightedId === opening.id
+                        ? "bg-primary/10 ring-2 ring-primary/50 shadow-md"
+                        : "hover:shadow-md"
+                    }`}
+                  >
+                    {/* Header: SL No, Advt No & Date, Closing Date */}
+                    <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                          #{opening.slNo}
+                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-mono text-xs font-bold text-foreground/90">
+                            {opening.advtNoAndDate.split("\n")[0]}
+                          </span>
+                          <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold">
+                            <Calendar size={10} className="text-primary" />
+                            {opening.advtNoAndDate.split("\n")[1]}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1 rounded-full border border-red-200 bg-red-50/90 px-2.5 py-1 text-[11px] font-bold text-red-600 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
+                        <Clock_2 size={11} strokeWidth={2.5} />
+                        <span>{opening.closingDate}</span>
+                      </div>
+                    </div>
+
+                    {/* Post Name and Job ID */}
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-base font-extrabold text-foreground leading-snug">
+                        {opening.postName}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex items-center rounded-md border border-indigo-200/80 bg-indigo-50/90 px-2 py-0.5 font-mono text-[10px] font-bold tracking-tight text-indigo-700 shadow-2xs dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
+                          Job ID: {formatJobOpportunityId(opening.id)}
+                        </span>
+                        {opening.salary ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-2.5 py-0.5 font-sans text-[11px] font-bold text-emerald-800 shadow-2xs dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-300">
+                            💰 {opening.salary}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full border border-emerald-200/60 bg-emerald-50/70 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+                            Best in Industry
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Key Badges: Location, Nature, Seats */}
+                    {(opening.jobLocation || opening.jobNature || opening.totalSeatVacant) && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        {opening.jobLocation && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                            📍 {opening.jobLocation}
+                          </span>
+                        )}
+                        {opening.jobNature && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-[10px] font-semibold text-purple-700 dark:border-purple-800 dark:bg-purple-950/40 dark:text-purple-300">
+                            ⏱ {opening.jobNature}
+                          </span>
+                        )}
+                        {opening.totalSeatVacant && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                            👥 {opening.totalSeatVacant} Vacancies
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Job Description details box */}
+                    <div className="rounded-xl border border-border/50 bg-white/50 p-3 dark:bg-white/5">
+                      {renderJobDescriptionDetails(opening)}
+                    </div>
+
+                    {/* Action Buttons: Register & Apply + Share */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <Link
+                        href="/sign-up?role=RECRUIT_USER"
+                        className="bg-primary hover:bg-primary/90 inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-center text-xs font-bold text-white shadow-xs transition-all active:scale-[0.98]"
+                      >
+                        <span>Register & Apply</span>
+                        <ExternalLink size={13} strokeWidth={2.5} />
+                      </Link>
+                      <button
+                        onClick={() => handleShare(opening)}
+                        className="border-primary/20 text-primary hover:bg-primary/10 inline-flex items-center justify-center gap-1.5 rounded-xl border bg-white/70 px-3 py-2.5 text-center text-xs font-bold transition-all active:scale-[0.98] dark:bg-black/30"
+                      >
+                        <Share2 size={13} strokeWidth={2.5} />
+                        <span>Share</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View (Visible on screens >= md) */}
               <div
-                className="w-full touch-pan-x overflow-x-auto pb-2 md:pb-0"
+                className="hidden w-full touch-pan-x overflow-x-auto pb-2 md:block md:pb-0"
                 style={{ WebkitOverflowScrolling: "touch" }}
               >
                 <table className="w-full min-w-[800px] border-collapse text-left lg:min-w-full">
@@ -3572,48 +3679,47 @@ export default function RecruitmentPage() {
                     ))}
                   </tbody>
                 </table>
-
-                {activeOpenings.length === 0 && (
-                  <div className="flex w-full flex-col items-center justify-center px-4 py-16 text-center md:py-24">
-                    <svg
-                      className="text-muted-foreground/40 mb-4 h-12 w-12 drop-shadow-sm md:h-16 md:w-16"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <h3 className="text-foreground/90 mb-2 text-lg font-bold md:text-xl">
-                      No active openings
-                    </h3>
-                    <p className="text-muted-foreground/80 text-center text-sm font-medium md:text-base">
-                      Please check back later for new recruitment drives.
-                    </p>
-                  </div>
-                )}
               </div>
+
+              {activeOpenings.length === 0 && (
+                <div className="flex w-full flex-col items-center justify-center px-4 py-16 text-center md:py-24">
+                  <svg
+                    className="text-muted-foreground/40 mb-4 h-12 w-12 drop-shadow-sm md:h-16 md:w-16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <h3 className="text-foreground/90 mb-2 text-lg font-bold md:text-xl">
+                    No active openings
+                  </h3>
+                  <p className="text-muted-foreground/80 text-center text-sm font-medium md:text-base">
+                    Please check back later for new recruitment drives.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
-          {}
+          {/* Archives Accordion */}
           {archivedOpenings.length > 0 && (
             <div className="mt-8 w-full max-w-full">
-              {}
               <div
                 onClick={() => setIsArchiveOpen(!isArchiveOpen)}
                 className="group flex cursor-pointer select-none items-center justify-between rounded-[20px] border border-white/60 bg-white/40 p-4 shadow-[0_4px_20px_rgb(0,0,0,0.06)] backdrop-blur-md transition-all duration-300 hover:shadow-[0_4px_20px_rgb(0,0,0,0.12)] md:rounded-[32px] md:p-6"
               >
-                <div className="flex items-center gap-4 md:gap-6">
-                  <div className="bg-primary/10 text-primary flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 md:h-16 md:w-16">
-                    <Archive size={28} className="md:h-8 md:w-8" />
+                <div className="flex items-center gap-3 md:gap-6">
+                  <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12 md:h-16 md:w-16">
+                    <Archive size={22} className="sm:size-6 md:size-8" />
                   </div>
                   <div>
-                    <h2 className="text-foreground mb-1 text-xl font-extrabold md:text-3xl">
+                    <h2 className="text-foreground mb-0.5 text-lg font-extrabold sm:text-xl md:text-3xl">
                       Archives
                     </h2>
                     <p className="text-muted-foreground text-xs md:text-sm">
@@ -3622,21 +3728,70 @@ export default function RecruitmentPage() {
                   </div>
                 </div>
                 <div
-                  className={`bg-primary/10 text-primary group-hover:bg-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${isArchiveOpen ? "rotate-180" : ""}`}
+                  className={`bg-primary/10 text-primary group-hover:bg-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 sm:h-10 sm:w-10 ${isArchiveOpen ? "rotate-180" : ""}`}
                 >
-                  <ChevronDown size={24} />
+                  <ChevronDown size={20} className="sm:size-6" />
                 </div>
               </div>
 
-              {}
               {isArchiveOpen && (
                 <div className="animate-in slide-in-from-top-2 fade-in mt-4 w-full max-w-full overflow-hidden rounded-[20px] border border-white/60 bg-white/40 p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-2xl duration-300 md:rounded-[32px] md:p-2">
                   <div className="relative w-full rounded-[16px] bg-white/50 md:rounded-[24px]">
-                    {}
-                    <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-8 rounded-r-[16px] bg-gradient-to-l from-white/80 to-transparent md:hidden" />
+                    {/* Mobile Archive Cards View */}
+                    <div className="flex flex-col gap-3.5 p-2 sm:p-3 md:hidden">
+                      {archivedOpenings.map((opening) => (
+                        <div
+                          key={opening.id}
+                          id={`mobile-job-row-${opening.id}`}
+                          className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-white/80 bg-white/80 p-4 shadow-xs backdrop-blur-xl dark:border-white/10 dark:bg-black/40"
+                        >
+                          <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                                #{opening.slNo}
+                              </span>
+                              <div className="flex flex-col">
+                                <span className="font-mono text-xs font-bold text-foreground/90">
+                                  {opening.advtNoAndDate.split("\n")[0]}
+                                </span>
+                                <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold">
+                                  <Calendar size={10} />
+                                  {opening.advtNoAndDate.split("\n")[1]}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-1 rounded-full border border-red-200 bg-red-50/90 px-2.5 py-1 text-[11px] font-bold text-red-600 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
+                              <Clock_2 size={11} strokeWidth={2.5} />
+                              <span>{opening.closingDate} (Closed)</span>
+                            </div>
+                          </div>
 
+                          <div className="flex flex-col gap-1">
+                            <h3 className="text-base font-extrabold text-foreground leading-snug">
+                              {opening.postName}
+                            </h3>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="inline-flex items-center rounded-md border border-indigo-200/80 bg-indigo-50/90 px-2 py-0.5 font-mono text-[10px] font-bold tracking-tight text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
+                                Job ID: {formatJobOpportunityId(opening.id)}
+                              </span>
+                              {opening.salary && (
+                                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                  💰 {opening.salary}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-border/50 bg-white/50 p-3 dark:bg-white/5">
+                            {renderJobDescriptionDetails(opening)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop Archive Table View */}
                     <div
-                      className="w-full touch-pan-x overflow-x-auto pb-2 md:pb-0"
+                      className="hidden w-full touch-pan-x overflow-x-auto pb-2 md:block md:pb-0"
                       style={{ WebkitOverflowScrolling: "touch" }}
                     >
                       <table className="w-full min-w-[700px] border-collapse text-left lg:min-w-full">
@@ -3729,7 +3884,7 @@ export default function RecruitmentPage() {
 
   return (
     <main className="bg-background relative flex min-h-screen flex-col overflow-hidden">
-      <section className="to-primary relative isolate min-h-[520px] overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-800 pb-[130px] pt-[20px] md:pt-[2px]">
+      <section className="to-primary relative isolate min-h-[460px] overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-800 pb-[80px] pt-[20px] sm:min-h-[500px] sm:pb-[110px] md:min-h-[520px] md:pb-[130px] md:pt-[2px]">
                     <div className="pointer-events-none absolute inset-0 -z-[4] bg-[radial-gradient(theme(colors.white/0.05)_1px,transparent_1px)] [background-size:24px_24px]"></div>
                     {}
                     <div
@@ -3746,7 +3901,7 @@ export default function RecruitmentPage() {
                       className="absolute inset-0 -z-[2] h-full w-full object-cover opacity-[0.14]"
                     />
 
-                    <div className="relative mx-auto grid w-[min(1300px,calc(100%-56px))] grid-cols-1 items-center gap-8 text-center lg:grid-cols-2 lg:gap-0 lg:text-left">
+                    <div className="relative mx-auto grid w-full max-w-[1300px] grid-cols-1 items-center gap-8 px-4 text-center sm:px-6 lg:grid-cols-2 lg:gap-0 lg:px-8 lg:text-left">
                       {}
                       <div className="relative z-30 mx-auto w-full max-w-[560px] lg:mx-0">
                         <div
@@ -3771,12 +3926,12 @@ export default function RecruitmentPage() {
                         </div>
 
                         {/* Main Heading */}
-                        <h1 className="text-primary-foreground font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-[clamp(2.3rem,6vw,5rem)] leading-[1.1]">
+                        <h1 className="text-primary-foreground font-[family-name:var(--font-playfair-display,'Playfair_Display',serif)] text-[clamp(2rem,6vw,4.5rem)] leading-[1.1]">
                           Recruitment
                         </h1>
 
                         {/* Official Description */}
-                        <p className="text-primary-foreground/90 mx-auto mt-[14px] max-w-[560px] text-left text-[0.95rem] font-medium leading-[1.65] sm:text-[1.1rem] lg:mx-0">
+                        <p className="text-primary-foreground/90 mx-auto mt-[14px] max-w-[560px] text-center text-[0.92rem] font-medium leading-[1.65] sm:text-[1.05rem] lg:mx-0 lg:text-left">
                           Apply for diverse prestigious and rewarding positions across the International Institute of Internship™ [i3], various units of DPKHRC Trust, and its affiliated institutions—Free of Cost.
                         </p>
                       </div>
@@ -3790,7 +3945,7 @@ export default function RecruitmentPage() {
                             (e.target as HTMLImageElement).src = "/images/hero-recruitment-job-seeker.jpg";
                           }}
                           alt="Recruitment and Careers"
-                          className="relative z-10 aspect-[4/3] w-full max-w-[500px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl lg:max-w-[550px]"
+                          className="relative z-10 aspect-[4/3] w-full max-w-[340px] rounded-[20px] border-[6px] border-white/10 object-cover shadow-2xl sm:max-w-[440px] lg:max-w-[550px]"
                         />
                       </div>
                     </div>
@@ -3803,7 +3958,7 @@ export default function RecruitmentPage() {
                       <svg
                         viewBox="0 0 1440 180"
                         preserveAspectRatio="none"
-                        className="h-[280px] w-full"
+                        className="h-[120px] w-full sm:h-[180px] md:h-[280px]"
                       >
                         <path
                           d="M0,125 C260,145 520,78 790,92 C1020,104 1225,70 1440,62 L1440,180 L0,180 Z"

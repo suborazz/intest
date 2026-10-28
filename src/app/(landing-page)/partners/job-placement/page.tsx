@@ -2957,10 +2957,14 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    const shareUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/partners/job-placement?search=${encodeURIComponent(company.name)}`
+        : "";
     const shareData = {
       title: `${company.name} - Job Placement`,
       text: `Explore job opportunity "${company.postOpportunity || "Job Opening"}" at ${company.name} on International Institute of Internship!`,
-      url: typeof window !== "undefined" ? window.location.href : "",
+      url: shareUrl,
     };
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
@@ -2970,7 +2974,7 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
       }
     } else if (typeof navigator !== "undefined" && navigator.clipboard) {
       try {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText(shareUrl);
         toast.success("Link copied to clipboard!");
       } catch {
         toast.error("Failed to copy link.");
@@ -3014,15 +3018,15 @@ const JobPlacementCard = ({ company }: { company: JobPlacementPartner }) => {
             onClick={handleShare}
             title="Share this opportunity"
             aria-label="Share"
-            className="text-muted-foreground hover:text-primary hover:bg-primary/10 absolute right-0 top-0 flex size-8 items-center justify-center rounded-lg transition-colors cursor-pointer"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/10 border-border/40 bg-background/80 shadow-2xs absolute right-0 top-0 flex size-8 items-center justify-center rounded-lg border backdrop-blur-xs transition-colors cursor-pointer"
           >
             <Share2 className="size-4" />
           </button>
         </div>
 
-        {/* Company photo banner (blue marked location) */}
-        {company.photo && (
-          <div className="border-border/40 relative my-0.5 aspect-[16/9] w-full overflow-hidden rounded-xl border bg-muted shadow-xs">
+        {/* Company photo banner (blue marked location - चकोर shape) */}
+        {Boolean(company.photo && company.photo.trim()) && (
+          <div className="border-border/50 relative my-1 aspect-[16/9] w-full overflow-hidden rounded-xl border bg-muted/40 shadow-xs">
             <img
               src={company.photo}
               alt={`${company.name} photo`}
@@ -3264,6 +3268,13 @@ export default function JobPlacementPage() {
     StudentDataHook.usePublicPartners("job-placement");
   const companies = companiesRaw as unknown as JobPlacementPartner[];
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search).get("search");
+      if (q) setSearchQuery(q);
+    }
+  }, []);
 
   const filteredCompanies = useMemo(() => {
     if (!searchQuery.trim()) return companies;

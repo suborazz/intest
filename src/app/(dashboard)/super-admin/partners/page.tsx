@@ -5981,6 +5981,44 @@ export default function SuperAdminPartnersPage() {
       const [logoFile, setLogoFile] = useState<File | null>(null);
       const [photoFile, setPhotoFile] = useState<File | null>(null);
 
+      useEffect(() => {
+        if (isOpen && partner) {
+          setName(partner.name || "");
+          setAddress(partner.address || "");
+          setWebsite(partner.website || "");
+          setPostOpportunity(partner.postOpportunity || "");
+          setJobNature(partner.jobNature || "");
+          setFieldOfEmployment(partner.fieldOfEmployment || "");
+          setMinQualification(partner.minQualification || "");
+          setSkillsRequired(
+            partner.skillsRequired
+              ? Array.isArray(partner.skillsRequired)
+                ? partner.skillsRequired.join(", ")
+                : partner.skillsRequired
+              : "",
+          );
+          setStaffStrength(partner.staffStrength || "");
+          setSalaryRange(partner.salaryRange || "");
+          setNaacAccreditation(partner.naacAccreditation || "");
+          setServiceProvide(partner.serviceProvide || "");
+        } else if (isOpen && !partner) {
+          setName("");
+          setAddress("");
+          setWebsite("");
+          setPostOpportunity("");
+          setJobNature("");
+          setFieldOfEmployment("");
+          setMinQualification("");
+          setSkillsRequired("");
+          setStaffStrength("");
+          setSalaryRange("");
+          setNaacAccreditation("");
+          setServiceProvide("");
+        }
+        setLogoFile(null);
+        setPhotoFile(null);
+      }, [isOpen, partner]);
+
       const handleSubmit = (e: React_3.FormEvent) => {
         e.preventDefault();
         if (!name || !address) return;
@@ -5999,7 +6037,7 @@ export default function SuperAdminPartnersPage() {
           formData.append("fieldOfEmployment", fieldOfEmployment);
           formData.append("minQualification", minQualification);
           formData.append("staffStrength", staffStrength);
-          if (salaryRange) formData.append("salaryRange", salaryRange);
+          formData.append("salaryRange", salaryRange.trim());
 
           const parsedSkills = skillsRequired
             .split(",")
@@ -6162,7 +6200,18 @@ export default function SuperAdminPartnersPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="logo">Partner Logo Image</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="logo">Partner Logo Image</Label>
+                  {partner?.logo && (
+                    <span className="text-[10px] text-muted-foreground">Has existing logo</span>
+                  )}
+                </div>
+                {partner?.logo && (
+                  <div className="flex items-center gap-2 p-1 border rounded-md bg-muted/30">
+                    <img src={partner.logo} alt="Logo" className="size-7 object-contain" />
+                    <span className="text-[10px] text-muted-foreground truncate">Current Logo</span>
+                  </div>
+                )}
                 <Input
                   id="logo"
                   type="file"
@@ -6171,7 +6220,18 @@ export default function SuperAdminPartnersPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="photo">Highlight Display Photo</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="photo">Company Photo (चकोर Card Banner)</Label>
+                  {partner?.photo && (
+                    <span className="text-[10px] text-muted-foreground">Has existing photo</span>
+                  )}
+                </div>
+                {partner?.photo && (
+                  <div className="flex items-center gap-2 p-1 border rounded-md bg-muted/30">
+                    <img src={partner.photo} alt="Photo" className="h-7 w-12 object-cover rounded" />
+                    <span className="text-[10px] text-muted-foreground truncate">Current Photo</span>
+                  </div>
+                )}
                 <Input
                   id="photo"
                   type="file"
@@ -6327,6 +6387,24 @@ export default function SuperAdminPartnersPage() {
       ...(type === "job-placement"
         ? ([
             {
+              accessorKey: "photo",
+              header: "Photo",
+              cell: ({ row }) =>
+                row.original.photo ? (
+                  <div className="relative size-8 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted">
+                    <Image
+                      src={row.original.photo}
+                      alt={row.original.name || "Photo"}
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground text-[10px] italic">None</span>
+                ),
+            },
+            {
               accessorKey: "fieldOfEmployment",
               header: "Domain Field",
               cell: ({ row }) => (
@@ -6416,7 +6494,9 @@ export default function SuperAdminPartnersPage() {
           const matchesSearch =
             !search ||
             item.name?.toLowerCase().includes(search) ||
-            item.address?.toLowerCase().includes(search);
+            item.address?.toLowerCase().includes(search) ||
+            item.salaryRange?.toLowerCase().includes(search) ||
+            item.fieldOfEmployment?.toLowerCase().includes(search);
           return matchesSearch;
         });
       }, [allPartners, search]);

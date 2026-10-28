@@ -3058,18 +3058,18 @@ function ProgramListItem({
         actionButton = (
           <Button
             size="sm"
-            className="w-full gap-1.5 border border-emerald-200 bg-emerald-100 font-semibold text-emerald-700 hover:bg-emerald-100 hover:text-emerald-700 sm:w-auto md:w-full dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
+            className="w-full gap-1.5 border border-emerald-200 bg-emerald-100 px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 hover:text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
             disabled
           >
-            <CheckCircle2 className="size-3.5" />
-            Applied
+            <CheckCircle2 className="size-3.5 shrink-0" />
+            <span className="truncate">Applied</span>
           </Button>
         );
       } else if (isApplied && !hasPaid) {
         actionButton = (
           <Button
             size="sm"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full font-semibold sm:w-auto md:w-full"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full px-2 text-xs font-semibold whitespace-nowrap"
             onClick={() => onPay(program)}
           >
             Pay Fees
@@ -3080,7 +3080,7 @@ function ProgramListItem({
           actionButton = (
             <Button
               size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full font-semibold sm:w-auto md:w-full"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full px-2 text-xs font-semibold whitespace-nowrap"
               onClick={() => onApply(program.id)}
               disabled={isApplying}
             >
@@ -3092,7 +3092,7 @@ function ProgramListItem({
           actionButton = (
             <Button
               size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full gap-1.5 font-semibold sm:w-auto md:w-full"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full gap-1.5 px-2 text-xs font-semibold whitespace-nowrap"
               onClick={() => onApply(program.id)}
               disabled={isApplying}
             >
@@ -3104,7 +3104,7 @@ function ProgramListItem({
       }
 
       return (
-        <div className="shadow-xs hover:border-primary/30 group flex flex-col justify-between gap-5 rounded-2xl border border-zinc-200/80 bg-white/70 p-5 backdrop-blur-xl transition-all duration-300 hover:shadow-md md:flex-row dark:border-zinc-800/80 dark:bg-zinc-900/60">
+        <div className="shadow-xs hover:border-primary/30 group flex flex-col justify-between gap-5 overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/70 p-5 backdrop-blur-xl transition-all duration-300 hover:shadow-md md:flex-row dark:border-zinc-800/80 dark:bg-zinc-900/60">
           {}
           <div className="flex flex-1 items-start gap-4">
             <div className="bg-primary/5 border-primary/10 relative mt-1 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
@@ -3237,7 +3237,7 @@ function ProgramListItem({
           </div>
 
           {}
-          <div className="flex shrink-0 flex-col items-stretch justify-between gap-4 border-zinc-200/60 pt-4 sm:flex-row sm:pt-0 md:min-w-[220px] md:flex-col md:items-end md:justify-center md:border-l md:pl-5 dark:border-zinc-800/80">
+          <div className="flex shrink-0 flex-col items-stretch justify-between gap-4 border-zinc-200/60 pt-4 sm:flex-row sm:pt-0 md:min-w-[240px] md:max-w-[250px] md:flex-col md:items-end md:justify-center md:border-l md:pl-5 dark:border-zinc-800/80">
             <div className="flex w-full flex-col gap-2 md:items-end">
               <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium md:justify-end">
                 <CalendarDays className="size-3.5 shrink-0" />
@@ -3246,7 +3246,7 @@ function ProgramListItem({
                 </span>
               </div>
 
-              <div className="flex w-full items-center gap-2 rounded-lg border border-amber-500/10 bg-amber-500/[0.04] p-2 md:max-w-[200px]">
+              <div className="flex w-full items-center gap-2 rounded-lg border border-amber-500/10 bg-amber-500/[0.04] p-2">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-amber-500/20 bg-amber-500/10">
                   <Sparkles_2 className="h-3 w-3 text-amber-600" />
                 </span>
@@ -3259,11 +3259,11 @@ function ProgramListItem({
               </div>
             </div>
 
-            <div className="flex w-full items-center gap-2 sm:self-end md:self-auto">
+            <div className="grid w-full grid-cols-2 gap-2 sm:self-end md:self-auto">
               <Button
                 size="sm"
                 variant="outline"
-                className="border-primary/30 text-primary hover:bg-primary/5 hover:text-primary w-full font-semibold transition-all sm:w-auto md:w-full"
+                className="border-primary/30 text-primary hover:bg-primary/5 hover:text-primary w-full px-2 text-xs font-semibold whitespace-nowrap transition-all"
                 onClick={() => onViewDetails(program)}
               >
                 View Details
